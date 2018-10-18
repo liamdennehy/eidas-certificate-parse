@@ -2,16 +2,17 @@
 
 namespace PSD2Certificate\tests;
 
-use PHPUnit\Framework\TestCase;;
+use PHPUnit\Framework\TestCase;
+
+;
 use PSD2Certificate\Parser;
 
 class ParserTest extends TestCase
 {
-    public function testHelloWorld()
+    public function testParseX509()
     {
-        $t1 = new Parser("Hello World");
-        $this->assertEquals(
-          'Hello World', $t1->HelloWorld());
+        $pem = file_get_contents(getenv("TPPCERT"));
+        $x509 = new Parser($pem);
+        $this->assertEquals('v3', $x509->DumpCert()['version']);
     }
-
 }
