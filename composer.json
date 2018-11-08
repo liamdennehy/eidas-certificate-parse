@@ -1,6 +1,6 @@
 {
-    "name": "liamdennehy/psd2-certificate",
-    "description": "Parses x.509 Certificates and outputs PSD2 Qualified Certificate statements",
+    "name": "liamdennehy/eidas-certificate",
+    "description": "Parses x.509 Certificates and outputs eIDAS Qualified Certificate statements",
     "type": "library",
     "require": {
         "phpseclib/phpseclib": "^2.0"

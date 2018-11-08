@@ -1,6 +1,6 @@
 <?php
 
-namespace PSD2Certificate;
+namespace eIDASCertificate;
 
 /**
  *

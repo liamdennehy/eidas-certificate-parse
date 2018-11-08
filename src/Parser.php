@@ -1,6 +1,6 @@
 <?php
 
-namespace PSD2Certificate;
+namespace eIDASCertificate;
 
 use phpseclib\File\X509;
 use phpseclib\File\ASN1;
@@ -47,13 +47,14 @@ class Parser
         $asn1 = new ASN1();
         $extensions = $this->cert['tbsCertificate']['extensions'];
         $decoded = $asn1->decodeBER(base64_decode($extensions[9]['extnValue']))[0]['content'];
-        return
-        [
-          $decoded[0]['content'],
-          $decoded[1]['content'],
-          $decoded[2]['content'],
-          $decoded[3]['content'],
-          $decoded[4]['content'],
-          ];
+        return new QCStatement("hi!");
+        // QCStatement::new($decoded[0]);
+        // [
+        //   $decoded[0]['content'],
+        //   $decoded[1]['content'],
+        //   $decoded[2]['content'],
+        //   $decoded[3]['content'],
+        //   $decoded[4]['content'],
+        //   ];
     }
 }
