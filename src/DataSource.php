@@ -16,8 +16,6 @@ class DataSource
             print "File not found, fetching " . $url . PHP_EOL;
             $data=file_get_contents($url);
             file_put_contents(self::DataDir . $fileHash, $data);
-        } else {
-            print "Found file with hash " . $fileHash . " for " . $url . PHP_EOL;
         };
         return file_get_contents($filePath);
     }

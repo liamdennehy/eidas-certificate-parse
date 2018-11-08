@@ -12,7 +12,7 @@ class TrustedList
     const TrustedListOfListsXML =
       'https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml';
     const TLOLType = 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists';
-    // private $TSLPointer;
+
     private $schemeOperatorName;
     private $schemeTerritory;
     private $TSLLocation;
@@ -25,23 +25,44 @@ class TrustedList
     private $TrustedLists = [];
     private $digitalIdentities = [];
 
-    public function __construct(string $tlxml, $digitalIdentities = null)
+    public function __construct(string $tlxml, $tslPointer = null)
     {
         $tl = new SimpleXMLElement($tlxml);
         $this->schemeTerritory = (string)$tl->SchemeInformation->SchemeTerritory;
-        $this->schemeOperatorName = (string)$tl->SchemeInformation->SchemeOperatorName->xpath("*[@xml:lang='en']")[0];
+        $this->schemeOperatorName =
+          (string)$tl
+            ->SchemeInformation
+              ->SchemeOperatorName
+                ->xpath("*[@xml:lang='en']")[0];
         if ((string)$tl->SchemeInformation->TSLType == self::TLOLType) {
             $this->isTLOL = true;
         } else {
             $this->isTLOL = false;
         };
-        $this->listIssueDateTime = strtotime($tl->SchemeInformation->ListIssueDateTime);
-        $this->nextUpdate = strtotime($tl->SchemeInformation->NextUpdate->dateTime);
+        $this->listIssueDateTime = strtotime(
+            $tl->SchemeInformation->ListIssueDateTime
+        );
+        $this->nextUpdate = strtotime(
+            $tl->SchemeInformation->NextUpdate->dateTime
+        );
         if ($this->isTLOL) {
-            foreach ($tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer as $otherTSLPointer) {
-                if ((string)$otherTSLPointer->AdditionalInformation->OtherInformation[0]->TSLType == self::TLOLType) {
-                    // $this->digitalIdentities = $otherTSLPointer->ServiceDigitalIdentities;
-                    foreach ($otherTSLPointer->AdditionalInformation->OtherInformation as $OtherInfo) {
+            foreach (
+                $tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
+                as $otherTSLPointer
+            ) {
+                if (
+                    (string)$otherTSLPointer
+                      ->AdditionalInformation
+                        ->OtherInformation[0]
+                          ->TSLType
+                    == self::TLOLType
+                ) {
+                    foreach (
+                        $otherTSLPointer
+                          ->AdditionalInformation
+                            ->OtherInformation
+                        as $OtherInfo
+                    ) {
                         if (strpos($OtherInfo->asXML(), '<ns3:MimeType>')) {
                             $this->TSLFormat = explode("<", explode(">", $OtherInfo->asXML())[2])[0];
                         };
@@ -50,17 +71,19 @@ class TrustedList
                     $TSLEntry = $this->getTSL($otherTSLPointer);
                     if (! is_null($TSLEntry)) {
                         $newTSL = $this->getTSL($otherTSLPointer);
-                        if ( $newTSL ) {
-                          $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
+                        if ($newTSL) {
+                            $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
                         };
                     };
                 }
             }
         };
-        if ( $digitalIdentities ) {
-          foreach ($digitalIdentities->xpath('*') as $digitalId) {
-            $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
-          };
+        // print_r($tslPointer);
+        if ($tslPointer) {
+            foreach ($tslPointer->ServiceDigitalIdentities as $digitalId) {
+                $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
+            };
+            $this->TSLLocation = (string)$tslPointer->TSLLocation;
         }
     }
 
@@ -68,9 +91,13 @@ class TrustedList
     {
         foreach ($TSLPointer->AdditionalInformation->OtherInformation as $OtherInfo) {
             if (strpos($OtherInfo->asXML(), '<ns3:MimeType>')) {
-                if (explode("<", explode(">", $OtherInfo->asXML())[2])[0] == 'application/vnd.etsi.tsl+xml') {
-                    $TSLXML = DataSource::getDataFile((string)$TSLPointer->TSLLocation);
-                    $newTL = new TrustedList($TSLXML, $TSLPointer->ServiceDigitalIdentities);
+                if (
+                    explode("<", explode(">", $OtherInfo->asXML())[2])[0] ==
+                    'application/vnd.etsi.tsl+xml'
+                ) {
+                    $TSLLocation = (string)$TSLPointer->TSLLocation;
+                    $TSLXML = DataSource::getDataFile($TSLLocation);
+                    $newTL = new TrustedList($TSLXML, $TSLPointer);
                     return $newTL;
                 }
             };
@@ -78,51 +105,55 @@ class TrustedList
         return null;
     }
 
-    public function getdigitalIdentities() {
-      return $this->digitalIdentities;
+    public function getX509Certificates()
+    {
+        $certificates = [];
+        foreach ($this->digitalIdentities as $digitalIdentity) {
+            foreach ($digitalIdentity->getX509Certificates() as $certificate) {
+                $certificates[] = $certificate;
+            }
+        };
+        return $certificates;
     }
-    // public function constructTLFromPointer(\SimpleXMLElement $OtherTSLPointer)
-    // {
-    //     $this->TSLPointer = $OtherTSLPointer;
-    //     foreach ($OtherTSLPointer->AdditionalInformation->OtherInformation as $OtherInfo) {
-    //         if (! sizeof($OtherInfo->SchemeTerritory) == 0) {
-    //             $this->SchemeTerritory = $OtherInfo->SchemeTerritory;
-    //         };
-    //         if (! sizeof($OtherInfo->SchemeOperatorName) == 0) {
-    //             $this->schemeOperatorName = $OtherInfo->SchemeOperatorName;
-    //         };
-    //         if (strpos($OtherInfo->asXML(), '<ns3:MimeType>')) {
-    //             $this->TSLFormat = explode("<", explode(">", $OtherInfo->asXML())[2])[0];
-    //         };
-    //     };
-    // }
+
     public function displayName()
     {
         return $this->schemeTerritory . ": " . $this->schemeOperatorName .
         " (" . $this->TSLFormat . " " . $this->TSLLocation . ")" . PHP_EOL;
     }
 
-    public function getSchemeTerritory() {
-      return $this->schemeTerritory;
+    public function getSchemeTerritory()
+    {
+        return $this->schemeTerritory;
     }
 
-    public function getSchemeOperatorName() {
-      return $this->schemeOperatorName;
+    public function getSchemeOperatorName()
+    {
+        return $this->schemeOperatorName;
     }
 
-    public function isTLOL() {
-      return $this->isTLOL;
+    public function isTLOL()
+    {
+        return $this->isTLOL;
     }
 
-    public function getListIssueDateTime() {
-      return $this->listIssueDateTime;
+    public function getListIssueDateTime()
+    {
+        return $this->listIssueDateTime;
     }
 
-    public function getNextUpdate() {
-      return $this->nextUpdate;
+    public function getNextUpdate()
+    {
+        return $this->nextUpdate;
     }
 
-    public function TrustedLists() {
-      return $this->trustedLists;
+    public function TrustedLists()
+    {
+        return $this->trustedLists;
+    }
+
+    public function getTrustedListURL()
+    {
+        return $this->TSLLocation;
     }
 }
