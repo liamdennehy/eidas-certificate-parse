@@ -30,7 +30,7 @@ class XMLSig
         $secDsig = new XMLSecurityDSig();
         $dsig = $secDsig->locateSignature($this->doc);
         if ($dsig === null) {
-            throw new \Exception('Cannot locate receipt signature');
+            throw new SignatureException('Cannot locate receipt signature');
         }
         $secDsig->canonicalizeSignedInfo();
         $secDsig->idKeys = array('wsu:Id');
@@ -45,11 +45,11 @@ class XMLSig
             $etsirefNode->parentNode->removeChild($etsirefNode);
         }
         if (!$secDsig->validateReference()) {
-            throw new \Exception('Reference validation failed');
+            throw new DigestException('Reference validation failed, might be related to a bad digest (algorithm)');
         }
         $key = $secDsig->locateKey();
         if ($key === null) {
-            throw new \Exception('Could not locate key in receipt');
+            throw new SignatureException('Could not locate key in receipt');
         }
         $keyInfo = XMLSecEnc::staticLocateKeyInfo($key, $dsig);
         // Unknown Purpose...
