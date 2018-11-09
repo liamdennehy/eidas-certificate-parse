@@ -13,7 +13,7 @@ class TSPService
     private $identities;
     private $siExtensions;
 
-    public function __construct($tspService)
+    public function __construct($tspService, $verbose = false)
     {
         $serviceInformation = $tspService->ServiceInformation;
         $this->serviceType = new ServiceType(
@@ -35,6 +35,7 @@ class TSPService
                 // Apparently https://stackoverflow.com/questions/27742595/php-best-way-to-stop-constructor
                 try {
                     $newSIExtension = new ServiceInformationExtension($siExtension);
+                    // if ( $verbose ) { print '        ' . $newSIExtension->getURI() . PHP_EOL;};
                     $siExtensions[] = $newSIExtension;
                 } catch (SafeException $e) {
                     continue;

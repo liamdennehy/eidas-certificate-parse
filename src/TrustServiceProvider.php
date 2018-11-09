@@ -12,12 +12,15 @@ class TrustServiceProvider
     private $serviceHistory;
     private $verbose;
 
-    public function __construct($tsp)
+    public function __construct($tsp, $verbose = false)
     {
         // $this->verbose = $verbose;
         $this->name = (string)$tsp->TSPInformation->TSPName->xpath("*[@xml:lang='en']")[0];
+        if ($verbose) {
+            print '    ' . $this->getName() . PHP_EOL;
+        };
         foreach ($tsp->TSPServices->TSPService as $tspService) {
-            $newTSPService = new TSPService($tspService);
+            $newTSPService = new TSPService($tspService, $verbose);
             $this->services[$newTSPService->getDate()] = $newTSPService;
         };
         sort($this->services);

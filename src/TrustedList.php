@@ -36,6 +36,10 @@ class TrustedList
         $this->xml = $tlxml;
         $this->tl = new SimpleXMLElement($this->xml);
         $this->processTLAttributes();
+        if ($this->verbose) {
+            if (!$this->isTLOL) {print '  ';};
+            print $this->schemeTerritory . ': ' . $this->schemeOperatorName . PHP_EOL;
+        };
         if ($this->isTLOL()) {
             foreach (
                 $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
@@ -54,9 +58,9 @@ class TrustedList
                     $newTSL = $this->getTSL($otherTSLPointer, $verbose);
                     if ($newTSL) {
                         $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
-                        if ($this->verbose) {
-                            print '  ' . $newTSL->schemeTerritory . ': ' . $newTSL->schemeOperatorName . PHP_EOL;
-                        };
+                        // if ($this->verbose) {
+                        //     print '  ' . $newTSL->schemeTerritory . ': ' . $newTSL->schemeOperatorName . PHP_EOL;
+                        // };
                     };
                 }
             }
@@ -89,9 +93,6 @@ class TrustedList
         };
         if (! $this->verified) {
             $this->verifyTSL();
-            if ($this->verbose) {
-                print $this->schemeTerritory . ': ' . $this->schemeOperatorName . PHP_EOL;
-            };
         };
         $this->TSLLocation = (string)$otherTSLPointer->TSLLocation;
     }
@@ -118,11 +119,10 @@ class TrustedList
     {
         if ($tspList->TrustServiceProvider) {
             foreach ($tspList->TrustServiceProvider as $tsp) {
-                $newTSP = new TrustServiceProvider($tsp);
+                $newTSP = new TrustServiceProvider($tsp, $this->verbose);
                 if ($newTSP) {
                     $this->TSPs[$newTSP->getName()] = $newTSP;
                     if ($this->verbose) {
-                        print '    ' . $newTSP->getName() . PHP_EOL;
                         foreach ($newTSP->getServices() as $newService) {
                             print '      ' .
                         date(DATE_RFC850, $newService['startingTime']) . ': ' .
