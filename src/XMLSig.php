@@ -52,24 +52,35 @@ class XMLSig
             throw new \Exception('Could not locate key in receipt');
         }
         $keyInfo = XMLSecEnc::staticLocateKeyInfo($key, $dsig);
-        if (!$keyInfo->key) {
-            $key->loadKey($certificate);
-        };
+        // Unknown Purpose...
+        // if (!$keyInfo->key) {
+        //     $key->loadKey($certificate);
+        // };
         if ($secDsig->verify($key) === 1) {
-            if (in_array(
-              openssl_x509_fingerprint($keyInfo->getX509Certificate(), 'sha256'),
-              $this->getX509Thumbprints()
-            )) {
-                return true;
+            if ($foundThumb = $key->getX509Certificate()) {
+                $foundThumb = openssl_x509_fingerprint($foundThumb, 'sha256');
+                $validThumbs = $this->getX509Thumbprints('sha256');
+            } else {
+                $foundThumb = $key->getX509Thumbprint();
+                foreach ($this->getX509Thumbprints('sha1') as $validThumb) {
+                    $validThumbs[] = $validThumb;
+                }
             };
+
+            if (in_array($foundThumb, $validThumbs)) {
+                return true;
+            } else {
+                print_r(["Found Thumbprint" => $foundThumb,"Valid Thumbprints" => $validThumbs]);
+                return false;
+            }
         }
     }
 
-    public function getX509Thumbprints()
+    public function getX509Thumbprints(string $algo = 'sha256')
     {
         $thumbprints = [];
         foreach ($this->certificates as $certificate) {
-            $thumbprints[] = openssl_x509_fingerprint($certificate, 'sha256');
+            $thumbprints[] = openssl_x509_fingerprint($certificate, $algo);
         };
         return $thumbprints;
     }
