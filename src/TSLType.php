@@ -8,24 +8,33 @@ namespace eIDASCertificate;
 class TSLType
 {
     private $tslType;
+    private $uri;
+
     public function __construct(string $TSLType)
     {
-        $this->tslType = $TSLType;
-        return $this->getType();
+        $this->uri = $TSLType;
+        switch ($TSLType) {
+        case 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists':
+          $this->tslType = "EUlistofthelists";
+          break;
+        case 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUgeneric':
+          $this->tslType = "EUgeneric";
+          break;
+        default:
+          $this->uri = null;
+          throw new ParseException("Unknown Trusted List Type (TSLType) $TSLType", 1);
+          break;
+      };
     }
 
     public function getType()
     {
-        switch ($this->tslType) {
-        case 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists':
-          return "TLOL";
-          break;
-        case 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUgeneric':
-          return "EUTrustedList";
-        default:
-          throw new ParseException("Unknown Trusted List Type (TSLType) $this->tslType", 1);
-
-          break;
-      }
+        return $this->tslType;
     }
+
+    public function getURI()
+    {
+        return $this->uri;
+    }
+
 }

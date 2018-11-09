@@ -198,7 +198,7 @@ class TrustedList
 
     public function isTLOL()
     {
-        return $this->TSLType->getType() == 'TLOL';
+        return $this->TSLType->getType() == 'EUlistofthelists';
     }
 
     public function getListIssueDateTime()
