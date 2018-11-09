@@ -9,9 +9,13 @@ class ServiceInformationExtension
 {
     private $type;
     private $isQualified;
+    private $uri;
     public function __construct($identifier)
     {
         $uri = (string)$identifier->AdditionalServiceInformation->URI;
+        if ( substr($uri,0,50) != 'http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt') {
+            throw new SafeException("Non-ETSI Extensions are not supported ($uri)");
+        };
         switch ($uri) {
           case '':
             // No Info provided
@@ -20,9 +24,19 @@ class ServiceInformationExtension
 
           case 'http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSeals':
             $this->type = 'ForeSeals';
+            $this->uri = $uri;
             break;
           case 'http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForeSignatures':
             $this->type = 'ForeSignatures';
+            $this->uri = $uri;
+            break;
+          case 'http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/ForWebSiteAuthentication':
+            $this->type = 'ForWebSiteAuthentication';
+            $this->uri = $uri;
+            break;
+          case 'http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt/RootCA-QC':
+            $this->type = 'RootCA-QC';
+            $this->uri = $uri;
             break;
           default:
             throw new ParseException("Unknown Service Information Extension Identifier '$uri'", 1);
@@ -33,11 +47,11 @@ class ServiceInformationExtension
 
     public function getType()
     {
-        // return $this->type;
+        return $this->type;
     }
 
-    public function IsQualified()
+    public function getURI()
     {
-        // return $this->isQualified;
+        return $this->uri;
     }
 }
