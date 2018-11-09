@@ -66,7 +66,11 @@ class TrustedList
                         if (strpos($OtherInfo->asXML(), '<ns3:MimeType>')) {
                             $this->TSLFormat = explode("<", explode(">", $OtherInfo->asXML())[2])[0];
                         };
-                    }
+                    };
+                    foreach ($otherTSLPointer->ServiceDigitalIdentities as $digitalId) {
+                        $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
+                    };
+                    $this->TSLLocation = (string)$otherTSLPointer->TSLLocation;
                 } else {
                     $TSLEntry = $this->getTSL($otherTSLPointer);
                     if (! is_null($TSLEntry)) {
@@ -78,7 +82,6 @@ class TrustedList
                 }
             }
         };
-        // print_r($tslPointer);
         if ($tslPointer) {
             foreach ($tslPointer->ServiceDigitalIdentities as $digitalId) {
                 $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
