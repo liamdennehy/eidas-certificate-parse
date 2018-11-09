@@ -9,9 +9,11 @@ class ServiceType
 {
     private $type;
     private $isQualified;
+    private $uri;
+
     public function __construct($identifier)
     {
-        // print $identifier . PHP_EOL;
+        $this->uri = $identifier;
         switch ($identifier) {
           case 'http://uri.etsi.org/TrstSvc/Svctype/ACA':
             $this->type = 'ACA';
@@ -102,6 +104,7 @@ class ServiceType
             $this->isQualified = false;
             break;
           default:
+            $this->uri = null;
             throw new ParseException("Unknown Service Type Identifier '$identifier'", 1);
 
             break;
@@ -118,4 +121,10 @@ class ServiceType
     {
         return $this->isQualified;
     }
+
+    public function getURI()
+    {
+        return $this->uri;
+    }
+
 }
