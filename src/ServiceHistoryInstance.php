@@ -7,9 +7,23 @@ namespace eIDASCertificate;
  */
 class ServiceHistoryInstance
 {
+    private $serviceType;
+    private $serviceStatus;
+    private $startingTime;
+    private $serviceName;
 
-    public function __construct(Type $foo = null)
+    public function __construct($historyInstance)
     {
-        $this->foo = $foo;
+        $serviceType = new ServiceType(
+            $historyInstance->ServiceTypeIdentifier
+        );
+        $this->startingTime = strtotime(
+            $historyInstance->StatusStartingTime
+        );
+    }
+
+    public function getTime()
+    {
+        return $this->startingTime;
     }
 }
