@@ -5,7 +5,7 @@ namespace eIDASCertificate;
 /**
  *
  */
-class ServiceTypeIdentifier
+class ServiceType
 {
     private $type;
     private $isQualified;
