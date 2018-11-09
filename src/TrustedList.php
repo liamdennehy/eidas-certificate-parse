@@ -22,8 +22,9 @@ class TrustedList
     private $isTLOL;
     private $listIssueDateTime;
     private $nextUpdate;
-    private $TrustedLists = [];
+    private $trustedLists = [];
     private $digitalIdentities = [];
+    private $TSPs = [];
 
     public function __construct(string $tlxml, $tslPointer = null)
     {
@@ -34,18 +35,21 @@ class TrustedList
             ->SchemeInformation
               ->SchemeOperatorName
                 ->xpath("*[@xml:lang='en']")[0];
-        if ((string)$tl->SchemeInformation->TSLType == self::TLOLType) {
-            $this->isTLOL = true;
-        } else {
-            $this->isTLOL = false;
-        };
+        $this->TSLType = new TSLType(
+          (string)$tl->SchemeInformation->TSLType
+        );
+        // if ((string)$tl->SchemeInformation->TSLType == self::TLOLType) {
+        //     $this->isTLOL = true;
+        // } else {
+        //     $this->isTLOL = false;
+        // };
         $this->listIssueDateTime = strtotime(
             $tl->SchemeInformation->ListIssueDateTime
         );
         $this->nextUpdate = strtotime(
             $tl->SchemeInformation->NextUpdate->dateTime
         );
-        if ($this->isTLOL) {
+        if ($this->isTLOL()) {
             foreach (
                 $tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
                 as $otherTSLPointer
@@ -88,8 +92,23 @@ class TrustedList
             };
             $this->TSLLocation = (string)$tslPointer->TSLLocation;
         }
+        $this->parseTSPs($tl->TrustServiceProviderList);
     }
 
+    private function parseTSPs($tspList)
+    {
+        print $this->schemeTerritory . ": Found a TSP" . PHP_EOL;
+        if ( $tspList->TrustServiceProvider )
+        {
+          foreach ($tspList->TrustServiceProvider as $tsp) {
+              $this->TSPs[] = new TrustServiceProvider($tsp);
+          }
+        };
+    }
+
+    // private function setTSLLocation($tslLocation) {
+    //
+    // }
     private function getTSL($TSLPointer)
     {
         foreach ($TSLPointer->AdditionalInformation->OtherInformation as $OtherInfo) {
@@ -137,7 +156,7 @@ class TrustedList
 
     public function isTLOL()
     {
-        return $this->isTLOL;
+        return $this->TSLType->getType() == 'TLOL';
     }
 
     public function getListIssueDateTime()
