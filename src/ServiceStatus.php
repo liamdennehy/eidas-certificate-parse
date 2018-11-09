@@ -7,7 +7,6 @@ namespace eIDASCertificate;
  */
 class ServiceStatus
 {
-
     private $status;
     public function __construct($status)
     {
@@ -29,5 +28,10 @@ class ServiceStatus
 
             break;
         }
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
     }
 }
