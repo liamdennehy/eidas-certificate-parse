@@ -24,7 +24,7 @@ class ServiceStatus
             $this->status = 'withdrawn';
             break;
           default:
-            throw new \Exception("Unknown Service Status Identifier '$status'", 1);
+            throw new ParseException("Unknown Service Status Identifier '$status'", 1);
 
             break;
         }

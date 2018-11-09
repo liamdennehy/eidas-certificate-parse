@@ -102,11 +102,11 @@ class ServiceType
             $this->isQualified = false;
             break;
           default:
-            throw new \Exception("Unknown Service Type Identifier '$identifier'", 1);
+            throw new ParseException("Unknown Service Type Identifier '$identifier'", 1);
 
             break;
         };
-        return ["Type" => $this->getType(),"isQualified" => $this->IsQualified()];
+        // return ["Type" => $this->getType(),"isQualified" => $this->IsQualified()];
     }
 
     public function getType()

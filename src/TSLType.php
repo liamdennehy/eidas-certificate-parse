@@ -23,7 +23,7 @@ class TSLType
         case 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUgeneric':
           return "EUTrustedList";
         default:
-          throw new \Exception("Unknown TSLType", 1);
+          throw new ParseException("Unknown TSLType $this->tslType", 1);
 
           break;
       }
