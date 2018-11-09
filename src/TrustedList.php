@@ -120,6 +120,7 @@ class TrustedList
             foreach ($tspList->TrustServiceProvider as $tsp) {
                 $newTSP = new TrustServiceProvider($tsp);
                 if ($newTSP) {
+                    $this->TSPs[$newTSP->getName()] = $newTSP;
                     if ($this->verbose) {
                         print '    ' . $newTSP->getName() . PHP_EOL;
                         foreach ($newTSP->getServices() as $newService) {
@@ -129,7 +130,6 @@ class TrustedList
                         PHP_EOL;
                         }
                     }
-                    $this->TSPs[$newTSP->getName()] = $newTSP;
                 }
             }
         };
@@ -173,6 +173,11 @@ class TrustedList
             }
         };
         return $certificates;
+    }
+
+    public function getTSPs()
+    {
+        return $this->TSPs;
     }
 
     public function displayName()

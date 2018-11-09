@@ -10,6 +10,7 @@ class TSPService
     private $serviceType;
     private $status;
     private $startingTime;
+    private $identities;
 
     public function __construct($tspService)
     {
@@ -20,6 +21,9 @@ class TSPService
             (string)$tspService->ServiceInformation->ServiceStatus
         );
         $this->startingTime = strtotime((string)$tspService->ServiceInformation->StatusStartingTime);
+        foreach ( $tspService->ServiceInformation->ServiceDigitalIDentity as $identity) {
+            $identities[] = new ServiceDigitalIdentity($identity);
+        }
     }
 
     public function getService()
