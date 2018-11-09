@@ -25,33 +25,20 @@ class TrustedList
     private $trustedLists = [];
     private $digitalIdentities = [];
     private $TSPs = [];
+    private $xml;
+    private $verified;
+    private $verbose;
+    private $tl;
 
-    public function __construct(string $tlxml, $tslPointer = null)
+    public function __construct(string $tlxml, $tslPointer = null, $verbose = false)
     {
-        $tl = new SimpleXMLElement($tlxml);
-        $this->schemeTerritory = (string)$tl->SchemeInformation->SchemeTerritory;
-        $this->schemeOperatorName =
-          (string)$tl
-            ->SchemeInformation
-              ->SchemeOperatorName
-                ->xpath("*[@xml:lang='en']")[0];
-        $this->TSLType = new TSLType(
-          (string)$tl->SchemeInformation->TSLType
-        );
-        // if ((string)$tl->SchemeInformation->TSLType == self::TLOLType) {
-        //     $this->isTLOL = true;
-        // } else {
-        //     $this->isTLOL = false;
-        // };
-        $this->listIssueDateTime = strtotime(
-            $tl->SchemeInformation->ListIssueDateTime
-        );
-        $this->nextUpdate = strtotime(
-            $tl->SchemeInformation->NextUpdate->dateTime
-        );
+        $this->verbose = $verbose;
+        $this->xml = $tlxml;
+        $this->tl = new SimpleXMLElement($this->xml);
+        $this->processTLAttributes();
         if ($this->isTLOL()) {
             foreach (
-                $tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
+                $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
                 as $otherTSLPointer
             ) {
                 if (
@@ -61,26 +48,14 @@ class TrustedList
                           ->TSLType
                     == self::TLOLType
                 ) {
-                    foreach (
-                        $otherTSLPointer
-                          ->AdditionalInformation
-                            ->OtherInformation
-                        as $OtherInfo
-                    ) {
-                        if (strpos($OtherInfo->asXML(), '<ns3:MimeType>')) {
-                            $this->TSLFormat = explode("<", explode(">", $OtherInfo->asXML())[2])[0];
-                        };
-                    };
-                    foreach ($otherTSLPointer->ServiceDigitalIdentities as $digitalId) {
-                        $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
-                    };
-                    $this->TSLLocation = (string)$otherTSLPointer->TSLLocation;
+                    $TLOLPointer = $otherTSLPointer;
+                    $this->processTLOL($TLOLPointer);
                 } else {
-                    $TSLEntry = $this->getTSL($otherTSLPointer);
-                    if (! is_null($TSLEntry)) {
-                        $newTSL = $this->getTSL($otherTSLPointer);
-                        if ($newTSL) {
-                            $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
+                    $newTSL = $this->getTSL($otherTSLPointer, $verbose);
+                    if ($newTSL) {
+                        $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
+                        if ($this->verbose) {
+                            print '  ' . $newTSL->schemeTerritory . ': ' . $newTSL->schemeOperatorName . PHP_EOL;
                         };
                     };
                 }
@@ -91,24 +66,75 @@ class TrustedList
                 $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
             };
             $this->TSLLocation = (string)$tslPointer->TSLLocation;
+        };
+        if ((! $this->verified) && (! $this->isTLOL())&& $this->verifyTSL()) {
+            $this->parseTSPs($this->tl->TrustServiceProviderList);
         }
-        $this->parseTSPs($tl->TrustServiceProviderList);
     }
 
+    private function processTLOL($otherTSLPointer)
+    {
+        foreach (
+            $otherTSLPointer
+              ->AdditionalInformation
+                ->OtherInformation
+            as $OtherInfo
+        ) {
+            if (strpos($OtherInfo->asXML(), '<ns3:MimeType>')) {
+                $this->TSLFormat = explode("<", explode(">", $OtherInfo->asXML())[2])[0];
+            };
+        };
+        foreach ($otherTSLPointer->ServiceDigitalIdentities as $digitalId) {
+            $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
+        };
+        if (! $this->verified) {
+            $this->verifyTSL();
+            if ($this->verbose) {
+                print $this->schemeTerritory . ': ' . $this->schemeOperatorName . PHP_EOL;
+            };
+        };
+        $this->TSLLocation = (string)$otherTSLPointer->TSLLocation;
+    }
+
+    private function processTLAttributes()
+    {
+        $this->schemeTerritory = (string)$this->tl->SchemeInformation->SchemeTerritory;
+        $this->schemeOperatorName =
+          (string)$this->tl
+            ->SchemeInformation
+              ->SchemeOperatorName
+                ->xpath("*[@xml:lang='en']")[0];
+        $this->TSLType = new TSLType(
+          (string)$this->tl->SchemeInformation->TSLType
+        );
+        $this->listIssueDateTime = strtotime(
+            $this->tl->SchemeInformation->ListIssueDateTime
+        );
+        $this->nextUpdate = strtotime(
+            $this->tl->SchemeInformation->NextUpdate->dateTime
+        );
+    }
     private function parseTSPs($tspList)
     {
-        print $this->schemeTerritory . ": Found a TSP" . PHP_EOL;
-        if ( $tspList->TrustServiceProvider )
-        {
-          foreach ($tspList->TrustServiceProvider as $tsp) {
-              $this->TSPs[] = new TrustServiceProvider($tsp);
-          }
+        if ($tspList->TrustServiceProvider) {
+            foreach ($tspList->TrustServiceProvider as $tsp) {
+                $newTSP = new TrustServiceProvider($tsp);
+                if ($newTSP) {
+                    if ($this->verbose) {
+                        print '    ' . $newTSP->getName() . PHP_EOL;
+                        foreach ($newTSP->getServices() as $newService) {
+                            print '      ' .
+                        date(DATE_RFC850, $newService['startingTime']) . ': ' .
+                        $newService['type'] . ' is ' . $newService['status'] .
+                        PHP_EOL;
+                        }
+                    }
+                    $this->TSPs[$newTSP->getName()] = $newTSP;
+                }
+            }
         };
     }
 
-    // private function setTSLLocation($tslLocation) {
-    //
-    // }
     private function getTSL($TSLPointer)
     {
         foreach ($TSLPointer->AdditionalInformation->OtherInformation as $OtherInfo) {
@@ -118,13 +144,24 @@ class TrustedList
                     'application/vnd.etsi.tsl+xml'
                 ) {
                     $TSLLocation = (string)$TSLPointer->TSLLocation;
-                    $TSLXML = DataSource::getDataFile($TSLLocation);
-                    $newTL = new TrustedList($TSLXML, $TSLPointer);
+                    $TSLXML = DataSource::load($TSLLocation);
+                    $newTL = new TrustedList($TSLXML, $TSLPointer, $this->verbose);
                     return $newTL;
                 }
             };
         };
         return null;
+    }
+
+    public function verifyTSL()
+    {
+        $xmlSig = new XMLSig($this->xml, $this->getX509Certificates());
+        if ($xmlSig->verifySignature()) {
+            $this->verified = true;
+            return $this->verified;
+        };
+        $this->verified = false;
+        return $this->verified;
     }
 
     public function getX509Certificates()
