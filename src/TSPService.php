@@ -35,7 +35,7 @@ class TSPService
                 // Apparently https://stackoverflow.com/questions/27742595/php-best-way-to-stop-constructor
                 try {
                     $newSIExtension = new ServiceInformationExtension($siExtension);
-                    // if ( $verbose ) { print '        ' . $newSIExtension->getURI() . PHP_EOL;};
+                    if ( $verbose ) { print '        ' . $newSIExtension->getURI() . PHP_EOL;};
                     $siExtensions[] = $newSIExtension;
                 } catch (SafeException $e) {
                     continue;
