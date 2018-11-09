@@ -13,10 +13,10 @@ class ServiceDigitalIdentity
     {
         foreach ($serviceDigitalIdentities->xpath('*') as $serviceDigitalIdentity) {
             $this->x509Certificates[] = openssl_x509_read(
-        $this->string2pem(
-          (string)$serviceDigitalIdentity->DigitalId->X509Certificate
-        )
-      );
+                $this->string2pem(
+                    (string)$serviceDigitalIdentity->DigitalId->X509Certificate
+                )
+            );
         };
     }
 
