@@ -11,6 +11,7 @@ class ServiceHistoryInstance
     private $serviceStatus;
     private $startingTime;
     private $serviceName;
+    private $x509SKI;
 
     public function __construct($historyInstance)
     {
@@ -19,6 +20,9 @@ class ServiceHistoryInstance
         );
         $this->startingTime = strtotime(
             $historyInstance->StatusStartingTime
+        );
+        $this->serviceStatus = new ServiceStatus(
+            $historyInstance->ServiceStatus
         );
     }
 
