@@ -20,5 +20,11 @@ Providers each authority supervises, the services they are
 authorised to provide, and the history of the authorisation
 of each provider. This allows for historic queries
 (e.g. was a provider authorised to provide the specific type
-of Trust Service at the time this certificate was issued) as 
+of Trust Service at the time this certificate was issued) as
 well as current queries (Can I trust this certificate now?).
+
+Please Indicate your interest in this library by watching on
+[Packagist](https://packagist.org/packages/liamdennehy/eidas-certificate)
+(the little star on the heading)
+or adding feature requests, bug reports
+or use cases on [Github](https://github.com/liamdennehy/eidas-certificate-parse/issues).
