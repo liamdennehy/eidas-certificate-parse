@@ -46,9 +46,13 @@ class DigitalId
 
     private function string2pem($certificateString)
     {
+        // Handle line-wrapped presentations of base64
+        $certificateString = base64_encode(
+            base64_decode($certificateString)
+        );
         return "-----BEGIN CERTIFICATE-----\n" .
-      chunk_split($certificateString, 64, "\n") .
-      "-----END CERTIFICATE-----\n";
+        chunk_split($certificateString, 64, "\n") .
+        "-----END CERTIFICATE-----\n";
     }
 
     public function getX509Certificate()
