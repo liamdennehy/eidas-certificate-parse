@@ -15,6 +15,7 @@ class XMLSig
 
     private $doc;
     private $certificates = [];
+    private $signedBy;
 
     public function __construct(string $xml, array $certificates)
     {
@@ -75,6 +76,7 @@ class XMLSig
             };
 
             if (in_array($foundThumb, $validThumbs)) {
+                $this->signedBy = $foundThumb;
                 return true;
             } else {
                 $out = "Found Thumprint:" . PHP_EOL . "  " . $foundThumb . PHP_EOL;
@@ -98,5 +100,10 @@ class XMLSig
             $thumbprints[] = openssl_x509_fingerprint($certificate, $algo);
         };
         return $thumbprints;
+    }
+
+    public function getSignedBy()
+    {
+        return $this->signedBy;
     }
 }

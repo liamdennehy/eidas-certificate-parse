@@ -15,7 +15,7 @@ class ServiceDigitalIdentity
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
             $newDigitalId = DigitalId::New($digitalId);
             // Still not sure if each DigitalId can have multiple (different) certificates
-            // 
+            //
             // if (
             //     array_key_exists('X509Certificate', $this->digitalIds) &&
             //     array_key_exists('X509Certificate', $newDigitalId)
@@ -26,7 +26,7 @@ class ServiceDigitalIdentity
             //         throw new CertificateException("Extra X509 Certificate as DigitalId", 1);
             //     }
             // };
-            // $this->digitalIds = array_merge($this->digitalIds, $newDigitalId);
+            $this->digitalIds = array_merge($this->digitalIds, $newDigitalId);
         };
     }
 

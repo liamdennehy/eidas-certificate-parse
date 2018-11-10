@@ -27,6 +27,7 @@ class TrustedList
     private $TSPs = [];
     private $xml;
     private $verified;
+    private $signedBy;
     private $verbose;
     private $tl;
 
@@ -161,20 +162,24 @@ class TrustedList
         $xmlSig = new XMLSig($this->xml, $tslCerts);
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
+            $this->signedBy = $xmlSig->getSignedBy();
             return $this->verified;
         };
         $this->verified = false;
         return $this->verified;
     }
 
+    public function getSignedBy()
+    {
+        return $this->signedBy;
+    }
+
     public function getTLX509Certificates()
     {
-        $certificates = [];
+        $x509Certificates = [];
         foreach ($this->serviceDigitalIdentities as $serviceDigitalIdentity) {
-            // var_dump($serviceDigitalIdentity->getX509Certificates());
             foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
                 if ($x509Certificate) {
-                    // var_dump($x509Certificate);
                     $x509Certificates[] = $x509Certificate;
                 }
             };
