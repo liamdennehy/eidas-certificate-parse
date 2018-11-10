@@ -22,7 +22,7 @@ class XMLSig
         $this->doc->loadXML($xml);
         foreach ($certificates as $certificate) {
             $signingCertificate = openssl_x509_read($certificate);
-            if ( ! $signingCertificate ) {
+            if (! $signingCertificate) {
                 throw new CertificateException("Bad certificate supplied for XML Signature Verification", 1);
             } else {
                 $this->certificates[] = $signingCertificate;

@@ -7,8 +7,7 @@ namespace eIDASCertificate;
  */
 abstract class DigitalId
 {
-
-    static function New($digitalId)
+    public static function New($digitalId)
     {
         $childNodes = $digitalId->xpath('*');
         $identifier = $childNodes[0];
@@ -44,5 +43,4 @@ abstract class DigitalId
         chunk_split($certificateString, 64, "\n") .
         "-----END CERTIFICATE-----\n";
     }
-
 }
