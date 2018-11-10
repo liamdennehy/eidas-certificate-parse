@@ -124,10 +124,11 @@ class TrustedList
                 if ($newTSP) {
                     $this->TSPs[$newTSP->getName()] = $newTSP;
                     if ($this->verbose) {
-                        foreach ($newTSP->getServices() as $newService) {
+                        foreach ($newTSP->getTSPServices() as $newService) {
                             print '      ' .
-                        date(DATE_RFC850, $newService['startingTime']) . ': ' .
-                        $newService['type'] . ' is ' . $newService['status'] .
+                        date(DATE_RFC850, $newService->getDate()) . ': ' .
+                        $newService->getType() . ' is ' .
+                        $newService->getStatus() .
                         PHP_EOL;
                         }
                     }
