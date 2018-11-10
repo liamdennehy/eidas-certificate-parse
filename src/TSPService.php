@@ -13,6 +13,7 @@ class TSPService
     private $startingTime;
     private $identities;
     private $siExtensions;
+    private $serviceHistory;
 
     public function __construct($tspService, $verbose = false)
     {
