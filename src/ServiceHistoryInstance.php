@@ -31,5 +31,4 @@ class ServiceHistoryInstance
     {
         return $this->startingTime;
     }
-
 }

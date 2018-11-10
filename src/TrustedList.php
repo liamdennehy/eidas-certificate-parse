@@ -157,7 +157,6 @@ class TrustedList
     public function verifyTSL()
     {
         $tslCerts = $this->getTLX509Certificates();
-        // var_dump($tslCerts);
         $xmlSig = new XMLSig($this->xml, $tslCerts);
         if ($xmlSig->verifySignature()) {
             $this->verified = true;

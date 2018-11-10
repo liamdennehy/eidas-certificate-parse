@@ -126,5 +126,4 @@ class ServiceType
     {
         return $this->uri;
     }
-
 }

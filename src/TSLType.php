@@ -36,5 +36,4 @@ class TSLType
     {
         return $this->uri;
     }
-
 }

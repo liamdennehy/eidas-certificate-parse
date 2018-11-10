@@ -40,7 +40,7 @@ class DigitalId
             default:
                 throw new ParseException("Unknown ServiceDigitalIdentity Type $IDType", 1);
                 break;
-        }
+            }
         }
     }
 

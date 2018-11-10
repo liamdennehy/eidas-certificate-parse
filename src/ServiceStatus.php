@@ -66,5 +66,4 @@ class ServiceStatus
     {
         return $this->uri;
     }
-
 }

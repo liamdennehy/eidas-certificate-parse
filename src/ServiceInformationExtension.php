@@ -13,7 +13,7 @@ class ServiceInformationExtension
     public function __construct($identifier)
     {
         $uri = (string)$identifier->AdditionalServiceInformation->URI;
-        if ( substr($uri,0,50) != 'http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt') {
+        if (substr($uri, 0, 50) != 'http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt') {
             throw new SafeException("Non-ETSI Extensions are not supported ($uri)");
         };
         switch ($uri) {
