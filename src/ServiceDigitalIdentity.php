@@ -13,7 +13,7 @@ class ServiceDigitalIdentity
 
     public function __construct($serviceDigitalIdentity)
     {
-        foreach ($serviceDigitalIdentity->DigitalId as $digitalId) {
+        foreach ($serviceDigitalIdentity->children() as $digitalId) {
             $this->digitalIds[] = new DigitalId($digitalId);
         };
     }
