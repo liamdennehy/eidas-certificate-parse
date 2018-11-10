@@ -13,17 +13,19 @@ class ServiceDigitalIdentity
 
     public function __construct($serviceDigitalIdentity)
     {
+        $this->digitalIds = [];
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
-            $this->digitalIds[] = new DigitalId($digitalId);
+            $newDigitalId = DigitalId::New($digitalId);
+            $this->digitalIds = array_merge($this->digitalIds,$newDigitalId);
         };
     }
 
     public function getX509Certificates()
     {
         $x509Certificates = [];
-        foreach ($this->digitalIds as $digitalId) {
-            if ($digitalId->getType() == 'X509Certificate') {
-                $x509Certificates[] = $digitalId->getValue();
+        foreach ($this->digitalIds as $type => $digitalId) {
+            if ($type == 'X509Certificate') {
+                $x509Certificates[] = $digitalId;
             }
         };
         return $x509Certificates;

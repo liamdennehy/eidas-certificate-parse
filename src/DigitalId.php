@@ -5,35 +5,33 @@ namespace eIDASCertificate;
 /**
  *
  */
-class DigitalId
+abstract class DigitalId
 {
-    private $type;
-    private $value;
 
-    public function __construct($digitalId)
+    static function New($digitalId)
     {
         $childNodes = $digitalId->xpath('*');
         $identifier = $childNodes[0];
-        $this->type = $identifier->getname();
-        switch ($this->type) {
+        switch ($identifier->getname()) {
         case 'X509Certificate':
-            $this->value = openssl_x509_read(
-                $this->string2pem((string)$identifier)
+            $value = openssl_x509_read(
+                SELF::string2pem((string)$identifier)
             );
             break;
         case 'X509SKI':
-            $this->value = (string)$identifier;
+            $value = (string)$identifier;
             break;
         case 'X509SubjectName':
-            $this->value = (string)$identifier;
+            $value = (string)$identifier;
             break;
         case 'Other':
-            $this->value = (string)$identifier;
+            $value = (string)$identifier;
             break;
         default:
             throw new ParseException("Unknown ServiceDigitalIdentity Type $IDType", 1);
             break;
-        }
+        };
+        return [$identifier->getname() => $value];
     }
 
     private function string2pem($certificateString)
@@ -47,13 +45,4 @@ class DigitalId
         "-----END CERTIFICATE-----\n";
     }
 
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function getValue()
-    {
-        return $this->value;
-    }
 }
