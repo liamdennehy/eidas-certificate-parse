@@ -23,7 +23,7 @@ class TrustedList
     private $listIssueDateTime;
     private $nextUpdate;
     private $trustedLists = [];
-    private $digitalIdentities = [];
+    private $serviceDigitalIdentities = [];
     private $TSPs = [];
     private $xml;
     private $verified;
@@ -37,7 +37,9 @@ class TrustedList
         $this->tl = new SimpleXMLElement($this->xml);
         $this->processTLAttributes();
         if ($this->verbose) {
-            if (!$this->isTLOL) {print '  ';};
+            if (!$this->isTLOL) {
+                print '  ';
+            };
             print $this->schemeTerritory . ': ' . $this->schemeOperatorName . PHP_EOL;
         };
         if ($this->isTLOL()) {
@@ -58,9 +60,6 @@ class TrustedList
                     $newTSL = $this->getTSL($otherTSLPointer, $verbose);
                     if ($newTSL) {
                         $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
-                        // if ($this->verbose) {
-                        //     print '  ' . $newTSL->schemeTerritory . ': ' . $newTSL->schemeOperatorName . PHP_EOL;
-                        // };
                     };
                 }
             }
@@ -68,7 +67,7 @@ class TrustedList
         if ($tslPointer) {
             foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
                 // print "TL2" . PHP_EOL;
-                $this->digitalIdentities[] = new ServiceDigitalIdentity($SDI);
+                $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
             };
             $this->TSLLocation = (string)$tslPointer->TSLLocation;
         };
@@ -91,7 +90,7 @@ class TrustedList
         };
         foreach ($otherTSLPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $digitalId) {
             // print "TL1" . PHP_EOL;
-            $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
+            $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($digitalId);
         };
         if (! $this->verified) {
             $this->verifyTSL();
@@ -157,7 +156,9 @@ class TrustedList
 
     public function verifyTSL()
     {
-        $xmlSig = new XMLSig($this->xml, $this->getX509Certificates());
+        $tslCerts = $this->getTLX509Certificates();
+        // var_dump($tslCerts);
+        $xmlSig = new XMLSig($this->xml, $tslCerts);
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
             return $this->verified;
@@ -166,16 +167,17 @@ class TrustedList
         return $this->verified;
     }
 
-    public function getX509Certificates()
+    public function getTLX509Certificates()
     {
         $certificates = [];
-        foreach ($this->digitalIdentities as $digitalIdentity) {
-            // foreach ($digitalIdentity->getX509Certificate() as $certificate) {
-            //     $certificates[] = $certificate;
-            // }
-            $certificates[] = $digitalIdentity->getX509Certificate();
+        foreach ($this->serviceDigitalIdentities as $serviceDigitalIdentity) {
+            foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
+                if ($x509Certificate) {
+                    $x509Certificates[] = $x509Certificate;
+                }
+            };
         };
-        return $certificates;
+        return $x509Certificates;
     }
 
     public function getTSPs()
@@ -214,7 +216,7 @@ class TrustedList
         return $this->nextUpdate;
     }
 
-    public function TrustedLists()
+    public function getTrustedLists()
     {
         return $this->trustedLists;
     }
