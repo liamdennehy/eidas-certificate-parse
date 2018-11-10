@@ -9,7 +9,7 @@ class TSPService
 {
     private $name;
     private $serviceType;
-    private $status;
+    private $serviceStatus;
     private $startingTime;
     private $identities;
     private $siExtensions;
@@ -21,13 +21,16 @@ class TSPService
         $this->serviceType = new ServiceType(
             (string)$serviceInformation->ServiceTypeIdentifier
         );
-        $this->status = new ServiceStatus(
+        $this->serviceStatus = new ServiceStatus(
             (string)$serviceInformation->ServiceStatus
         );
         $this->startingTime = strtotime((string)$serviceInformation->StatusStartingTime);
         foreach ($serviceInformation->ServiceDigitalIdentity as $identity) {
             $this->identities[] = new ServiceDigitalIdentity($identity);
         };
+        $this->serviceHistory = new ServiceHistory(
+          $tspService->ServiceHistory
+        );
         if (count($serviceInformation->ServiceInformationExtensions)) {
             foreach ($serviceInformation->ServiceInformationExtensions->Extension as $siExtension) {
                 // Apparently https://stackoverflow.com/questions/27742595/php-best-way-to-stop-constructor
@@ -44,7 +47,7 @@ class TSPService
         };
     }
 
-    public function getService()
+    public function getSummary()
     {
         return [
             "name" => $this->name,
@@ -53,7 +56,8 @@ class TSPService
             "status" => $this->status->getStatus(),
             "startingTime" => $this->startingTime,
             "identities" => $this->identities,
-            "siExtensions" => $this->siExtensions
+            "siExtensions" => $this->siExtensions,
+            "history" => $this->serviceHistory
         ];
     }
 
@@ -62,8 +66,28 @@ class TSPService
         return $this->startingTime;
     }
 
+    public function getIdentities()
+    {
+        return $this->identities;
+    }
+
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getStatus()
+    {
+        return $this->serviceStatus->getStatus();
+    }
+
+    public function getType()
+    {
+        return $this->serviceType->getType();
+    }
+
+    public function getTSPServiceHistory()
+    {
+        return $this->serviceHistory;
     }
 }

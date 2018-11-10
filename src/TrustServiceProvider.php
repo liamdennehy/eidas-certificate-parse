@@ -24,9 +24,6 @@ class TrustServiceProvider
             $this->services[$newTSPService->getDate()] = $newTSPService;
         };
         sort($this->services);
-        $this->serviceHistory = new ServiceHistory(
-          $tspService->ServiceHistory
-        );
     }
 
     public function getName()
@@ -34,12 +31,8 @@ class TrustServiceProvider
         return $this->name;
     }
 
-    public function getServices()
+    public function getTSPServices()
     {
-        $services = [];
-        foreach ($this->services as $service) {
-            $services[] = $service->getService();
-        };
-        return $services;
+        return $this->services;
     }
 }
