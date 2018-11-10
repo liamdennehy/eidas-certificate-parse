@@ -66,8 +66,9 @@ class TrustedList
             }
         };
         if ($tslPointer) {
-            foreach ($tslPointer->ServiceDigitalIdentities as $digitalId) {
-                $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
+            foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
+                // print "TL2" . PHP_EOL;
+                $this->digitalIdentities[] = new ServiceDigitalIdentity($SDI);
             };
             $this->TSLLocation = (string)$tslPointer->TSLLocation;
         };
@@ -88,7 +89,8 @@ class TrustedList
                 $this->TSLFormat = explode("<", explode(">", $OtherInfo->asXML())[2])[0];
             };
         };
-        foreach ($otherTSLPointer->ServiceDigitalIdentities as $digitalId) {
+        foreach ($otherTSLPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $digitalId) {
+            // print "TL1" . PHP_EOL;
             $this->digitalIdentities[] = new ServiceDigitalIdentity($digitalId);
         };
         if (! $this->verified) {
@@ -168,9 +170,10 @@ class TrustedList
     {
         $certificates = [];
         foreach ($this->digitalIdentities as $digitalIdentity) {
-            foreach ($digitalIdentity->getX509Certificates() as $certificate) {
-                $certificates[] = $certificate;
-            }
+            // foreach ($digitalIdentity->getX509Certificate() as $certificate) {
+            //     $certificates[] = $certificate;
+            // }
+            $certificates[] = $digitalIdentity->getX509Certificate();
         };
         return $certificates;
     }

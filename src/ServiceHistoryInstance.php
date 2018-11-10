@@ -11,7 +11,7 @@ class ServiceHistoryInstance
     private $serviceStatus;
     private $startingTime;
     private $serviceName;
-    private $x509SKI;
+    private $digitalIdentity;
 
     public function __construct($historyInstance)
     {
@@ -24,10 +24,12 @@ class ServiceHistoryInstance
         $this->serviceStatus = new ServiceStatus(
             $historyInstance->ServiceStatus
         );
+        $this->digitalIdentity = new ServiceDigitalIdentity($historyInstance->ServiceDigitalIdentity);
     }
 
     public function getTime()
     {
         return $this->startingTime;
     }
+
 }

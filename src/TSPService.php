@@ -24,6 +24,7 @@ class TSPService
         );
         $this->startingTime = strtotime((string)$serviceInformation->StatusStartingTime);
         foreach ( $serviceInformation->ServiceDigitalIDentity as $identity) {
+            print "TSPS" . PHP_EOL;
             $identities[] = new ServiceDigitalIdentity($identity);
         };
         // var_dump(count($serviceInformation->ServiceInformationExtensions));
