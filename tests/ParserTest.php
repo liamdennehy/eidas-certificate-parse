@@ -1,6 +1,6 @@
 <?php
 
-namespace PSD2Certificate\tests;
+namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
 
