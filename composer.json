@@ -1,6 +1,6 @@
 {
     "name": "liamdennehy/eidas-certificate",
-    "description": "Parses x.509 Certificates and outputs eIDAS Qualified Certificate statements",
+    "description": "eIDAS Trust Services and Qualified Certificate Statement (QCStatement) library",
     "type": "library",
     "require": {
         "phpseclib/phpseclib": "^2.0",
