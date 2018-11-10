@@ -2,8 +2,6 @@
 
 namespace eIDASCertificate;
 
-use phpseclib\File\X509;
-
 /**
  *
  */
@@ -16,7 +14,19 @@ class ServiceDigitalIdentity
         $this->digitalIds = [];
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
             $newDigitalId = DigitalId::New($digitalId);
-            $this->digitalIds = array_merge($this->digitalIds,$newDigitalId);
+            // Still not sure if each DigitalId can have multiple (different) certificates
+            // 
+            // if (
+            //     array_key_exists('X509Certificate', $this->digitalIds) &&
+            //     array_key_exists('X509Certificate', $newDigitalId)
+            // ) {
+            //     $hash1 = openssl_x509_fingerprint($newDigitalId['X509Certificate']);
+            //     $hash2 = openssl_x509_fingerprint($newDigitalId['X509Certificate']);
+            //     if ($hash1 != $hash2) {
+            //         throw new CertificateException("Extra X509 Certificate as DigitalId", 1);
+            //     }
+            // };
+            // $this->digitalIds = array_merge($this->digitalIds, $newDigitalId);
         };
     }
 
@@ -61,5 +71,4 @@ class ServiceDigitalIdentity
     {
         return $this->x509SubjectName;
     }
-
 }
