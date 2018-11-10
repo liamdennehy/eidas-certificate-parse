@@ -15,14 +15,19 @@ class ServiceHistory
         if ($history->ServiceHistoryInstance) {
             foreach ($history->ServiceHistoryInstance as $instance) {
                 $thisinstance = new ServiceHistoryInstance($instance);
-                $historyInstances[$thisinstance->getTime()] = $thisinstance;
+                $this->historyInstances[$thisinstance->getTime()] = $thisinstance;
             };
         };
-        sort($historyInstances);
+        sort($this->historyInstances);
     }
 
     public function getLastStatus()
     {
         return end($historyInstances);
+    }
+
+    public function getInstances()
+    {
+        return $this->historyInstances;
     }
 }

@@ -15,7 +15,7 @@ class ServiceHistoryInstance
 
     public function __construct($historyInstance)
     {
-        $serviceType = new ServiceType(
+        $this->serviceType = new ServiceType(
             $historyInstance->ServiceTypeIdentifier
         );
         $this->startingTime = strtotime(
@@ -25,6 +25,11 @@ class ServiceHistoryInstance
             $historyInstance->ServiceStatus
         );
         $this->digitalIdentity = new ServiceDigitalIdentity($historyInstance->ServiceDigitalIdentity);
+    }
+
+    public function getStatus()
+    {
+        return $this->serviceStatus->getStatus();
     }
 
     public function getTime()
