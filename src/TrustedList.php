@@ -170,8 +170,10 @@ class TrustedList
     {
         $certificates = [];
         foreach ($this->serviceDigitalIdentities as $serviceDigitalIdentity) {
+            // var_dump($serviceDigitalIdentity->getX509Certificates());
             foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
                 if ($x509Certificate) {
+                    // var_dump($x509Certificate);
                     $x509Certificates[] = $x509Certificate;
                 }
             };

@@ -25,7 +25,7 @@ class TSPService
             (string)$serviceInformation->ServiceStatus
         );
         $this->startingTime = strtotime((string)$serviceInformation->StatusStartingTime);
-        foreach ($serviceInformation->ServiceDigitalIdentity->DigitalId as $identity) {
+        foreach ($serviceInformation->ServiceDigitalIdentity as $identity) {
             $this->identities[] = new ServiceDigitalIdentity($identity);
         };
         if (count($serviceInformation->ServiceInformationExtensions)) {
@@ -38,7 +38,7 @@ class TSPService
                     };
                     $this->siExtensions[] = $newSIExtension;
                 } catch (SafeException $e) {
-                    continue;
+                    // continue;
                 }
             }
         };
@@ -47,12 +47,13 @@ class TSPService
     public function getService()
     {
         return [
-          "type" => $this->serviceType->getType(),
-          "isQualified" => $this->serviceType->isQualified(),
-          "status" => $this->status->getStatus(),
-          "startingTime" => $this->startingTime,
-          "identities" => $this->identities,
-          "siExtensions" => $this->siExtensions
+            "name" => $this->name,
+            "type" => $this->serviceType->getType(),
+            "isQualified" => $this->serviceType->isQualified(),
+            "status" => $this->status->getStatus(),
+            "startingTime" => $this->startingTime,
+            "identities" => $this->identities,
+            "siExtensions" => $this->siExtensions
         ];
     }
 

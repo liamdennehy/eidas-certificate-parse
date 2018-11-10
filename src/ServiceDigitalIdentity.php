@@ -22,9 +22,21 @@ class ServiceDigitalIdentity
     {
         $x509Certificates = [];
         foreach ($this->digitalIds as $digitalId) {
-            $x509Certificates[] = $digitalId->getX509Certificate();
+            if ($digitalId->getType() == 'X509Certificate') {
+                $x509Certificates[] = $digitalId->getValue();
+            }
         };
         return $x509Certificates;
+    }
+
+    public function getDigitalIds()
+    {
+        return $this->digitalIds;
+    }
+
+    public function getX509Certificate()
+    {
+        return $this->x509Certificate;
     }
 
     public function getX509Thumbprint()
@@ -47,4 +59,5 @@ class ServiceDigitalIdentity
     {
         return $this->x509SubjectName;
     }
+
 }
