@@ -74,7 +74,6 @@ class TrustedList
         };
         if ($tslPointer) {
             foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
-                // print "TL2" . PHP_EOL;
                 $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
             };
             $this->TSLLocation = (string)$tslPointer->TSLLocation;
@@ -102,7 +101,6 @@ class TrustedList
             };
         };
         foreach ($otherTSLPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $digitalId) {
-            // print "TL1" . PHP_EOL;
             $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($digitalId);
         };
         if (! $this->verified) {
@@ -195,7 +193,7 @@ class TrustedList
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
-            DataSource::persist($this->xml,$this->TSLLocation);
+            DataSource::persist($this->xml, $this->TSLLocation);
             return $this->verified;
         };
         $this->verified = false;
