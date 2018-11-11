@@ -65,12 +65,6 @@ class TrustedList
                     $TLOLPointer = $otherTSLPointer;
                     $this->processTLOLPointer($TLOLPointer);
                 };
-                // } else {
-                //     $newTSL = $this->getTSL($otherTSLPointer, $verbose);
-                //     if ($newTSL) {
-                //         $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
-                //     };
-                // }
             }
         };
         if ($tslPointer) {
@@ -218,6 +212,28 @@ class TrustedList
         return $this->verified;
     }
 
+    public function processTrustedListPointers($schemeTerritory)
+    {
+        if ($this->isTLOL()) {
+            if (
+                (string)$otherTSLPointer
+                  ->AdditionalInformation
+                    ->OtherInformation[0]
+                      ->TSLType
+                != self::TLOLType
+            ) {
+                foreach (
+                    $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
+                    as $tslPointer
+                ) {
+                    $newTSL = $this->getTSL($tslPointer, $this->verbose);
+                    if ($newTSL) {
+                        $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
+                    };
+                }
+            }
+        }
+    }
     /**
      * [getSignedBy description]
      * @return string Hash of signing certificate
@@ -248,6 +264,27 @@ class TrustedList
      */
     public function getTSPs()
     {
+        return $this->TSPs;
+    }
+
+    public function getTSPServices()
+    {
+        if (! $this->isTLOL()) {
+            foreach ($this->getTSPs() as $tsp) {
+                foreach ($tsp->getTSPServices() as $tspService) {
+                    $tspServices
+                        [$this->schemeTerritory]
+                            [$tsp->getName()]
+                                [$tspService->getName()]
+                                    = $tspService;
+                }
+            };
+            return $tspServices;
+        } else {
+            foreach ($this->getTrustedLists() as $tl) {
+                var_dump($tl);
+            }
+        }
         return $this->TSPs;
     }
 
