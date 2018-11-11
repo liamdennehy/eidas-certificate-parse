@@ -12,25 +12,16 @@ class ServiceDigitalIdentity
     /**
      * [__construct description]
      * @param SimpleXMLElement $serviceDigitalIdentity [description]
+     * @throws TSPException
      */
     public function __construct($serviceDigitalIdentity)
     {
         $this->digitalIds = [];
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
             $newDigitalId = DigitalId::parse($digitalId);
-            // Still not sure if each DigitalId can have multiple (different) certificates
-            //
-            // if (
-            //     array_key_exists('X509Certificate', $this->digitalIds) &&
-            //     array_key_exists('X509Certificate', $newDigitalId)
-            // ) {
-            //     $hash1 = openssl_x509_fingerprint($newDigitalId['X509Certificate']);
-            //     $hash2 = openssl_x509_fingerprint($newDigitalId['X509Certificate']);
-            //     if ($hash1 != $hash2) {
-            //         throw new CertificateException("Extra X509 Certificate as DigitalId", 1);
-            //     }
-            // };
-            $this->digitalIds = array_merge($this->digitalIds, $newDigitalId);
+            foreach ($newDigitalId as $type => $value) {
+                $this->digitalIds[$type][] = $value;
+            };
         };
     }
 
@@ -43,7 +34,9 @@ class ServiceDigitalIdentity
         $x509Certificates = [];
         foreach ($this->digitalIds as $type => $digitalId) {
             if ($type == 'X509Certificate') {
-                $x509Certificates[] = $digitalId;
+                foreach($digitalId as $certificate) {
+                    $x509Certificates[] = $certificate;
+                }
             }
         };
         return $x509Certificates;
