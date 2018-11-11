@@ -129,8 +129,10 @@ class TrustedList
         $this->nextUpdate = strtotime(
             $this->tl->SchemeInformation->NextUpdate->dateTime
         );
-        foreach ($this->tl->SchemeInformation->DistributionPoints->URI as $uri) {
-            $this->distributionPoints[] = (string)$uri;
+        if (isset($this->tl->SchemeInformation->DistributionPoints->URI)) {
+            foreach ($this->tl->SchemeInformation->DistributionPoints->URI as $uri) {
+                $this->distributionPoints[] = (string)$uri;
+            };
         };
     }
 
