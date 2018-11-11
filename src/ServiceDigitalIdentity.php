@@ -34,6 +34,10 @@ class ServiceDigitalIdentity
         };
     }
 
+    /**
+     * [getX509Certificates description]
+     * @return array [description]
+     */
     public function getX509Certificates()
     {
         $x509Certificates = [];
@@ -45,6 +49,10 @@ class ServiceDigitalIdentity
         return $x509Certificates;
     }
 
+    /**
+     * [getDigitalIds description]
+     * @return array [description]
+     */
     public function getDigitalIds()
     {
         return $this->digitalIds;

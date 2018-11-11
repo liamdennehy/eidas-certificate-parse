@@ -76,26 +76,46 @@ class TSPService
         return $this->startingTime;
     }
 
+    /**
+     * [getIdentities description]
+     * @return ServiceDigitalIdentity[] [description]
+     */
     public function getIdentities()
     {
         return $this->identities;
     }
 
+    /**
+     * [getName description]
+     * @return string [description]
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * [getStatus description]
+     * @return string [description]
+     */
     public function getStatus()
     {
         return $this->serviceStatus->getStatus();
     }
 
+    /**
+     * [getType description]
+     * @return string [description]
+     */
     public function getType()
     {
         return $this->serviceType->getType();
     }
 
+    /**
+     * [getTSPServiceHistory description]
+     * @return ServiceHistory [description]
+     */
     public function getTSPServiceHistory()
     {
         return $this->serviceHistory;

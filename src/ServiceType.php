@@ -116,16 +116,28 @@ class ServiceType
         // return ["Type" => $this->getType(),"isQualified" => $this->IsQualified()];
     }
 
+    /**
+     * [getType description]
+     * @return string [description]
+     */
     public function getType()
     {
         return $this->type;
     }
 
+    /**
+     * [IsQualified description]
+     * @return boolean [description]
+     */
     public function IsQualified()
     {
         return $this->isQualified;
     }
 
+    /**
+     * [getURI description]
+     * @return string [description]
+     */
     public function getURI()
     {
         return $this->uri;

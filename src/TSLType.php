@@ -31,11 +31,19 @@ class TSLType
       };
     }
 
+    /**
+     * [getType description]
+     * @return string [description]
+     */
     public function getType()
     {
         return $this->tslType;
     }
 
+    /**
+     * [getURI description]
+     * @return string [description]
+     */
     public function getURI()
     {
         return $this->uri;

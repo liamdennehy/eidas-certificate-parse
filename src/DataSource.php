@@ -45,6 +45,20 @@ class DataSource
     {
         $fileHash = hash('sha256', $url);
         $filePath = self::DataDir . $fileHash;
-        file_put_contents(self::DataDir . $fileHash, $data);
+        file_put_contents($filePath, $data);
+    }
+
+    /**
+     * [getHTTPModifiedTime description]
+     * @param  string $url [description]
+     * @return integer      [description]
+     */
+    public function getHTTPModifiedTime($url)
+    {
+        $context  = stream_context_create(array('http' =>array('method'=>'HEAD')));
+        $fd = fopen($url, 'rb', false, $context);
+        $meta = stream_get_meta_data($fd);
+        fclose($fd);
+        return $meta;
     }
 }

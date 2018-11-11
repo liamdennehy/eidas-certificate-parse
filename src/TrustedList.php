@@ -30,6 +30,7 @@ class TrustedList
     private $signedBy;
     private $verbose;
     private $tl;
+    private $distributionPoints = [];
 
     /**
      * [__construct description]
@@ -62,7 +63,7 @@ class TrustedList
                     == self::TLOLType
                 ) {
                     $TLOLPointer = $otherTSLPointer;
-                    $this->processTLOL($TLOLPointer);
+                    $this->processTLOLPointer($TLOLPointer);
                 } else {
                     $newTSL = $this->getTSL($otherTSLPointer, $verbose);
                     if ($newTSL) {
@@ -88,7 +89,7 @@ class TrustedList
      * @param  SimpleXMLElement $otherTSLPointer [description]
      * @return [type]                  [description]
      */
-    private function processTLOL($otherTSLPointer)
+    private function processTLOLPointer($otherTSLPointer)
     {
         foreach (
             $otherTSLPointer
@@ -110,6 +111,9 @@ class TrustedList
         $this->TSLLocation = (string)$otherTSLPointer->TSLLocation;
     }
 
+    /**
+     * [processTLAttributes description]
+     */
     private function processTLAttributes()
     {
         $this->schemeTerritory = (string)$this->tl->SchemeInformation->SchemeTerritory;
@@ -127,12 +131,14 @@ class TrustedList
         $this->nextUpdate = strtotime(
             $this->tl->SchemeInformation->NextUpdate->dateTime
         );
+        foreach ($this->tl->SchemeInformation->DistributionPoints->URI as $uri) {
+            $this->distributionPoints[] = (string)$uri;
+        };
     }
 
     /**
      * [parseTSPs description]
      * @param  SimpleXMLElement $tspList [description]
-     * @return [type]          [description]
      */
     private function parseTSPs($tspList)
     {
@@ -189,51 +195,77 @@ class TrustedList
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
+            DataSource::persist($this->xml,$this->TSLLocation);
             return $this->verified;
         };
         $this->verified = false;
         return $this->verified;
     }
 
+    /**
+     * [getSignedBy description]
+     * @return string Hash of signing certificate
+     */
     public function getSignedBy()
     {
         return $this->signedBy;
     }
 
+    /**
+     * [getTLX509Certificates description]
+     * @return array [description]
+     */
     public function getTLX509Certificates()
     {
         $x509Certificates = [];
         foreach ($this->serviceDigitalIdentities as $serviceDigitalIdentity) {
             foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
-                if ($x509Certificate) {
-                    $x509Certificates[] = $x509Certificate;
-                }
+                $x509Certificates[] = $x509Certificate;
             };
         };
         return $x509Certificates;
     }
 
+    /**
+     * [getTSPs description]
+     * @return TrustServiceProvider[] [description]
+     */
     public function getTSPs()
     {
         return $this->TSPs;
     }
 
-    public function displayName()
+    /**
+     * [displayName description]
+     * @return string [description]
+     */
+    public function getName()
     {
-        return $this->schemeTerritory . ": " . $this->schemeOperatorName .
-        " (" . $this->TSLFormat . " " . $this->TSLLocation . ")" . PHP_EOL;
+        return $this->schemeTerritory . ": " . $this->schemeOperatorName;
     }
 
+    /**
+     * [getSchemeTerritory description]
+     * @return string [description]
+     */
     public function getSchemeTerritory()
     {
         return $this->schemeTerritory;
     }
 
+    /**
+     * [getSchemeOperatorName description]
+     * @return string [description]
+     */
     public function getSchemeOperatorName()
     {
         return $this->schemeOperatorName;
     }
 
+    /**
+     * [isTLOL description]
+     * @return boolean [description]
+     */
     public function isTLOL()
     {
         return $this->TSLType->getType() == 'EUlistofthelists';
@@ -249,12 +281,29 @@ class TrustedList
         return $this->nextUpdate;
     }
 
+    /**
+     * [getTrustedLists description]
+     * @return TrustedList[] [description]
+     */
     public function getTrustedLists()
     {
         return $this->trustedLists;
     }
 
-    public function getTrustedListURL()
+    /**
+     * [getDistributionPoints description]
+     * @return string[] [description]
+     */
+    public function getDistributionPoints()
+    {
+        return $this->distributionPoints;
+    }
+
+    /**
+     * [getTSLLocation description]
+     * @return string [description]
+     */
+    public function getTSLLocation()
     {
         return $this->TSLLocation;
     }
