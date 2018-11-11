@@ -33,7 +33,7 @@ abstract class DigitalId
         return [$identifier->getname() => $value];
     }
 
-    private function string2pem($certificateString)
+    public static function string2pem($certificateString)
     {
         // Handle line-wrapped presentations of base64
         $certificateString = base64_encode(
