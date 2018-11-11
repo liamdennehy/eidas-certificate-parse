@@ -4,4 +4,6 @@ php:
   - '7.0'
   - '7.1'
   - '7.2'
-install: composer install
+install:
+  - composer install
+  - mkdir -p ./data
