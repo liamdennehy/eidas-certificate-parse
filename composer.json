@@ -5,7 +5,7 @@
     "require": {
         "phpseclib/phpseclib": "^2.0",
         "robrichards/xmlseclibs": "^3.0",
-        "php": ">=5.5"
+        "php": ">=5.6"
     },
     "license": "GPL-2.0-or-later",
     "authors": [

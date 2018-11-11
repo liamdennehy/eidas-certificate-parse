@@ -14,7 +14,7 @@ class TSLType
      * [__construct description]
      * @param string $TSLType [description]
      */
-    public function __construct(string $TSLType)
+    public function __construct($TSLType)
     {
         $this->uri = $TSLType;
         switch ($TSLType) {
