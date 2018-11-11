@@ -15,6 +15,11 @@ class TSPService
     private $siExtensions;
     private $serviceHistory;
 
+    /**
+     * [__construct description]
+     * @param SimpleXMLElement  $tspService [description]
+     * @param boolean $verbose    [description]
+     */
     public function __construct($tspService, $verbose = false)
     {
         $serviceInformation = $tspService->ServiceInformation;
@@ -48,6 +53,10 @@ class TSPService
         };
     }
 
+    /**
+     * [getSummary description]
+     * @return array [description]
+     */
     public function getSummary()
     {
         return [

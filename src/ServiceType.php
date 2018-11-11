@@ -11,6 +11,10 @@ class ServiceType
     private $isQualified;
     private $uri;
 
+    /**
+     * [__construct description]
+     * @param SimpleXMLElement $identifier [description]
+     */
     public function __construct($identifier)
     {
         $this->uri = $identifier;

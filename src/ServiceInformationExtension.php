@@ -10,6 +10,11 @@ class ServiceInformationExtension
     private $type;
     private $isQualified;
     private $uri;
+
+    /**
+     * [__construct description]
+     * @param SimpleXMLElement $identifier [description]
+     */
     public function __construct($identifier)
     {
         $uri = (string)$identifier->AdditionalServiceInformation->URI;

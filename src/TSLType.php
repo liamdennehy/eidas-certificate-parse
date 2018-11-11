@@ -10,6 +10,10 @@ class TSLType
     private $tslType;
     private $uri;
 
+    /**
+     * [__construct description]
+     * @param string $TSLType [description]
+     */
     public function __construct(string $TSLType)
     {
         $this->uri = $TSLType;

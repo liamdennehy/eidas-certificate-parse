@@ -12,6 +12,11 @@ class TrustServiceProvider
     private $serviceHistory;
     private $verbose;
 
+    /**
+     * [__construct description]
+     * @param SimpleXMLElement  $tsp     [description]
+     * @param boolean $verbose [description]
+     */
     public function __construct($tsp, $verbose = false)
     {
         // $this->verbose = $verbose;
@@ -26,11 +31,19 @@ class TrustServiceProvider
         sort($this->services);
     }
 
+    /**
+     * [getName description]
+     * @return string [description]
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * [getTSPServices description]
+     * @return array [description]
+     */
     public function getTSPServices()
     {
         return $this->services;

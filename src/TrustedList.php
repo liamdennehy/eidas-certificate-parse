@@ -31,7 +31,13 @@ class TrustedList
     private $verbose;
     private $tl;
 
-    public function __construct(string $tlxml, $tslPointer = null, $verbose = false)
+    /**
+     * [__construct description]
+     * @param [string]  $tlxml      [description]
+     * @param [SimpleXMLElement]  $tslPointer [description]
+     * @param boolean $verbose    [description]
+     */
+    public function __construct($tlxml, $tslPointer = null, $verbose = false)
     {
         $this->verbose = $verbose;
         $this->xml = $tlxml;
@@ -77,6 +83,11 @@ class TrustedList
         }
     }
 
+    /**
+     * [processTLOL description]
+     * @param  SimpleXMLElement $otherTSLPointer [description]
+     * @return [type]                  [description]
+     */
     private function processTLOL($otherTSLPointer)
     {
         foreach (
@@ -117,6 +128,12 @@ class TrustedList
             $this->tl->SchemeInformation->NextUpdate->dateTime
         );
     }
+
+    /**
+     * [parseTSPs description]
+     * @param  SimpleXMLElement $tspList [description]
+     * @return [type]          [description]
+     */
     private function parseTSPs($tspList)
     {
         if ($tspList->TrustServiceProvider) {
@@ -138,6 +155,11 @@ class TrustedList
         };
     }
 
+    /**
+     * [getTSL description]
+     * @param  SimpleXMLElement $TSLPointer [description]
+     * @return TrustedList|null             [description]
+     */
     private function getTSL($TSLPointer)
     {
         foreach ($TSLPointer->AdditionalInformation->OtherInformation as $OtherInfo) {
@@ -156,6 +178,10 @@ class TrustedList
         return null;
     }
 
+    /**
+     * [verifyTSL description]
+     * @return boolean [description]
+     */
     public function verifyTSL()
     {
         $tslCerts = $this->getTLX509Certificates();

@@ -13,6 +13,10 @@ class ServiceHistoryInstance
     private $serviceName;
     private $digitalIdentity;
 
+    /**
+     * [__construct description]
+     * @param SimpleXMLElement $historyInstance [description]
+     */
     public function __construct($historyInstance)
     {
         $this->serviceType = new ServiceType(

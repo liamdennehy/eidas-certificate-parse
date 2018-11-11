@@ -10,6 +10,10 @@ class ServiceStatus
     private $status;
     private $uri;
 
+    /**
+     * [__construct description]
+     * @param SimpleXMLElement $status [description]
+     */
     public function __construct($status)
     {
         $this->uri = $status;

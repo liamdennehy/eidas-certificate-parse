@@ -9,6 +9,10 @@ class ServiceHistory
 {
     private $historyInstances = [];
 
+    /**
+     * [__construct description]
+     * @param SimpleXMLElement $history [description]
+     */
     public function __construct($history)
     {
         if ($history->ServiceHistoryInstance) {

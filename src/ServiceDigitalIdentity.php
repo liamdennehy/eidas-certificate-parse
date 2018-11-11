@@ -9,6 +9,10 @@ class ServiceDigitalIdentity
 {
     private $digitalIds = [];
 
+    /**
+     * [__construct description]
+     * @param SimpleXMLElement $serviceDigitalIdentity [description]
+     */
     public function __construct($serviceDigitalIdentity)
     {
         $this->digitalIds = [];
@@ -56,6 +60,11 @@ class ServiceDigitalIdentity
         return openssl_x509_fingerprint($this->x509Certificate);
     }
 
+    /**
+     * [getX509SKI description]
+     * @param  string $algo [description]
+     * @return [type]       [description]
+     */
     public function getX509SKI($algo = 'sha256')
     {
         if (! $this->x509SKI) {

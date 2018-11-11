@@ -17,7 +17,12 @@ class XMLSig
     private $certificates = [];
     private $signedBy;
 
-    public function __construct(string $xml, array $certificates)
+    /**
+     * [__construct description]
+     * @param string $xml          [description]
+     * @param array  $certificates [description]
+     */
+    public function __construct($xml, $certificates)
     {
         $this->doc = new DOMDocument();
         $this->doc->loadXML($xml);
@@ -93,7 +98,12 @@ class XMLSig
         }
     }
 
-    public function getX509Thumbprints(string $algo = 'sha256')
+    /**
+     * [getX509Thumbprints description]
+     * @param  string $algo [description]
+     * @return [type]       [description]
+     */
+    public function getX509Thumbprints($algo = 'sha256')
     {
         $thumbprints = [];
         foreach ($this->certificates as $certificate) {

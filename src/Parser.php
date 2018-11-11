@@ -12,6 +12,11 @@ class Parser
 {
     private $cert;
     private $qcStatements;
+
+    /**
+     * [__construct description]
+     * @param string $pem [description]
+     */
     public function __construct($pem)
     {
         $x509 = new X509();
