@@ -28,3 +28,7 @@ Please Indicate your interest in this library by watching on
 (the little star on the heading)
 or adding feature requests, bug reports
 or use cases on [Github](https://github.com/liamdennehy/eidas-certificate-parse/issues).
+
+With thanks to [Travis-CI] for the free build and testing service!
+
+[![Build Status](https://travis-ci.com/liamdennehy/eidas-certificate-parse.svg?branch=master)](https://travis-ci.com/liamdennehy/eidas-certificate-parse)
