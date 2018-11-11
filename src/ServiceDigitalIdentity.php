@@ -17,7 +17,7 @@ class ServiceDigitalIdentity
     {
         $this->digitalIds = [];
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
-            $newDigitalId = DigitalId::New($digitalId);
+            $newDigitalId = DigitalId::parse($digitalId);
             // Still not sure if each DigitalId can have multiple (different) certificates
             //
             // if (

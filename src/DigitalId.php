@@ -7,7 +7,7 @@ namespace eIDASCertificate;
  */
 abstract class DigitalId
 {
-    public static function New($digitalId)
+    public static function parse($digitalId)
     {
         $childNodes = $digitalId->xpath('*');
         $identifier = $childNodes[0];
