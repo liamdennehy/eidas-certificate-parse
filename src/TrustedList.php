@@ -64,12 +64,13 @@ class TrustedList
                 ) {
                     $TLOLPointer = $otherTSLPointer;
                     $this->processTLOLPointer($TLOLPointer);
-                } else {
-                    $newTSL = $this->getTSL($otherTSLPointer, $verbose);
-                    if ($newTSL) {
-                        $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
-                    };
-                }
+                };
+                // } else {
+                //     $newTSL = $this->getTSL($otherTSLPointer, $verbose);
+                //     if ($newTSL) {
+                //         $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
+                //     };
+                // }
             }
         };
         if ($tslPointer) {
@@ -78,9 +79,9 @@ class TrustedList
             };
             $this->TSLLocation = (string)$tslPointer->TSLLocation;
         };
-        if ((! $this->verified) && (! $this->isTLOL())&& $this->verifyTSL()) {
-            $this->parseTSPs($this->tl->TrustServiceProviderList);
-        }
+        // if ((! $this->verified) && (! $this->isTLOL())&& $this->verifyTSL()) {
+        //     $this->parseTSPs($this->tl->TrustServiceProviderList);
+        // }
     }
 
     /**
@@ -103,9 +104,9 @@ class TrustedList
         foreach ($otherTSLPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $digitalId) {
             $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($digitalId);
         };
-        if (! $this->verified) {
-            $this->verifyTSL();
-        };
+        // if (! $this->verified) {
+        //     $this->verifyTSL();
+        // };
         $this->TSLLocation = (string)$otherTSLPointer->TSLLocation;
     }
 
@@ -186,12 +187,27 @@ class TrustedList
 
     /**
      * [verifyTSL description]
+     * @param  resource|resource[]|string|string[] $tlCerts [description]
      * @return boolean [description]
      */
-    public function verifyTSL()
+    public function verifyTSL($certificates = null)
     {
-        $tslCerts = $this->getTLX509Certificates();
-        $xmlSig = new XMLSig($this->xml, $tslCerts);
+        if (is_null($certificates)) {
+            if (! sizeof($this->getTLX509Certificates())) {
+                throw new SignatureException(
+                    "No known certificates for TrustedList " .
+                    $this->getName(), 1);
+            }
+            $certificates = $this->getTLX509Certificates();
+        };
+        if (! is_array($certificates)) {
+            $certificates = [$certificates];
+        };
+        // var_dump($certificates); exit;
+        foreach ($certificates as $key => $value) {
+            $expectedCerts[] = X509Certificate::emit($value);
+        };
+        $xmlSig = new XMLSig($this->xml, $expectedCerts);
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
