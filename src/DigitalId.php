@@ -33,5 +33,4 @@ abstract class DigitalId
         };
         return [$name => $value];
     }
-
 }

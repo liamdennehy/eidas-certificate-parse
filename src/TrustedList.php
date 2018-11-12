@@ -161,17 +161,19 @@ class TrustedList
      * @param  SimpleXMLElement $TSLPointer [description]
      * @return TrustedList|null             [description]
      */
-    private function getTSL($TSLPointer)
+    private function processTrustedListPointer($tslPointer)
     {
-        foreach ($TSLPointer->AdditionalInformation->OtherInformation as $OtherInfo) {
-            if (strpos($OtherInfo->asXML(), '<ns3:MimeType>')) {
+        // debug_print_backtrace();
+        foreach ($tslPointer->AdditionalInformation->OtherInformation as $tslOtherInfo) {
+            if (strpos($tslOtherInfo->asXML(), '<ns3:MimeType>')) {
                 if (
-                    explode("<", explode(">", $OtherInfo->asXML())[2])[0] ==
+                    explode("<", explode(">", $tslOtherInfo->asXML())[2])[0] ==
                     'application/vnd.etsi.tsl+xml'
                 ) {
-                    $TSLLocation = (string)$TSLPointer->TSLLocation;
-                    $TSLXML = DataSource::load($TSLLocation);
-                    $newTL = new TrustedList($TSLXML, $TSLPointer, $this->verbose);
+                    $tslLocation = (string)$tslPointer->TSLLocation;
+                    // print $tslLocation . PHP_EOL;
+                    $tslXml = DataSource::load($tslLocation);
+                    $newTL = new TrustedList($tslXml, $tslPointer, $this->verbose);
                     return $newTL;
                 }
             };
@@ -190,7 +192,9 @@ class TrustedList
             if (! sizeof($this->getTLX509Certificates())) {
                 throw new SignatureException(
                     "No known certificates for TrustedList " .
-                    $this->getName(), 1);
+                    $this->getName(),
+                    1
+                );
             }
             $certificates = $this->getTLX509Certificates();
         };
@@ -212,24 +216,55 @@ class TrustedList
         return $this->verified;
     }
 
-    public function processTrustedListPointers($schemeTerritory)
+    /**
+     * [verifyAllTLs description]
+     * @return boolean [description]
+     */
+    public function verifyAllTLs()
     {
         if ($this->isTLOL()) {
-            if (
-                (string)$otherTSLPointer
-                  ->AdditionalInformation
-                    ->OtherInformation[0]
-                      ->TSLType
-                != self::TLOLType
+            $verified = false;
+            foreach ($this->getTrustedLists() as $trustedList) {
+                $trustedList->verifyTSL();
+                // if ($trustedList->verifyTSL()) {
+                //     print $trustedList->getName() . " signed by " . $trustedList->getSignedBy() . PHP_EOL;;
+                // }
+            };
+        } else {
+            throw new TrustedListException("This is not the Trusted List of Lists", 1);
+        };
+        return true;
+    }
+
+    public function processTrustedListPointers($schemeTerritory = null)
+    {
+        // $loop = 0;
+        // debug_print_backtrace();
+        if ($this->isTLOL()) {
+            foreach (
+                $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
+                as $otherTSLPointer
             ) {
-                foreach (
-                    $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
-                    as $tslPointer
+                if (
+                    (string)$otherTSLPointer
+                      ->AdditionalInformation
+                        ->OtherInformation[0]
+                          ->TSLType
+                    != self::TLOLType
                 ) {
-                    $newTSL = $this->getTSL($tslPointer, $this->verbose);
+                    // $loop++;
+                    // print "Loop: " . $loop . PHP_EOL;
+                    // if ( $loop > 50) {exit;};
+                    // foreach (
+                    //     $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
+                    //     as $tslPointer
+                    // ) {
+                    $newTSL = $this->processTrustedListPointer($otherTSLPointer);
                     if ($newTSL) {
+                        // print $newTSL->getName() . PHP_EOL;
                         $this->trustedLists[$newTSL->getSchemeOperatorName()] = $newTSL;
                     };
+                    // }
                 }
             }
         }
@@ -247,7 +282,7 @@ class TrustedList
      * [getTLX509Certificates description]
      * @return array [description]
      */
-    public function getTLX509Certificates()
+    public function getTLX509Certificates($hash = null)
     {
         $x509Certificates = [];
         foreach ($this->serviceDigitalIdentities as $serviceDigitalIdentity) {
@@ -273,10 +308,9 @@ class TrustedList
             foreach ($this->getTSPs() as $tsp) {
                 foreach ($tsp->getTSPServices() as $tspService) {
                     $tspServices
-                        [$this->schemeTerritory]
-                            [$tsp->getName()]
-                                [$tspService->getName()]
-                                    = $tspService;
+                        [$this->schemeTerritory . ": " . $tsp->getName()]
+                            [$tspService->getName()]
+                                = $tspService;
                 }
             };
             return $tspServices;

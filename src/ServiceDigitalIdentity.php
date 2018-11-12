@@ -34,7 +34,7 @@ class ServiceDigitalIdentity
         $x509Certificates = [];
         foreach ($this->digitalIds as $type => $digitalId) {
             if ($type == 'X509Certificate') {
-                foreach($digitalId as $certificate) {
+                foreach ($digitalId as $certificate) {
                     $x509Certificates[] = $certificate;
                 }
             }

@@ -7,14 +7,13 @@ namespace eIDASCertificate;
  */
 class X509Certificate
 {
-
     public static function emit($candidate)
     {
         if (is_null($candidate)) {
             return false;
         };
         try {
-            if (substr($candidate,0,3) == 'MII') {
+            if (substr($candidate, 0, 3) == 'MII') {
                 $candidate = X509Certificate::base64ToPEM($candidate);
             };
         } catch (\Exception $e) {
@@ -38,5 +37,4 @@ class X509Certificate
         chunk_split($certificateString, 64, "\n") .
         "-----END CERTIFICATE-----\n";
     }
-
 }
