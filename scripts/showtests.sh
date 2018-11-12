@@ -1,10 +1,10 @@
 #!/bin/sh
-mydir=$(dirname ${BASH_SOURCE[0]})
+[ -d tests ] && export tests=tests/ || export tests=../tests
 
 echo
 echo phpunit tests included:
 echo
-for f in $mydir/../tests/*.php; do
+for f in $tests/*.php; do
   basename "$f"
   for t in $(grep 'function test' "$f" | cut -d' ' -f7); do
     echo "  $t"
