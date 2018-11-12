@@ -7,3 +7,4 @@ php:
 install:
   - composer install
   - mkdir -p ./data
+  - wget -O data/tlol.xml https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
