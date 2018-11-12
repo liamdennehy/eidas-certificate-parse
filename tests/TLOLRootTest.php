@@ -8,11 +8,18 @@ use eIDASCertificate\TrustedList;
 
 class TLOLRootTest extends TestCase
 {
-    public function testTLOLFromRoot()
+    private $tlolxml;
+    public function setUp()
+    {
+        $this->tlolxml = DataSource::load('tlol.xml');
+    }
+
+    public function testVerifyTLOL()
     {
         $tlolxml=DataSource::load(TrustedList::TrustedListOfListsXML);
         $TrustedListOfLists = new TrustedList($tlolxml, null, false);
-        $TLs = $TrustedListOfLists->getTrustedLists();
+        $TrustedListOfLists->verifyTSL();
+        // $TLs = $TrustedListOfLists->getTrustedLists();
         $this->assertEquals(
             '59a1bf290b818b177ad61ac4b3e6dcddd46da6d5be9579f8564adea6f2cf073e',
             $TrustedListOfLists->getSignedBy()
@@ -47,5 +54,13 @@ class TLOLRootTest extends TestCase
         //         }
         //     }
         // }
+    }
+
+    public function testVerifyAllTLs()
+    {
+        $tlolxml=DataSource::load(TrustedList::TrustedListOfListsXML);
+        $TrustedListOfLists = new TrustedList($tlolxml, null, false);
+        $TrustedListOfLists->verifyTSL();
+        $this->assertTrue($TrustedListOfLists->verifyAllTLs());
     }
 }

@@ -17,8 +17,12 @@ class DataSource
     public static function load($url)
     {
         $fileHash = hash('sha256', $url);
-        $filePath = self::DataDir . $fileHash;
-        if (! file_exists(self::DataDir . $fileHash)) {
+        if (strtolower(substr($url, 0, 4)) == 'http') {
+            $filePath = self::DataDir . $fileHash;
+        } else {
+            $filePath = self::DataDir . $url;
+        };
+        if (! file_exists($filePath)) {
             return self::fetch($url);
         } else {
             return file_get_contents($filePath);
