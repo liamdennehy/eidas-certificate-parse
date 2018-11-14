@@ -11,13 +11,15 @@ class TLOLRootTest extends TestCase
     private $tlolxml;
     public function setUp()
     {
-        $this->tlolxml = DataSource::load('tlol.xml');
+        if (! $this->tlolxml) {
+            $this->tlolxml = DataSource::load('tlol.xml');
+        }
     }
 
     public function testVerifyTLOL()
     {
-        $tlolxml=DataSource::load(TrustedList::TrustedListOfListsXML);
-        $TrustedListOfLists = new TrustedList($tlolxml, null, false);
+        // $tlolxml=DataSource::load(TrustedList::TrustedListOfListsXML);
+        $TrustedListOfLists = new TrustedList($this->tlolxml, null, false);
         $TrustedListOfLists->verifyTSL();
         // $TLs = $TrustedListOfLists->getTrustedLists();
         $this->assertEquals(
@@ -62,5 +64,12 @@ class TLOLRootTest extends TestCase
         $TrustedListOfLists = new TrustedList($tlolxml, null, false);
         $TrustedListOfLists->verifyTSL();
         $this->assertTrue($TrustedListOfLists->verifyAllTLs());
+        $failedTLVerify = false;
+        foreach ($TrustedListOfLists as $tl) {
+            if (! $tl->getSignedBy) {
+                $failedTLVerify = true;
+            }
+        };
+        $this->assertFalse($failedTLVerify);
     }
 }
