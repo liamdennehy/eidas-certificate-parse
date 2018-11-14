@@ -37,4 +37,9 @@ class X509Certificate
         chunk_split($certificateString, 64, "\n") .
         "-----END CERTIFICATE-----\n";
     }
+
+    public static function getDN($cert)
+    {
+        return openssl_x509_parse($cert)['name'];
+    }
 }
