@@ -55,14 +55,29 @@ class DataSource
     /**
      * [getHTTPModifiedTime description]
      * @param  string $url [description]
-     * @return integer      [description]
+     * @return null|integer      [description]
      */
-    public function getHTTPModifiedTime($url)
+    public static function getHTTPModifiedTime($url)
     {
-        $context  = stream_context_create(array('http' =>array('method'=>'HEAD')));
+        $lastModified = DataSource::getHTTPHeader($url, 'Last-Modified', 'HEAD');
+        if (! $lastModified) {
+            $lastModified = DataSource::getHTTPHeader($url, 'Last-Modified', 'GET');
+        }
+        return $lastModified;
+    }
+
+    public static function getHTTPHeader($url, $header, $method = 'HEAD')
+    {
+        $headerValue = null; // Method may not be supported
+        $context  = stream_context_create(array('http' =>array('method'=>$method)));
         $fd = fopen($url, 'rb', false, $context);
         $meta = stream_get_meta_data($fd);
         fclose($fd);
-        return $meta;
+        foreach ($meta['wrapper_data'] as $header) {
+            if (explode(' ', $header, 2)[0] == $header . ':') {
+                $headerValue = explode(' ', $header, 2)[1];
+            }
+        }
+        return $headerValue;
     }
 }

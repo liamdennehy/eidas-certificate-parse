@@ -135,8 +135,9 @@ class TrustedList
      * [parseTSPs description]
      * @param  SimpleXMLElement $tspList [description]
      */
-    private function parseTSPs($tspList)
+    private function parseTSPs()
     {
+        $tspList  = $this->tl->TrustServiceProviderList;
         if ($tspList->TrustServiceProvider) {
             foreach ($tspList->TrustServiceProvider as $tsp) {
                 $newTSP = new TrustServiceProvider($tsp, $this->verbose);
@@ -223,6 +224,9 @@ class TrustedList
     public function verifyAllTLs()
     {
         if ($this->isTLOL()) {
+            if (sizeof($this->trustedLists = 0)) {
+                $this->processTrustedListPointers();
+            };
             $verified = false;
             foreach ($this->getTrustedLists() as $trustedList) {
                 $trustedList->verifyTSL();
@@ -241,6 +245,7 @@ class TrustedList
         // $loop = 0;
         // debug_print_backtrace();
         if ($this->isTLOL()) {
+            $this->trustedLists = [];
             foreach (
                 $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
                 as $otherTSLPointer
@@ -299,11 +304,15 @@ class TrustedList
      */
     public function getTSPs()
     {
+        if (! $this->TSPs) {
+            $this->parseTSPs();
+        }
         return $this->TSPs;
     }
 
     public function getTSPServices()
     {
+        $tspServices = [];
         if (! $this->isTLOL()) {
             foreach ($this->getTSPs() as $tsp) {
                 foreach ($tsp->getTSPServices() as $tspService) {
@@ -315,9 +324,9 @@ class TrustedList
             };
             return $tspServices;
         } else {
-            foreach ($this->getTrustedLists() as $tl) {
-                var_dump($tl);
-            }
+            // foreach ($this->getTrustedLists() as $tl) {
+            //     ;
+            // }
         }
         return $this->TSPs;
     }
@@ -368,13 +377,26 @@ class TrustedList
         return $this->nextUpdate;
     }
 
+    public function getSourceModifiedTime()
+    {
+        $ds = new DataSource;
+        return $ds->getHTTPModifiedTime($this->TSLLocation);
+    }
+
     /**
      * [getTrustedLists description]
      * @return TrustedList[] [description]
      */
     public function getTrustedLists()
     {
-        return $this->trustedLists;
+        if ($this->isTLOL()) {
+            if (! $this->trustedLists) {
+                $this->processTrustedListPointers();
+            }
+            return $this->trustedLists;
+        } else {
+            return false;
+        }
     }
 
     /**
