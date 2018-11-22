@@ -2,6 +2,9 @@
 
 namespace eIDASCertificate;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ServerException;
+
 /**
  *
  */
@@ -68,18 +71,17 @@ class DataSource
 
     public static function getHTTPHeader($url, $header, $method = 'HEAD')
     {
-        $headerValue = null; // Method may not be supported
-        $searchHeader = $header . ':';
-        $context  = stream_context_create(array('http' =>array('method'=>$method)));
-        $fd = fopen($url, 'rb', false, $context);
-        $meta = stream_get_meta_data($fd);
-        fclose($fd);
-        var_dump($meta['wrapper_data']);
-        foreach ($meta['wrapper_data'] as $header) {
-            if (explode(' ', $header, 2)[0] == $searchHeader) {
-                $headerValue = explode(' ', $header, 2)[1];
+        $client = new Client([
+            'base_uri' => $url,
+        ]);
+        try {
+            $response = $client->request($method);
+            if (sizeof($response->getHeader($header))) {
+                return $response->getHeader($header)[0];
             }
-        }
-        return $headerValue;
+        } catch (ServerException $e) {
+            return false;
+        };
+        return false;
     }
 }
