@@ -203,10 +203,11 @@ class TrustedList
             $certificates = [$certificates];
         };
         // var_dump($certificates); exit;
-        foreach ($certificates as $key => $value) {
-            $expectedCerts[] = X509Certificate::emit($value);
-        };
-        $xmlSig = new XMLSig($this->xml, $expectedCerts);
+        // foreach ($certificates as $key => $value) {
+        //     // $expectedCerts[] = X509Certificate::emit($value);
+        //     $expectedCerts[] = $value;
+        // };
+        $xmlSig = new XMLSig($this->xml, $certificates);
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
@@ -379,8 +380,7 @@ class TrustedList
 
     public function getSourceModifiedTime()
     {
-        $ds = new DataSource;
-        return $ds->getHTTPModifiedTime($this->TSLLocation);
+        return DataSource::getHTTPModifiedTime($this->TSLLocation);
     }
 
     /**

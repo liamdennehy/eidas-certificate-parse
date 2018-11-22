@@ -69,9 +69,10 @@ class XMLSig
         //     $key->loadKey($certificate);
         // };
         if ($secDsig->verify($key) === 1) {
-            $foundThumb = $key->getX509Certificate();
-            if ($foundThumb) {
-                $foundThumb = openssl_x509_fingerprint($foundThumb, 'sha256');
+            $this->signedBy = X509Certificate::emit($key->getX509Certificate());
+            // var_dump($this->signedBy); exit;
+            if ($this->signedBy) {
+                $foundThumb = openssl_x509_fingerprint($this->signedBy, 'sha256');
                 $validThumbs = $this->getX509Thumbprints('sha256');
             } else {
                 $foundThumb = $key->getX509Thumbprint();
@@ -81,7 +82,7 @@ class XMLSig
             };
 
             if (in_array($foundThumb, $validThumbs)) {
-                $this->signedBy = $foundThumb;
+                // $this->signedBy = $foundThumb;
                 return true;
             } else {
                 $out = "Found Thumprint:" . PHP_EOL . "  " . $foundThumb . PHP_EOL;
@@ -110,6 +111,17 @@ class XMLSig
             $thumbprints[] = openssl_x509_fingerprint($certificate, $algo);
         };
         return $thumbprints;
+    }
+
+    public function getX509Certificates()
+    {
+        $certificates = [];
+        foreach ($this->certificates as $certificate) {
+            $certificates[
+                openssl_x509_fingerprint($certificate, 'sha256')
+                ] = $certificate;
+        };
+        return $certificates;
     }
 
     public function getSignedBy()
