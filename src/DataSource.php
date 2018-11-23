@@ -26,7 +26,7 @@ class DataSource
             $filePath = self::DataDir . $url;
         };
         if (! file_exists($filePath)) {
-            return self::fetch($url);
+            return self::getHTTP($url);
         } else {
             return file_get_contents($filePath);
         }
@@ -39,7 +39,7 @@ class DataSource
      */
     public static function fetch($url)
     {
-        $data=file_get_contents($url);
+        $data=self::getHTTP($url);
         return $data;
     }
 
@@ -58,7 +58,7 @@ class DataSource
     /**
      * [getHTTPModifiedTime description]
      * @param  string $url [description]
-     * @return null|integer      [description]
+     * @return string|boolean      [description]
      */
     public static function getHTTPModifiedTime($url)
     {
@@ -69,6 +69,13 @@ class DataSource
         return $lastModified;
     }
 
+    /**
+     * [getHTTPHeader description]
+     * @param  string $url    [description]
+     * @param  string $header [description]
+     * @param  string $method [description]
+     * @return string|boolean         [description]
+     */
     public static function getHTTPHeader($url, $header, $method = 'HEAD')
     {
         $client = new Client([
@@ -83,5 +90,19 @@ class DataSource
             return false;
         };
         return false;
+    }
+
+    public static function getHTTP($url)
+    {
+        $client = new Client([
+            'base_uri' => $url,
+        ]);
+            try {
+                $response = $client->request('GET');
+                return (string)($response->getBody());
+            } catch (\Exception $e) {
+                return false;
+            }
+
     }
 }
