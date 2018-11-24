@@ -2,6 +2,8 @@
 
 namespace eIDASCertificate\TrustedList;
 
+use eIDASCertificate\DigitalIdentity\ServiceDigitalIdentity;
+
 /**
  *
  */
@@ -15,6 +17,7 @@ class TSLPointer extends \Exception
     private $schemeOperatorNames = [];
     private $serviceDigitalIdentities = [];
     private $mimeType;
+    private $fileType;
 
     public function __construct($tslPointer)
     {
@@ -50,6 +53,24 @@ class TSLPointer extends \Exception
                 };
             }
         };
+
+        foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
+            $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
+        };
+
+        switch ($this->mimeType) {
+            case 'application/vnd.etsi.tsl+xml':
+                $this->fileType = 'xml';
+                break;
+            case 'application/pdf':
+                $this->fileType = 'pdf';
+                break;
+            default:
+                throw new \Exception("Unknown TSL Format $this->mimeType", 1);
+
+                break;
+        }
+
         var_dump([
             "TSLType" => $this->type,
             "SchemeTerritory" => $this->schemeTerritory,
@@ -68,6 +89,11 @@ class TSLPointer extends \Exception
     public function getTSLMimeType()
     {
         return $this->mimeType;
+    }
+
+    public function getTSLFileType()
+    {
+        return $this->fileType;
     }
 
     public function getServiceDigitalIdentities()
