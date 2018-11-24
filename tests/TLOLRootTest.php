@@ -12,7 +12,9 @@ class TLOLRootTest extends TestCase
     public function setUp()
     {
         if (! $this->tlolxml) {
-            $this->tlolxml = DataSource::load('tlol.xml');
+            $this->tlolxml = DataSource::fetch(
+                TrustedList::TrustedListOfListsXML
+            );
         }
     }
 
