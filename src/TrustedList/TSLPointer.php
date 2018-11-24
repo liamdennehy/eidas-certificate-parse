@@ -7,13 +7,13 @@ namespace eIDASCertificate\TrustedList;
  */
 class TSLPointer extends \Exception
 {
-    private $tslPointer;
     private $location;
     private $type;
     private $schemeTerritory;
     private $stcrURIs = [];
+    private $schemeTypeCommunityRules = [];
     private $schemeOperatorNames = [];
-    private $serviceDigitalIdentities;
+    private $serviceDigitalIdentities = [];
     private $mimeType;
 
     public function __construct($tslPointer)
@@ -21,25 +21,7 @@ class TSLPointer extends \Exception
         $this->mimeType = (string)$tslPointer->xpath('.//ns3:MimeType')[0];
         $this->location = (string)$tslPointer->TSLLocation;
         $tslAddInfo = $tslPointer->AdditionalInformation;
-        $stcrURIs=$tslAddInfo
-            ->xpath('.//*[local-name()="SchemeTypeCommunityRules"]')[0]
-                ->xpath('.//*[local-name()="URI"]');
-        foreach ($stcrURIs as $stcrURI) {
-            $this->stcrURIs[
-                (string)$stcrURI->attributes('xml',true)['lang']
-                ] = (string)$stcrURI;
-        };
-        $schemeOperatorNames=$tslAddInfo
-            ->xpath('.//*[local-name()="SchemeOperatorName"]')[0]
-                ->xpath('.//*[local-name()="Name"]');
-        foreach ($schemeOperatorNames as $schemeOperatorName) {
-            $this->schemeOperatorNames[
-                (string)$schemeOperatorName->attributes('xml',true)['lang']
-                ] = (string)$schemeOperatorName;
-        };
-
-        foreach ($tslPointer->AdditionalInformation->OtherInformation as $tslOtherInfo) {
-            // var_dump(sizeof($tslOtherInfo));
+        foreach ($tslAddInfo->OtherInformation as $tslOtherInfo) {
             foreach ($tslOtherInfo as $name => $value) {
                 switch ($name) {
                     case 'TSLType':
@@ -48,22 +30,34 @@ class TSLPointer extends \Exception
                     case 'SchemeTerritory':
                         $this->schemeTerritory = (string)$value;
                         break;
+                    case 'SchemeOperatorName':
+                        foreach ($value->xpath('.//*[local-name()="Name"]') as $soName) {
+                            $this->schemeOperatorNames[
+                                (string)$soName->attributes('xml', true)['lang']
+                                ] = (string)$soName;
+                        }
+                        break;
+                    case 'SchemeTypeCommunityRules':
+                        foreach ($value->xpath('.//*[local-name()="URI"]') as $stcrURI) {
+                            $this->schemeTypeCommunityRules[
+                                (string)$stcrURI->attributes('xml', true)['lang']
+                                ] = (string)$stcrURI;
+                        }
+                        break;
                     default:
-                        # code...
+                        throw new \Exception("Unknown TSLPointer AdditionalInfo $name", 1);
                         break;
                 };
             }
         };
         var_dump([
-            "type" => $this->type,
-            "territory" => $this->schemeTerritory,
-            "uris" => $this->stcrURIs,
-            "operatornames" => $this->schemeOperatorNames]);
-
-        // exit;
-        // foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
-        //     $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
-        // };
+            "TSLType" => $this->type,
+            "SchemeTerritory" => $this->schemeTerritory,
+            "SchemeOperatorNames" => $this->schemeOperatorNames,
+            "SchemeTypeCommunityRules" => $this->schemeTypeCommunityRules,
+            "MimeType" => $this->mimeType,
+            "TSLLocation" => $this->location
+        ]);
     }
 
     public function getTSLLocation()
@@ -71,21 +65,18 @@ class TSLPointer extends \Exception
         return $this->tslLocation;
     }
 
+    public function getTSLMimeType()
+    {
+        return $this->mimeType;
+    }
+
     public function getServiceDigitalIdentities()
     {
         return $this->serviceDigitalIdentities;
     }
-    // public function loadTrustedList()
-    // {
-    //     $tslXml = DataSource::load($this->tslLocation);
-    //     $newTL = new TrustedList($tslXml, $tslPointer);
-    //     return $newTL;
-    // }
-    //
-    // public function fetchTrustedList()
-    // {
-    //     $tslXml = DataSource::fetch($this->tslLocation);
-    //     $newTL = new TrustedList($tslXml, $tslPointer);
-    //     return $newTL;
-    // }
+
+    public function getSchemeTerritory()
+    {
+        return $this->schemeTerritory;
+    }
 }
