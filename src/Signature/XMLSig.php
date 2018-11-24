@@ -5,6 +5,7 @@ namespace eIDASCertificate\Signature;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecEnc;
 use DOMDocument;
+use eIDASCertificate\Certificate;
 
 /**
  *
@@ -69,7 +70,7 @@ class XMLSig
         //     $key->loadKey($certificate);
         // };
         if ($secDsig->verify($key) === 1) {
-            $this->signedBy = X509Certificate::emit($key->getX509Certificate());
+            $this->signedBy = Certificate\X509Certificate::emit($key->getX509Certificate());
             // var_dump($this->signedBy); exit;
             if ($this->signedBy) {
                 $foundThumb = openssl_x509_fingerprint($this->signedBy, 'sha256');
