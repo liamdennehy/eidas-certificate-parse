@@ -97,12 +97,11 @@ class DataSource
         $client = new Client([
             'base_uri' => $url,
         ]);
-            try {
-                $response = $client->request('GET');
-                return (string)($response->getBody());
-            } catch (\Exception $e) {
-                return false;
-            }
-
+        try {
+            $response = $client->request('GET');
+            return (string)($response->getBody());
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

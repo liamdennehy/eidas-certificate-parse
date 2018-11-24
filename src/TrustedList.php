@@ -40,7 +40,7 @@ class TrustedList
      */
     public function __construct($tlxml, $tslPointer = null, $verbose = false)
     {
-        if ( ! $tlxml ) {
+        if (! $tlxml) {
             throw new TrustedListException("No input XML string found for new TrustedList", 1);
         }
         $this->verbose = $verbose;
