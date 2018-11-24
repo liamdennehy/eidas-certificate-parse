@@ -47,7 +47,6 @@ class TrustedList
         $this->processTLAttributes();
         if ($this->isTLOL()) {
             $this->processTLOLPointer();
-            $this->processTSLPointers();
         };
         if ($tslPointer) {
             foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
@@ -57,13 +56,13 @@ class TrustedList
         };
     }
 
-    public function processTSLPointers()
+    private function processTSLPointers()
     {
         foreach (
             $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
             as $otherTSLPointer
         ) {
-            $this->trustedListPointers[] = new TSLPointer($otherTSLPointer);
+            $this->trustedListPointers[] = new TrustedList\TSLPointer($otherTSLPointer);
         };
     }
 
@@ -109,7 +108,7 @@ class TrustedList
             ->SchemeInformation
               ->SchemeOperatorName
                 ->xpath("*[@xml:lang='en']")[0];
-        $this->TSLType = new TSLType(
+        $this->TSLType = new TrustedList\TSLType(
           (string)$this->tl->SchemeInformation->TSLType
         );
         $this->listIssueDateTime = strtotime(
@@ -142,9 +141,17 @@ class TrustedList
         };
     }
 
-    public function processTrustedLists()
+    private function processTrustedLists()
     {
+        if (sizeof($this->getTrustedListPointers() == 0)) {
+            $this->processTrustedListPointers();
+        };
+        foreach ($this->getTrustedListPointers() as $tslPointer) {
+            // var_dump($tslPointer); exit;
+            $this->trustedLists[] = $this->fetchTrustedList($tslPointer);
+        }
     }
+
     private function fetchTrustedList($tslPointer)
     {
         foreach ($tslPointer->AdditionalInformation->OtherInformation as $tslOtherInfo) {
@@ -215,23 +222,23 @@ class TrustedList
     public function fetchAllTLs()
     {
         if ($this->isTLOL()) {
-            $this->processTrustedListPointers(null);
+            $this->processTrustedListPointers();
         };
     }
 
     public function processTrustedListPointers()
     {
         if ($this->isTLOL() && sizeof($this->trustedListPointers) == 0) {
-            // $this->trustedLists = [];
             foreach (
                 $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
                 as $otherTSLPointer
             ) {
                 $this->trustedListPointers[] =
-                    new TSLPointer($otherTSLPointer);
+                    new TrustedList\TSLPointer($otherTSLPointer);
             }
         }
     }
+
     /**
      * [getSignedBy description]
      * @return string Hash of signing certificate
@@ -342,6 +349,9 @@ class TrustedList
      */
     public function getTrustedLists()
     {
+        if (sizeof($this->trustedLists) == 0) {
+            $this->processTrustedLists();
+        }
         return $this->trustedLists;
     }
 

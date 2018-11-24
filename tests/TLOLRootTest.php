@@ -41,7 +41,7 @@ class TLOLRootTest extends TestCase
         $this->tlol = $TrustedListOfLists;
     }
 
-    public function testGetTrustedListPointers()
+    public function testGetTLOLTrustedListPointers()
     {
         if (! $this->tlol) {
             $TrustedListOfLists = new TrustedList($this->tlolxml, null, false);
@@ -61,7 +61,6 @@ class TLOLRootTest extends TestCase
             $TrustedListOfLists->verifyTSL();
             $this->tlol = $TrustedListOfLists;
         };
-        // $this->tlol->verifyAllTLs();
         $tls = $this->tlol->getTrustedLists();
         $this->assertGreaterThan(
             0,

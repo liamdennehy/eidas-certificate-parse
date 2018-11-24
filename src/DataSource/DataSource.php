@@ -10,7 +10,7 @@ use GuzzleHttp\Exception\ServerException;
  */
 class DataSource
 {
-    const DataDir = __DIR__ . '/../data/';
+    const DataDir = __DIR__ . '/../../data/';
 
     /**
      * [load description]

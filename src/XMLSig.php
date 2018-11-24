@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate;
+namespace eIDASCertificate\Signature;
 
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecEnc;
