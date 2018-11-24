@@ -18,6 +18,7 @@ class TrustedList
     private $TSLLocation;
     private $TSLFormat;
     private $TSLType;
+    private $tslPointer;
     private $schemeOperators = [];
     private $isTLOL;
     private $listIssueDateTime;
@@ -49,10 +50,7 @@ class TrustedList
             $this->processTLOLPointer();
         };
         if ($tslPointer) {
-            foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
-                $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
-            };
-            $this->TSLLocation = (string)$tslPointer->TSLLocation;
+            $this->tslPointer = $tslPointer;
         };
     }
 
@@ -91,7 +89,7 @@ class TrustedList
                     };
                 };
                 foreach ($otherTSLPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $digitalId) {
-                    $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($digitalId);
+                    $this->serviceDigitalIdentities[] = new DigitalIdentity\ServiceDigitalIdentity($digitalId);
                 };
             };
         }
@@ -147,25 +145,24 @@ class TrustedList
             $this->processTrustedListPointers();
         };
         foreach ($this->getTrustedListPointers() as $tslPointer) {
-            // var_dump($tslPointer); exit;
             $this->trustedLists[] = $this->fetchTrustedList($tslPointer);
         }
     }
 
-    private function fetchTrustedList($tslPointer)
+    public function fetchTrustedList($tslPointer)
     {
-        foreach ($tslPointer->AdditionalInformation->OtherInformation as $tslOtherInfo) {
-            if (strpos($tslOtherInfo->asXML(), '<ns3:MimeType>')) {
-                if (
-                    explode("<", explode(">", $tslOtherInfo->asXML())[2])[0] ==
-                    'application/vnd.etsi.tsl+xml'
-                ) {
-                    $tslXml = DataSource::fetch($tslLocation);
-                    $newTL = new TrustedList($tslXml, $tslPointer);
-                    return $newTL;
-                };
-            };
-        };
+        // foreach ($tslPointer->AdditionalInformation->OtherInformation as $tslOtherInfo) {
+        //     if (strpos($tslOtherInfo->asXML(), '<ns3:MimeType>')) {
+        //         if (
+        //             explode("<", explode(">", $tslOtherInfo->asXML())[2])[0] ==
+        //             'application/vnd.etsi.tsl+xml'
+        //         ) {
+        $tslXml = DataSource::fetch($tslPointer->getTSLLocation());
+        $newTL = new TrustedList($tslXml, $tslPointer);
+        return $newTL;
+        //         };
+        //     };
+        // };
     }
 
     /**
@@ -188,7 +185,7 @@ class TrustedList
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         };
-        $xmlSig = new XMLSig($this->xml, $certificates);
+        $xmlSig = new Signature\XMLSig($this->xml, $certificates);
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
@@ -226,7 +223,7 @@ class TrustedList
         };
     }
 
-    public function processTrustedListPointers()
+    private function processTrustedListPointers()
     {
         if ($this->isTLOL() && sizeof($this->trustedListPointers) == 0) {
             foreach (
@@ -357,6 +354,9 @@ class TrustedList
 
     public function getTrustedListPointers()
     {
+        if (sizeof($this->trustedListPointers) == 0) {
+            $this->processTrustedListPointers();
+        };
         return $this->trustedListPointers;
     }
 
@@ -376,5 +376,22 @@ class TrustedList
     public function getTSLLocation()
     {
         return $this->TSLLocation;
+    }
+
+    public function dumpTL()
+    {
+        $tslHash = hash('sha1', DataSource::fetch($this->getTSLLocation()));
+        $lastModified = $this->getSourceModifiedTime();
+        print "TrustedList:     " . $this->getName() . PHP_EOL;
+        print "TSLLocation:     " . $this->getTSLLocation() . PHP_EOL;
+        print "TSLLocationHash: " . hash('sha256', $this->getTSLLocation()) . PHP_EOL;
+        print "TSLHash:         " . $tslHash . PHP_EOL;
+        print "Published:       " . gmdate("Y-m-d H:i:s", $this->getListIssueDateTime()) . PHP_EOL;
+        print "LastModified:    " . gmdate("Y-m-d H:i:s", strtotime($lastModified)) . PHP_EOL;
+        print "NextUpdate:      " . gmdate("Y-m-d H:i:s", $this->getNextUpdate()) ;
+        if ($this->getNextUpdate() < time('now')) {
+            print "  <----- Update overdue!!!!!";
+        };
+        print PHP_EOL;
     }
 }
