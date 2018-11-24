@@ -70,20 +70,11 @@ class TSLPointer extends \Exception
 
                 break;
         }
-
-        var_dump([
-            "TSLType" => $this->type,
-            "SchemeTerritory" => $this->schemeTerritory,
-            "SchemeOperatorNames" => $this->schemeOperatorNames,
-            "SchemeTypeCommunityRules" => $this->schemeTypeCommunityRules,
-            "MimeType" => $this->mimeType,
-            "TSLLocation" => $this->location
-        ]);
     }
 
     public function getTSLLocation()
     {
-        return $this->tslLocation;
+        return $this->location;
     }
 
     public function getTSLMimeType()
@@ -104,5 +95,17 @@ class TSLPointer extends \Exception
     public function getSchemeTerritory()
     {
         return $this->schemeTerritory;
+    }
+
+    public function getRawInfo()
+    {
+        return ([
+            "TSLType" => $this->type,
+            "SchemeTerritory" => $this->schemeTerritory,
+            "SchemeOperatorNames" => $this->schemeOperatorNames,
+            "SchemeTypeCommunityRules" => $this->schemeTypeCommunityRules,
+            "MimeType" => $this->mimeType,
+            "TSLLocation" => $this->location
+        ]);
     }
 }
