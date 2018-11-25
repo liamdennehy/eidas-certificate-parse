@@ -4,6 +4,7 @@ namespace eIDASCertificate;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
+use eIDASCertificate\DataSource\HTTPException;
 
 /**
  *
@@ -26,7 +27,8 @@ class DataSource
             $filePath = self::DataDir . $url;
         };
         if (! file_exists($filePath)) {
-            return self::getHTTP($url);
+            $data = self::getHTTP($url);
+            return $data;
         } else {
             return file_get_contents($filePath);
         }
