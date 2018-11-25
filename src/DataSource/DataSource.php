@@ -80,6 +80,10 @@ class DataSource
     {
         $client = new Client([
             'base_uri' => $url,
+            'headers' => [
+                // 'User-Agent' => 'GuzzleHttp/6.3.3 curl/7.61.1 PHP/7.1.22',
+                'User-Agent' => 'eIDAS-Certificate-Parse',
+            ]
         ]);
         try {
             $response = $client->request($method);
@@ -96,6 +100,10 @@ class DataSource
     {
         $client = new Client([
             'base_uri' => $url,
+            'headers' => [
+                // 'User-Agent' => 'GuzzleHttp/6.3.3 curl/7.61.1 PHP/7.1.22',
+                'User-Agent' => 'eIDAS-Certificate-Parse',
+            ]
         ]);
         try {
             $response = $client->request('GET');
