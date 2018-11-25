@@ -10,22 +10,16 @@ class TrustServiceProvider
     private $name;
     private $services = [];
     private $serviceHistory;
-    private $verbose;
 
     /**
      * [__construct description]
      * @param SimpleXMLElement  $tsp     [description]
-     * @param boolean $verbose [description]
      */
-    public function __construct($tsp, $verbose = false)
+    public function __construct($tsp)
     {
-        // $this->verbose = $verbose;
         $this->name = (string)$tsp->TSPInformation->TSPName->xpath("*[@xml:lang='en']")[0];
-        if ($verbose) {
-            print '    ' . $this->getName() . PHP_EOL;
-        };
         foreach ($tsp->TSPServices->TSPService as $tspService) {
-            $newTSPService = new TSPService($tspService, $verbose);
+            $newTSPService = new TSPService($tspService);
             $this->services[$newTSPService->getDate()] = $newTSPService;
         };
         sort($this->services);

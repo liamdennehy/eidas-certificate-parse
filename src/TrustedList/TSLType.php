@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate;
+namespace eIDASCertificate\TrustedList;
 
 /**
  * [Trust Service Provider]

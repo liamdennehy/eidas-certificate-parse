@@ -18,9 +18,8 @@ class TSPService
     /**
      * [__construct description]
      * @param SimpleXMLElement  $tspService [description]
-     * @param boolean $verbose    [description]
      */
-    public function __construct($tspService, $verbose = false)
+    public function __construct($tspService)
     {
         $serviceInformation = $tspService->ServiceInformation;
         $this->name = (string)$serviceInformation->ServiceName->xpath("*[@xml:lang='en']")[0];
@@ -42,9 +41,6 @@ class TSPService
                 // Apparently https://stackoverflow.com/questions/27742595/php-best-way-to-stop-constructor
                 try {
                     $newSIExtension = new ServiceInformationExtension($siExtension);
-                    if ($verbose) {
-                        print '        ' . $newSIExtension->getURI() . PHP_EOL;
-                    };
                     $this->siExtensions[] = $newSIExtension;
                 } catch (SafeException $e) {
                     // continue;

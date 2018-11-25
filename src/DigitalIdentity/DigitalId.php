@@ -1,6 +1,8 @@
 <?php
 
-namespace eIDASCertificate;
+namespace eIDASCertificate\DigitalIdentity;
+
+use eIDASCertificate\Certificate;
 
 /**
  *
@@ -15,7 +17,7 @@ abstract class DigitalId
         switch ($name) {
         case 'X509Certificate':
             $value = openssl_x509_read(
-                X509Certificate::base64ToPEM((string)$identifier)
+                Certificate\X509Certificate::base64ToPEM((string)$identifier)
             );
             break;
         case 'X509SKI':
