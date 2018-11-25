@@ -3,6 +3,7 @@
 namespace eIDASCertificate\DigitalIdentity;
 
 use eIDASCertificate\Certificate;
+
 /**
  *
  */

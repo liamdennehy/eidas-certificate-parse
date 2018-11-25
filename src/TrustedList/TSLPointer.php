@@ -53,8 +53,26 @@ class TSLPointer extends \Exception
                 };
             }
         };
-
+        // var_dump($this->schemeTerritory);
         foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
+            // foreach ($SDI->xpath('.//*[local-name()="DigitalId"]') as $dID) {
+            //     foreach ($dID->children() as $name => $nothing) {
+            //         switch ($name) {
+            //             case 'X509Certificate':
+            //                 break;
+            //             case 'X509SubjectName':
+            //                 break;
+            //             case 'X509SKI':
+            //                 break;
+            //
+            //             default:
+            //                 throw new \Exception("Unknown DigitalIdentity Type $name on TSLPointer $this->schemeTerritory", 1);
+            //
+            //                 break;
+            //         };
+            //     };
+            // };
+
             $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
         };
 
@@ -97,15 +115,29 @@ class TSLPointer extends \Exception
         return $this->schemeTerritory;
     }
 
-    public function getRawInfo()
+    public function getSchemeOperatorName($lang = 'en')
     {
+        return $this->schemeOperatorNames[$lang];
+    }
+
+    public function getName()
+    {
+        return $this->getSchemeTerritory() . ": " . $this->getSchemeOperatorName();
+    }
+
+    public function dumpTSLPointer()
+    {
+        // foreach ($this->serviceDigitalIdentities as $id) {
+        //     return($id->getX509Certificates());
+        // }
         return ([
             "TSLType" => $this->type,
             "SchemeTerritory" => $this->schemeTerritory,
             "SchemeOperatorNames" => $this->schemeOperatorNames,
             "SchemeTypeCommunityRules" => $this->schemeTypeCommunityRules,
             "MimeType" => $this->mimeType,
-            "TSLLocation" => $this->location
+            "TSLLocation" => $this->location,
+            "IDs" => $this->serviceDigitalIdentities
         ]);
     }
 }
