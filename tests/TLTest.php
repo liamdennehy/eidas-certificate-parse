@@ -45,10 +45,12 @@ class TLTest extends TestCase
             sizeof($this->tls)
         );
         foreach ($this->tls as $TrustedList) {
-            $this->assertGreaterThan(
-                0,
-                $TrustedList->getTLX509Certificates()
-            );
+            if ($TrustedList) {
+                $this->assertGreaterThan(
+                    0,
+                    $TrustedList->getTLX509Certificates()
+                );
+            }
         }
     }
 
