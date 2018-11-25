@@ -46,7 +46,7 @@ class TrustedList
             if ($tslPointer->getTSLFileType() != 'xml') {
                 throw new ParseException("Input is not XML for TrustedList " .
                     $tslPointer->getName());
-                };
+            };
             $this->tlPointer = $tslPointer;
         };
         if (! $tlxml) {
