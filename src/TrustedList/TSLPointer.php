@@ -53,26 +53,7 @@ class TSLPointer extends \Exception
                 };
             }
         };
-        // var_dump($this->schemeTerritory);
         foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
-            // foreach ($SDI->xpath('.//*[local-name()="DigitalId"]') as $dID) {
-            //     foreach ($dID->children() as $name => $nothing) {
-            //         switch ($name) {
-            //             case 'X509Certificate':
-            //                 break;
-            //             case 'X509SubjectName':
-            //                 break;
-            //             case 'X509SKI':
-            //                 break;
-            //
-            //             default:
-            //                 throw new \Exception("Unknown DigitalIdentity Type $name on TSLPointer $this->schemeTerritory", 1);
-            //
-            //                 break;
-            //         };
-            //     };
-            // };
-
             $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
         };
 
@@ -85,7 +66,6 @@ class TSLPointer extends \Exception
                 break;
             default:
                 throw new \Exception("Unknown TSL Format $this->mimeType", 1);
-
                 break;
         }
     }
