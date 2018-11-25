@@ -29,7 +29,7 @@ class TLTest extends TestCase
             foreach ($this->tlol->getTrustedListPointers('xml') as $tslPointer) {
                 try {
                     $newTL = TrustedList::loadTrustedList($tslPointer);
-                    $this->tls[$newTL->getName()] = TrustedList::loadTrustedList($tslPointer);
+                    $this->tls[$tslPointer->getName()] = TrustedList::loadTrustedList($tslPointer);
                 } catch (ParseException $e) {
                     // Tolerate unavailable/misbehaving authority
                 }
@@ -54,16 +54,8 @@ class TLTest extends TestCase
 
     public function testVerifyAllTLs()
     {
-        $tlolxml=DataSource::load(TrustedList::TrustedListOfListsXMLPath);
-        $TrustedListOfLists = new TrustedList($tlolxml, null, false);
-        $TrustedListOfLists->verifyTSL();
-        $this->assertTrue($TrustedListOfLists->verifyAllTLs());
-        $failedTLVerify = false;
-        foreach ($TrustedListOfLists as $tl) {
-            if (! $tl->getSignedBy) {
-                $failedTLVerify = true;
-            }
-        };
-        $this->assertFalse($failedTLVerify);
+        $this->tlol->verifyTSL();
+        $this->tlol->setTolerateFailedTLs(true);
+        $this->assertTrue($this->tlol->verifyAllTLs());
     }
 }
