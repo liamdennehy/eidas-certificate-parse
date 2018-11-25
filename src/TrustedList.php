@@ -34,6 +34,7 @@ class TrustedList
     private $distributionPoints = [];
     private $tslPointers = [];
     private $tlPointer;
+    private $tolerateFailedTLs = false;
 
     /**
      * [__construct description]
@@ -144,16 +145,18 @@ class TrustedList
         };
     }
 
-    private function processTrustedLists()
+    private function processTrustedLists($failOnMissing = true)
     {
         if (sizeof($this->getTrustedListPointers() == 0)) {
             $this->processTrustedListPointers();
         };
-        foreach ($this->getTrustedListPointers('xml') as $tslPointer) {
-            $newTL = self::loadTrustedList($tslPointer);
-            if ($newTL) {
-                $this->trustedLists[$newTL->getName()] = self::loadTrustedList($tslPointer);
+        foreach ($this->getTrustedListPointers('xml') as $name => $tslPointer) {
+            $newTL = self::fetchTrustedList($tslPointer);
+            if ($this->tolerateFailedTLs == false && ! $newTL) {
+                throw new \Exception("Could not process TrustedList $name", 1);
             }
+            // null indicates a failed load
+            $this->trustedLists[$tslPointer->getName()] = $newTL;
         }
     }
 
@@ -217,14 +220,20 @@ class TrustedList
             if (sizeof($this->trustedLists) == 0) {
                 $this->processTrustedLists();
             };
-            $verified = false;
-            foreach ($this->getTrustedLists() as $trustedList) {
-                $trustedList->verifyTSL();
+            foreach ($this->getTrustedLists() as $name => $trustedList) {
+                if ($trustedList) {
+                    $verified = $trustedList->verifyTSL();
+                };
+                if (! $this->tolerateFailedTLs) {
+                    if (! ($trustedList || $verified)) {
+                        return false;
+                    };
+                };
             };
+            return true;
         } else {
             throw new TrustedListException("This is not the Trusted List of Lists", 1);
         };
-        return true;
     }
 
     public function fetchAllTLs()
@@ -374,13 +383,6 @@ class TrustedList
         } else {
             return $this->tslPointers[$fileType];
         }
-        // $tslPointers = [];
-        // foreach ($this->tslPointers as $tslPointer) {
-        //     if ($tslPointer->getTSLFileType() == $fileType) {
-        //         $tslPointers[] = $tslPointer;
-        //     }
-        // };
-        // return $tslPointers;
     }
 
     /**
@@ -441,5 +443,15 @@ class TrustedList
             $tslPointers[] = $tslPointer->dumpTSLPointer();
         };
         return $tslPointers;
+    }
+
+    public function setTolerateFailedTLs($tolerateFailedTLs)
+    {
+        $this->tolerateFailedTLs = $tolerateFailedTLs;
+    }
+
+    public function getTolerateFailedTLs($tolerateFailedTLs)
+    {
+        return $this->tolerateFailedTLs;
     }
 }
