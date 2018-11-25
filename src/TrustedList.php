@@ -12,13 +12,14 @@ class TrustedList
     const TrustedListOfListsXMLPath =
       'https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml';
     const TLOLType = 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists';
+    const TSLType = 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUgeneric';
 
     private $schemeOperatorName;
     private $schemeTerritory;
     private $TSLLocation;
     private $TSLFormat;
     private $TSLType;
-    private $tslPointer;
+    // private $tslPointer;
     private $schemeOperators = [];
     private $isTLOL;
     private $listIssueDateTime;
@@ -31,7 +32,8 @@ class TrustedList
     private $signedBy;
     private $tl;
     private $distributionPoints = [];
-    private $trustedListPointers = [];
+    private $tslPointers = [];
+    private $tlPointer;
 
     /**
      * [__construct description]
@@ -40,59 +42,60 @@ class TrustedList
      */
     public function __construct($tlxml, $tslPointer = null)
     {
+        if ($tslPointer) {
+            if ($tslPointer->getTSLFileType() != 'xml') {
+                throw new ParseException("Input is not XML for TrustedList " .
+                    $tslPointer->getName());
+                };
+            $this->tlPointer = $tslPointer;
+        };
         if (! $tlxml) {
-            throw new TrustedListException("No input XML string found for new TrustedList", 1);
+            throw new ParseException("No input XML string found for new TrustedList", 1);
         }
         $this->xml = $tlxml;
-        $this->tl = new SimpleXMLElement($this->xml);
+        try {
+            $this->tl = new SimpleXMLElement($this->xml);
+        } catch (\Exception $e) {
+            if ($tslPointer) {
+                throw new ParseException("Error Processing XML for TrustedList " .
+                $tslPointer->getName() . PHP_EOL .
+                print_r(substr($tlxml, 0, 10), true), 1);
+            }
+            throw new ParseException("Error Processing XML for TrustedList", 1);
+        }
+
         $this->processTLAttributes();
         if ($this->isTLOL()) {
-            $this->processTLOLPointer();
-        };
-        if ($tslPointer) {
-            $this->tslPointer = $tslPointer;
-        };
+            $this->processTLPointers();
+        }
     }
 
-    private function processTSLPointers()
+    private function processTLPointers()
     {
-        foreach (
-            $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
-            as $otherTSLPointer
-        ) {
-            $this->trustedListPointers[] = new TrustedList\TSLPointer($otherTSLPointer);
-        };
-    }
-
-    private function processTLOLPointer()
-    {
-        foreach (
-            $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
-            as $otherTSLPointer
-        ) {
-            if (
-                (string)$otherTSLPointer
+        if (sizeof($this->tslPointers) == 0) {
+            foreach (
+                $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
+                as $otherTSLPointer
+            ) {
+                $tslType = (string)$otherTSLPointer
                   ->AdditionalInformation
                     ->OtherInformation[0]
-                      ->TSLType
-                == self::TLOLType
-            ) {
-                foreach (
-                    $otherTSLPointer
-                      ->AdditionalInformation
-                        ->OtherInformation
-                    as $OtherInfo
-                ) {
-                    if (strpos($OtherInfo->asXML(), '<ns3:MimeType>')) {
-                        $this->TSLFormat = explode("<", explode(">", $OtherInfo->asXML())[2])[0];
-                        $this->TSLLocation = (string)$otherTSLPointer->TSLLocation;
-                    };
-                };
-                foreach ($otherTSLPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $digitalId) {
-                    $this->serviceDigitalIdentities[] = new DigitalIdentity\ServiceDigitalIdentity($digitalId);
-                };
+                      ->TSLType;
+                switch ($tslType) {
+                    case self::TSLType:
+                        $this->tslPointers[] = new TrustedList\TSLPointer($otherTSLPointer);
+                        break;
+                    case self::TLOLType:
+                        $this->tlPointer = new TrustedList\TSLPointer($otherTSLPointer);
+                        break;
+
+                    default:
+                        throw new ParseException("Unknown TSLType $tslType parsing Trusted Lists", 1);
+
+                        break;
+                }
             };
-        }
+        };
     }
 
     /**
@@ -144,25 +147,23 @@ class TrustedList
         if (sizeof($this->getTrustedListPointers() == 0)) {
             $this->processTrustedListPointers();
         };
-        foreach ($this->getTrustedListPointers() as $tslPointer) {
-            $this->trustedLists[] = $this->fetchTrustedList($tslPointer);
+        foreach ($this->getTrustedListPointers('xml') as $tslPointer) {
+            $this->trustedLists[] = $this->loadTrustedList($tslPointer);
         }
     }
 
     public function fetchTrustedList($tslPointer)
     {
-        // foreach ($tslPointer->AdditionalInformation->OtherInformation as $tslOtherInfo) {
-        //     if (strpos($tslOtherInfo->asXML(), '<ns3:MimeType>')) {
-        //         if (
-        //             explode("<", explode(">", $tslOtherInfo->asXML())[2])[0] ==
-        //             'application/vnd.etsi.tsl+xml'
-        //         ) {
         $tslXml = DataSource::fetch($tslPointer->getTSLLocation());
         $newTL = new TrustedList($tslXml, $tslPointer);
         return $newTL;
-        //         };
-        //     };
-        // };
+    }
+
+    public function loadTrustedList($tslPointer)
+    {
+        $tslXml = DataSource::load($tslPointer->getTSLLocation());
+        $newTL = new TrustedList($tslXml, $tslPointer);
+        return $newTL;
     }
 
     /**
@@ -174,7 +175,7 @@ class TrustedList
     {
         if (is_null($certificates)) {
             if (! sizeof($this->getTLX509Certificates())) {
-                throw new SignatureException(
+                throw new Signature\SignatureException(
                     "No known certificates for TrustedList " .
                     $this->getName(),
                     1
@@ -225,12 +226,12 @@ class TrustedList
 
     private function processTrustedListPointers()
     {
-        if ($this->isTLOL() && sizeof($this->trustedListPointers) == 0) {
+        if ($this->isTLOL() && sizeof($this->tslPointers) == 0) {
             foreach (
                 $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
                 as $otherTSLPointer
             ) {
-                $this->trustedListPointers[] =
+                $this->tslPointers[] =
                     new TrustedList\TSLPointer($otherTSLPointer);
             }
         }
@@ -251,8 +252,13 @@ class TrustedList
      */
     public function getTLX509Certificates($hash = null)
     {
+        // if ($this->isTLOL()) {
+        //     $tlPointer = $this->tlPointer;
+        // } else {
+        //     $tlPointer = $this->tslPointer;
+        // };
         $x509Certificates = [];
-        foreach ($this->serviceDigitalIdentities as $serviceDigitalIdentity) {
+        foreach ($this->tlPointer->getServiceDigitalIdentities() as $serviceDigitalIdentity) {
             foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
                 $x509Certificates[] = $x509Certificate;
             };
@@ -352,12 +358,21 @@ class TrustedList
         return $this->trustedLists;
     }
 
-    public function getTrustedListPointers()
+    public function getTrustedListPointers($fileType = null)
     {
-        if (sizeof($this->trustedListPointers) == 0) {
+        if (sizeof($this->tslPointers) == 0) {
             $this->processTrustedListPointers();
         };
-        return $this->trustedListPointers;
+        if (! $fileType) {
+            return $this->tslPointers;
+        };
+        $tslPointers = [];
+        foreach ($this->tslPointers as $tslPointer) {
+            if ($tslPointer->getTSLFileType() == $fileType) {
+                $tslPointers[] = $tslPointer;
+            }
+        };
+        return $tslPointers;
     }
 
     /**
@@ -393,5 +408,30 @@ class TrustedList
             print "  <----- Update overdue!!!!!";
         };
         print PHP_EOL;
+    }
+
+    public function getTSLPointers($fileType = null)
+    {
+        if (! $this->tslPointers) {
+            $this->processTSLPointers();
+        };
+        if (! $fileType) {
+            return $this->tslPointers;
+        };
+        $tslPointers = [];
+        foreach ($this->tslPointers as $tslPointer) {
+            if ($tslPointer->getTSLFileType() == $fileType) {
+                $tslPointers[] = $tslPointer;
+            }
+        };
+        return $tslPointers;
+    }
+
+    public function dumpTSLPointers($fileType = null)
+    {
+        foreach ($this->getTSLPointers($fileType) as $tslPointer) {
+            $tslPointers[] = $tslPointer->dumpTSLPointer();
+        };
+        return $tslPointers;
     }
 }
