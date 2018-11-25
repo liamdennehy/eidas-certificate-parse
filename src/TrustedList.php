@@ -147,7 +147,7 @@ class TrustedList
 
     private function processTrustedLists($failOnMissing = true)
     {
-        if (sizeof($this->getTrustedListPointers() == 0)) {
+        if (sizeof($this->getTrustedListPointers()) == 0) {
             $this->processTrustedListPointers();
         };
         foreach ($this->getTrustedListPointers('xml') as $name => $tslPointer) {
