@@ -81,17 +81,19 @@ class TrustedList
                   ->AdditionalInformation
                     ->OtherInformation[0]
                       ->TSLType;
+                $newTSLPointer = new TrustedList\TSLPointer($otherTSLPointer);
                 switch ($tslType) {
                     case self::TSLType:
-                        $this->tslPointers[] = new TrustedList\TSLPointer($otherTSLPointer);
+                        $this->tslPointers
+                            [$newTSLPointer->getTSLFileType()]
+                                [$newTSLPointer->getName()]
+                                    = $newTSLPointer;
                         break;
                     case self::TLOLType:
-                        $this->tlPointer = new TrustedList\TSLPointer($otherTSLPointer);
+                        $this->tlPointer = $newTSLPointer;
                         break;
-
                     default:
                         throw new ParseException("Unknown TSLType $tslType parsing Trusted Lists", 1);
-
                         break;
                 }
             };
@@ -148,24 +150,32 @@ class TrustedList
             $this->processTrustedListPointers();
         };
         foreach ($this->getTrustedListPointers('xml') as $tslPointer) {
-            $this->trustedLists[] = $this->loadTrustedList($tslPointer);
+            $newTL = self::loadTrustedList($tslPointer);
+            if ($newTL) {
+                $this->trustedLists[$newTL->getName()] = self::loadTrustedList($tslPointer);
+            }
         }
     }
 
-    public function fetchTrustedList($tslPointer)
+    public static function fetchTrustedList($tslPointer)
     {
-        $tslXml = DataSource::fetch($tslPointer->getTSLLocation());
-        $newTL = new TrustedList($tslXml, $tslPointer);
-        return $newTL;
+        return self::newTLFromXML(DataSource::fetch($tslPointer->getTSLLocation()), $tslPointer);
     }
 
-    public function loadTrustedList($tslPointer)
+    public static function loadTrustedList($tslPointer)
     {
-        $tslXml = DataSource::load($tslPointer->getTSLLocation());
-        $newTL = new TrustedList($tslXml, $tslPointer);
-        return $newTL;
+        return self::newTLFromXML(DataSource::load($tslPointer->getTSLLocation()), $tslPointer);
     }
 
+    public static function newTLFromXML($tslXml, $tslPointer)
+    {
+        if (! $tslXml) {
+            return null;
+        } else {
+            $newTL = new TrustedList($tslXml, $tslPointer);
+            return $newTL;
+        }
+    }
     /**
      * [verifyTSL description]
      * @param  resource|resource[]|string|string[] $tlCerts [description]
@@ -219,9 +229,7 @@ class TrustedList
 
     public function fetchAllTLs()
     {
-        if ($this->isTLOL()) {
-            $this->processTrustedListPointers();
-        };
+        $this->processTrustedListPointers();
     }
 
     private function processTrustedListPointers()
@@ -250,17 +258,15 @@ class TrustedList
      * [getTLX509Certificates description]
      * @return array [description]
      */
-    public function getTLX509Certificates($hash = null)
+    public function getTLX509Certificates($algo = 'sha256', $hash = null)
     {
-        // if ($this->isTLOL()) {
-        //     $tlPointer = $this->tlPointer;
-        // } else {
-        //     $tlPointer = $this->tslPointer;
-        // };
         $x509Certificates = [];
-        foreach ($this->tlPointer->getServiceDigitalIdentities() as $serviceDigitalIdentity) {
+        foreach ($this->tlPointer->getServiceDigitalIdentities()
+            as $serviceDigitalIdentity) {
             foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
-                $x509Certificates[] = $x509Certificate;
+                $x509Certificates[
+                    Certificate\X509Certificate::getHash($x509Certificate, $algo)
+                    ] = $x509Certificate;
             };
         };
         return $x509Certificates;
@@ -365,14 +371,16 @@ class TrustedList
         };
         if (! $fileType) {
             return $this->tslPointers;
-        };
-        $tslPointers = [];
-        foreach ($this->tslPointers as $tslPointer) {
-            if ($tslPointer->getTSLFileType() == $fileType) {
-                $tslPointers[] = $tslPointer;
-            }
-        };
-        return $tslPointers;
+        } else {
+            return $this->tslPointers[$fileType];
+        }
+        // $tslPointers = [];
+        // foreach ($this->tslPointers as $tslPointer) {
+        //     if ($tslPointer->getTSLFileType() == $fileType) {
+        //         $tslPointers[] = $tslPointer;
+        //     }
+        // };
+        // return $tslPointers;
     }
 
     /**
