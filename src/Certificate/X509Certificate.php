@@ -42,4 +42,9 @@ class X509Certificate
     {
         return openssl_x509_parse($cert)['name'];
     }
+
+    public static function getHash($cert, $algo = 'sha256')
+    {
+        return openssl_x509_fingerprint($cert, $algo);
+    }
 }
