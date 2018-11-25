@@ -5,6 +5,7 @@ namespace eIDASCertificate\tests;
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\DataSource;
 use eIDASCertificate\TrustedList;
+use eIDASCertificate\Certificate\X509Certificate;
 
 class TLOLRootTest extends TestCase
 {
@@ -15,6 +16,21 @@ class TLOLRootTest extends TestCase
         if (! $this->tlolxml) {
             $this->tlolxml = DataSource::fetch(
                 TrustedList::TrustedListOfListsXMLPath
+            );
+        }
+    }
+
+    public function testTLOLCertificates()
+    {
+        $TrustedListOfLists = new TrustedList($this->tlolxml, null, false);
+        $this->assertGreaterThan(
+            0,
+            sizeof($TrustedListOfLists->getTLX509Certificates())
+        );
+        foreach ($TrustedListOfLists->getTLX509Certificates() as $tlolCert) {
+            $this->assertGreaterThan(
+                0,
+                strlen(X509Certificate::getDN($tlolCert))
             );
         }
     }
@@ -36,7 +52,9 @@ class TLOLRootTest extends TestCase
                 'emailAddress' => 'michael.de-boer@ec.europa.eu',
                 'title' => 'Professional Person'
             ],
-            openssl_x509_parse($TrustedListOfLists->getSignedBy())['subject']
+            openssl_x509_parse(
+                $TrustedListOfLists->getSignedBy()
+                )['subject']
         );
         $this->tlol = $TrustedListOfLists;
     }
@@ -48,41 +66,10 @@ class TLOLRootTest extends TestCase
             $TrustedListOfLists->verifyTSL();
             $this->tlol = $TrustedListOfLists;
         };
+        $tlPointers = $this->tlol->getTrustedListPointers('xml');
         $this->assertGreaterThan(
             0,
-            sizeof($this->tlol->getTrustedListPointers())
+            sizeof($tlPointers)
         );
-    }
-
-    public function testGetTLOLTrustedLists()
-    {
-        if (! $this->tlol) {
-            $TrustedListOfLists = new TrustedList($this->tlolxml, null, false);
-            $TrustedListOfLists->verifyTSL();
-            $this->tlol = $TrustedListOfLists;
-        };
-        $tls = $this->tlol->getTrustedLists();
-        $this->assertGreaterThan(
-            0,
-            sizeof($tls)
-        );
-    }
-
-    public function testAllTLsVerified()
-    {
-        if (! $this->tlol) {
-            $TrustedListOfLists = new TrustedList($this->tlolxml, null, false);
-            $TrustedListOfLists->verifyTSL();
-            $this->tlol = $TrustedListOfLists;
-        };
-        $tls = $this->tlol->getTrustedLists();
-        $failedTLVerify = false;
-        foreach ($tls as $tl) {
-            if (! $tl->getSignedBy()) {
-                $failedTLVerify = true;
-            }
-        };
-        $this->assertFalse($failedTLVerify);
-        $this->assertTrue($this->tlol->verifyAllTLs());
     }
 }
