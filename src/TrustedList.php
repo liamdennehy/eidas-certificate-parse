@@ -71,30 +71,29 @@ class TrustedList
 
     private function processTLPointers()
     {
-        if (sizeof($this->tslPointers) == 0) {
-            foreach (
-                $this->tl->xpath('./tsl:SchemeInformation/tsl:PointersToOtherTSL/tsl:OtherTSLPointer')
-                as $otherTSLPointer
-            ) {
-                $otherTSLPointer->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
-                $tslType = (string)$otherTSLPointer
-                  ->xpath('./tsl:AdditionalInformation/tsl:OtherInformation/tsl:TSLType')[0];
-                $newTSLPointer = new TrustedList\TSLPointer($otherTSLPointer);
-                switch ($tslType) {
-                    case self::TSLType:
-                        $this->tslPointers
-                            [$newTSLPointer->getTSLFileType()]
-                                [$newTSLPointer->getName()]
-                                    = $newTSLPointer;
-                        break;
-                    case self::TLOLType:
-                        $this->tlPointer = $newTSLPointer;
-                        break;
-                    default:
-                        throw new ParseException("Unknown TSLType $tslType parsing Trusted Lists", 1);
-                        break;
-                }
-            };
+        $this->tslPointers = [];
+        foreach (
+            $this->tl->xpath('./tsl:SchemeInformation/tsl:PointersToOtherTSL/tsl:OtherTSLPointer')
+            as $otherTSLPointer
+        ) {
+            $otherTSLPointer->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
+            $tslType = (string)$otherTSLPointer
+              ->xpath('./tsl:AdditionalInformation/tsl:OtherInformation/tsl:TSLType')[0];
+            $newTSLPointer = new TrustedList\TSLPointer($otherTSLPointer);
+            switch ($tslType) {
+                case self::TSLType:
+                    $this->tslPointers
+                        [$newTSLPointer->getTSLFileType()]
+                            [$newTSLPointer->getName()]
+                                = $newTSLPointer;
+                    break;
+                case self::TLOLType:
+                    $this->tlPointer = $newTSLPointer;
+                    break;
+                default:
+                    throw new ParseException("Unknown TSLType $tslType parsing Trusted Lists", 1);
+                    break;
+            }
         };
     }
 
@@ -217,19 +216,6 @@ class TrustedList
     {
         $this->processTLPointers();
     }
-
-    // private function processTrustedListPointers()
-    // {
-    //     if ($this->isTLOL() && sizeof($this->tslPointers) == 0) {
-    //         foreach (
-    //             $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
-    //             as $otherTSLPointer
-    //         ) {
-    //             $this->tslPointers[] =
-    //                 new TrustedList\TSLPointer($otherTSLPointer);
-    //         }
-    //     }
-    // }
 
     /**
      * [getSignedBy description]
@@ -417,6 +403,18 @@ class TrustedList
         } else {
             return $this->tslPointers[$fileType];
         }
+    }
+
+    public function getTrustedListPointer($schemeTerritory)
+    {
+        $tslPointers = [];
+        foreach ($this->getTrustedListPointers('xml') as $tslPointer) {
+            if ($tslPointer->getSchemeTerritory() == $schemeTerritory) {
+                $tslPointers[] = $tslPointer;
+            }
+        };
+        return $tslPointers;
+
     }
 
     /**
