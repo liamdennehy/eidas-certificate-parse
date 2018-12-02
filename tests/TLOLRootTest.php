@@ -23,9 +23,9 @@ class TLOLRootTest extends TestCase
         if (! $this->tlol) {
             $this->tlol = new TrustedList($this->tlolxml, null, false);
         };
-        if ($this->tlol->getSignedBy()) {
-            DataSource::persist(TrustedList::TrustedListOfListsXMLPath);
-        }
+        // if ($this->tlol->getSignedBy()) {
+        //     DataSource::persist(TrustedList::TrustedListOfListsXMLPath);
+        // }
     }
 
     public function testTLOLAttributes()
@@ -62,23 +62,25 @@ class TLOLRootTest extends TestCase
 
     public function testVerifyTLOL()
     {
-        $this->tlol->verifyTSL();
+        $expectedSignedByDNArray =
+        [
+            'C' => 'NL',
+            'L' => 'BE',
+            'O' => 'European Commission',
+            'OU' => '0949.383.342',
+            'CN' => 'Michael Theodoor de Boer',
+            'SN' => 'de Boer',
+            'GN' => 'Michael Theodoor',
+            'serialNumber' => '10303969450085046424',
+            'emailAddress' => 'michael.de-boer@ec.europa.eu',
+            'title' => 'Professional Person'
+        ];
+        $this->assertTrue($this->tlol->verifyTSL());
+        $tlolSignedByCert = $this->tlol->getSignedBy();
+        $tlolSignedByDNArray = openssl_x509_parse($tlolSignedByCert)['subject'];
         $this->assertEquals(
-            [
-                'C' => 'NL',
-                'L' => 'BE',
-                'O' => 'European Commission',
-                'OU' => '0949.383.342',
-                'CN' => 'Michael Theodoor de Boer',
-                'SN' => 'de Boer',
-                'GN' => 'Michael Theodoor',
-                'serialNumber' => '10303969450085046424',
-                'emailAddress' => 'michael.de-boer@ec.europa.eu',
-                'title' => 'Professional Person'
-            ],
-            openssl_x509_parse(
-                $this->tlol->getSignedBy()
-                )['subject']
+            $expectedSignedByDNArray,
+            $tlolSignedByDNArray
         );
     }
 
