@@ -31,6 +31,7 @@ class TrustedList
     private $verified;
     private $signedBy;
     private $tl;
+    private $xmlHash;
     private $distributionPoints = [];
     private $tslPointers = [];
     private $tlPointer;
@@ -54,6 +55,7 @@ class TrustedList
             throw new ParseException("No input XML string found for new TrustedList", 1);
         }
         $this->xml = $tlxml;
+        $this->xmlHash = hash('sha256',$tlxml);
         try {
             $this->tl = new SimpleXMLElement($tlxml);
         } catch (\Exception $e) {
@@ -73,7 +75,6 @@ class TrustedList
         if (sizeof($this->tslPointers) == 0) {
             foreach (
                 $this->tl->xpath('./tsl:SchemeInformation/tsl:PointersToOtherTSL/tsl:OtherTSLPointer')
-                // $this->tl->SchemeInformation->PointersToOtherTSL->OtherTSLPointer
                 as $otherTSLPointer
             ) {
                 $otherTSLPointer->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
@@ -151,7 +152,7 @@ class TrustedList
                         $this->TSPs[$newTSP->getName()] = $newTSP;
                     }
                 }
-            };
+            }
         }
     }
 
@@ -486,8 +487,13 @@ class TrustedList
         $this->tolerateFailedTLs = $tolerateFailedTLs;
     }
 
-    public function getTolerateFailedTLs($tolerateFailedTLs)
+    public function getTolerateFailedTLs()
     {
         return $this->tolerateFailedTLs;
+    }
+
+    public function getXMLHash()
+    {
+        return $this->xmlHash;
     }
 }
