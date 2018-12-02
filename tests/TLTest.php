@@ -7,6 +7,7 @@ use eIDASCertificate\DataSource;
 use eIDASCertificate\TrustedList;
 use eIDASCertificate\TrustedList\TSLType;
 use eIDASCertificate\TrustedList\TSLPointer;
+use eIDASCertificate\DigitalIdentity\ServiceDigitalIdentity;
 use eIDASCertificate\Certificate\X509Certificate;
 
 class TLTest extends TestCase
@@ -81,6 +82,21 @@ class TLTest extends TestCase
                 0,
                 $tslPointer->getServiceDigitalIdentities()
             );
+            $x509Certificates = [];
+            foreach ($tslPointer->getServiceDigitalIdentities() as $sdi) {
+                $this->assertInstanceOf(ServiceDigitalIdentity::class, $sdi);
+                $this->assertGreaterThan(
+                    0,
+                    $sdi->getX509Certificates()
+                );
+                foreach ($sdi->getX509Certificates() as $x509Certificate) {
+                    $x509Certificates[] = $x509Certificate;
+                }
+            }
+            $this->assertGreaterThan(
+                0,
+                sizeof($x509Certificates)
+            );
             $this->assertEquals(
                 'application/vnd.etsi.tsl+xml',
                 $tslPointer->getTSLMimeType()
@@ -95,18 +111,16 @@ class TLTest extends TestCase
                     FILTER_FLAG_SCHEME_REQUIRED
                 )
             );
-
         };
-        // $tlHUXML = DataSource::load($tlHUPointers[0]->getTSLLocation());
-        // $tlHU = new TrustedList($tlHUXML, $tlHUPointers[0]);
-        // $this->TLAttributeTests($tlHU);
-        // $this->TLAttributeTests(DataSource::load('https://www.digst.dk/TSLDKxml'));
     }
 
-    public function loadAllTLs()
+    // $this->TLAttributeTests($tlHU);
+    // $this->TLAttributeTests(DataSource::load('https://www.digst.dk/TSLDKxml'));
+
+    public function loadTL($schemeTerritory)
     {
         if (! $this->tls) {
-            foreach ($this->tlol->getTrustedListPointers('xml') as $tslPointer) {
+            foreach ($this->tlol->getTrustedListPointer('xml') as $tslPointer) {
                 try {
                     $newTL = TrustedList::loadTrustedList($tslPointer);
                     $this->tls[$tslPointer->getName()] = TrustedList::loadTrustedList($tslPointer);
