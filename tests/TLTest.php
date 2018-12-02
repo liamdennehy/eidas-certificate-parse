@@ -21,47 +21,57 @@ class TLTest extends TestCase
         if (! $this->tlolxml) {
             $this->tlolxml=file_get_contents('data/tlol.xml');
         }
-        if (! $this->tlxml) {
-            $this->tlxml=file_get_contents('data/badtl.xml');
-        }
+        // if (! $this->badtlxml) {
+        //     $this->badtlxml=file_get_contents('data/badtl.xml');
+        // }
         if (! $this->tlol) {
             $this->tlol = new TrustedList($this->tlolxml, null, false);
         };
-        if (! $this->tl) {
-            $this->tl = new TrustedList($this->tlxml, null, false);
-        };
+        // if (! $this->tl) {
+        //     $this->tl = new TrustedList($this->tlxml, null, false);
+        // };
     }
 
-    public function testLoadBadTL()
+    public function TLAttributeTests($tlxml)
     {
+        $thistl = new TrustedList($tlxml, null, false);
         $this->assertEquals(
             2,
-            strlen($this->tl->getSchemeTerritory())
+            strlen($thistl->getSchemeTerritory())
         );
         $this->assertGreaterThan(
             10,
-            strlen($this->tl->getSchemeOperatorName())
+            strlen($thistl->getSchemeOperatorName())
         );
-        $this->assertInternalType("int", $this->tl->getListIssueDateTime());
-        $this->assertGreaterThan(1262300400, $this->tl->getListIssueDateTime());
-        $this->assertInternalType("int", $this->tl->getNextUpdate());
-        $this->assertGreaterThan(1262300400, $this->tl->getNextUpdate());
-        $this->assertGreaterThan($this->tl->getListIssueDateTime(), $this->tl->getNextUpdate());
-        $this->assertInstanceOf(TSLType::class, $this->tl->getTSLType());
+        $this->assertInternalType("int", $thistl->getListIssueDateTime());
+        $this->assertGreaterThan(1262300400, $thistl->getListIssueDateTime());
+        $this->assertInternalType("int", $thistl->getNextUpdate());
+        $this->assertGreaterThan(1262300400, $thistl->getNextUpdate());
+        $this->assertGreaterThan($thistl->getListIssueDateTime(), $thistl->getNextUpdate());
+        $this->assertInstanceOf(TSLType::class, $thistl->getTSLType());
         $this->assertEquals(
             "EUgeneric",
-            $this->tl->getTSLType()->getType()
+            $thistl->getTSLType()->getType()
         );
-        foreach ($this->tl->getDistributionPoints() as $dp) {
+        foreach ($thistl->getDistributionPoints() as $dp) {
             $this->assertEquals(
                 $dp,
                 filter_var(
                     $dp,
                     FILTER_VALIDATE_URL,
-                    FILTER_FLAG_PATH_REQUIRED | FILTER_FLAG_HOST_REQUIRED
+                    FILTER_FLAG_PATH_REQUIRED |
+                    FILTER_FLAG_HOST_REQUIRED |
+                    FILTER_FLAG_SCHEME_REQUIRED
                 )
             );
         };
+        $this->assertEquals(64,strlen($thistl->getXMLHash()));
+    }
+
+    public function testTLPointers()
+    {
+        $this->TLAttributeTests(file_get_contents('data/badtl.xml'));
+        $this->TLAttributeTests(file_get_contents('https://www.digst.dk/TSLDKxml'));
     }
 
     public function loadAllTLs()
