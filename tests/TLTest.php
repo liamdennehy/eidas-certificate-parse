@@ -34,7 +34,6 @@ class TLTest extends TestCase
 
     public function testLoadBadTL()
     {
-        $this->tl = new TrustedList($this->tlxml, null, false);
         $this->assertEquals(
             2,
             strlen($this->tl->getSchemeTerritory())
@@ -50,14 +49,19 @@ class TLTest extends TestCase
         $this->assertGreaterThan($this->tl->getListIssueDateTime(), $this->tl->getNextUpdate());
         $this->assertInstanceOf(TSLType::class, $this->tl->getTSLType());
         $this->assertEquals(
-            "EUgeneric", $this->tl->getTSLType()->getType());
+            "EUgeneric",
+            $this->tl->getTSLType()->getType()
+        );
         foreach ($this->tl->getDistributionPoints() as $dp) {
             $this->assertEquals(
-                $dp, filter_var(
+                $dp,
+                filter_var(
                     $dp,
                     FILTER_VALIDATE_URL,
-                    FILTER_FLAG_PATH_REQUIRED | FILTER_FLAG_HOST_REQUIRED));
-            };
+                    FILTER_FLAG_PATH_REQUIRED | FILTER_FLAG_HOST_REQUIRED
+                )
+            );
+        };
     }
 
     public function loadAllTLs()
