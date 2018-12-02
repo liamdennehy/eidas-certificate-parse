@@ -23,9 +23,6 @@ class TLOLRootTest extends TestCase
         if (! $this->tlol) {
             $this->tlol = new TrustedList($this->tlolxml, null, false);
         };
-        // if ($this->tlol->getSignedBy()) {
-        //     DataSource::persist(TrustedList::TrustedListOfListsXMLPath);
-        // }
     }
 
     public function testTLOLAttributes()
