@@ -21,11 +21,11 @@ class TSLPointer extends \Exception
 
     public function __construct($tslPointer)
     {
-        $this->mimeType = (string)$tslPointer->xpath('.//ns3:MimeType')[0];
-        $this->location = (string)$tslPointer->TSLLocation;
-        $tslAddInfo = $tslPointer->AdditionalInformation;
-        foreach ($tslAddInfo->OtherInformation as $tslOtherInfo) {
-            foreach ($tslOtherInfo as $name => $value) {
+        // $tslPointer->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
+        $this->location = (string)$tslPointer->xpath('./tsl:TSLLocation')[0];
+        foreach ($tslPointer
+            ->xpath('./tsl:AdditionalInformation/tsl:OtherInformation') as $tslOtherInfo) {
+            foreach ($tslOtherInfo[0] as $name => $value) {
                 switch ($name) {
                     case 'TSLType':
                         $this->type = (string)$value;
@@ -53,10 +53,13 @@ class TSLPointer extends \Exception
                 };
             }
         };
-        foreach ($tslPointer->ServiceDigitalIdentities->ServiceDigitalIdentity as $SDI) {
+        foreach ($tslPointer
+            ->xpath(
+                './tsl:ServiceDigitalIdentities/tsl:ServiceDigitalIdentity'
+            ) as $SDI) {
             $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
         };
-
+        $this->mimeType = (string)$tslPointer->xpath('.//ns3:MimeType')[0];
         switch ($this->mimeType) {
             case 'application/vnd.etsi.tsl+xml':
                 $this->fileType = 'xml';

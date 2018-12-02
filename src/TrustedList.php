@@ -414,7 +414,6 @@ class TrustedList
             }
         };
         return $tslPointers;
-
     }
 
     /**
