@@ -15,22 +15,31 @@ class DataSource
 
     /**
      * [load description]
-     * @param  string $url [description]
-     * @return string      [description]
+     * @param  string $url Either a URL or a filename in DataDir
+     * @return string     Contents of (cached) URL
      */
     public static function load($url)
     {
-        $fileHash = hash('sha256', $url);
-        if (strtolower(substr($url, 0, 4)) == 'http') {
-            $filePath = self::DataDir . $fileHash;
-        } else {
-            $filePath = self::DataDir . $url;
+        if (file_exists(self::DataDir . $url)) {
+            return file_get_contents($url);
         };
-        if (! file_exists($filePath)) {
-            $data = self::getHTTP($url);
-            return $data;
+        $isURL = filter_var(
+            $url,
+            FILTER_VALIDATE_URL,
+            FILTER_FLAG_PATH_REQUIRED |
+            FILTER_FLAG_HOST_REQUIRED |
+            FILTER_FLAG_SCHEME_REQUIRED
+        );
+        if (! $isURL) {
+            throw new \Exception("Does not look like a URL and file not found: $url", 1);
+        };
+        $urlHash = hash('sha256', $url);
+        $filePath = self::DataDir . '*-' . $urlHash;
+        $results = glob($filePath);
+        if (sizeof($results)) {
+            return file_get_contents($results[sizeof($results)-1]);
         } else {
-            return file_get_contents($filePath);
+            return self::getHTTP($url);
         }
     }
 
@@ -49,11 +58,16 @@ class DataSource
      * [persist description]
      * @param  string $data [description]
      * @param  string $url  [description]
+     * @param  [type] $timestamp [description]
+     * @return [type]            [description]
      */
-    public static function persist($data, $url)
+    public static function persist($data, $url, $timestamp = null)
     {
-        $fileHash = hash('sha256', $url);
-        $filePath = self::DataDir . $fileHash;
+        $locationHash = hash('sha256', $url);
+        if ($timestamp) {
+            $locationHash = "$timestamp-$locationHash";
+        };
+        $filePath = self::DataDir . $locationHash;
         file_put_contents($filePath, $data);
     }
 
