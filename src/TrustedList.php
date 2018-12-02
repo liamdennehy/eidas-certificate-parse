@@ -16,7 +16,6 @@ class TrustedList
 
     private $schemeOperatorName;
     private $schemeTerritory;
-    private $TSLLocation;
     private $TSLFormat;
     private $TSLType;
     // private $tslPointer;
@@ -56,6 +55,7 @@ class TrustedList
         $this->xml = $tlxml;
         try {
             $this->tl = new SimpleXMLElement($this->xml);
+            $this->tl->registerXPathNamespace("tsl","http://uri.etsi.org/02231/v2#");
         } catch (\Exception $e) {
             if ($tslPointer) {
                 throw new ParseException("Error Processing XML for TrustedList " .
@@ -106,25 +106,25 @@ class TrustedList
      */
     private function processTLAttributes()
     {
-        $this->schemeTerritory = (string)$this->tl->SchemeInformation->SchemeTerritory;
-        $this->schemeOperatorName =
-          (string)$this->tl
-            ->SchemeInformation
-              ->SchemeOperatorName
-                ->xpath("*[@xml:lang='en']")[0];
+        // $this->schemeTerritory = (string)$this->tl->SchemeInformation->SchemeTerritory;
+        $this->schemeTerritory = (string)$this->tl->xpath('./tsl:SchemeInformation/tsl:SchemeTerritory')[0];
+        $this->schemeOperatorName = (string)$this->tl->xpath(
+                "./tsl:SchemeInformation/tsl:SchemeOperatorName/*[@xml:lang='en']"
+                )[0];
         $this->TSLType = new TrustedList\TSLType(
-          (string)$this->tl->SchemeInformation->TSLType
+          (string)$this->tl->xpath('./tsl:SchemeInformation/tsl:TSLType')[0]
         );
         $this->listIssueDateTime = strtotime(
-            $this->tl->SchemeInformation->ListIssueDateTime
+            (string)$this->tl->xpath(
+                './tsl:SchemeInformation/tsl:ListIssueDateTime')[0]
         );
         $this->nextUpdate = strtotime(
-            $this->tl->SchemeInformation->NextUpdate->dateTime
+            (string)$this->tl->xpath(
+                './tsl:SchemeInformation/tsl:NextUpdate/tsl:dateTime')[0]
         );
-        if (isset($this->tl->SchemeInformation->DistributionPoints->URI)) {
-            foreach ($this->tl->SchemeInformation->DistributionPoints->URI as $uri) {
-                $this->distributionPoints[] = (string)$uri;
-            };
+        foreach ($this->tl->xpath(
+            './tsl:SchemeInformation/tsl:DistributionPoints/tsl:URI') as $uri) {
+            $this->distributionPoints[] = (string)$uri;
         };
     }
 
@@ -151,7 +151,7 @@ class TrustedList
             $this->processTrustedListPointers();
         };
         foreach ($this->getTrustedListPointers('xml') as $name => $tslPointer) {
-            $newTL = self::fetchTrustedList($tslPointer);
+            $newTL = self::loadTrustedList($tslPointer);
             if ($this->tolerateFailedTLs == false && ! $newTL) {
                 throw new \Exception("Could not process TrustedList $name", 1);
             }
@@ -203,7 +203,11 @@ class TrustedList
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
-            DataSource::persist($this->xml, $this->TSLLocation);
+            DataSource::persist(
+                $this->xml,
+                $this->getTSLLocation(),
+                $this->getListIssueDateTime()
+            );
             return $this->verified;
         };
         $this->verified = false;
@@ -316,7 +320,7 @@ class TrustedList
      */
     public function getName()
     {
-        return $this->schemeTerritory . ": " . $this->schemeOperatorName;
+        return $this->getSchemeTerritory() . ": " . $this->getSchemeOperatorName();
     }
 
     /**
@@ -346,6 +350,11 @@ class TrustedList
         return $this->TSLType->getType() == 'EUlistofthelists';
     }
 
+    public function getTSLType()
+    {
+        return $this->TSLType;
+    }
+
     public function getListIssueDateTime()
     {
         return $this->listIssueDateTime;
@@ -358,7 +367,7 @@ class TrustedList
 
     public function getSourceModifiedTime()
     {
-        return DataSource::getHTTPModifiedTime($this->TSLLocation);
+        return DataSource::getHTTPModifiedTime($this->getTSLLocation());
     }
 
     /**
@@ -400,7 +409,7 @@ class TrustedList
      */
     public function getTSLLocation()
     {
-        return $this->TSLLocation;
+        return $this->tlPointer->getTSLLocation();
     }
 
     public function dumpTL()
@@ -429,7 +438,7 @@ class TrustedList
             return $this->tslPointers;
         };
         $tslPointers = [];
-        foreach ($this->tslPointers as $tslPointer) {
+        foreach ($this->tslPointers[$fileType] as $tslPointer) {
             if ($tslPointer->getTSLFileType() == $fileType) {
                 $tslPointers[] = $tslPointer;
             }
