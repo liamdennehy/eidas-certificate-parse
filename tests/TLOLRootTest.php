@@ -28,6 +28,24 @@ class TLOLRootTest extends TestCase
         }
     }
 
+    public function testTLOLAttributes()
+    {
+        $this->assertEquals(
+            "EUlistofthelists",
+            $this->tlol->getTSLType()->getType()
+        );
+        $this->assertInternalType("int", $this->tlol->getVersionID());
+        $this->assertInternalType("int", $this->tlol->getSequenceNumber());
+        $this->assertEquals(
+            5,
+            $this->tlol->getVersionID()
+        );
+        $this->assertGreaterThan(
+            1,
+            $this->tlol->getSequenceNumber()
+        );
+    }
+
     public function testTLOLCertificates()
     {
         $this->assertGreaterThan(
@@ -36,7 +54,7 @@ class TLOLRootTest extends TestCase
         );
         foreach ($this->tlol->getTLX509Certificates() as $tlolCert) {
             $this->assertGreaterThan(
-                0,
+                12,
                 strlen(X509Certificate::getDN($tlolCert))
             );
         }
@@ -64,12 +82,31 @@ class TLOLRootTest extends TestCase
         );
     }
 
-    public function testGetTLOLTrustedListPointers()
+    public function testGetTLOLTrustedListXMLPointers()
     {
-        $tlPointers = $this->tlol->getTrustedListPointers('xml');
+        $validURLFilterFlags =
+            FILTER_FLAG_PATH_REQUIRED |
+            FILTER_FLAG_HOST_REQUIRED |
+            FILTER_FLAG_SCHEME_REQUIRED;
+        $tlXMLPointers = $this->tlol->getTrustedListPointers('xml');
         $this->assertGreaterThan(
-            0,
-            sizeof($tlPointers)
+            12,
+            sizeof($tlXMLPointers)
         );
+        foreach ($tlXMLPointers as $tlPointer) {
+            $this->assertEquals(
+                "application/vnd.etsi.tsl+xml",
+                $tlPointer->getTSLMimeType()
+            );
+            $dp = $tlPointer->getTSLLocation();
+            $this->assertEquals(
+                $dp,
+                filter_var(
+                    $dp,
+                    FILTER_VALIDATE_URL,
+                    $validURLFilterFlags
+                )
+            );
+        };
     }
 }
