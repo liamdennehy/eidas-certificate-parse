@@ -31,6 +31,11 @@ class TLTest extends TestCase
         if (! $this->testSchemeTerritories) {
             $this->testSchemeTerritories = ['HU','DE','SK'];
         }
+        if (! $this->tls) {
+            foreach ($this->testSchemeTerritories as $schemeTerritory) {
+                $this->tls[$schemeTerritory] = $this->loadTL($schemeTerritory);
+            };
+        }
     }
 
     public function TLAttributeTests($thistl)
@@ -114,29 +119,26 @@ class TLTest extends TestCase
         };
     }
 
-    // $this->TLAttributeTests($tlHU);
-    // $this->TLAttributeTests(DataSource::load('https://www.digst.dk/TSLDKxml'));
-
     public function loadTL($schemeTerritory)
     {
-        if (! $this->tls) {
-            foreach ($this->tlol->getTrustedListPointer('xml') as $tslPointer) {
-                try {
-                    $newTL = TrustedList::loadTrustedList($tslPointer);
-                    $this->tls[$tslPointer->getName()] = TrustedList::loadTrustedList($tslPointer);
-                } catch (ParseException $e) {
-                    // Tolerate unavailable/misbehaving authority
-                }
-            }
-        }
+        $tslPointers = $this->tlol->getTrustedListPointer($schemeTerritory);
+        $newTL = TrustedList::loadFromPointer($tslPointers[0]);
+        return $newTL;
     }
 
-    public function testLoadAllTLPointers()
+    public function testLoadTLs()
     {
         $this->assertGreaterThan(
             12,
             sizeof($this->tlol->getTrustedListPointers('xml'))
         );
+    }
+
+    public function testTLAttributes()
+    {
+        foreach ($this->testSchemeTerritories as $schemeTerritory) {
+            $this->TLAttributeTests($this->tls[$schemeTerritory]);
+        };
     }
 
     // public function testVerifyAllTLs()
