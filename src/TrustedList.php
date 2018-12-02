@@ -55,7 +55,7 @@ class TrustedList
             throw new ParseException("No input XML string found for new TrustedList", 1);
         }
         $this->xml = $tlxml;
-        $this->xmlHash = hash('sha256',$tlxml);
+        $this->xmlHash = hash('sha256', $tlxml);
         try {
             $this->tl = new SimpleXMLElement($tlxml);
         } catch (\Exception $e) {
@@ -66,12 +66,11 @@ class TrustedList
             }
             throw new ParseException("Error Processing XML for TrustedList", 1);
         }
-        $this->processTLAttributes();
+        $this->tl->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
     }
 
     private function processTLPointers()
     {
-        $this->tl->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
         if (sizeof($this->tslPointers) == 0) {
             foreach (
                 $this->tl->xpath('./tsl:SchemeInformation/tsl:PointersToOtherTSL/tsl:OtherTSLPointer')
@@ -96,44 +95,6 @@ class TrustedList
                         break;
                 }
             };
-        };
-    }
-
-    /**
-     * [processTLAttributes description]
-     */
-    private function processTLAttributes()
-    {
-        $this->tl->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
-        $this->versionID = (integer)$this->tl->xpath(
-            './tsl:SchemeInformation/tsl:TSLVersionIdentifier'
-            )[0];
-        $this->sequenceNumber = (integer)$this->tl->xpath(
-            './tsl:SchemeInformation/tsl:TSLSequenceNumber'
-            )[0];
-        $this->schemeTerritory = (string)$this->tl->xpath(
-            './tsl:SchemeInformation/tsl:SchemeTerritory'
-            )[0];
-        $this->schemeOperatorName = (string)$this->tl->xpath(
-                "./tsl:SchemeInformation/tsl:SchemeOperatorName/*[@xml:lang='en']"
-                )[0];
-        $this->TSLType = new TrustedList\TSLType(
-          (string)$this->tl->xpath('./tsl:SchemeInformation/tsl:TSLType')[0]
-        );
-        $this->listIssueDateTime = strtotime(
-            (string)$this->tl->xpath(
-                './tsl:SchemeInformation/tsl:ListIssueDateTime'
-            )[0]
-        );
-        $this->nextUpdate = strtotime(
-            (string)$this->tl->xpath(
-                './tsl:SchemeInformation/tsl:NextUpdate/tsl:dateTime'
-            )[0]
-        );
-        foreach ($this->tl->xpath(
-            './tsl:SchemeInformation/tsl:DistributionPoints/tsl:URI'
-        ) as $uri) {
-            $this->distributionPoints[] = (string)$uri;
         };
     }
 
@@ -344,6 +305,11 @@ class TrustedList
      */
     public function getSchemeTerritory()
     {
+        if (! $this->schemeTerritory) {
+            $this->schemeTerritory = (string)$this->tl->xpath(
+                './tsl:SchemeInformation/tsl:SchemeTerritory'
+                )[0];
+        }
         return $this->schemeTerritory;
     }
 
@@ -353,6 +319,11 @@ class TrustedList
      */
     public function getSchemeOperatorName()
     {
+        if (! $this->schemeOperatorName) {
+            $this->schemeOperatorName = (string)$this->tl->xpath(
+                    "./tsl:SchemeInformation/tsl:SchemeOperatorName/*[@xml:lang='en']"
+                    )[0];
+        };
         return $this->schemeOperatorName;
     }
 
@@ -362,37 +333,63 @@ class TrustedList
      */
     public function isTLOL()
     {
-        return $this->TSLType->getType() == 'EUlistofthelists';
+        return $this->getTSLType()->getType() == 'EUlistofthelists';
     }
 
     public function getTSLType()
     {
+        if (! $this->TSLType) {
+            $this->TSLType = new TrustedList\TSLType(
+              (string)$this->tl->xpath('./tsl:SchemeInformation/tsl:TSLType')[0]
+            );
+        };
         return $this->TSLType;
     }
 
     public function getListIssueDateTime()
     {
+        if (! $this->listIssueDateTime) {
+            $this->listIssueDateTime = strtotime(
+                (string)$this->tl->xpath(
+                    './tsl:SchemeInformation/tsl:ListIssueDateTime'
+                )[0]
+            );
+        };
         return $this->listIssueDateTime;
     }
 
     public function getNextUpdate()
     {
+        if (! $this->nextUpdate) {
+            $this->nextUpdate = strtotime(
+                (string)$this->tl->xpath(
+                    './tsl:SchemeInformation/tsl:NextUpdate/tsl:dateTime'
+                )[0]
+            );
+        };
         return $this->nextUpdate;
     }
 
     public function getVersionID()
     {
+        if (! $this->versionID) {
+            $this->versionID = (integer)$this->tl->xpath(
+                './tsl:SchemeInformation/tsl:TSLVersionIdentifier'
+                )[0];
+        };
         return $this->versionID;
     }
 
     public function getSequenceNumber()
     {
+        if (! $this->sequenceNumber) {
+            $this->sequenceNumber = (integer)$this->tl->xpath(
+                './tsl:SchemeInformation/tsl:TSLSequenceNumber'
+                )[0];
+        };
         return $this->sequenceNumber;
     }
 
-    // private $TSLVersionID;
-    // private $TSLSequenceNumber;
-    //
     public function getSourceModifiedTime()
     {
         return DataSource::getHTTPModifiedTime($this->getTSLLocation());
@@ -428,6 +425,13 @@ class TrustedList
      */
     public function getDistributionPoints()
     {
+        if (! $this->distributionPoints) {
+            foreach ($this->tl->xpath(
+                './tsl:SchemeInformation/tsl:DistributionPoints/tsl:URI'
+            ) as $uri) {
+                $this->distributionPoints[] = (string)$uri;
+            };
+        };
         return $this->distributionPoints;
     }
 
