@@ -65,13 +65,14 @@ class TLTest extends TestCase
                 )
             );
         };
-        $this->assertEquals(64,strlen($thistl->getXMLHash()));
+        $this->assertEquals(64, strlen($thistl->getXMLHash()));
+        return $thistl;
     }
 
     public function testTLPointers()
     {
-        $this->TLAttributeTests(file_get_contents('data/badtl.xml'));
-        $this->TLAttributeTests(file_get_contents('https://www.digst.dk/TSLDKxml'));
+        $tlhu = $this->TLAttributeTests(DataSource::load('http://www.nmhh.hu/tl/pub/HU_TL.xml'));
+        $this->TLAttributeTests(DataSource::load('https://www.digst.dk/TSLDKxml'));
     }
 
     public function loadAllTLs()
