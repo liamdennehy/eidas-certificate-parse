@@ -136,7 +136,7 @@ class TrustedList
         return self::newTLFromXML(DataSource::fetch($tslPointer->getTSLLocation()), $tslPointer);
     }
 
-    public static function loadTrustedList($tslPointer)
+    public static function loadFromPointer($tslPointer)
     {
         return self::newTLFromXML(DataSource::load($tslPointer->getTSLLocation()), $tslPointer);
     }

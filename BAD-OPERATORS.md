@@ -18,6 +18,8 @@ services...
 <html><head><title>Request Rejected</title></head><body>The requested URL was rejected. Please consult with your administrator.<br><br>Your support ID is: 230680958440152677</body></html>
 ```
 
+- DE: Changes their MimeType namespace from ``ns3:MimeType`` to ``ns4:MimeType``
+
 - HU: Network unreachable
 
 ```sh
