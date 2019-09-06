@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\QCStatements;
+
 /**
  *
  */
@@ -13,7 +14,7 @@ class X509Certificate
 
     public function __construct($candidate)
     {
-      $this->crtResource = X509Certificate::emit($candidate);
+        $this->crtResource = X509Certificate::emit($candidate);
     }
 
     public static function emit($candidate)
@@ -59,35 +60,35 @@ class X509Certificate
 
     public static function parse($crt)
     {
-      $crtParsed = openssl_x509_parse($crt);
-      return $crtParsed;
+        $crtParsed = openssl_x509_parse($crt);
+        return $crtParsed;
     }
 
     public function getParsed()
     {
-      if (empty($this->parsed)) {
-        $this->parsed = X509Certificate::parse($this->crtResource);
-      }
-      return $this->parsed;
+        if (empty($this->parsed)) {
+            $this->parsed = X509Certificate::parse($this->crtResource);
+        }
+        return $this->parsed;
     }
 
     public function hasExtensions()
     {
-      return array_key_exists('extensions',X509Certificate::parse($this->crtResource));
+        return array_key_exists('extensions', X509Certificate::parse($this->crtResource));
     }
 
     public function hasQCStatements()
     {
-      if ($this->hasExtensions()) {
-        return array_key_exists('qcStatements',X509Certificate::parse($this->crtResource)['extensions']);
-      }
-      // return new qcStatements($this->crtResource);
+        if ($this->hasExtensions()) {
+            return array_key_exists('qcStatements', X509Certificate::parse($this->crtResource)['extensions']);
+        }
+        // return new qcStatements($this->crtResource);
     }
 
     public function getQCStatements()
     {
-      if ($this->hasQCStatements()) {
-        return new QCStatements($this->getParsed()['extensions']['qcStatements']);
-      }
+        if ($this->hasQCStatements()) {
+            return new QCStatements($this->getParsed()['extensions']['qcStatements']);
+        }
     }
 }
