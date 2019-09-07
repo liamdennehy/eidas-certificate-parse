@@ -9,7 +9,7 @@ use eIDASCertificate\QCStatements\QCStatementException;
 /**
  *
  */
-class QCPDSs extends QCStatement
+class QCPDSs extends QCStatement implements QCStatementInterface
 {
     private $oid;
     private $pdsLocations;
@@ -28,5 +28,10 @@ class QCPDSs extends QCStatement
             $location['language'] = (string)$value[1];
             $this->pdsLocations[] = $location;
         }
+    }
+
+    public function getType()
+    {
+        return 'QCPDSs';
     }
 }

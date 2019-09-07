@@ -9,7 +9,7 @@ use eIDASCertificate\QCStatements\QCStatementException;
 /**
  *
  */
-class QCQualifiedType extends QCStatement
+class QCQualifiedType extends QCStatement implements QCStatementInterface
 {
     private $qcType;
 
@@ -30,14 +30,19 @@ class QCQualifiedType extends QCStatement
         $qcTypeOID = $statement[0][0]->getContent();
         $qcTypeName = OID::getName($qcTypeOID);
         switch ($qcTypeName) {
-      case 'esign':
-      case 'eseal':
-        $this->qcType = $qcTypeName;
-        break;
+          case 'esign':
+          case 'eseal':
+            $this->qcType = $qcTypeName;
+            break;
 
-      default:
-        throw new QCStatementException("Unrecognised QCType OID $qcTypeOID ($qcTypeName)", 1);
-        break;
+          default:
+            throw new QCStatementException("Unrecognised QCType OID $qcTypeOID ($qcTypeName)", 1);
+            break;
+        }
     }
+
+    public function getType()
+    {
+        return 'QCQualifiedType-'.$this->qcType;
     }
 }
