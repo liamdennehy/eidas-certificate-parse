@@ -12,6 +12,7 @@ use eIDASCertificate\QCStatements\QCStatementException;
 class QCQualifiedType extends QCStatement implements QCStatementInterface
 {
     private $qcType;
+    const type = 'QCQualifiedType';
 
     public function __construct($statement)
     {
@@ -43,6 +44,16 @@ class QCQualifiedType extends QCStatement implements QCStatementInterface
 
     public function getType()
     {
-        return 'QCQualifiedType-'.$this->qcType;
+        return self::type .'-'.$this->qcType;
+    }
+
+    public function getDescription()
+    {
+        return "Some text about " .  self::type;
+    }
+
+    public function getURI()
+    {
+        return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.2.3";
     }
 }
