@@ -6,7 +6,6 @@ php:
   - '7.2'
   - '7.3'
 install:
-  - rm composer.lock
   - cat composer.json
   - composer install
   - mkdir -p ./data
