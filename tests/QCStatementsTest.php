@@ -56,6 +56,12 @@ class QCStatementsTest extends TestCase
             $qcStatements->getPDSLocations()[0]['language']
           ]
         );
+        $this->assertEquals(
+            'MAgGBgQAjkYBAQ==',
+            base64_encode(
+                $qcStatements->getStatements()['QCComplianceStatement']->getBinary()
+            )
+        );
 
         $crtParsed = $this->jmcrt->getParsed();
         $qcStatementBinary =
