@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate;
+namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatementException;
@@ -37,7 +37,5 @@ abstract class QCStatement
           throw new QCStatementException("Unrecognised OID $qcStatementOID ($qcStatementName)", 1);
           break;
       }
-        var_dump($statement[1]);
-        exit;
     }
 }

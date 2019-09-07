@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate;
+namespace eIDASCertificate\QCStatements;
 
 use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
@@ -31,6 +31,7 @@ class QCQualifiedType extends QCStatement
         $qcTypeName = OID::getName($qcTypeOID);
         switch ($qcTypeName) {
       case 'esign':
+      case 'eseal':
         $this->qcType = $qcTypeName;
         break;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate;
+namespace eIDASCertificate\QCStatements;
 
 use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
