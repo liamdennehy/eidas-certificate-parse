@@ -59,7 +59,11 @@ class TSLPointer extends \Exception
             ) as $SDI) {
             $this->serviceDigitalIdentities[] = new ServiceDigitalIdentity($SDI);
         };
-        $this->mimeType = (string)$tslPointer->xpath('.//ns3:MimeType')[0];
+        $mimeType = $tslPointer->xpath('.//ns3:MimeType');
+        if (empty($mimeType)) {
+            $mimeType = $tslPointer->xpath('.//ns4:MimeType');
+        }
+        $this->mimeType = (string)$mimeType[0];
         switch ($this->mimeType) {
             case 'application/vnd.etsi.tsl+xml':
                 $this->fileType = 'xml';
