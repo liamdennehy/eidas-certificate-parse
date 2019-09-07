@@ -8,12 +8,19 @@ use eIDASCertificate\Certificate\X509Certificate;
 class CertificateParseTest extends TestCase
 {
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
+    const mocrtfile = 'Maarten Joris Ottoy.crt';
     const eucrtfile = 'European-Commission.crt';
+
     public function setUp()
     {
         $this->jmcrt = new X509Certificate(
             file_get_contents(
               __DIR__ . "/certs/" . self::jmcrtfile
+          )
+        );
+        $this->mocrt = new X509Certificate(
+            file_get_contents(
+              __DIR__ . "/certs/" . self::mocrtfile
           )
         );
         $this->eucrt = new X509Certificate(
@@ -27,8 +34,32 @@ class CertificateParseTest extends TestCase
     {
         $crtParsed = $this->eucrt->getParsed();
         $this->assertEquals(
-            '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
+            '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342'.
+            '/O=European Commission/CN=EC_CNECT',
             $crtParsed['name']
+        );
+        $crtParsed = $this->mocrt->getParsed();
+        $this->assertEquals(
+            '/C=BE/L=BE/O=European Commission/OU=0949.383.342'.
+            '/CN=Maarten Joris Ottoy/SN=Ottoy/GN=Maarten Joris'.
+            '/serialNumber=10304444110080837592'.
+            '/emailAddress=maarten.ottoy@ec.europa.eu'.
+            '/title=Professional Person',
+            $crtParsed['name']
+        );
+        $this->assertEquals(
+            ['C' => 'BE',
+            'L' => 'BE',
+            'O' => 'European Commission',
+            'OU' => '0949.383.342',
+            'CN' => 'Maarten Joris Ottoy',
+            'SN' => 'Ottoy',
+            'GN' => 'Maarten Joris',
+            'serialNumber' => '10304444110080837592',
+            'emailAddress' => 'maarten.ottoy@ec.europa.eu',
+            'title' => 'Professional Person'
+            ],
+            $crtParsed['subject']
         );
         $crtParsed = $this->jmcrt->getParsed();
         $this->assertEquals(

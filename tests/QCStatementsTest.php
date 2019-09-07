@@ -11,12 +11,18 @@ class qcStatementsTest extends TestCase
 {
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const eucrtfile = 'European-Commission.crt';
+    const mocrtfile = 'Maarten Joris Ottoy.crt';
 
     public function setUp()
     {
         $this->jmcrt = new X509Certificate(
           file_get_contents(
             __DIR__ . "/certs/" . self::jmcrtfile
+        )
+      );
+        $this->mocrt = new X509Certificate(
+          file_get_contents(
+            __DIR__ . "/certs/" . self::mocrtfile
         )
       );
         $this->eucrt = new X509Certificate(
@@ -38,6 +44,15 @@ class qcStatementsTest extends TestCase
       );
 
         $crtParsed = $this->jmcrt->getParsed();
+        $qcStatementBinary =
+          $crtParsed['extensions']['qcStatements'];
+        $qcStatements = new QCStatements($qcStatementBinary);
+        $this->assertEquals(
+          2,
+          sizeof($qcStatements->getStatements())
+      );
+
+        $crtParsed = $this->mocrt->getParsed();
         $qcStatementBinary =
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
