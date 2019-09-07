@@ -10,6 +10,8 @@ use eIDASCertificate\OID;
  */
 class QCSyntaxV2 extends QCStatement implements QCStatementInterface
 {
+    const type = 'QCSyntaxV2';
+
     private $oid;
     private $semanticsType;
 
@@ -38,6 +40,14 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
 
     public function getType()
     {
-        return 'QCSyntaxV2-' . $this->semanticsType;
+        return self::type .'-' . $this->semanticsType;
+    }
+
+    public function getDescription()
+    {
+        return "Some text about " .  self::type;
+    }
+    public function getURI()
+    {
     }
 }

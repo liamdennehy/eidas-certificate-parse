@@ -13,6 +13,7 @@ class QCPDSs extends QCStatement implements QCStatementInterface
 {
     private $oid;
     private $pdsLocations;
+    const type = 'QCPDSs';
 
     public function __construct($statement)
     {
@@ -32,6 +33,16 @@ class QCPDSs extends QCStatement implements QCStatementInterface
 
     public function getType()
     {
-        return 'QCPDSs';
+        return self::type;
+    }
+
+    public function getDescription()
+    {
+        return "Some text about " .  self::type;
+    }
+
+    public function getURI()
+    {
+        return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.3.4";
     }
 }
