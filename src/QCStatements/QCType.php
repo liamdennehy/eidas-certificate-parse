@@ -9,14 +9,17 @@ use eIDASCertificate\QCStatements\QCStatementException;
 /**
  *
  */
-class QCQualifiedType extends QCStatement implements QCStatementInterface
+class QCType extends QCStatement implements QCStatementInterface
 {
     private $qcType;
     const type = 'QCQualifiedType';
+    const oid = '0.4.0.1862.1.6';
 
     public function __construct($statement)
     {
-        $this->oid = $statement[0];
+        if ($statement[0]->getContent() != self::oid) {
+            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+        }
         array_shift($statement);
         if (sizeof($statement) > 1) {
             throw new QCStatementException("More than one entry in QCType Statement", 1);
@@ -33,6 +36,7 @@ class QCQualifiedType extends QCStatement implements QCStatementInterface
         switch ($qcTypeName) {
           case 'esign':
           case 'eseal':
+          case 'web':
             $this->qcType = $qcTypeName;
             break;
 
@@ -49,7 +53,17 @@ class QCQualifiedType extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        return "Some text about " .  self::type;
+        switch ($this->qcType) {
+          // case 'esign':
+          //   return "CERTIFICATES FOR ELECTRONIC SIGNATURES";
+          //   break;
+
+          default:
+          throw new QCStatementException("Unrecognised QCType OID ".self::oid." (".$this->qcType.")", 1);
+
+            break;
+        }
+        return self::oid . " Some text about " .  self::type;
     }
 
     public function getURI()
