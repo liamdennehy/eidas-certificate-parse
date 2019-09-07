@@ -5,7 +5,7 @@
     "require": {
         "phpseclib/phpseclib": "^2.0",
         "robrichards/xmlseclibs": "^3.0",
-        "php": ">=7.0",
+        "php": ">=7.1",
         "guzzlehttp/guzzle": "^6.3",
         "fgrosse/phpasn1": "^2.1",
         "phpunit/phpunit": "^7"
