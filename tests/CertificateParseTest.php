@@ -15,18 +15,18 @@ class CertificateParseTest extends TestCase
     {
         $this->jmcrt = new X509Certificate(
             file_get_contents(
-              __DIR__ . "/certs/" . self::jmcrtfile
-          )
+                __DIR__ . "/certs/" . self::jmcrtfile
+            )
         );
         $this->mocrt = new X509Certificate(
             file_get_contents(
-              __DIR__ . "/certs/" . self::mocrtfile
-          )
+                __DIR__ . "/certs/" . self::mocrtfile
+            )
         );
         $this->eucrt = new X509Certificate(
             file_get_contents(
-              __DIR__ . "/certs/" . self::eucrtfile
-          )
+                __DIR__ . "/certs/" . self::eucrtfile
+            )
         );
     }
 
