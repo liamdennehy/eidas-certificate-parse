@@ -14,7 +14,7 @@ class TLCertificateTest extends TestCase
     {
         if (! $this->tlolxml) {
             $this->tlolxml = DataSource::fetch(
-                TrustedList::TrustedListOfListsXMLPath
+                TrustedList::ListOfTrustedListsXMLPath
             );
         }
     }

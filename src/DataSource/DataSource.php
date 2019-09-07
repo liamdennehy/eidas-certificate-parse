@@ -26,9 +26,10 @@ class DataSource
         $isURL = filter_var(
             $url,
             FILTER_VALIDATE_URL,
-            FILTER_FLAG_PATH_REQUIRED |
-            FILTER_FLAG_HOST_REQUIRED |
-            FILTER_FLAG_SCHEME_REQUIRED
+            FILTER_FLAG_PATH_REQUIRED
+            // FILTER_FLAG_PATH_REQUIRED |
+            // FILTER_FLAG_HOST_REQUIRED |
+            // FILTER_FLAG_SCHEME_REQUIRED
         );
         if (! $isURL) {
             throw new \Exception("Does not look like a URL and file not found: $url", 1);

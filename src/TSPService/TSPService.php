@@ -34,7 +34,7 @@ class TSPService
             $this->identities[] = new ServiceDigitalIdentity($identity);
         };
         $this->serviceHistory = new ServiceHistory(
-          $tspService->ServiceHistory
+            $tspService->ServiceHistory
         );
         if (count($serviceInformation->ServiceInformationExtensions)) {
             foreach ($serviceInformation->ServiceInformationExtensions->Extension as $siExtension) {

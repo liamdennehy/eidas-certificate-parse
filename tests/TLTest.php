@@ -23,7 +23,7 @@ class TLTest extends TestCase
     public function setUp()
     {
         if (! $this->tlolxml) {
-            $this->tlolxml=file_get_contents('data/tlol.xml');
+            $this->tlolxml=file_get_contents('data/eu-lotl.xml');
         }
         if (! $this->tlol) {
             $this->tlol = new TrustedList($this->tlolxml, null, false);
@@ -64,9 +64,10 @@ class TLTest extends TestCase
                 filter_var(
                     $dp,
                     FILTER_VALIDATE_URL,
-                    FILTER_FLAG_PATH_REQUIRED |
-                    FILTER_FLAG_HOST_REQUIRED |
-                    FILTER_FLAG_SCHEME_REQUIRED
+                    FILTER_FLAG_PATH_REQUIRED
+                    // FILTER_FLAG_PATH_REQUIRED |
+                    // FILTER_FLAG_HOST_REQUIRED |
+                    // FILTER_FLAG_SCHEME_REQUIRED
                 )
             );
         };
@@ -111,9 +112,10 @@ class TLTest extends TestCase
                 filter_var(
                     $tslPointer->getTSLLocation(),
                     FILTER_VALIDATE_URL,
-                    FILTER_FLAG_PATH_REQUIRED |
-                    FILTER_FLAG_HOST_REQUIRED |
-                    FILTER_FLAG_SCHEME_REQUIRED
+                    FILTER_FLAG_PATH_REQUIRED
+                    // FILTER_FLAG_PATH_REQUIRED |
+                    // FILTER_FLAG_HOST_REQUIRED |
+                    // FILTER_FLAG_SCHEME_REQUIRED
                 )
             );
         };
