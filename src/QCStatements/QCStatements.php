@@ -18,9 +18,17 @@ class QCStatements
 
     public function __construct($asn1Statement)
     {
+        $this->qcStatements = [];
         $this->asn1Object = ASNObject::fromBinary($asn1Statement);
         foreach ($this->asn1Object as $statement) {
-            $this->qcStatements[] = QCStatement::fromASNObject($statement);
+            $qcStatement = QCStatement::fromASNObject($statement);
+            if (array_key_exists($qcStatement->getType(), $this->qcStatements)) {
+                throw new QCStatementException(
+                    "Multiple QCStatements of type " . $qcStatement->getType(),
+                    1
+                );
+            }
+            $this->qcStatements[$qcStatement->getType()] = $qcStatement;
         }
     }
 
