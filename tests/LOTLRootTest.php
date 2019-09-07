@@ -84,9 +84,10 @@ class LOTLRootTest extends TestCase
     public function testGetLOTLTrustedListXMLPointers()
     {
         $validURLFilterFlags =
-            FILTER_FLAG_PATH_REQUIRED |
-            FILTER_FLAG_HOST_REQUIRED |
-            FILTER_FLAG_SCHEME_REQUIRED;
+            FILTER_FLAG_PATH_REQUIRED;
+        // FILTER_FLAG_PATH_REQUIRED |
+        // FILTER_FLAG_HOST_REQUIRED |
+        // FILTER_FLAG_SCHEME_REQUIRED;
         $tlXMLPointers = $this->lotl->getTrustedListPointers('xml');
         $this->assertGreaterThan(
             12,

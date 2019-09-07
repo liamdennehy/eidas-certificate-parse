@@ -64,9 +64,10 @@ class TLTest extends TestCase
                 filter_var(
                     $dp,
                     FILTER_VALIDATE_URL,
-                    FILTER_FLAG_PATH_REQUIRED |
-                    FILTER_FLAG_HOST_REQUIRED |
-                    FILTER_FLAG_SCHEME_REQUIRED
+                    FILTER_FLAG_PATH_REQUIRED
+                    // FILTER_FLAG_PATH_REQUIRED |
+                    // FILTER_FLAG_HOST_REQUIRED |
+                    // FILTER_FLAG_SCHEME_REQUIRED
                 )
             );
         };
@@ -111,9 +112,10 @@ class TLTest extends TestCase
                 filter_var(
                     $tslPointer->getTSLLocation(),
                     FILTER_VALIDATE_URL,
-                    FILTER_FLAG_PATH_REQUIRED |
-                    FILTER_FLAG_HOST_REQUIRED |
-                    FILTER_FLAG_SCHEME_REQUIRED
+                    FILTER_FLAG_PATH_REQUIRED
+                    // FILTER_FLAG_PATH_REQUIRED |
+                    // FILTER_FLAG_HOST_REQUIRED |
+                    // FILTER_FLAG_SCHEME_REQUIRED
                 )
             );
         };
