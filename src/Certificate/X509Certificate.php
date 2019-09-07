@@ -87,7 +87,13 @@ class X509Certificate
     public function getQCStatements()
     {
         if ($this->hasQCStatements()) {
-            return new QCStatements($this->getParsed()['extensions']['qcStatements']);
+            if (empty($this->qcStatements)) {
+                $qcStatements = new QCStatements(
+                    $this->getParsed()['extensions']['qcStatements']
+                );
+                $this->qcStatements = $qcStatements->getStatements();
+            }
+            return $this->qcStatements;
         }
     }
 }
