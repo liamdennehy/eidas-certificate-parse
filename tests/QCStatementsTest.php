@@ -16,20 +16,20 @@ class qcStatementsTest extends TestCase
     public function setUp()
     {
         $this->jmcrt = new X509Certificate(
-          file_get_contents(
-            __DIR__ . "/certs/" . self::jmcrtfile
-        )
-      );
+            file_get_contents(
+                __DIR__ . "/certs/" . self::jmcrtfile
+            )
+        );
         $this->mocrt = new X509Certificate(
-          file_get_contents(
-            __DIR__ . "/certs/" . self::mocrtfile
-        )
-      );
+            file_get_contents(
+                __DIR__ . "/certs/" . self::mocrtfile
+            )
+        );
         $this->eucrt = new X509Certificate(
-          file_get_contents(
-            __DIR__ . "/certs/" . self::eucrtfile
-        )
-      );
+            file_get_contents(
+                __DIR__ . "/certs/" . self::eucrtfile
+            )
+        );
     }
 
     public function testQCStatementsParse()
@@ -39,26 +39,30 @@ class qcStatementsTest extends TestCase
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
-          5,
-          sizeof($qcStatements->getStatements())
-      );
+            ['QCSyntaxV2-LegalPerson',
+            'QCComplianceStatement',
+            'QCSSCD',
+            'QCQualifiedType-eseal',
+            'QCPDSs'],
+            array_keys($qcStatements->getStatements())
+        );
 
         $crtParsed = $this->jmcrt->getParsed();
         $qcStatementBinary =
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
-          2,
-          sizeof($qcStatements->getStatements())
-      );
+            ['QCComplianceStatement', 'QCSSCD'],
+            array_keys($qcStatements->getStatements())
+        );
 
         $crtParsed = $this->mocrt->getParsed();
         $qcStatementBinary =
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
-          2,
-          sizeof($qcStatements->getStatements())
-      );
+            ['QCComplianceStatement', 'QCSSCD'],
+            array_keys($qcStatements->getStatements())
+        );
     }
 }
