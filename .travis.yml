@@ -7,5 +7,5 @@ install:
   - cat composer.json
   - composer install
   - mkdir -p ./data
-  - wget -O data/tlol.xml https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml
+  - wget -O data/eu-lotl.xml https://ec.europa.eu/tools/lotl/eu-lotl.xml
   - scripts/showtests.sh
