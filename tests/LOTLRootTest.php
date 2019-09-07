@@ -8,56 +8,56 @@ use eIDASCertificate\TrustedList;
 use eIDASCertificate\ParseException;
 use eIDASCertificate\Certificate\X509Certificate;
 
-class TLOLRootTest extends TestCase
+class LOTLRootTest extends TestCase
 {
-    private $tlolxml;
-    private $tlol;
+    private $lotlxml;
+    private $lotl;
 
     public function setUp()
     {
-        if (! $this->tlolxml) {
-            $this->tlolxml = DataSource::load(
-                TrustedList::TrustedListOfListsXMLPath
+        if (! $this->lotlxml) {
+            $this->lotlxml = DataSource::load(
+                TrustedList::ListOfTrustedListsXMLPath
             );
         };
-        if (! $this->tlol) {
-            $this->tlol = new TrustedList($this->tlolxml, null, false);
+        if (! $this->lotl) {
+            $this->lotl = new TrustedList($this->lotlxml, null, false);
         };
     }
 
-    public function testTLOLAttributes()
+    public function testLOTLAttributes()
     {
         $this->assertEquals(
             "EUlistofthelists",
-            $this->tlol->getTSLType()->getType()
+            $this->lotl->getTSLType()->getType()
         );
-        $this->assertInternalType("int", $this->tlol->getVersionID());
-        $this->assertInternalType("int", $this->tlol->getSequenceNumber());
+        $this->assertInternalType("int", $this->lotl->getVersionID());
+        $this->assertInternalType("int", $this->lotl->getSequenceNumber());
         $this->assertEquals(
             5,
-            $this->tlol->getVersionID()
+            $this->lotl->getVersionID()
         );
         $this->assertGreaterThan(
             1,
-            $this->tlol->getSequenceNumber()
+            $this->lotl->getSequenceNumber()
         );
     }
 
-    public function testTLOLCertificates()
+    public function testLOTLCertificates()
     {
         $this->assertGreaterThan(
             0,
-            sizeof($this->tlol->getTLX509Certificates())
+            sizeof($this->lotl->getTLX509Certificates())
         );
-        foreach ($this->tlol->getTLX509Certificates() as $tlolCert) {
+        foreach ($this->lotl->getTLX509Certificates() as $lotlCert) {
             $this->assertGreaterThan(
                 12,
-                strlen(X509Certificate::getDN($tlolCert))
+                strlen(X509Certificate::getDN($lotlCert))
             );
         }
     }
 
-    public function testVerifyTLOL()
+    public function testVerifyLOTL()
     {
         $expectedSignedByDNArray =
         [
@@ -72,22 +72,22 @@ class TLOLRootTest extends TestCase
             'emailAddress' => 'michael.de-boer@ec.europa.eu',
             'title' => 'Professional Person'
         ];
-        $this->assertTrue($this->tlol->verifyTSL());
-        $tlolSignedByCert = $this->tlol->getSignedBy();
-        $tlolSignedByDNArray = openssl_x509_parse($tlolSignedByCert)['subject'];
+        $this->assertTrue($this->lotl->verifyTSL());
+        $lotlSignedByCert = $this->lotl->getSignedBy();
+        $lotlSignedByDNArray = openssl_x509_parse($lotlSignedByCert)['subject'];
         $this->assertEquals(
             $expectedSignedByDNArray,
-            $tlolSignedByDNArray
+            $lotlSignedByDNArray
         );
     }
 
-    public function testGetTLOLTrustedListXMLPointers()
+    public function testGetLOTLTrustedListXMLPointers()
     {
         $validURLFilterFlags =
             FILTER_FLAG_PATH_REQUIRED |
             FILTER_FLAG_HOST_REQUIRED |
             FILTER_FLAG_SCHEME_REQUIRED;
-        $tlXMLPointers = $this->tlol->getTrustedListPointers('xml');
+        $tlXMLPointers = $this->lotl->getTrustedListPointers('xml');
         $this->assertGreaterThan(
             12,
             sizeof($tlXMLPointers)

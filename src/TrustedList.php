@@ -9,8 +9,8 @@ use SimpleXMLElement;
  */
 class TrustedList
 {
-    const TrustedListOfListsXMLPath =
-      'https://ec.europa.eu/information_society/policy/esignature/trusted-list/tl-mp.xml';
+    const ListOfTrustedListsXMLPath =
+      'https://ec.europa.eu/tools/lotl/eu-lotl.xml';
     const TLOLType = 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists';
     const TSLType = 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUgeneric';
 
@@ -294,7 +294,7 @@ class TrustedList
         if (! $this->schemeTerritory) {
             $this->schemeTerritory = (string)$this->tl->xpath(
                 './tsl:SchemeInformation/tsl:SchemeTerritory'
-                )[0];
+            )[0];
         }
         return $this->schemeTerritory;
     }
@@ -307,8 +307,8 @@ class TrustedList
     {
         if (! $this->schemeOperatorName) {
             $this->schemeOperatorName = (string)$this->tl->xpath(
-                    "./tsl:SchemeInformation/tsl:SchemeOperatorName/*[@xml:lang='en']"
-                    )[0];
+                "./tsl:SchemeInformation/tsl:SchemeOperatorName/*[@xml:lang='en']"
+            )[0];
         };
         return $this->schemeOperatorName;
     }
@@ -326,7 +326,7 @@ class TrustedList
     {
         if (! $this->TSLType) {
             $this->TSLType = new TrustedList\TSLType(
-              (string)$this->tl->xpath('./tsl:SchemeInformation/tsl:TSLType')[0]
+                (string)$this->tl->xpath('./tsl:SchemeInformation/tsl:TSLType')[0]
             );
         };
         return $this->TSLType;
@@ -361,7 +361,7 @@ class TrustedList
         if (! $this->versionID) {
             $this->versionID = (integer)$this->tl->xpath(
                 './tsl:SchemeInformation/tsl:TSLVersionIdentifier'
-                )[0];
+            )[0];
         };
         return $this->versionID;
     }
@@ -371,7 +371,7 @@ class TrustedList
         if (! $this->sequenceNumber) {
             $this->sequenceNumber = (integer)$this->tl->xpath(
                 './tsl:SchemeInformation/tsl:TSLSequenceNumber'
-                )[0];
+            )[0];
         };
         return $this->sequenceNumber;
     }
