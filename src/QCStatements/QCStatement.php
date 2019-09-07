@@ -12,7 +12,7 @@ abstract class QCStatement
 {
     private $asn1Object;
 
-    public function fromASNObject($statements)
+    public static function fromASNObject($statements)
     {
         $statement = $statements->getContent();
         $qcStatementOID = $statement[0]->getContent();
