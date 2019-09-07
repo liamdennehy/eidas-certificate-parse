@@ -3,8 +3,6 @@
 namespace eIDASCertificate;
 
 use FG\ASN1\ASNObject;
-// use FG\ASN1\OID;
-
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatement;
 
