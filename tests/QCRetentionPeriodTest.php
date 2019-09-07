@@ -4,8 +4,6 @@ namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
 use FG\ASN1\ASNObject;
-use eIDASCertificate\Certificate\X509Certificate;
-use eIDASCertificate\QCStatements;
 use eIDASCertificate\QCStatements\QCStatement;
 
 class QCRetentionPeriodTest extends TestCase
