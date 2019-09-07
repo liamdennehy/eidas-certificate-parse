@@ -8,7 +8,7 @@ use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\QCStatements\QCStatement;
 
-class QCRetentionPeriod extends TestCase
+class QCRetentionPeriodTest extends TestCase
 {
     public function setUp()
     {

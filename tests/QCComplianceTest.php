@@ -8,7 +8,7 @@ use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\QCStatements\QCStatement;
 
-class QCCompliance extends TestCase
+class QCComplianceTest extends TestCase
 {
     public function setUp()
     {
