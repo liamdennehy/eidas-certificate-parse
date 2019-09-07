@@ -28,7 +28,7 @@ abstract class QCStatement
           return new QCPDSs($statement);
           break;
         case 'QcType':
-          return new QCQualifiedType($statement);
+          return new QCType($statement);
           break;
         case 'QcRetentionPeriod':
           return new QCRetentionPeriod($statement);
