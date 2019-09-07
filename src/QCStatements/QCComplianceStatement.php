@@ -11,10 +11,13 @@ use eIDASCertificate\OID;
 class QCComplianceStatement extends QCStatement implements QCStatementInterface
 {
     const type = 'QCComplianceStatement';
+    const oid = '0.4.0.1862.1.1';
 
     public function __construct($statement)
     {
-        $this->oid = $statement[0];
+        if ($statement[0]->getContent() != self::oid) {
+            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+        }
     }
 
     public function getType()
@@ -24,7 +27,10 @@ class QCComplianceStatement extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        return "Some text about " .  self::type;
+        return "The certificate is an EU ".
+        "qualified certificate that is issued according to Directive ".
+        "1999/93/EC [i.3] or the Annex I, III or IV of the Regulation ".
+        "(EU) No 910/2014 [i.8] whichever is in force at the time of issuance.";
     }
 
     public function getURI()
