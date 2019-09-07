@@ -1,4 +1,3 @@
 #!/bin/bash
-echo 'vendor/bin/phpunit && vendor/bin/php-cs-fixer fix -v --dry-run'
-vendor/bin/phpunit && vendor/bin/php-cs-fixer fix -v --dry-run
-
+echo "vendor/bin/phpunit $* && vendor/bin/php-cs-fixer fix -v --dry-run"
+vendor/bin/phpunit $* && vendor/bin/php-cs-fixer fix -v --dry-run
