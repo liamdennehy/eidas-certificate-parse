@@ -32,6 +32,7 @@ class QCPDSs extends QCStatement implements QCStatementInterface
             $location['language'] = (string)$value[1];
             $this->pdsLocations[] = $location;
         }
+        $this->binary = $statements->getBinary();
     }
 
     public function getLocations()
@@ -52,5 +53,10 @@ class QCPDSs extends QCStatement implements QCStatementInterface
     public function getURI()
     {
         return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.3.4";
+    }
+
+    public function getBinary()
+    {
+        return $this->binary;
     }
 }

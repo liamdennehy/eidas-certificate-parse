@@ -13,7 +13,7 @@ class QCSSCD extends QCStatement implements QCStatementInterface
     const type = 'QCSSCD';
     const oid = '0.4.0.1862.1.4';
     private $binary;
-    
+
     public function __construct($statements)
     {
         // $statement = $statements->getContent();
@@ -43,5 +43,10 @@ class QCSSCD extends QCStatement implements QCStatementInterface
     public function getURI()
     {
         return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.2.2";
+    }
+
+    public function getBinary()
+    {
+        return $this->binary;
     }
 }
