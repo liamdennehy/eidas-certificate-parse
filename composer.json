@@ -7,7 +7,7 @@
         "robrichards/xmlseclibs": "^3.0",
         "php": ">=5.6",
         "guzzlehttp/guzzle": "^6.3",
-        "fgrosse/phpasn1": "^1.5"
+        "fgrosse/phpasn1": "^2.1"
     },
     "license": "GPL-2.0-or-later",
     "authors": [
@@ -27,7 +27,7 @@
     },
     "config": {
         "platform": {
-            "php": "5.6.1"
+            "php": "7.1.1"
         }
     }
 }
