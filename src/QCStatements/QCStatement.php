@@ -30,6 +30,9 @@ abstract class QCStatement
         case 'QcType':
           return new QCQualifiedType($statement);
           break;
+        case 'QcRetentionPeriod':
+          return new QCRetentionPeriod($statement);
+          break;
         case 'id-qcs-pkixQCSyntax-v2':
           return new QCSyntaxV2($statement);
           break;
