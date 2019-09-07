@@ -28,6 +28,7 @@ class QCRetentionPeriod extends QCStatement implements QCStatementInterface
             throw new QCStatementException("No entries in QCRetentionPeriod Statement", 1);
         };
         $this->retentionPeriod = $statement[0]->getContent();
+        $this->binary = $statements->getBinary();
     }
 
     public function getRetentionPeriodYears()
@@ -50,5 +51,10 @@ class QCRetentionPeriod extends QCStatement implements QCStatementInterface
     public function getURI()
     {
         return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.3.3";
+    }
+
+    public function getBinary()
+    {
+        return $this->binary;
     }
 }
