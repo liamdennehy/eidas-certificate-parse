@@ -11,13 +11,15 @@ use eIDASCertificate\QCStatements\QCStatementException;
  */
 class QCRetentionPeriod extends QCStatement implements QCStatementInterface
 {
-    private $oid;
+    const oid = '0.4.0.1862.1.3';
     private $retentionPeriod;
     const type = 'QCRetentionPeriod';
 
     public function __construct($statement)
     {
-        $this->oid = $statement[0];
+        if ($statement[0]->getContent() != self::oid) {
+            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+        }
         array_shift($statement);
         if (sizeof($statement) > 1) {
             throw new QCStatementException("More than one entry in QCRetentionPeriod Statement", 1);
@@ -25,6 +27,11 @@ class QCRetentionPeriod extends QCStatement implements QCStatementInterface
             throw new QCStatementException("No entries in QCRetentionPeriod Statement", 1);
         };
         $this->retentionPeriod = $statement[0]->getContent();
+    }
+
+    public function getRetentionPeriodYears()
+    {
+        return $this->retentionPeriod;
     }
 
     public function getType()
