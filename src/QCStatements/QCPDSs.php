@@ -11,13 +11,15 @@ use eIDASCertificate\QCStatements\QCStatementException;
  */
 class QCPDSs extends QCStatement implements QCStatementInterface
 {
-    private $oid;
     private $pdsLocations;
     const type = 'QCPDSs';
+    const oid = '0.4.0.1862.1.5';
 
     public function __construct($statement)
     {
-        $this->oid = $statement[0];
+        if ($statement[0]->getContent() != self::oid) {
+            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+        }
         array_shift($statement);
         if (sizeof($statement) > 1) {
             throw new QCStatementException("More than one entry in PDS Statement", 1);
@@ -31,6 +33,11 @@ class QCPDSs extends QCStatement implements QCStatementInterface
         }
     }
 
+    public function getLocations()
+    {
+        return $this->pdsLocations;
+    }
+
     public function getType()
     {
         return self::type;
@@ -38,7 +45,7 @@ class QCPDSs extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        return "Some text about " .  self::type;
+        return "This QCStatement holds URLs to PKI Disclosure Statements (PDS)";
     }
 
     public function getURI()

@@ -7,7 +7,7 @@ use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\QCStatements\QCStatement;
 
-class qcStatementsTest extends TestCase
+class QCStatementsTest extends TestCase
 {
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const eucrtfile = 'European-Commission.crt';
@@ -45,6 +45,16 @@ class qcStatementsTest extends TestCase
             'QCQualifiedType-eseal',
             'QCPDSs'],
             array_keys($qcStatements->getStatements())
+        );
+        $this->assertEquals(
+            [
+            'https://www.quovadisglobal.com/repository',
+            'en'
+          ],
+            [
+            $qcStatements->getPDSLocations()[0]['url'],
+            $qcStatements->getPDSLocations()[0]['language']
+          ]
         );
 
         $crtParsed = $this->jmcrt->getParsed();

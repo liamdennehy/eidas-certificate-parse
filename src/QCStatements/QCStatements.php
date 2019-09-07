@@ -36,4 +36,13 @@ class QCStatements
     {
         return $this->qcStatements;
     }
+
+    public function getPDSLocations()
+    {
+        if (array_key_exists('QCPDSs', $this->getStatements())) {
+            return $this->getStatements()['QCPDSs']->getLocations();
+        } else {
+            return false;
+        }
+    }
 }
