@@ -26,6 +26,9 @@ class OID
 
     public static function getName($oidString)
     {
+        // return 'blah';
+        // throw new \Exception("Error Processing Request", 1);
+
         $oidName = "unknown";
         switch ($oidString) {
           case self::PKIX_QCSYNTAX_V2:
@@ -77,6 +80,7 @@ class OID
             $oidName = 'PSD2';
             break;
           }
-        return "$oidString ($oidName)";
+        return $oidName;
+        // return "$oidString ($oidName)";
     }
 }
