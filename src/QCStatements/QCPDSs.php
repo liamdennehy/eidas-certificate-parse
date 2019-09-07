@@ -15,8 +15,9 @@ class QCPDSs extends QCStatement implements QCStatementInterface
     const type = 'QCPDSs';
     const oid = '0.4.0.1862.1.5';
 
-    public function __construct($statement)
+    public function __construct($statements)
     {
+        $statement = $statements->getContent();
         if ($statement[0]->getContent() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }

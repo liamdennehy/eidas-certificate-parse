@@ -10,14 +10,17 @@ use eIDASCertificate\OID;
  */
 class QCComplianceStatement extends QCStatement implements QCStatementInterface
 {
+    private $binary;
     const type = 'QCComplianceStatement';
     const oid = '0.4.0.1862.1.1';
 
-    public function __construct($statement)
+    public function __construct($statements)
     {
+        $statement = $statements->getContent();
         if ($statement[0]->getContent() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
+        $this->binary = $statements->getBinary();
     }
 
     public function getType()
@@ -36,5 +39,10 @@ class QCComplianceStatement extends QCStatement implements QCStatementInterface
     public function getURI()
     {
         return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4";
+    }
+
+    public function getBinary()
+    {
+        return $this->binary;
     }
 }

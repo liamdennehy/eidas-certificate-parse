@@ -12,12 +12,16 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
 {
     const type = 'QCSyntaxV2';
 
-    private $oid;
+    const oid = '1.3.6.1.5.5.7.11.2';
     private $semanticsType;
 
-    public function __construct($statement)
+    public function __construct($statements)
     {
-        $this->oid = $statement[0];
+        $statement = $statements->getContent();
+
+        if ($statement[0]->getContent() != self::oid) {
+            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+        }
         array_shift($statement);
         if (sizeof($statement) > 1) {
             throw new QCStatementException("More than one entry in QCSyntaxV2 Statement", 1);
@@ -35,7 +39,7 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
             throw new QCStatementException("QCSyntaxV2 statement '".$statement[0][0]->getContent()."' not yet implemented");
             break;
         }
-        // throw new QCStatementException("QCSyntaxV2 not yet implemented");
+        $this->binary = $statements->getBinary();
     }
 
     public function getType()
@@ -49,5 +53,11 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     }
     public function getURI()
     {
+    }
+
+
+    public function getBinary()
+    {
+        return $this->binary;
     }
 }

@@ -16,10 +16,10 @@ class QCStatements
     private $asn1Object;
     private $qcStatements;
 
-    public function __construct($asn1Statement)
+    public function __construct($asn1Statements)
     {
         $this->qcStatements = [];
-        $this->asn1Object = ASNObject::fromBinary($asn1Statement);
+        $this->asn1Object = ASNObject::fromBinary($asn1Statements);
         foreach ($this->asn1Object as $statement) {
             $qcStatement = QCStatement::fromASNObject($statement);
             if (array_key_exists($qcStatement->getType(), $this->qcStatements)) {

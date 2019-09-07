@@ -12,16 +12,19 @@ class QCSSCD extends QCStatement implements QCStatementInterface
 {
     const type = 'QCSSCD';
     const oid = '0.4.0.1862.1.4';
-
-    public function __construct($statement)
+    private $binary;
+    
+    public function __construct($statements)
     {
-        if ($statement[0]->getContent() != self::oid) {
+        // $statement = $statements->getContent();
+        if ($statements[0]->getContent() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
 
-        if (sizeof($statement) > 1) {
+        if (sizeof($statements) > 1) {
             throw new QCStatementException("More than one entry in QCSSCD Statement", 1);
         };
+        $this->binary = $statements->getBinary();
     }
 
     public function getType()
