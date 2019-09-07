@@ -23,7 +23,7 @@ class TLTest extends TestCase
     public function setUp()
     {
         if (! $this->tlolxml) {
-            $this->tlolxml=file_get_contents('data/tlol.xml');
+            $this->tlolxml=file_get_contents('data/eu-lotl.xml');
         }
         if (! $this->tlol) {
             $this->tlol = new TrustedList($this->tlolxml, null, false);
