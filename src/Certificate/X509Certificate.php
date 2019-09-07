@@ -74,15 +74,14 @@ class X509Certificate
 
     public function hasExtensions()
     {
-        return array_key_exists('extensions', X509Certificate::parse($this->crtResource));
+        return array_key_exists('extensions', $this->getParsed());
     }
 
     public function hasQCStatements()
     {
         if ($this->hasExtensions()) {
-            return array_key_exists('qcStatements', X509Certificate::parse($this->crtResource)['extensions']);
+            return array_key_exists('qcStatements', $this->getParsed()['extensions']);
         }
-        // return new qcStatements($this->crtResource);
     }
 
     public function getQCStatements()
