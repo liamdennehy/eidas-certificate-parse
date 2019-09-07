@@ -11,14 +11,17 @@ use eIDASCertificate\OID;
 class QCSSCD extends QCStatement implements QCStatementInterface
 {
     const type = 'QCSSCD';
+    const oid = '0.4.0.1862.1.4';
 
     public function __construct($statement)
     {
+        if ($statement[0]->getContent() != self::oid) {
+            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+        }
+
         if (sizeof($statement) > 1) {
             throw new QCStatementException("More than one entry in QCSSCD Statement", 1);
         };
-
-        $this->oid = $statement[0];
     }
 
     public function getType()
@@ -28,7 +31,10 @@ class QCSSCD extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        return "Some text about " .  self::type;
+        return "The private key related to the certified public key resides ".
+        "in a Qualified Signature/Seal Creation Device (QSCD) according to ".
+        "the Regulation (EU) No 910/2014 [i.8] or a secure signature creation ".
+        "device as defined in the Directive 1999/93/EC [i.3]";
     }
 
     public function getURI()
