@@ -31,7 +31,7 @@ abstract class QCStatement
           return new QCQualifiedType($statement);
           break;
         case 'id-qcs-pkixQCSyntax-v2':
-          // code...
+          return new QCSyntaxV2($statement);
           break;
         default:
           throw new QCStatementException("Unrecognised OID $qcStatementOID ($qcStatementName)", 1);
