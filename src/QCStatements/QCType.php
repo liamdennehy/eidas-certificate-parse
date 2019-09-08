@@ -60,7 +60,7 @@ class QCType extends QCStatement implements QCStatementInterface
           //   break;
 
           default:
-          throw new QCStatementException("Unrecognised QCType OID ".self::oid." (".$this->qcType.")", 1);
+          throw new QCStatementException("Cannot describe QCType OID ".self::oid." (".$this->qcType.")", 1);
 
             break;
         }
