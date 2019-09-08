@@ -3,6 +3,7 @@
 namespace eIDASCertificate;
 
 use SimpleXMLElement;
+use eIDASCertificate\Signature\XMLSig;
 
 /**
  *
@@ -157,6 +158,7 @@ class TrustedList
      */
     public function verifyTSL($certificates = null)
     {
+        // TODO: Remove tolerant handling without certificate
         if (is_null($certificates)) {
             if (! sizeof($this->getTLX509Certificates())) {
                 throw new Signature\SignatureException(
@@ -170,19 +172,17 @@ class TrustedList
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         };
-        $xmlSig = new Signature\XMLSig($this->xml, $certificates);
-        if ($xmlSig->verifySignature()) {
+        $xmlSig = new XMLSig($this->xml, $certificates);
+        try {
+            $xmlSig->verifySignature();
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
-            // DataSource::persist(
-            //     $this->xml,
-            //     $this->getTSLLocation(),
-            //     $this->getListIssueDateTime()
-            // );
             unset($this->xml);
             return $this->verified;
-        };
-        $this->verified = false;
+            $this->verified = false;
+        } catch (SignatureException $e) {
+            throw $e;
+        }
         return $this->verified;
     }
 
