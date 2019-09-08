@@ -6,6 +6,7 @@ use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecEnc;
 use DOMDocument;
 use eIDASCertificate\Certificate;
+use eIDASCertificate\CertificateException;
 
 /**
  *
