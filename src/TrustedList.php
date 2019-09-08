@@ -116,7 +116,7 @@ class TrustedList
         }
     }
 
-    private function processTrustedLists($failOnMissing = true)
+    private function processTrustedLists()
     {
         if (sizeof($this->getTrustedListPointers()) == 0) {
             $this->processTLPointers();
@@ -174,11 +174,11 @@ class TrustedList
         if ($xmlSig->verifySignature()) {
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
-            DataSource::persist(
-                $this->xml,
-                $this->getTSLLocation(),
-                $this->getListIssueDateTime()
-            );
+            // DataSource::persist(
+            //     $this->xml,
+            //     $this->getTSLLocation(),
+            //     $this->getListIssueDateTime()
+            // );
             unset($this->xml);
             return $this->verified;
         };
@@ -403,6 +403,21 @@ class TrustedList
         } else {
             return $this->tslPointers[$fileType];
         }
+    }
+
+    public function getTLPointerPaths()
+    {
+        $tlPointerPaths = [];
+        foreach ($this->getTrustedListPointers('xml') as $title => $tslPointer) {
+            $tlPointerPaths[$title]['location'] = $tslPointer->getTSLLocation();
+            $tlPointerPaths[$title]['id'] = hash('sha256', $tslPointer->getTSLLocation());
+        }
+        return $tlPointerPaths;
+    }
+
+    public function addTrustedListXML($title, $xml)
+    {
+        $this->trustedLists[$title] = $xml;
     }
 
     public function getTrustedListPointer($schemeTerritory)
