@@ -50,6 +50,7 @@ class XMLSig
         $secDsig->idNS = array('wsu' => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd');
         $xpath = new \DOMXPath($this->doc);
         $xpath->registerNamespace('secdsig', self::XMLDSIGNS);
+        // TODO: Figure out what this signature means
         // This is a hideous kluge as this signature type isn't understood by xmlseclibs
         // As a result it calculates a null-string hash as the digest, and fails validation.
         // Unknown impact on scheme security.
@@ -59,11 +60,15 @@ class XMLSig
             $etsirefNode->parentNode->removeChild($etsirefNode);
         }
         if (!$secDsig->validateReference()) {
-            throw new DigestException('Reference validation failed, might be related to a bad digest (algorithm)');
+            throw new DigestException(
+                'Reference validation failed, might be related to a bad digest (algorithm)'
+            );
         }
         $key = $secDsig->locateKey();
         if ($key === null) {
-            throw new SignatureException('Could not find signing key in signature block');
+            throw new SignatureException(
+                'Could not find signing key in signature block'
+            );
         }
         $keyInfo = XMLSecEnc::staticLocateKeyInfo($key, $dsig);
         // Unknown Purpose...
@@ -71,10 +76,9 @@ class XMLSig
         //     $key->loadKey($certificate);
         // };
         if ($secDsig->verify($key) === 1) {
-            $this->signedBy = Certificate\X509Certificate::emit($key->getX509Certificate());
-            // var_dump($this->signedBy); exit;
-            if ($this->signedBy) {
-                $foundThumb = openssl_x509_fingerprint($this->signedBy, 'sha256');
+            $signedBy = Certificate\X509Certificate::emit($key->getX509Certificate());
+            if ($signedBy) {
+                $foundThumb = openssl_x509_fingerprint($signedBy, 'sha256');
                 $validThumbs = $this->getX509Thumbprints('sha256');
             } else {
                 $foundThumb = $key->getX509Thumbprint();
@@ -84,19 +88,15 @@ class XMLSig
             };
 
             if (in_array($foundThumb, $validThumbs)) {
-                // $this->signedBy = $foundThumb;
+                $this->signedBy = $signedBy;
                 return true;
             } else {
-                $out = "Found Thumprint:" . PHP_EOL . "  " . $foundThumb . PHP_EOL;
-                $out = $out . "Available Thumbprints:" . PHP_EOL;
-                foreach ($validThumbs as $validThumb) {
-                    $out = $out . "  $validThumb" . PHP_EOL;
-                };
-                throw new CertificateException(
-                    "Unable to match signature to authorised certificate thumbprint" . PHP_EOL . $out,
-                    1
+                $out['signedBy'] = $foundThumb;
+                $out['availableCerts'] = $validThumbs;
+                throw new SignatureException(
+                    "Unable to match signature to authorised certificate thumbprint",
+                    $out
                 );
-                // return false;
             }
         }
     }
