@@ -9,11 +9,11 @@ use eIDASCertificate\QCStatements\QCStatementException;
 /**
  *
  */
-class QCPDSs extends QCStatement implements QCStatementInterface
+class QCRetentionPeriod extends QCStatement implements QCStatementInterface
 {
-    private $pdsLocations;
-    const type = 'QCPDSs';
-    const oid = '0.4.0.1862.1.5';
+    const oid = '0.4.0.1862.1.3';
+    private $retentionPeriod;
+    const type = 'QCRetentionPeriod';
 
     public function __construct($statements)
     {
@@ -23,21 +23,17 @@ class QCPDSs extends QCStatement implements QCStatementInterface
         }
         array_shift($statement);
         if (sizeof($statement) > 1) {
-            throw new QCStatementException("More than one entry in PDS Statement", 1);
+            throw new QCStatementException("More than one entry in QCRetentionPeriod Statement", 1);
         } elseif (sizeof($statement) == 0) {
-            throw new QCStatementException("No entries in PDS Statement", 1);
+            throw new QCStatementException("No entries in QCRetentionPeriod Statement", 1);
         };
-        foreach ($statement[0] as $value) {
-            $location['url'] = (string)$value[0];
-            $location['language'] = (string)$value[1];
-            $this->pdsLocations[] = $location;
-        }
+        $this->retentionPeriod = $statement[0]->getContent();
         $this->binary = $statements->getBinary();
     }
 
-    public function getLocations()
+    public function getRetentionPeriodYears()
     {
-        return $this->pdsLocations;
+        return $this->retentionPeriod;
     }
 
     public function getType()
@@ -47,12 +43,14 @@ class QCPDSs extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        return "This QCStatement holds URLs to PKI Disclosure Statements (PDS)";
+        return "Information about the subject of this certificate will be ".
+        "retained by the CA for " . $this->retentionPeriod . " years after ".
+        "the certificate expiry date";
     }
 
     public function getURI()
     {
-        return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.3.4";
+        return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.3.3";
     }
 
     public function getBinary()

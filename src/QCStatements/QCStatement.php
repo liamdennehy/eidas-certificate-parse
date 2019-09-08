@@ -19,19 +19,22 @@ abstract class QCStatement
         $qcStatementName = OID::getName($qcStatementOID);
         switch ($qcStatementName) {
         case 'qcs-QcCompliance':
-          return new QCComplianceStatement($statement);
+          return new QCComplianceStatement($statements);
           break;
         case 'QcSSCD':
-          return new QCSSCD($statement);
+          return new QCSSCD($statements);
           break;
         case 'QcPDS':
-          return new QCPDSs($statement);
+          return new QCPDSs($statements);
           break;
         case 'QcType':
-          return new QCQualifiedType($statement);
+          return new QCType($statements);
+          break;
+        case 'QcRetentionPeriod':
+          return new QCRetentionPeriod($statements);
           break;
         case 'id-qcs-pkixQCSyntax-v2':
-          return new QCSyntaxV2($statement);
+          return new QCSyntaxV2($statements);
           break;
         default:
           throw new QCStatementException("Unrecognised OID $qcStatementOID ($qcStatementName)", 1);
