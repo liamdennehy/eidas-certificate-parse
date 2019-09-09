@@ -179,6 +179,11 @@ class LOTLRootTest extends TestCase
             }
             try {
                 $lotl->addTrustedListXML($title, $pointedTLs[$title]['xml']);
+                // TODO: Figure out why EL is not added
+                // $this->assertEquals(
+                //   [$title, true],
+                //   [$title, array_key_exists($title, $lotl->getTrustedLists())]
+                // );
                 $verifiedTLs[] = $title;
             } catch (SignatureException $e) {
                 $unVerifiedTLs[] = $title;
