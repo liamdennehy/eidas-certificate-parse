@@ -5,8 +5,10 @@ namespace eIDASCertificate\tests;
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\DataSource;
 use eIDASCertificate\TrustedList;
-use eIDASCertificate\ParseException;
 use eIDASCertificate\Certificate\X509Certificate;
+use eIDASCertificate\ParseException;
+use eIDASCertificate\SignatureException;
+use eIDASCertificate\TrustedListException;
 
 class LOTLRootTest extends TestCase
 {
@@ -99,7 +101,7 @@ class LOTLRootTest extends TestCase
         try {
             $lotl->verifyTSL([$wrongCert]);
             $this->assetTrue(false); // Should never hit this if exception is raised
-        } catch (\eIDASCertificate\Signature\SignatureException $e) {
+        } catch (SignatureException $e) {
             $this->assertEquals(
                 [
                 'signedBy' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
@@ -158,5 +160,53 @@ class LOTLRootTest extends TestCase
                 )
             );
         };
+    }
+
+    public function testTLOLVerifyFailsWithoutTLs()
+    {
+        $lotl = new TrustedList($this->lotlXML);
+        try {
+            $lotl->verifyAllTLs();
+            $this->assetTrue(false); //Should never get here
+        } catch (TrustedListException $e) {
+            $this->assertEquals(
+                'No TrustedLists provided',
+                $e->getMessage()
+            );
+        };
+        return;
+        $this->assertFalse(true); // Only the right exception was thrown
+    }
+
+    public function testAddTLstoLOTL()
+    {
+        $verifiedTLs = [];
+        $unVerifiedTLs = [];
+        $lotl = new TrustedList($this->lotlXML);
+        $pointedTLs = [];
+        foreach ($lotl->getTLPointerPaths() as $title => $tlPointer) {
+            $localFile = $this->datadir.'/tl-'.$tlPointer['id'].'.xml';
+            if (file_exists($localFile)) {
+                $pointedTLs[$title]['xml'] = file_get_contents($localFile);
+            } else {
+                $pointedTLs[$title]['xml'] = DataSource::getHTTP($tlPointer['location']);
+                file_put_contents($localFile, $pointedTLs[$title]['xml']);
+            }
+            try {
+                $lotl->addTrustedListXML($title, $pointedTLs[$title]['xml']);
+                $verifiedTLs[] = $title;
+            } catch (SignatureException $e) {
+                $unVerifiedTLs[] = $title;
+            }
+        }
+        try {
+            $lotl->verifyAllTLs();
+        } catch (\Exception $e) {
+            throw new \Exception(json_encode($e->getOut()), 1);
+        }
+        $this->assertEquals(
+            ['DE: Federal Network Agency'], // Bad player, obscure algorithm
+            $unVerifiedTLs
+        );
     }
 }
