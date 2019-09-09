@@ -9,7 +9,7 @@ use eIDASCertificate\Certificate\X509Certificate;
 
 class TLCertificateTest extends TestCase
 {
-    const lotlXMLFileName = 'eu-lotl-248.xml';
+    const lotlXMLFileName = 'eu-lotl.xml';
 
     private $tlolxml;
     private $dataDir;
@@ -27,7 +27,6 @@ class TLCertificateTest extends TestCase
         } else {
             $this->lotlXML = file_get_contents($xmlFilePath);
         }
-
     }
 
     public function testTLCerts()

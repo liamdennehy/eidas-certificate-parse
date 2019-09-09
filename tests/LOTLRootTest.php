@@ -12,7 +12,7 @@ use eIDASCertificate\TrustedListException;
 
 class LOTLRootTest extends TestCase
 {
-    const lotlXMLFileName = 'eu-lotl-248.xml';
+    const lotlXMLFileName = 'eu-lotl.xml';
 
     private $lotlxml;
     private $lotl;
