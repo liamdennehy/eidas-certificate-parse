@@ -4,6 +4,7 @@ php:
   - '7.2'
   - '7.3'
 install:
+  - composer config -g github-oauth.github.com "$GITHUB_API_KEY"
   - cat composer.json
   - composer install
   - mkdir -p ./data
