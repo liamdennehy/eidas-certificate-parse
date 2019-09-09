@@ -21,7 +21,7 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
     {
         $statement = $statements->getContent();
         if ($statement[0]->getContent() != self::oid) {
-            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+            throw new QCStatementException("Wrong OID for QCStatement '" . self::type . "'", 1);
         }
         array_shift($statement);
         if (sizeof($statement) > 1) {
@@ -49,9 +49,9 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
               case 'PSP_IC':
                 if ($psd2Role != $role[1]->getContent()) {
                     throw new QCStatementException(
-                      "PSD2 Named Role '".$role[1]->getContent()."' does not match OID Name '$psd2Role'",
-                      1
-                  );
+                        "PSD2 Named Role '".$role[1]->getContent()."' does not match OID Name '$psd2Role'",
+                        1
+                    );
                 }
                 $this->psd2Roles[] = $psd2Role;
                 break;
@@ -66,32 +66,42 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
         }
         if ($psd2Statement[1]->getType() != 12) {
             throw new QCStatementException(
-              "NCA Long Name not in string format",
-              1
-          );
+                "PSD2 NCA Long Name not in string format",
+                1
+            );
         } else {
             $this->psd2NCALongName = $psd2Statement[1]->getContent();
         }
         if ($psd2Statement[2]->getType() != 12) {
             throw new QCStatementException(
-              "NCA Long Name not in string format",
-              1
-          );
+                "PSD2 NCA Short Name not in string format",
+                1
+            );
         } else {
             $this->psd2NCAShortName = $psd2Statement[2]->getContent();
         }
         $this->binary = $statements->getBinary();
     }
 
-    public function getLocations()
-    {
-        return $this->pdsLocations;
-    }
-
     public function getType()
     {
         return self::type;
     }
+
+    public function getRoles()
+    {
+        return $this->psd2Roles;
+    }
+
+    public function getAuthorisations()
+    {
+        return [
+          'roles' => $this->psd2Roles,
+          'NCAShortName' => $this->psd2NCAShortName,
+          'NCALongName' => $this->psd2NCALongName
+        ];
+    }
+
 
     public function getDescription()
     {
@@ -103,7 +113,7 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
 
     public function getURI()
     {
-        return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.3.4";
+        return "https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-5.1";
     }
 
     public function getBinary()
