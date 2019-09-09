@@ -25,19 +25,23 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
         array_shift($statement);
         if (sizeof($statement) > 1) {
             throw new QCStatementException("More than one entry in QCSyntaxV2 Statement", 1);
-        };
-        $semanticsType = $statement[0][0]->getContent();
-        switch ($semanticsType) {
-          case '0.4.0.194121.1.2':
-            $this->semanticsType = 'LegalPerson';
-            break;
-          case '0.4.0.194121.1.1':
-            $this->semanticsType = 'NaturalPerson';
-            break;
+        } elseif (sizeof($statement) == 0) {
+            // TODO: What fresh hell is this?
+            $this->semanticsType = 'none';
+        } else {
+            $semanticsType = $statement[0][0]->getContent();
+            switch ($semanticsType) {
+              case '0.4.0.194121.1.2':
+              $this->semanticsType = 'LegalPerson';
+              break;
+              case '0.4.0.194121.1.1':
+              $this->semanticsType = 'NaturalPerson';
+              break;
 
-          default:
-            throw new QCStatementException("QCSyntaxV2 statement '".$statement[0][0]->getContent()."' not yet implemented");
-            break;
+              default:
+              throw new QCStatementException("QCSyntaxV2 statement '".$statement[0][0]->getContent()."' not yet implemented");
+              break;
+            }
         }
         $this->binary = $statements->getBinary();
     }
@@ -49,10 +53,21 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        return "Some text about " .  self::type;
+        switch ($this->semanticsType) {
+          case 'NaturalPerson':
+            return 'The values in the Subject DN are interpreted according to the rules of a Natural Person';
+            break;
+          case 'LegalPerson':
+            return 'The values in the Subject DN are interpreted according to the rules of a Legal Person';
+            break;
+          case 'none':
+            return 'The values in the Subject DN are open to interpretation as no Semantics Identifier is provided';
+            break;
+        }
     }
     public function getURI()
     {
+        return 'https://www.etsi.org/deliver/etsi_en/319400_319499/31941201/01.01.01_60/en_31941201v010101p.pdf#chapter-5.1';
     }
 
 

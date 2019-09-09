@@ -55,9 +55,15 @@ class QCType extends QCStatement implements QCStatementInterface
     public function getDescription()
     {
         switch ($this->qcType) {
-          // case 'esign':
-          //   return "CERTIFICATES FOR ELECTRONIC SIGNATURES";
-          //   break;
+          case 'esign':
+            return "Certificate for Electronic Signatures";
+            break;
+          case 'eseal':
+            return "Certificate for Electronic Seals";
+            break;
+          case 'web':
+            return "Certificate for Website Authentication";
+            break;
 
           default:
           throw new QCStatementException("Cannot describe QCType OID ".self::oid." (".$this->qcType.")", 1);
