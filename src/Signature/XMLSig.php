@@ -28,8 +28,11 @@ class XMLSig
      */
     public function __construct($xml, $certificates, $docName = '')
     {
-        $this->doc = new DOMDocument();
-        $this->doc->loadXML($xml);
+        // if (empty($certificates)) {
+        //   throw new CertificateException(
+        //     "No certificates supplied for XML Signature Validation", 1
+        //   );
+        // } elseif (! is_array($certificates)) {
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         }
@@ -49,6 +52,8 @@ class XMLSig
                 $this->certificates[] = $signingCertificate;
             };
         };
+        $this->doc = new DOMDocument();
+        $this->doc->loadXML($xml);
         $this->docName = $docName;
     }
 
@@ -81,7 +86,6 @@ class XMLSig
             );
         }
         $key = $secDsig->locateKey();
-        // var_dump($key); exit;
         if ($key === null) {
             throw new SignatureException(
                 'Could not find signing key in signature block',
@@ -89,6 +93,8 @@ class XMLSig
             );
         }
         $keyInfo = XMLSecEnc::staticLocateKeyInfo($key, $dsig);
+        // TODO: Only use supplied key/certificate instead of parsing XMLSig
+        // TODO: Function to extract certificate to self-validate XML
         // Unknown Purpose...
         // if (!$keyInfo->key) {
         //     $key->loadKey($certificate);
@@ -97,6 +103,7 @@ class XMLSig
             $signedBy = Certificate\X509Certificate::emit(
                 $key->getX509Certificate()
             );
+            $validThumbs = [];
             if ($signedBy) {
                 $foundThumb = openssl_x509_fingerprint($signedBy, 'sha256');
                 $validThumbs = $this->getX509Thumbprints('sha256');

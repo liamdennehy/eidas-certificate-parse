@@ -19,6 +19,13 @@ services...
 ```
 
 - DE: Changes their MimeType namespace from ``ns3:MimeType`` to ``ns4:MimeType``
+- DE: Changed signature type to new algorithm not supported by most popular PHP XMLSig library:
+
+```
+<dsig:SignatureMethod Algorithm="http://www.w3.org/2007/05/xmldsig-more#sha256-rsa-MGF1">
+```
+
+- EL: LOTL name `EL: EETT` doesn't match TL name `EL: Hellenic Telecommunications and Post Commission, EETT`
 
 - HU: Network unreachable
 
