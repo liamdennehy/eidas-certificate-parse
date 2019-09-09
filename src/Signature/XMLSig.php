@@ -34,10 +34,15 @@ class XMLSig
             $certificates = [$certificates];
         }
         foreach ($certificates as $certificate) {
-            $signingCertificate = openssl_x509_read($certificate);
-            if (! $signingCertificate) {
+            try {
+                $signingCertificate = openssl_x509_read($certificate);
+            } catch (\Exception $e) {
+                //No op, we'll handle this later
+            }
+
+            if (empty($signingCertificate)) {
                 throw new CertificateException(
-                    "Bad certificate supplied for XML Signature Verification",
+                    "Bad certificate supplied for XML Signature Verification doc '".$docName."'",
                     1
                 );
             } else {
