@@ -28,7 +28,6 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
         } elseif (sizeof($statement) == 0) {
             // TODO: What fresh hell is this?
             $this->semanticsType = 'none';
-
         } else {
             $semanticsType = $statement[0][0]->getContent();
             switch ($semanticsType) {
@@ -61,7 +60,7 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
           case 'LegalPerson':
             return 'The values in the Subject DN are interpreted according to the rules of a Legal Person';
             break;
-          case null:
+          case 'none':
             return 'The values in the Subject DN are open to interpretation as no Semantics Identifier is provided';
             break;
         }
