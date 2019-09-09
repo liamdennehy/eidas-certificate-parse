@@ -22,37 +22,32 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
 
     public function __construct($statements)
     {
-      $qcLimitValueTemplate = [
-        Identifier::SEQUENCE => [
-          Identifier::OBJECT_IDENTIFIER,
+        $qcLimitValueTemplate = [
           Identifier::SEQUENCE => [
-            Identifier::PRINTABLE_STRING,
-            Identifier::INTEGER,
-            Identifier::INTEGER
+            Identifier::OBJECT_IDENTIFIER,
+            Identifier::SEQUENCE => [
+              Identifier::PRINTABLE_STRING,
+              Identifier::INTEGER,
+              Identifier::INTEGER
+            ]
           ]
-        ]
-      ];
-      $parser = new TemplateParser();
-      try {
-        $statement = $parser->parseBinary($statements, $qcLimitValueTemplate);
-      } catch (\Exception $e) {
-        // var_dump(new ASNObject($statements));
-        throw new QCStatementException("Error Parsing QCLimitvalue Statement", 1);
-      }
-
-      if ($statement[0]->getContent() <> self::oid) {
+        ];
+        $parser = new TemplateParser();
+        try {
+            $statement = $parser->parseBinary($statements, $qcLimitValueTemplate);
+        } catch (\Exception $e) {
+            // var_dump(new ASNObject($statements));
+            throw new QCStatementException("Error Parsing QCLimitvalue Statement", 1);
+        }
+        $limitOID = $statement[0]->getContent();
+        if ($limitOID <> self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
-      }
-
-      $this->currency = $statement[1][0]->getContent();
-      $this->amount = $statement[1][1]->getContent();
-      $this->exponent = $statement[1][2]->getContent();
-      var_dump([
-        $this->currency,
-        $this->amount,
-        $this->exponent
-      ]);
-
+        }
+        $limitValue = $statement[1];
+        // var_dump(base64_encode($statements)); exit;
+        $this->currency = $limitValue[0]->getContent();
+        $this->amount = $limitValue[1]->getContent();
+        $this->exponent = $limitValue[2]->getContent();
         $this->binary = $statements;
     }
 
