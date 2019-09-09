@@ -3,6 +3,7 @@
 namespace eIDASCertificate;
 
 use SimpleXMLElement;
+use eIDASCertificate\Signature\XMLSig;
 
 /**
  *
@@ -116,7 +117,7 @@ class TrustedList
         }
     }
 
-    private function processTrustedLists($failOnMissing = true)
+    private function processTrustedLists()
     {
         if (sizeof($this->getTrustedListPointers()) == 0) {
             $this->processTLPointers();
@@ -157,32 +158,19 @@ class TrustedList
      */
     public function verifyTSL($certificates = null)
     {
-        if (is_null($certificates)) {
-            if (! sizeof($this->getTLX509Certificates())) {
-                throw new Signature\SignatureException(
-                    "No known certificates for TrustedList " .
-                    $this->getName(),
-                    1
-                );
-            }
-            $certificates = $this->getTLX509Certificates();
-        };
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         };
-        $xmlSig = new Signature\XMLSig($this->xml, $certificates);
-        if ($xmlSig->verifySignature()) {
+        $xmlSig = new XMLSig($this->xml, $certificates, $this->getName());
+        try {
+            $xmlSig->verifySignature();
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
-            DataSource::persist(
-                $this->xml,
-                $this->getTSLLocation(),
-                $this->getListIssueDateTime()
-            );
-            unset($this->xml);
-            return $this->verified;
-        };
-        $this->verified = false;
+            // unset($this->xml);
+        } catch (SignatureException $e) {
+            $this->verified = false;
+            throw $e;
+        }
         return $this->verified;
     }
 
@@ -194,7 +182,12 @@ class TrustedList
     {
         if ($this->isTLOL()) {
             if (sizeof($this->trustedLists) == 0) {
-                $this->processTrustedLists();
+                throw new TrustedListException(
+                    "No TrustedLists provided",
+                    1
+                );
+
+                // $this->processTrustedLists();
             };
             foreach ($this->getTrustedLists() as $name => $trustedList) {
                 if ($trustedList) {
@@ -403,6 +396,36 @@ class TrustedList
         } else {
             return $this->tslPointers[$fileType];
         }
+    }
+
+    public function getTLPointerPaths()
+    {
+        $tlPointerPaths = [];
+        foreach ($this->getTrustedListPointers('xml') as $title => $tslPointer) {
+            $tlPointerPaths[$title]['location'] = $tslPointer->getTSLLocation();
+            $tlPointerPaths[$title]['id'] = hash('sha256', $tslPointer->getTSLLocation());
+        }
+        return $tlPointerPaths;
+    }
+
+    public function addTrustedListXML($title, $xml)
+    {
+        if (! array_key_exists($title, $this->tslPointers['xml'])) {
+            throw new TrustedListException("No pointer for Trusted List '".$title."'", 1);
+        }
+        $certificates = [];
+        foreach ($this->tslPointers['xml'][$title]->getServiceDigitalIdentities() as $tslDI) {
+            foreach ($tslDI->getX509Certificates() as $certificate) {
+                $certificates[] = $certificate;
+            }
+        }
+        try {
+            $trustedList = new TrustedList($xml, $this->tslPointers['xml'][$title]);
+            $verified = $trustedList->verifyTSL($certificates);
+        } catch (ParseException $e) {
+            throw $e;
+        }
+        $this->trustedLists[$trustedList->getName()] = $trustedList;
     }
 
     public function getTrustedListPointer($schemeTerritory)

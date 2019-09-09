@@ -12,6 +12,8 @@ use eIDASCertificate\Certificate\X509Certificate;
 
 class TLTest extends TestCase
 {
+    const lotlXMLFileName = 'eu-lotl.xml';
+
     private $tlolxml;
     private $tlol;
     private $tls;
@@ -22,20 +24,31 @@ class TLTest extends TestCase
 
     public function setUp()
     {
-        if (! $this->tlolxml) {
-            $this->tlolxml=file_get_contents('data/eu-lotl.xml');
+        $this->datadir = __DIR__ . '/../data';
+        $xmlFilePath = $this->datadir.self::lotlXMLFileName;
+        if (! file_exists($xmlFilePath)) {
+            $this->lotlXML = DataSource::getHTTP(
+                TrustedList::ListOfTrustedListsXMLPath
+            );
+            file_put_contents($xmlFilePath, $this->lotlXML);
+        } else {
+            $this->lotlXML = file_get_contents($xmlFilePath);
         }
-        if (! $this->tlol) {
-            $this->tlol = new TrustedList($this->tlolxml, null, false);
-        };
+        $this->tlol = new TrustedList($this->lotlXML);
+        // if (! $this->tlolxml) {
+        //     $this->tlolxml=file_get_contents('data/eu-lotl.xml');
+        // }
+        // if (! $this->tlol) {
+        //     $this->tlol = new TrustedList($this->tlolxml, null, false);
+        // };
         if (! $this->testSchemeTerritories) {
             $this->testSchemeTerritories = ['HU','DE','SK'];
         }
-        if (! $this->tls) {
-            foreach ($this->testSchemeTerritories as $schemeTerritory) {
-                $this->tls[$schemeTerritory] = $this->loadTL($schemeTerritory);
-            };
-        }
+        // if (! $this->tls) {
+        //     foreach ($this->testSchemeTerritories as $schemeTerritory) {
+        //         $this->tls[$schemeTerritory] = $this->loadTL($schemeTerritory);
+        //     };
+        // }
     }
 
     public function TLAttributeTests($thistl)
@@ -121,13 +134,13 @@ class TLTest extends TestCase
         };
     }
 
-    public function loadTL($schemeTerritory)
-    {
-        $tslPointers = $this->tlol->getTrustedListPointer($schemeTerritory);
-        $newTL = TrustedList::loadFromPointer($tslPointers[0]);
-        return $newTL;
-    }
-
+    // public function loadTL($schemeTerritory)
+    // {
+    //     $tslPointers = $this->tlol->getTrustedListPointer($schemeTerritory);
+    //     $newTL = TrustedList::loadFromPointer($tslPointers[0]);
+    //     return $newTL;
+    // }
+    //
     public function testLoadTLs()
     {
         $this->assertGreaterThan(
@@ -136,12 +149,12 @@ class TLTest extends TestCase
         );
     }
 
-    public function testTLAttributes()
-    {
-        foreach ($this->testSchemeTerritories as $schemeTerritory) {
-            $this->TLAttributeTests($this->tls[$schemeTerritory]);
-        };
-    }
+    // public function testTLAttributes()
+    // {
+    //     foreach ($this->testSchemeTerritories as $schemeTerritory) {
+    //         $this->TLAttributeTests($this->tls[$schemeTerritory]);
+    //     };
+    // }
 
     // public function testVerifyAllTLs()
     // {
