@@ -8,6 +8,7 @@ use eIDASCertificate\TrustedList;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\ParseException;
 use eIDASCertificate\SignatureException;
+use eIDASCertificate\CertificateException;
 use eIDASCertificate\TrustedListException;
 
 class LOTLRootTest extends TestCase
@@ -62,24 +63,11 @@ class LOTLRootTest extends TestCase
         }
     }
 
-    public function testVerifyLOTLSelfSigned()
+    public function testVerifyLOTLSelfSignedFails()
     {
         $lotl = new TrustedList($this->lotlXML);
-        $this->assertTrue($lotl->verifyTSL());
-        $expectedSignedByDNArray =
-        [
-          'C' => 'BE',
-          'CN' => 'Patrick Kremer (Signature)',
-          'SN' => 'Kremer',
-          'GN' => 'Patrick Jean',
-          'serialNumber' => '72020329970',
-        ];
-        $lotlSignedByCert = $lotl->getSignedBy();
-        $lotlSignedByDNArray = openssl_x509_parse($lotlSignedByCert)['subject'];
-        $this->assertEquals(
-            $expectedSignedByDNArray,
-            $lotlSignedByDNArray
-        );
+        $this->expectException(CertificateException::class);
+        $lotl->verifyTSL();
     }
 
     public function testVerifyLOTLExplicitSigned()
@@ -137,9 +125,6 @@ class LOTLRootTest extends TestCase
         $lotl = new TrustedList($this->lotlXML);
         $validURLFilterFlags =
             FILTER_FLAG_PATH_REQUIRED;
-        // FILTER_FLAG_PATH_REQUIRED |
-        // FILTER_FLAG_HOST_REQUIRED |
-        // FILTER_FLAG_SCHEME_REQUIRED;
         $tlXMLPointers = $lotl->getTrustedListPointers('xml');
         $this->assertGreaterThan(
             12,
@@ -199,11 +184,11 @@ class LOTLRootTest extends TestCase
                 $unVerifiedTLs[] = $title;
             }
         }
-        try {
-            $lotl->verifyAllTLs();
-        } catch (\Exception $e) {
-            throw new \Exception(json_encode($e->getOut()), 1);
-        }
+        // try {
+        //     $lotl->verifyAllTLs();
+        // } catch (Exception $e) {
+        //     throw new \Exception(json_encode($e->getOut()), 1);
+        // }
         $this->assertEquals(
             ['DE: Federal Network Agency'], // Bad player, obscure algorithm
             $unVerifiedTLs
