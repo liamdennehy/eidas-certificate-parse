@@ -41,19 +41,23 @@ class QCStatementsTest extends TestCase
             ['QCSyntaxV2-LegalPerson',
             'QCComplianceStatement',
             'QCSSCD',
-            'QCQualifiedType-eseal',
-            'QCPDSs'],
+            'QCQualifiedType',
+            'QCPDS'],
             array_keys($qcStatements->getStatements())
         );
         $this->assertEquals(
+            'eseal',
+            $qcStatements->getQCType()
+        );
+        $this->assertEquals(
             [
-            'https://www.quovadisglobal.com/repository',
-            'en'
-          ],
+              'https://www.quovadisglobal.com/repository',
+              'en'
+            ],
             [
-            $qcStatements->getPDSLocations()[0]['url'],
-            $qcStatements->getPDSLocations()[0]['language']
-          ]
+              $qcStatements->getPDSLocations()[0]['url'],
+              $qcStatements->getPDSLocations()[0]['language']
+            ]
         );
         $this->assertEquals(
             'MAgGBgQAjkYBAQ==',
