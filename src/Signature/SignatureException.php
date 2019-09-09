@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate\Signature;
+namespace eIDASCertificate;
 
 /**
  *
