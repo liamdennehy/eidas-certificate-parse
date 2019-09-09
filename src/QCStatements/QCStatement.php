@@ -36,6 +36,9 @@ abstract class QCStatement
         case 'id-qcs-pkixQCSyntax-v2':
           return new QCSyntaxV2($statements);
           break;
+        case 'PSD2':
+          return new QCPSD2($statements);
+          break;
         default:
           throw new QCStatementException("Unrecognised OID $qcStatementOID ($qcStatementName)", 1);
           break;
