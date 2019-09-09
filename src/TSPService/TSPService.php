@@ -2,6 +2,12 @@
 
 namespace eIDASCertificate;
 
+use eIDASCertificate\DigitalIdentity\ServiceDigitalIdentity;
+use eIDASCertificate\TSPService\ServiceType;
+use eIDASCertificate\TSPService\ServiceStatus;
+use eIDASCertificate\TSPService\ServiceInformationExtension;
+use eIDASCertificate\TSPService\ServiceHistory;
+
 /**
  *
  */
