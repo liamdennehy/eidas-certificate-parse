@@ -267,8 +267,14 @@ class TrustedList
                 }
             };
             return $tspServices;
-        };
-        return $this->TSPs;
+        } else {
+            $tspServices = [];
+            foreach ($this->getTrustedLists() as $title => $tl) {
+                $tspServices = array_merge($tspServices, $tl->getTSPServices());
+            }
+            return $tspServices;
+        }
+        // return $this->TSPs;
     }
 
     /**
