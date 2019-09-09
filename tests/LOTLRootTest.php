@@ -200,5 +200,17 @@ class LOTLRootTest extends TestCase
             [], // Bad player, obscure algorithm
             $unVerifiedTLs
         );
+        $tlTitles = array_keys($pointedTLs);
+        $this->assertTrue(
+            is_array($lotl->getTrustedLists())
+        );
+        $this->assertEquals(
+            sizeof($verifiedTLs),
+            sizeof($lotl->getTrustedLists())
+        );
+        $this->assertEquals(
+            'eIDASCertificate\TrustedList',
+            get_class($lotl->getTrustedLists($tlTitles[3]))
+        );
     }
 }
