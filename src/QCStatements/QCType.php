@@ -45,11 +45,17 @@ class QCType extends QCStatement implements QCStatementInterface
             throw new QCStatementException("Unrecognised QCType OID $qcTypeOID ($qcTypeName)", 1);
             break;
         }
+        $this->binary = $statements->getBinary();
     }
 
     public function getType()
     {
-        return self::type .'-'.$this->qcType;
+        return self::type;
+    }
+
+    public function getQCType()
+    {
+        return $this->qcType;
     }
 
     public function getDescription()
