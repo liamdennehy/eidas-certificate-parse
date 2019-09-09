@@ -172,15 +172,14 @@ class TrustedList
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         };
-        $xmlSig = new XMLSig($this->xml, $certificates);
+        $xmlSig = new XMLSig($this->xml, $certificates, $this->getName());
         try {
             $xmlSig->verifySignature();
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
-            unset($this->xml);
-            return $this->verified;
-            $this->verified = false;
+            // unset($this->xml);
         } catch (SignatureException $e) {
+            $this->verified = false;
             throw $e;
         }
         return $this->verified;
@@ -194,7 +193,12 @@ class TrustedList
     {
         if ($this->isTLOL()) {
             if (sizeof($this->trustedLists) == 0) {
-                $this->processTrustedLists();
+                throw new TrustedListException(
+                    "No TrustedLists provided",
+                    1
+                );
+
+                // $this->processTrustedLists();
             };
             foreach ($this->getTrustedLists() as $name => $trustedList) {
                 if ($trustedList) {
@@ -417,7 +421,16 @@ class TrustedList
 
     public function addTrustedListXML($title, $xml)
     {
-        $this->trustedLists[$title] = $xml;
+        if (! array_key_exists($title, $this->tslPointers['xml'])) {
+            throw new TrustedListException("No pointer for Trusted List '".$title."'", 1);
+        }
+        try {
+            $trustedList = new TrustedList($xml, $this->tslPointers['xml'][$title]);
+            $verified = $trustedList->verifyTSL();
+        } catch (ParseException $e) {
+            throw $e;
+        }
+        $this->trustedLists[$trustedList->getName()] = $trustedList;
     }
 
     public function getTrustedListPointer($schemeTerritory)
