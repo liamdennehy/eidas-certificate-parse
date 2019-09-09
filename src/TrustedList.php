@@ -158,17 +158,6 @@ class TrustedList
      */
     public function verifyTSL($certificates = null)
     {
-        // TODO: Remove tolerant handling without certificate
-        if (is_null($certificates)) {
-            if (! sizeof($this->getTLX509Certificates())) {
-                throw new Signature\SignatureException(
-                    "No known certificates for TrustedList " .
-                    $this->getName(),
-                    1
-                );
-            }
-            $certificates = $this->getTLX509Certificates();
-        };
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         };
@@ -424,9 +413,15 @@ class TrustedList
         if (! array_key_exists($title, $this->tslPointers['xml'])) {
             throw new TrustedListException("No pointer for Trusted List '".$title."'", 1);
         }
+        $certificates = [];
+        foreach ($this->tslPointers['xml'][$title]->getServiceDigitalIdentities() as $tslDI) {
+            foreach ($tslDI->getX509Certificates() as $certificate) {
+                $certificates[] = $certificate;
+            }
+        }
         try {
             $trustedList = new TrustedList($xml, $this->tslPointers['xml'][$title]);
-            $verified = $trustedList->verifyTSL();
+            $verified = $trustedList->verifyTSL($certificates);
         } catch (ParseException $e) {
             throw $e;
         }
