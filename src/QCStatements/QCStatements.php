@@ -5,6 +5,7 @@ namespace eIDASCertificate;
 use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatement;
+use eIDASCertificate\QCStatements\QCStatementException;
 
 /**
  *
