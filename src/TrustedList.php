@@ -380,12 +380,17 @@ class TrustedList
      * [getTrustedLists description]
      * @return TrustedList[] [description]
      */
-    public function getTrustedLists()
+    public function getTrustedLists($title = null)
     {
-        if (sizeof($this->trustedLists) == 0) {
-            $this->processTrustedLists();
+        if (! empty($title)) {
+            if (! array_key_exists($title, $this->trustedLists)) {
+                return null;
+            } else {
+                return $this->trustedLists[$title];
+            }
+        } else {
+            return $this->trustedLists;
         }
-        return $this->trustedLists;
     }
 
     public function getTrustedListPointers($fileType = null)
