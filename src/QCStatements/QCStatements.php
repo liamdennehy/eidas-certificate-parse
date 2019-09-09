@@ -38,8 +38,18 @@ class QCStatements
 
     public function getPDSLocations()
     {
-        if (array_key_exists('QCPDSs', $this->getStatements())) {
-            return $this->getStatements()['QCPDSs']->getLocations();
+        if (array_key_exists('QCPDS', $this->getStatements())) {
+            return $this->getStatements()['QCPDS']->getLocations();
+        } else {
+            return false;
+        }
+    }
+
+    // TODO: Combine Qualified status and type
+    public function getQCType()
+    {
+        if (array_key_exists('QCQualifiedType', $this->getStatements())) {
+            return $this->getStatements()['QCQualifiedType']->getQCType();
         } else {
             return false;
         }
