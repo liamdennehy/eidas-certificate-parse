@@ -39,7 +39,7 @@ class QCStatementsTest extends TestCase
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
             ['QCSyntaxV2-LegalPerson',
-            'QCComplianceStatement',
+            'QCCompliance',
             'QCSSCD',
             'QCQualifiedType',
             'QCPDS'],
@@ -62,7 +62,7 @@ class QCStatementsTest extends TestCase
         $this->assertEquals(
             'MAgGBgQAjkYBAQ==',
             base64_encode(
-                $qcStatements->getStatements()['QCComplianceStatement']->getBinary()
+                $qcStatements->getStatements()['QCCompliance']->getBinary()
             )
         );
 
@@ -71,7 +71,10 @@ class QCStatementsTest extends TestCase
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
-            ['QCComplianceStatement', 'QCSSCD'],
+            [
+              'QCCompliance',
+              'QCSSCD'
+            ],
             array_keys($qcStatements->getStatements())
         );
 
@@ -80,7 +83,10 @@ class QCStatementsTest extends TestCase
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
-            ['QCComplianceStatement', 'QCSSCD'],
+            [
+              'QCCompliance',
+              'QCSSCD'
+            ],
             array_keys($qcStatements->getStatements())
         );
     }

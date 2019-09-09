@@ -18,7 +18,7 @@ class QCComplianceTest extends TestCase
         $qcObject = ASNObject::fromBinary($qcBinary);
         $qcStatement = QCStatement::fromASNObject($qcObject);
         $this->assertEquals(
-            'QCComplianceStatement',
+            'QCCompliance',
             $qcStatement->getType()
         );
         $this->assertEquals(

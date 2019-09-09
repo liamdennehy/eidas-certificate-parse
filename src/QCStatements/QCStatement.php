@@ -19,7 +19,7 @@ abstract class QCStatement
         $qcStatementName = OID::getName($qcStatementOID);
         switch ($qcStatementName) {
         case 'qcs-QcCompliance':
-          return new QCComplianceStatement($statements);
+          return new QCCompliance($statements->getBinary());
           break;
         case 'QcLimitValue':
           return new QCLimitValue($statements->getBinary());
