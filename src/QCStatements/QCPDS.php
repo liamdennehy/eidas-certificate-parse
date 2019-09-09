@@ -9,7 +9,7 @@ use eIDASCertificate\QCStatements\QCStatementException;
 /**
  *
  */
-class QCPDSs extends QCStatement implements QCStatementInterface
+class QCPDS extends QCStatement implements QCStatementInterface
 {
     private $pdsLocations;
     const type = 'QCPDSs';
@@ -47,7 +47,18 @@ class QCPDSs extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        return "This QCStatement holds URLs to PKI Disclosure Statements (PDS)";
+        if (sizeof($this->pdsLocations) == 0) {
+          $description = "This QCStatement should hold URLs to PKI Disclosure ".
+            "Statements, but none are present";
+        } else {
+          $description = "This QCStatement holds URLs to ".sizeof($this->pdsLocations)." PKI Disclosure Statement";
+          if (sizeof($this->pdsLocations) > 1) {
+            $description .= "s";
+          }
+          $description .= " (PDS)";
+        }
+        return $description;
+        // s (PDS)";
     }
 
     public function getURI()
