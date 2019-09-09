@@ -158,7 +158,9 @@ class TrustedList
      */
     public function verifyTSL($certificates = null)
     {
-        if (! is_array($certificates)) {
+        if (empty($certificates)) {
+            $certificates = [];
+        } elseif (! is_array($certificates)) {
             $certificates = [$certificates];
         };
         $xmlSig = new XMLSig($this->xml, $certificates, $this->getName());
@@ -413,8 +415,9 @@ class TrustedList
         if (! array_key_exists($title, $this->tslPointers['xml'])) {
             throw new TrustedListException("No pointer for Trusted List '".$title."'", 1);
         }
+        $stlPointer = $this->tslPointers['xml'][$title];
         $certificates = [];
-        foreach ($this->tslPointers['xml'][$title]->getServiceDigitalIdentities() as $tslDI) {
+        foreach ($stlPointer->getServiceDigitalIdentities() as $tslDI) {
             foreach ($tslDI->getX509Certificates() as $certificate) {
                 $certificates[] = $certificate;
             }
@@ -426,6 +429,16 @@ class TrustedList
             throw $e;
         }
         $this->trustedLists[$trustedList->getName()] = $trustedList;
+
+        // ARGH!!!!
+        // if ($trustedList->getName() != $title) {
+        //   throw new TrustedListException(
+        //     "Provided SchemeOperatorName '".
+        //     $title.
+        //     "' does not match TL SchemeOperatorName '".
+        //     $trustedList->getName()."'", 1);
+        // }
+        return $trustedList->getName();
     }
 
     public function getTrustedListPointer($schemeTerritory)
