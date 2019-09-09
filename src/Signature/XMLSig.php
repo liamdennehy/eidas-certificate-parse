@@ -31,13 +31,14 @@ class XMLSig
         $this->doc = new DOMDocument();
         $this->doc->loadXML($xml);
         if (! is_array($certificates)) {
-          $certificates = [$certificates];
+            $certificates = [$certificates];
         }
         foreach ($certificates as $certificate) {
             $signingCertificate = openssl_x509_read($certificate);
             if (! $signingCertificate) {
                 throw new CertificateException(
-                  "Bad certificate supplied for XML Signature Verification", 1
+                    "Bad certificate supplied for XML Signature Verification",
+                    1
                 );
             } else {
                 $this->certificates[] = $signingCertificate;
@@ -75,7 +76,7 @@ class XMLSig
             );
         }
         $key = $secDsig->locateKey();
-        var_dump($key); exit;
+        // var_dump($key); exit;
         if ($key === null) {
             throw new SignatureException(
                 'Could not find signing key in signature block',
@@ -89,7 +90,7 @@ class XMLSig
         // };
         if ($secDsig->verify($key) === 1) {
             $signedBy = Certificate\X509Certificate::emit(
-              $key->getX509Certificate()
+                $key->getX509Certificate()
             );
             if ($signedBy) {
                 $foundThumb = openssl_x509_fingerprint($signedBy, 'sha256');
