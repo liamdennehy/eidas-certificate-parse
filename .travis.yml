@@ -10,3 +10,6 @@ install:
   - mkdir -p ./data
   - wget -O data/eu-lotl.xml https://ec.europa.eu/tools/lotl/eu-lotl.xml
   - scripts/showtests.sh
+cache:
+  directories:
+    - $HOME/.composer/cache/files
