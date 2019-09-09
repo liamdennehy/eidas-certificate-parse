@@ -2,9 +2,15 @@
     "name": "liamdennehy/eidas-certificate",
     "description": "eIDAS Trust Services and Qualified Certificate Statement (QCStatement) library",
     "type": "library",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/liamdennehy/xmlseclibs.git"
+        }
+    ],
     "require": {
         "phpseclib/phpseclib": "^2.0",
-        "robrichards/xmlseclibs": "^3.0",
+        "robrichards/xmlseclibs": "dev-mgf1#c2e5a1424804c462ec5342bb68858725cbe78256",
         "php": ">=7.1",
         "guzzlehttp/guzzle": "^6.3",
         "fgrosse/phpasn1": "^2.1",
