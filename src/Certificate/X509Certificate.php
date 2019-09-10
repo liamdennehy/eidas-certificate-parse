@@ -96,4 +96,14 @@ class X509Certificate
             return $this->qcStatements;
         }
     }
+
+    public function toDER()
+    {
+      openssl_x509_export($this->crtResource,$crtPEM);
+      $crtPEM = explode("\n",$crtPEM);
+      unset($crtPEM[sizeof($crtPEM)-1]);
+      unset($crtPEM[0]);
+      $crtDER = base64_decode(implode("",$crtPEM));
+      return $crtDER;
+    }
 }
