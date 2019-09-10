@@ -39,26 +39,30 @@ class QCStatementsTest extends TestCase
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
             ['QCSyntaxV2-LegalPerson',
-            'QCComplianceStatement',
+            'QCCompliance',
             'QCSSCD',
-            'QCQualifiedType-eseal',
-            'QCPDSs'],
+            'QCQualifiedType',
+            'QCPDS'],
             array_keys($qcStatements->getStatements())
         );
         $this->assertEquals(
+            'eseal',
+            $qcStatements->getQCType()
+        );
+        $this->assertEquals(
             [
-            'https://www.quovadisglobal.com/repository',
-            'en'
-          ],
+              'https://www.quovadisglobal.com/repository',
+              'en'
+            ],
             [
-            $qcStatements->getPDSLocations()[0]['url'],
-            $qcStatements->getPDSLocations()[0]['language']
-          ]
+              $qcStatements->getPDSLocations()[0]['url'],
+              $qcStatements->getPDSLocations()[0]['language']
+            ]
         );
         $this->assertEquals(
             'MAgGBgQAjkYBAQ==',
             base64_encode(
-                $qcStatements->getStatements()['QCComplianceStatement']->getBinary()
+                $qcStatements->getStatements()['QCCompliance']->getBinary()
             )
         );
 
@@ -67,7 +71,10 @@ class QCStatementsTest extends TestCase
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
-            ['QCComplianceStatement', 'QCSSCD'],
+            [
+              'QCCompliance',
+              'QCSSCD'
+            ],
             array_keys($qcStatements->getStatements())
         );
 
@@ -76,7 +83,10 @@ class QCStatementsTest extends TestCase
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
-            ['QCComplianceStatement', 'QCSSCD'],
+            [
+              'QCCompliance',
+              'QCSSCD'
+            ],
             array_keys($qcStatements->getStatements())
         );
     }
