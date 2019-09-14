@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\QCStatements;
+use FG\ASN1\ASNObject;
 
 /**
  *
@@ -10,11 +11,19 @@ use eIDASCertificate\QCStatements;
 class X509Certificate
 {
     private $crtResource;
+    private $crtBinary;
     private $parsed;
 
     public function __construct($candidate)
     {
         $this->crtResource = X509Certificate::emit($candidate);
+        openssl_x509_export($this->crtResource, $crtPEM);
+        $crtPEM = explode("\n", $crtPEM);
+        unset($crtPEM[sizeof($crtPEM)-1]);
+        unset($crtPEM[0]);
+        $this->crtBinary = base64_decode(implode("", $crtPEM));
+        $crtASN1 = ASNObject::fromBinary($this->crtBinary)[0];
+        $crtVersion = $crtASN1[0]->getContent()[0]->getContent() + 1;
     }
 
     public static function emit($candidate)
@@ -99,11 +108,14 @@ class X509Certificate
 
     public function toDER()
     {
-      openssl_x509_export($this->crtResource,$crtPEM);
-      $crtPEM = explode("\n",$crtPEM);
-      unset($crtPEM[sizeof($crtPEM)-1]);
-      unset($crtPEM[0]);
-      $crtDER = base64_decode(implode("",$crtPEM));
-      return $crtDER;
+        return $this->crtBinary;
+    }
+
+    public function getExtensions()
+    {
+        $crtObject=ASNObject::fromBinary($this->crtBinary);
+        $tbsCertificate = $crtObject[0];
+        $extensions = $tbsCertificate[7]->getContent()[0]->getContent();
+        return $extensions;
     }
 }
