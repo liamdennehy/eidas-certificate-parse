@@ -6,3 +6,4 @@ data
 doc
 composer.lock
 ./.php_cs
+tools/
