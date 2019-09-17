@@ -58,7 +58,7 @@ class LOTLRootTest extends TestCase
         foreach ($this->lotl->getTLX509Certificates() as $lotlCert) {
             $this->assertGreaterThan(
                 12,
-                strlen(X509Certificate::getDN($lotlCert))
+                strlen($lotlCert->getDN())
             );
         }
     }
@@ -83,8 +83,8 @@ class LOTLRootTest extends TestCase
             $id = explode('.', $certpath)[0];
             $certs[$id] = file_get_contents($this->datadir.'/journal/c-276-1/'.$certpath);
         }
-        $wrongCert = $certs[$wrongCertHash];
-        $rightCert = $certs[$rightCertHash];
+        $wrongCert = new X509Certificate($certs[$wrongCertHash]);
+        $rightCert = new X509Certificate($certs[$rightCertHash]);
         $lotl = new TrustedList($this->lotlXML);
         try {
             $lotl->verifyTSL([$wrongCert]);
@@ -112,8 +112,10 @@ class LOTLRootTest extends TestCase
           'GN' => 'Patrick Jean',
           'serialNumber' => '72020329970',
         ];
-        $lotlSignedByCert = $lotl->getSignedBy();
-        $lotlSignedByDNArray = openssl_x509_parse($lotlSignedByCert)['subject'];
+        // var_dump($lotl->getSignedBy()); exit;
+        $lotlSignedByDNArray = $lotl->getSignedBy()->getSubjectParsed();
+        // $lotlSignedByCert = $lotl->getSignedBy();
+        // $lotlSignedByDNArray = openssl_x509_parse($lotlSignedByCert)['subject'];
         $this->assertEquals(
             $expectedSignedByDNArray,
             $lotlSignedByDNArray
