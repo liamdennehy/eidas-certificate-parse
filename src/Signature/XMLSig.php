@@ -106,8 +106,13 @@ class XMLSig
               $foundThumb = $signedBy->getHash('sha256');
               $validThumbs = $this->getX509Thumbprints('sha256');
             } else {
+              // TODO: Better explanation and handling of the case where no certificate is available in the doc
               $validThumbs = [];
               $foundThumb = $key->getX509Thumbprint();
+              if (empty($foundThumb)) {
+                throw new \Exception("Empty thumbprint on signing key", 1);
+
+              }
               foreach ($this->getX509Thumbprints('sha1') as $validThumb) {
                 $validThumbs[] = $validThumb;
               }
