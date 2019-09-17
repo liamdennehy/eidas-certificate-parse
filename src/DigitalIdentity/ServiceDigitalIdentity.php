@@ -20,9 +20,7 @@ class ServiceDigitalIdentity
         $this->digitalIds = [];
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
             $newDigitalId = DigitalId::parse($digitalId);
-            foreach ($newDigitalId as $type => $value) {
-                $this->digitalIds[$type][] = $value;
-            };
+            $this->digitalIds[$newDigitalId->getType()][] = $newDigitalId;
         };
     }
 
@@ -33,9 +31,9 @@ class ServiceDigitalIdentity
     public function getX509Certificates()
     {
         $x509Certificates = [];
-        foreach ($this->digitalIds as $type => $digitalId) {
+        foreach ($this->digitalIds as $type => $digitalIds) {
             if ($type == 'X509Certificate') {
-                foreach ($digitalId as $certificate) {
+                foreach ($digitalIds as $certificate) {
                     $x509Certificates[] = $certificate;
                 }
             }
@@ -47,9 +45,13 @@ class ServiceDigitalIdentity
      * [getDigitalIds description]
      * @return array [description]
      */
-    public function getDigitalIds()
+    public function getDigitalIds($type = null)
     {
-        return $this->digitalIds;
+        if ($type) {
+          return $this->digitalIds[$type];
+        } else {
+          return $this->digitalIds;
+        }
     }
 
     public function getX509Certificate()
