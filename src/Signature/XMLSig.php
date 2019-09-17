@@ -102,21 +102,20 @@ class XMLSig
         if ($secDsig->verify($key) === 1) {
             $keyCert = $key->getX509Certificate();
             if ($keyCert) {
-              $signedBy = new X509Certificate($keyCert);
-              $foundThumb = $signedBy->getHash('sha256');
-              $validThumbs = $this->getX509Thumbprints('sha256');
+                $signedBy = new X509Certificate($keyCert);
+                $foundThumb = $signedBy->getHash('sha256');
+                $validThumbs = $this->getX509Thumbprints('sha256');
             } else {
-              // TODO: Better explanation and handling of the case where no certificate is available in the doc
-              $validThumbs = [];
-              $foundThumb = $key->getX509Thumbprint();
-              if (empty($foundThumb)) {
-                throw new \Exception("Empty thumbprint on signing key", 1);
-
-              }
-              foreach ($this->getX509Thumbprints('sha1') as $validThumb) {
-                $validThumbs[] = $validThumb;
-              }
-              $signedBy = $foundThumb;
+                // TODO: Better explanation and handling of the case where no certificate is available in the doc
+                $validThumbs = [];
+                $foundThumb = $key->getX509Thumbprint();
+                if (empty($foundThumb)) {
+                    throw new \Exception("Empty thumbprint on signing key", 1);
+                }
+                foreach ($this->getX509Thumbprints('sha1') as $validThumb) {
+                    $validThumbs[] = $validThumb;
+                }
+                $signedBy = $foundThumb;
             }
             if (in_array($foundThumb, $validThumbs)) {
                 $this->signedBy = $signedBy;

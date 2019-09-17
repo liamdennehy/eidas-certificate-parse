@@ -252,13 +252,13 @@ class X509Certificate implements DigitalIdInterface
 
     public function toPEM()
     {
-      openssl_x509_export($this->crtResource,$pem);
-      return $pem;
+        openssl_x509_export($this->crtResource, $pem);
+        return $pem;
     }
 
     public function getSubjectParsed()
     {
-      return $this->getParsed()['subject'];
+        return $this->getParsed()['subject'];
     }
 
     public function getType()

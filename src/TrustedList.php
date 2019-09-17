@@ -167,7 +167,7 @@ class TrustedList
         };
         $pems = [];
         foreach ($certificates as $certificate) {
-          $pems[($certificate->getHash())] = $certificate->toPEM();
+            $pems[($certificate->getHash())] = $certificate->toPEM();
         }
         $xmlSig = new XMLSig($this->xml, $pems, $this->getName());
         try {
@@ -274,10 +274,10 @@ class TrustedList
         $tspServices = [];
         $tsps = $this->getTSPs($includeChildren);
         foreach ($tsps as $tsp) {
-          foreach ($tsp->getTSPServices() as $tspService) {
-            $tspServices[$tsp->getName()][$tspService->getName()] = $tspService;
-            // code...
-          }
+            foreach ($tsp->getTSPServices() as $tspService) {
+                $tspServices[$tsp->getName()][$tspService->getName()] = $tspService;
+                // code...
+            }
         }
         return $tspServices;
     }

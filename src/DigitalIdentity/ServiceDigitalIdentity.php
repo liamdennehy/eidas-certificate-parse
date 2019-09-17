@@ -48,9 +48,9 @@ class ServiceDigitalIdentity
     public function getDigitalIds($type = null)
     {
         if ($type) {
-          return $this->digitalIds[$type];
+            return $this->digitalIds[$type];
         } else {
-          return $this->digitalIds;
+            return $this->digitalIds;
         }
     }
 
