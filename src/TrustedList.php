@@ -4,6 +4,7 @@ namespace eIDASCertificate;
 
 use SimpleXMLElement;
 use eIDASCertificate\Signature\XMLSig;
+use eIDASCertificate\Certificate\X509Certificate;
 
 /**
  *
@@ -156,14 +157,19 @@ class TrustedList
      * @param  resource|resource[]|string|string[] $tlCerts [description]
      * @return boolean [description]
      */
-    public function verifyTSL($certificates = null)
+    public function verifyTSL($certificates)
     {
-        if (empty($certificates)) {
-            $certificates = [];
-        } elseif (! is_array($certificates)) {
+        // if (empty($certificates)) {
+        //     $certificates = [];
+        // } elseif (! is_array($certificates)) {
+        if (! is_array($certificates)) {
             $certificates = [$certificates];
         };
-        $xmlSig = new XMLSig($this->xml, $certificates, $this->getName());
+        $pems = [];
+        foreach ($certificates as $certificate) {
+          $pems[($certificate->getHash())] = $certificate->toPEM();
+        }
+        $xmlSig = new XMLSig($this->xml, $pems, $this->getName());
         try {
             $xmlSig->verifySignature();
             $this->verified = true;
@@ -235,7 +241,7 @@ class TrustedList
             as $serviceDigitalIdentity) {
             foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
                 $x509Certificates[
-                    Certificate\X509Certificate::getHash($x509Certificate, $algo)
+                    $x509Certificate->getHash($algo)
                     ] = $x509Certificate;
             };
         };
@@ -263,21 +269,17 @@ class TrustedList
         return $this->TSPs;
     }
 
-    public function getTSPServices()
+    public function getTSPServices($includeChildren = false)
     {
         $tspServices = [];
-        if (! $this->isTLOL()) {
-            foreach ($this->getTSPs() as $tsp) {
-                foreach ($tsp->getTSPServices() as $tspService) {
-                    $tspServices
-                        [$this->schemeTerritory . ": " . $tsp->getName()]
-                            [$tspService->getName()]
-                                = $tspService;
-                }
-            };
-            return $tspServices;
-        };
-        return $this->TSPs;
+        $tsps = $this->getTSPs($includeChildren);
+        foreach ($tsps as $tsp) {
+          foreach ($tsp->getTSPServices() as $tspService) {
+            $tspServices[$tsp->getName()][$tspService->getName()] = $tspService;
+            // code...
+          }
+        }
+        return $tspServices;
     }
 
     /**
