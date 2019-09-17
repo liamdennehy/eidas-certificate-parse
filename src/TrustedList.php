@@ -246,8 +246,17 @@ class TrustedList
      * [getTSPs description]
      * @return TrustServiceProvider[] [description]
      */
-    public function getTSPs()
+    public function getTSPs($includeChildren = false)
     {
+        $tsps = [];
+        if ($includeChildren && ! empty($this->trustedLists)) {
+            foreach ($this->getTrustedLists() as  $trustedList) {
+                foreach ($trustedList->getTSPs(true) as $tsp) {
+                    $tsps[] = $tsp;
+                }
+            }
+            return $tsps;
+        }
         if (! $this->TSPs) {
             $this->parseTSPs();
         }
