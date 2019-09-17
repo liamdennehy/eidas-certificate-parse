@@ -10,7 +10,7 @@ use ASN1\Type\UnspecifiedType;
 /**
  *
  */
-class X509Certificate
+class X509Certificate implements DigitalIdInterface
 {
     private $crtResource;
     private $crtBinary;
@@ -259,5 +259,10 @@ class X509Certificate
     public function getSubjectParsed()
     {
       return $this->getParsed()['subject'];
+    }
+
+    public function getType()
+    {
+        return 'X509Certificate';
     }
 }
