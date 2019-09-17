@@ -5,7 +5,7 @@ namespace eIDASCertificate\Signature;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecEnc;
 use DOMDocument;
-use eIDASCertificate\Certificate;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\CertificateException;
 use eIDASCertificate\SignatureException;
 
@@ -100,20 +100,19 @@ class XMLSig
         //     $key->loadKey($certificate);
         // };
         if ($secDsig->verify($key) === 1) {
-            $signedBy = Certificate\X509Certificate::emit(
-                $key->getX509Certificate()
-            );
-            $validThumbs = [];
-            if ($signedBy) {
-                $foundThumb = openssl_x509_fingerprint($signedBy, 'sha256');
-                $validThumbs = $this->getX509Thumbprints('sha256');
+            $keyCert = $key->getX509Certificate();
+            if ($keyCert) {
+              $signedBy = new X509Certificate($keyCert);
+              $foundThumb = $signedBy->getHash('sha256');
+              $validThumbs = $this->getX509Thumbprints('sha256');
             } else {
-                $foundThumb = $key->getX509Thumbprint();
-                foreach ($this->getX509Thumbprints('sha1') as $validThumb) {
-                    $validThumbs[] = $validThumb;
-                }
-            };
-
+              $validThumbs = [];
+              $foundThumb = $key->getX509Thumbprint();
+              foreach ($this->getX509Thumbprints('sha1') as $validThumb) {
+                $validThumbs[] = $validThumb;
+              }
+              $signedBy = $foundThumb;
+            }
             if (in_array($foundThumb, $validThumbs)) {
                 $this->signedBy = $signedBy;
                 return true;
