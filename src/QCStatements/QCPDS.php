@@ -53,12 +53,18 @@ class QCPDS extends QCStatement implements QCStatementInterface
             $description = "This QCStatement should hold URLs to PKI Disclosure ".
             "Statements, but none are present";
         } else {
-            $description = "This QCStatement holds URLs to ".sizeof($this->pdsLocations)." PKI Disclosure Statement";
+            $description = sizeof($this->pdsLocations)." PKI Disclosure Statement";
             if (sizeof($this->pdsLocations) > 1) {
                 $description .= "s";
             }
-            $description .= " (PDS)";
+            $description .= " (PDS) are available: ";
+            $locations = [];
+            foreach ($this->pdsLocations as $pdsLocation) {
+                $locations[] = "(" . $pdsLocation['language'] . ") " . $pdsLocation['url'];
+            }
+            $description .= implode(", ", $locations);
         }
+
         return $description;
         // s (PDS)";
     }
