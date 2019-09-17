@@ -2,7 +2,7 @@
 
 namespace eIDASCertificate\DigitalIdentity;
 
-use eIDASCertificate\Certificate;
+use eIDASCertificate\Certificate\X509Certificate;
 
 /**
  *
@@ -13,12 +13,13 @@ abstract class DigitalId
     {
         $childNodes = $digitalId->xpath('*');
         $identifier = $childNodes[0];
-        $name = $identifier->getname();
-        switch ($name) {
+        $type = $identifier->getname();
+        switch ($type) {
         case 'X509Certificate':
-            $value = openssl_x509_read(
-                Certificate\X509Certificate::base64ToPEM((string)$identifier)
-            );
+            $value = new X509Certificate($identifier);
+            // $value = openssl_x509_read(
+            //     Certificate\X509Certificate::base64ToPEM((string)$identifier)
+            // );
             break;
         case 'X509SKI':
             $value = (string)$identifier;
@@ -33,6 +34,6 @@ abstract class DigitalId
             throw new ParseException("Unknown ServiceDigitalIdentity Type $IDType", 1);
             break;
         };
-        return [$name => $value];
+        return [$type => $value];
     }
 }

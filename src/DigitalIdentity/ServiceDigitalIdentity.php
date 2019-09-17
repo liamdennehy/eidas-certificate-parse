@@ -16,6 +16,7 @@ class ServiceDigitalIdentity
      */
     public function __construct($serviceDigitalIdentity)
     {
+        // TODO: Make sure SKIs, fingerprints and certificates actually match
         $this->digitalIds = [];
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
             $newDigitalId = DigitalId::parse($digitalId);
