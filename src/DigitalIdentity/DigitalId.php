@@ -16,24 +16,20 @@ abstract class DigitalId
         $type = $identifier->getname();
         switch ($type) {
         case 'X509Certificate':
-            $value = new X509Certificate($identifier);
-            // $value = openssl_x509_read(
-            //     Certificate\X509Certificate::base64ToPEM((string)$identifier)
-            // );
+            return new X509Certificate((string)$identifier);
             break;
         case 'X509SKI':
-            $value = (string)$identifier;
+            return new X509SKI((string)$identifier);
             break;
         case 'X509SubjectName':
-            $value = (string)$identifier;
+            return new X509SubjectName((string)$identifier);
             break;
         case 'Other':
-            $value = (string)$identifier;
+            return new OtherDigitalId((string)$identifier);
             break;
         default:
             throw new ParseException("Unknown ServiceDigitalIdentity Type $IDType", 1);
             break;
         };
-        return [$type => $value];
     }
 }
