@@ -77,7 +77,7 @@ class X509Certificate
         };
         $certificate = openssl_x509_read($candidate);
         if ($certificate) {
-            return $certificate;
+            $this->crtResource = $certificate;
         } else {
             throw new CertificateException("Cannot recognise certificate", 1);
         }
@@ -94,14 +94,14 @@ class X509Certificate
         "-----END CERTIFICATE-----\n";
     }
 
-    public static function getDN($cert)
+    public function getDN()
     {
-        return openssl_x509_parse($cert)['name'];
+        return openssl_x509_parse($this->crtResource)['name'];
     }
 
-    public static function getHash($cert, $algo = 'sha256')
+    public function getHash($algo = 'sha256')
     {
-        return openssl_x509_fingerprint($cert, $algo);
+        return openssl_x509_fingerprint($this->crtResource, $algo);
     }
 
     public static function parse($crt)
@@ -248,5 +248,16 @@ class X509Certificate
     public function getPublicKey()
     {
         return $this->publicKey;
+    }
+
+    public function toPEM()
+    {
+      openssl_x509_export($this->crtResource,$pem);
+      return $pem;
+    }
+
+    public function getSubjectParsed()
+    {
+      return $this->getParsed()['subject'];
     }
 }
