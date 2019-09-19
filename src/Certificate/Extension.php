@@ -49,7 +49,12 @@ abstract class Extension
 
           default:
             if ($extension[1]->getContent() === "TRUE") {
-                throw new ExtensionException("Unrecognised Critical Extension OID '$extensionOid' ($extensionName), cannot proceed", 1);
+                throw new ExtensionException(
+                    "Unrecognised Critical Extension OID '$extensionOid' ($extensionName), cannot proceed: '" .
+                    base64_encode($extension->getBinary()).
+                    "'",
+                    1
+                );
             } else {
                 return new UnknownExtension($extension->getbinary());
             }
