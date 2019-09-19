@@ -81,6 +81,51 @@ class X509Certificate
         return $this->parsed;
     }
 
+    public function getDates()
+    {
+        if (empty($this->parsed)) {
+            $this->parsed = X509Certificate::parse($this->crtResource);
+        }
+        return [
+          'notBefore' => date_create( '@' .  $this->parsed['validFrom_time_t']),
+          'notAfter' => date_create( '@' .  $this->parsed['validTo_time_t'])
+        ];
+    }
+
+    public function isValidAt($dateTime = null)
+    {
+      if(empty($dateTime)) {
+        $dateTime = new \DateTime; // now
+      };
+      $dates = $this->getDates();
+      return (
+        $this->isStartedAt($dateTime) &&
+        $this->isNotFinishedAt($dateTime)
+      );
+    }
+
+    public function isStartedAt($dateTime = null)
+    {
+      if(empty($dateTime)) {
+        $dateTime = new \DateTime; // now
+      };
+      $dates = $this->getDates();
+      return (
+        $dates['notBefore'] < $dateTime
+      );
+    }
+
+    public function isNotFinishedAt($dateTime = null)
+    {
+      if(empty($dateTime)) {
+        $dateTime = new \DateTime; // now
+      };
+      $dates = $this->getDates();
+      return (
+        $dates['notAfter'] > $dateTime
+      );
+    }
+
     public function hasExtensions()
     {
         return array_key_exists('extensions', $this->getParsed());
