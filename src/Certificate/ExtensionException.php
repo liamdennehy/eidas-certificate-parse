@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate\QCStatements;
+namespace eIDASCertificate\Certificate;
 
 /**
  *

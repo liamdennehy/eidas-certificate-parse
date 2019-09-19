@@ -23,6 +23,7 @@ class OID
     const PSP_AI  = '0.4.0.19495.1.3';
     const PSP_IC  = '0.4.0.19495.1.4';
     const PSD2  = '0.4.0.19495.2';
+    const PreCertPoison = '1.3.6.1.4.1.11129.2.4.3';
     const KeyUsage = '2.5.29.15';
     const AuthorityKeyIdentifier = '2.5.29.35';
 
@@ -83,6 +84,9 @@ class OID
             break;
           case self::KeyUsage:
             $oidName = 'keyUsage';
+            break;
+          case self::PreCertPoison:
+            $oidName = 'preCertPoison';
             break;
           case self::AuthorityKeyIdentifier:
             $oidName = 'authorityKeyIdentifier';

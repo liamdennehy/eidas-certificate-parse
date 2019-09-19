@@ -34,6 +34,6 @@ use FG\ASN1\ASNObject;
             // code...
           }
       }
-      var_dump($this->extensions);
+      // var_dump($this->extensions);
     }
 }

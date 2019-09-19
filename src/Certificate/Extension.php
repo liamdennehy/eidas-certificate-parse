@@ -18,6 +18,10 @@ abstract class Extension
         $extensionOid = $extension[0]->getContent();
         $extensionName = OID::getName($extensionOid);
         switch ($extensionName) {
+          case 'preCertPoison':
+            return new PreCertPoison($extension->getbinary());
+            // TODO: Properly handle poisoned certificates
+            break;
           case 'keyUsage':
             return new KeyUsage($extension->getbinary());
             break;
@@ -27,7 +31,7 @@ abstract class Extension
 
           default:
             if ($extension[1]->getContent() === "TRUE") {
-              throw new \Exception("Unrecognised Critical Extension OID '$extensionOid' ($extensionName), cannot proceed", 1);
+              throw new ExtensionException("Unrecognised Critical Extension OID '$extensionOid' ($extensionName), cannot proceed", 1);
             } else {
                 return new UnknownExtension($extension->getbinary());
             }
