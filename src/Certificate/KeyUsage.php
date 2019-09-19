@@ -10,24 +10,23 @@ use FG\ASN1\ASNObject;
  *
  */
  class KeyUsage implements ExtensionInterface
-{
-    private $binary;
-    const type = 'keyUsage';
-    const oid = '2.5.29.15';
-    const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.3';
+ {
+     const type = 'keyUsage';
+     const oid = '2.5.29.15';
+     const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.3';
 
-    public function __construct($asn1Extension)
-    {
+     public function __construct($keyUsageString)
+     {
+         $this->keyUsage = explode(", ", $keyUsageString);
+     }
 
-    }
+     public function getType()
+     {
+         return self::type;
+     }
 
-    public function getType()
-    {
-        return self::type;
-    }
-
-    public function getURI()
-    {
-        return self::uri;
-    }
-}
+     public function getURI()
+     {
+         return self::uri;
+     }
+ }
