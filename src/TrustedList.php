@@ -282,6 +282,20 @@ class TrustedList
         return $tspServices;
     }
 
+    public function getTSPServicesByType($type, $includeChildren = false)
+    {
+        $tspServices = [];
+        $tsps = $this->getTSPs($includeChildren);
+        foreach ($tsps as $tsp) {
+            foreach ($tsp->getTSPServices($includeChildren) as $tspService) {
+                if ($tspService->getType() == $type) {
+                  $tspServices[$tsp->getName()][$tspService->getName()] = $tspService;
+                }
+            }
+        }
+        return $tspServices;
+    }
+
     /**
      * [displayName description]
      * @return string [description]
