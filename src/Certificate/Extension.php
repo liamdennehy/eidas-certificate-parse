@@ -24,7 +24,8 @@ abstract class Extension
             $extnValue = hex2bin($extension[1]->getContent());
         }
         $extensionName = OID::getName($extensionOid);
-        // print $extensionName . ": " . base64_encode($extnValue) .PHP_EOL;
+        // print "$extensionOid ($extensionName)" . PHP_EOL;
+        print "$extensionOid ($extensionName): " . base64_encode($extnValue) .PHP_EOL;
         switch ($extensionName) {
           case 'basicConstraints':
             // TODO: Properly handle Basic Constraints
@@ -46,6 +47,10 @@ abstract class Extension
             // TODO: Implement EKU
             return new ExtendedKeyUsage($extnValue);
             break;
+          case 'qcStatements':
+            // TODO: Implemented on certificate object
+            return false;
+            break;
 
           default:
             if ($extension[1]->getContent() === "TRUE") {
@@ -56,6 +61,7 @@ abstract class Extension
                     1
                 );
             } else {
+                // print $extensionName . PHP_EOL;
                 return new UnknownExtension($extension->getbinary());
             }
             break;

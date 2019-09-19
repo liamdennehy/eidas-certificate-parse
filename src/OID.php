@@ -7,6 +7,7 @@ namespace eIDASCertificate;
  */
 class OID
 {
+    const qcStatements = '1.3.6.1.5.5.7.1.3';
     const PKIX_QCSYNTAX_V2                    = '1.3.6.1.5.5.7.11.2';
     const qcs_QcCompliance                    = '0.4.0.1862.1.1';
     const QcLimitValue  = '0.4.0.1862.1.2';
@@ -27,6 +28,7 @@ class OID
     const BasicConstraints = '2.5.29.19';
     const KeyUsage = '2.5.29.15';
     const ExtendedKeyUsage = '2.5.29.37';
+    const SubjectKeyIdentifier = '2.5.29.14';
     const AuthorityKeyIdentifier = '2.5.29.35';
 
     public static function getName($oidString)
@@ -36,6 +38,10 @@ class OID
 
         $oidName = "unknown";
         switch ($oidString) {
+          case self::qcStatements:
+
+              $oidName = 'qcStatements';
+              break;
           case self::PKIX_QCSYNTAX_V2:
               $oidName = 'id-qcs-pkixQCSyntax-v2';
               break;
@@ -98,6 +104,9 @@ class OID
             break;
           case self::AuthorityKeyIdentifier:
             $oidName = 'authorityKeyIdentifier';
+            break;
+          case self::SubjectKeyIdentifier:
+            $oidName = 'subjectKeyIdentifier';
             break;
           }
         return $oidName;
