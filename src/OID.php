@@ -26,6 +26,7 @@ class OID
     const PreCertPoison = '1.3.6.1.4.1.11129.2.4.3';
     const BasicConstraints = '2.5.29.19';
     const KeyUsage = '2.5.29.15';
+    const ExtendedKeyUsage = '2.5.29.37';
     const AuthorityKeyIdentifier = '2.5.29.35';
 
     public static function getName($oidString)
@@ -88,6 +89,9 @@ class OID
             break;
           case self::KeyUsage:
             $oidName = 'keyUsage';
+            break;
+          case self::ExtendedKeyUsage:
+            $oidName = 'extKeyUsage';
             break;
           case self::PreCertPoison:
             $oidName = 'preCertPoison';
