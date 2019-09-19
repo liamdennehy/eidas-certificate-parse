@@ -21,19 +21,17 @@ use FG\ASN1\ASNObject;
          foreach ($this->asn1Object as $extension) {
              $v3Extension = Extension::fromASNObject($extension);
              if ($v3Extension) {
-                 // code...
                  if ($v3Extension->getType() != 'unknown') {
                      if (array_key_exists($v3Extension->getType(), $this->extensions)) {
                          throw new ExtensionException(
-                    "Multiple Certificate Extensions of type " . $v3Extension->getType(),
-                    1
-                );
+                             "Multiple Certificate Extensions of type " . $v3Extension->getType(),
+                             1
+                         );
                      } else {
                          $this->extensions[$v3Extension->getType()] = $extension;
                      }
                  } else {
                      $this->extensions[$v3Extension->getType().'-'.$v3Extension->getOID()] = $extension;
-                     // code...
                  }
              }
          }
