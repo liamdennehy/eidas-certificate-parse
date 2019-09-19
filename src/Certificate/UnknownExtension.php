@@ -36,4 +36,9 @@ use FG\ASN1\ASNObject;
      {
          return $this->oid;
      }
+
+     public function getBinary()
+     {
+         return $this->binary;
+     }
  }

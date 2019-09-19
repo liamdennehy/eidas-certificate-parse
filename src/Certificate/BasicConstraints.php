@@ -56,4 +56,9 @@ use FG\ASN1\ASNObject;
              return false;
          }
      }
+
+     public function getBinary()
+     {
+         return $this->binary;
+     }
  }

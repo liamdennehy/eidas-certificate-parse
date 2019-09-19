@@ -30,4 +30,9 @@ use FG\ASN1\ASNObject;
      {
          return self::uri;
      }
+
+     public function getBinary()
+     {
+         return $this->binary;
+     }
  }

@@ -29,4 +29,9 @@ use FG\ASN1\ASNObject;
      {
          return self::uri;
      }
+
+     public function getBinary()
+     {
+         return false; // Unable to use binary, so deriving this from parsed
+     }
  }
