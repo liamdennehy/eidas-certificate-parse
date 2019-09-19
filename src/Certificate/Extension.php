@@ -2,7 +2,10 @@
 
 namespace eIDASCertificate\Certificate;
 
-use eIDASCertificate\QCStatements;
+use eIDASCertificate\Certificate\ExtensionException;
+use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
+use eIDASCertificate\Certificate\UnknownExtension;
+use eIDASCertificate\OID;
 use FG\ASN1\ASNObject;
 
 /**
@@ -10,8 +13,27 @@ use FG\ASN1\ASNObject;
  */
 abstract class Extension
 {
-    public static function fromBinary($binary)
+    public static function fromASNObject($extension)
     {
-        $extension = ASNObject::fromBinary($binary);
+        $extensionOid = $extension[0]->getContent();
+        $extensionName = OID::getName($extensionOid);
+        switch ($extensionName) {
+          case 'keyUsage':
+            return new KeyUsage($extension->getbinary());
+            break;
+          // case 'authorityKeyIdentifier':
+          //   return new AuthorityKeyIdentifier($extension->getbinary());
+          //   break;
+
+          default:
+            if ($extension[1]->getContent() === "TRUE") {
+              throw new \Exception("Unrecognised Critical Extension OID '$extensionOid' ($extensionName), cannot proceed", 1);
+            } else {
+                return new UnknownExtension($extension->getbinary());
+            }
+            break;
+        }
+        // var_dump([$extension[0]->getContent(), $name]);
+        // return($extention);
     }
 }
