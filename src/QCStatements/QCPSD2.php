@@ -36,7 +36,12 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
         $rolesStatement = $psd2Statement[0];
         foreach ($rolesStatement as $role) {
             if (get_class($role) != "FG\ASN1\Universal\Sequence") {
-                throw new QCStatementException("PSD2 Roles not encoded as a Sequence", 1);
+                throw new QCStatementException(
+                    "PSD2 Roles not encoded as a Sequence: '" .
+                    base64_encode($statements->getBinary()).
+                    "'",
+                    1
+                );
             }
             $psd2Role = OID::getName($role[0]->getContent());
             if ($psd2Role == 'unkown') {
@@ -49,7 +54,11 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
               case 'PSP_IC':
                 if ($psd2Role != $role[1]->getContent()) {
                     throw new QCStatementException(
-                        "PSD2 Named Role '".$role[1]->getContent()."' does not match OID Name '$psd2Role'",
+                        "PSD2 Named Role '".
+                            $role[1]->getContent().
+                            "' does not match OID Name '$psd2Role': '" .
+                            base64_encode($psd2Statement->getBinary()) .
+                        "'",
                         1
                     );
                 }
