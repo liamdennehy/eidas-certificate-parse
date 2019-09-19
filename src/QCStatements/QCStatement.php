@@ -43,7 +43,12 @@ abstract class QCStatement
           return new QCPSD2($statements);
           break;
         default:
-          throw new QCStatementException("Unrecognised QCStatement OID $qcStatementOID ($qcStatementName)", 1);
+          throw new QCStatementException(
+              "Unrecognised QCStatement OID $qcStatementOID ($qcStatementName): '".
+              base64_encode($statements->getBinary()) .
+               "'",
+              1
+          );
           break;
       }
     }
