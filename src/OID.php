@@ -24,6 +24,7 @@ class OID
     const PSP_IC  = '0.4.0.19495.1.4';
     const PSD2  = '0.4.0.19495.2';
     const PreCertPoison = '1.3.6.1.4.1.11129.2.4.3';
+    const BasicConstraints = '2.5.29.19';
     const KeyUsage = '2.5.29.15';
     const AuthorityKeyIdentifier = '2.5.29.35';
 
@@ -81,6 +82,9 @@ class OID
             break;
           case self::PSD2:
             $oidName = 'PSD2';
+            break;
+          case self::BasicConstraints:
+            $oidName = 'basicConstraints';
             break;
           case self::KeyUsage:
             $oidName = 'keyUsage';

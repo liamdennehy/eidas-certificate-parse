@@ -18,6 +18,10 @@ abstract class Extension
         $extensionOid = $extension[0]->getContent();
         $extensionName = OID::getName($extensionOid);
         switch ($extensionName) {
+          case 'basicConstraints':
+            return new BasicConstraints($extension->getbinary());
+            // TODO: Properly Basic Constraints
+            break;
           case 'preCertPoison':
             return new PreCertPoison($extension->getbinary());
             // TODO: Properly handle poisoned certificates
