@@ -35,5 +35,4 @@ use FG\ASN1\ASNObject;
      {
          return $this->binary;
      }
-
  }
