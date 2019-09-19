@@ -47,6 +47,10 @@ abstract class Extension
             // TODO: Implement EKU
             return new ExtendedKeyUsage($extnValue);
             break;
+          case 'crlDistributionPoints':
+            // TODO: Implement CDPs
+            return new CRLDistributionPoints($extnValue);
+            break;
           case 'qcStatements':
             // TODO: Implemented on certificate object
             return false;

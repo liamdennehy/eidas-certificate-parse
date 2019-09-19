@@ -30,7 +30,8 @@ class OID
     const ExtendedKeyUsage = '2.5.29.37';
     const SubjectKeyIdentifier = '2.5.29.14';
     const AuthorityKeyIdentifier = '2.5.29.35';
-
+    const CRLDistributionPoints = '2.5.29.31';
+    
     public static function getName($oidString)
     {
         // return 'blah';
@@ -39,7 +40,6 @@ class OID
         $oidName = "unknown";
         switch ($oidString) {
           case self::qcStatements:
-
               $oidName = 'qcStatements';
               break;
           case self::PKIX_QCSYNTAX_V2:
@@ -98,6 +98,9 @@ class OID
             break;
           case self::ExtendedKeyUsage:
             $oidName = 'extKeyUsage';
+            break;
+          case self::CRLDistributionPoints:
+            $oidName = 'crlDistributionPoints';
             break;
           case self::PreCertPoison:
             $oidName = 'preCertPoison';
