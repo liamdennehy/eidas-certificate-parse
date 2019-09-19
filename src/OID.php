@@ -23,6 +23,8 @@ class OID
     const PSP_AI  = '0.4.0.19495.1.3';
     const PSP_IC  = '0.4.0.19495.1.4';
     const PSD2  = '0.4.0.19495.2';
+    const KeyUsage = '2.5.29.15';
+    const AuthorityKeyIdentifier = '2.5.29.35';
 
     public static function getName($oidString)
     {
@@ -78,6 +80,12 @@ class OID
             break;
           case self::PSD2:
             $oidName = 'PSD2';
+            break;
+          case self::KeyUsage:
+            $oidName = 'keyUsage';
+            break;
+          case self::AuthorityKeyIdentifier:
+            $oidName = 'authorityKeyIdentifier';
             break;
           }
         return $oidName;
