@@ -175,4 +175,11 @@ class X509Certificate
     {
         return $this->extensions;
     }
+
+    public function getCDPs()
+    {
+        if (array_key_exists('crlDistributionPoints', $this->extensions)) {
+            return $this->extensions['crlDistributionPoints']->getCDPs();
+        }
+    }
 }

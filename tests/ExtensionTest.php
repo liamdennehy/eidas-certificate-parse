@@ -4,6 +4,7 @@ namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\Extension;
+use eIDASCertificate\Certificate\CRLDistributionPoints;
 use FG\ASN1\ASNObject;
 
 class ExtensionTest extends TestCase
@@ -22,15 +23,18 @@ class ExtensionTest extends TestCase
     //     }
     // }
 
-    public function testBasicConstraints()
+    public function testCRLDistributionPoints()
     {
         $this->assertTrue(true);
-        // $binary = base64_decode('MFgwJwYIKwYBBQUHMAGGG2h0dHA6Ly9xY2Eub2NzcC5sdXh0cnVzdC5sdTAtBggrBgEFBQcwAoYhaHR0cDovL2NhLmx1eHRydXN0Lmx1L0xUR1FDQTMuY3J0');
-        // $asn1 = ASNObject::fromBinary($binary);
-        // $bc = Extension::fromASNObject($asn1);
-        // $this->assertEquals([
-        //   'abc',
-        //   get_class($ext)
-        // ]);
+        $binary = base64_decode('MIGrMDegNaAzhjFodHRwOi8vcXRsc2NhMjAxOC1jcmwxLmUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3JsMDegNaAzhjFodHRwOi8vcXRsc2NhMjAxOC1jcmwyLmUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3JsMDegNaAzhjFodHRwOi8vcXRsc2NhMjAxOC1jcmwzLmUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3Js');
+        $extnCDPs = new CRLDistributionPoints($binary);
+        $this->assertEquals(
+            $extnCDPs->getCDPs(),
+            [
+            'http://qtlsca2018-crl1.e-szigno.hu/qtlsca2018.crl',
+            'http://qtlsca2018-crl2.e-szigno.hu/qtlsca2018.crl',
+            'http://qtlsca2018-crl3.e-szigno.hu/qtlsca2018.crl'
+          ]
+        );
     }
 }
