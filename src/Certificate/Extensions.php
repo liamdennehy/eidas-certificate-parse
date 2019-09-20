@@ -21,6 +21,7 @@ use FG\ASN1\ASNObject;
          foreach ($this->asn1Object as $extension) {
              $v3Extension = Extension::fromASNObject($extension);
              if ($v3Extension) {
+                 var_dump(get_class($v3Extension));
                  if ($v3Extension->getType() != 'unknown') {
                      if (array_key_exists($v3Extension->getType(), $this->extensions)) {
                          throw new ExtensionException(
@@ -28,10 +29,10 @@ use FG\ASN1\ASNObject;
                              1
                          );
                      } else {
-                         $this->extensions[$v3Extension->getType()] = $extension;
+                         $this->extensions[$v3Extension->getType()] = $v3Extension;
                      }
                  } else {
-                     $this->extensions[$v3Extension->getType().'-'.$v3Extension->getOID()] = $extension;
+                     $this->extensions[$v3Extension->getType().'-'.$v3Extension->getOID()] = $v3Extension;
                  }
              }
          }
