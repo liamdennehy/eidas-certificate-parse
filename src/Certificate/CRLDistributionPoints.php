@@ -5,9 +5,7 @@ namespace eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\OID;
-use FG\ASN1\ASNObject;
-use FG\ASN1\ExplicitlyTaggedObject;
-use FG\ASN1\Universal\PrintableString;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -15,17 +13,34 @@ use FG\ASN1\Universal\PrintableString;
  class CRLDistributionPoints implements ExtensionInterface
  {
      private $binary;
-     private $pathLength;
-     private $isCA;
+     private $cdpEntries;
+
      const type = 'crlDistributionPoints';
      const oid = '2.5.29.31';
      const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.13';
 
      public function __construct($asn1Extension)
      {
+         $this->cdpEntries = [];
          $this->binary = $asn1Extension;
+         $seq = UnspecifiedType::fromDER($asn1Extension)->asSequence();
+         // var_dump($seq);
+         foreach ($seq->elements() as $cdpEntry) {
+             $cdpEntryDER = $cdpEntry->asSequence()->at(0)->asTagged()->toDER();
+             while (bin2hex($cdpEntryDER[0]) == "a0") {
+                 $cdpEntryDER[0] = chr(48);
+                 $cdpEntryDER = UnspecifiedType::fromDER($cdpEntryDER)->asSequence()->at(0)->toDER();
+             };
+             $cdpEntryDER[0] = chr(22);
+             $cdpEntry = UnspecifiedType::fromDER($cdpEntryDER)->asIA5String()->string();
+             $this->cdpEntries[] = $cdpEntry;
+         }
      }
 
+     public function getCDPs()
+     {
+         return $this->cdpEntries;
+     }
      public function getType()
      {
          return self::type;
@@ -34,20 +49,6 @@ use FG\ASN1\Universal\PrintableString;
      public function getURI()
      {
          return self::uri;
-     }
-
-     public function isCA()
-     {
-         return $this->isCA;
-     }
-
-     public function getPathLength()
-     {
-         if ($this->isCA) {
-             return $this->pathLength;
-         } else {
-             return false;
-         }
      }
 
      public function getBinary()
