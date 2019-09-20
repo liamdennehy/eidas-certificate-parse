@@ -23,6 +23,11 @@ class ExtensionTest extends TestCase
     //     }
     // }
 
+    public function testExtensions()
+    {
+        // TODO: Throw a full Extensions block at Extensions class and test result has right entries
+    }
+
     public function testCRLDistributionPoints()
     {
         $this->assertTrue(true);
