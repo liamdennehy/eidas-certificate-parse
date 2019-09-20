@@ -14,7 +14,8 @@
         "php": ">=7.1",
         "guzzlehttp/guzzle": "^6.3",
         "fgrosse/phpasn1": "^2.1",
-        "phpunit/phpunit": "^7"
+        "phpunit/phpunit": "^7",
+        "sop/asn1": "^3.4"
     },
     "license": "GPL-2.0-or-later",
     "authors": [
