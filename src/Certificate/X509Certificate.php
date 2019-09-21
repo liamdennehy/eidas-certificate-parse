@@ -4,7 +4,7 @@ namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\CertificateException;
-use FG\ASN1\ASNObject;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -25,19 +25,22 @@ class X509Certificate
         unset($crtPEM[sizeof($crtPEM)-1]);
         unset($crtPEM[0]);
         $this->crtBinary = base64_decode(implode("", $crtPEM));
+        $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
+        $tbsCertificate = $crtASN1->at(0)->asSequence();
+        $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
         $this->parsed = X509Certificate::parse($this->crtResource);
-        $crtASN1 = ASNObject::fromBinary($this->crtBinary)[0];
-        $crtVersion = $crtASN1[0]->getContent()[0]->getContent() + 1;
-        if ($crtVersion == 3) {
-            // print '3';
+        $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
+        // print base64_encode($extensionsDER).PHP_EOL;
+        // foreach ($extensions->elements() as $e) {
+        //     print base64_encode($e->toDER()).PHP_EOL;
+        // }
+        if ($crtVersion == 2) {
             if (array_key_exists('extensions', $this->parsed)) {
-                // print 'e';
                 $extensions = new Extensions(
-                    $crtASN1[7]->getContent()[0]->getBinary()
+                    $extensionsDER
                 );
                 $this->extensions = $extensions->getExtensions();
                 if (array_key_exists('qcStatements', $this->parsed['extensions'])) {
-                    // print 'q';
                     $qcStatements = new QCStatements(
                         $this->parsed['extensions']['qcStatements']
                     );
@@ -180,6 +183,15 @@ class X509Certificate
     {
         if (array_key_exists('crlDistributionPoints', $this->extensions)) {
             return $this->extensions['crlDistributionPoints']->getCDPs();
+        }
+    }
+
+    public function forPurpose($name)
+    {
+        if (array_key_exists('extendedKeyUsage', $this->extensions)) {
+            if ($this->extensions['crlDistributionPoints']->forPurpose($purpose)) {
+                return true;
+            }
         }
     }
 }
