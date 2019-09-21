@@ -31,7 +31,17 @@ class OID
     const SubjectKeyIdentifier = '2.5.29.14';
     const AuthorityKeyIdentifier = '2.5.29.35';
     const CRLDistributionPoints = '2.5.29.31';
-    
+    const ServerAuth = '1.3.6.1.5.5.7.3.1';
+    const ClientAuth = '1.3.6.1.5.5.7.3.2';
+    const CodeSigning = '1.3.6.1.5.5.7.3.3';
+    const EmailProtection = '1.3.6.1.5.5.7.3.4';
+    const TimeStamping = '1.3.6.1.5.5.7.3.8';
+    const OCSPSigning = '1.3.6.1.5.5.7.3.9';
+    const TSLSigning = '0.4.0.2231.3.0';
+    // https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2
+    const MS_DOCUMENT_SIGNING = '1.3.6.1.4.1.311.10.3.12';
+    // https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography
+
     public static function getName($oidString)
     {
         // return 'blah';
@@ -110,6 +120,30 @@ class OID
             break;
           case self::SubjectKeyIdentifier:
             $oidName = 'subjectKeyIdentifier';
+            break;
+          case self::ServerAuth:
+            $oidName = 'serverAuth';
+            break;
+          case self::ClientAuth:
+            $oidName = 'clientAuth';
+            break;
+          case self::CodeSigning:
+            $oidName = 'codeSigning';
+            break;
+          case self::EmailProtection:
+            $oidName = 'emailProtection';
+            break;
+          case self::TimeStamping:
+            $oidName = 'timeStamping';
+            break;
+          case self::OCSPSigning:
+            $oidName = 'OCSPSigning';
+            break;
+          case self::TSLSigning:
+            $oidName = 'tslSigning';
+            break;
+          case self::MS_DOCUMENT_SIGNING:
+            $oidName = 'MS_DOCUMENT_SIGNING';
             break;
           }
         return $oidName;

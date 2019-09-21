@@ -24,7 +24,6 @@ use ASN1\Type\UnspecifiedType;
          $this->cdpEntries = [];
          $this->binary = $asn1Extension;
          $seq = UnspecifiedType::fromDER($asn1Extension)->asSequence();
-         // var_dump($seq);
          foreach ($seq->elements() as $cdpEntry) {
              $cdpEntryDER = $cdpEntry->asSequence()->at(0)->asTagged()->toDER();
              while (bin2hex($cdpEntryDER[0]) == "a0") {
