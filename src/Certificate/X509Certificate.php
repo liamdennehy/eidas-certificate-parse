@@ -3,6 +3,8 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\QCStatements;
+use eIDASCertificate\CertificateException;
+use FG\ASN1\ASNObject;
 
 /**
  *
@@ -10,11 +12,42 @@ use eIDASCertificate\QCStatements;
 class X509Certificate
 {
     private $crtResource;
+    private $crtBinary;
     private $parsed;
+    private $extensions;
+    private $keyUsage;
 
     public function __construct($candidate)
     {
         $this->crtResource = X509Certificate::emit($candidate);
+        openssl_x509_export($this->crtResource, $crtPEM);
+        $crtPEM = explode("\n", $crtPEM);
+        unset($crtPEM[sizeof($crtPEM)-1]);
+        unset($crtPEM[0]);
+        $this->crtBinary = base64_decode(implode("", $crtPEM));
+        $this->parsed = X509Certificate::parse($this->crtResource);
+        $crtASN1 = ASNObject::fromBinary($this->crtBinary)[0];
+        $crtVersion = $crtASN1[0]->getContent()[0]->getContent() + 1;
+        if ($crtVersion == 3) {
+            // print '3';
+            if (array_key_exists('extensions', $this->parsed)) {
+                // print 'e';
+                $extensions = new Extensions(
+                    $crtASN1[7]->getContent()[0]->getBinary()
+                );
+                $this->extensions = $extensions->getExtensions();
+                if (array_key_exists('qcStatements', $this->parsed['extensions'])) {
+                    // print 'q';
+                    $qcStatements = new QCStatements(
+                        $this->parsed['extensions']['qcStatements']
+                    );
+                    $this->qcStatements = $qcStatements->getStatements();
+                }
+                $this->extensions['keyUsage'] = new KeyUsage($this->parsed['extensions']['keyUsage']);
+            }
+        } else {
+            throw new CertificateException("Only X.509 v3 certificates are supported", 1);
+        }
     }
 
     public static function emit($candidate)
@@ -66,10 +99,54 @@ class X509Certificate
 
     public function getParsed()
     {
-        if (empty($this->parsed)) {
-            $this->parsed = X509Certificate::parse($this->crtResource);
-        }
         return $this->parsed;
+    }
+
+    public function getKeyUsage()
+    {
+        return $this->keyUsage;
+    }
+
+    public function getDates()
+    {
+        return [
+          'notBefore' => date_create('@' .  $this->parsed['validFrom_time_t']),
+          'notAfter' => date_create('@' .  $this->parsed['validTo_time_t'])
+        ];
+    }
+
+    public function isValidAt($dateTime = null)
+    {
+        if (empty($dateTime)) {
+            $dateTime = new \DateTime; // now
+        };
+        $dates = $this->getDates();
+        return (
+        $this->isStartedAt($dateTime) &&
+        $this->isNotFinishedAt($dateTime)
+      );
+    }
+
+    public function isStartedAt($dateTime = null)
+    {
+        if (empty($dateTime)) {
+            $dateTime = new \DateTime; // now
+        };
+        $dates = $this->getDates();
+        return (
+        $dates['notBefore'] < $dateTime
+      );
+    }
+
+    public function isNotFinishedAt($dateTime = null)
+    {
+        if (empty($dateTime)) {
+            $dateTime = new \DateTime; // now
+        };
+        $dates = $this->getDates();
+        return (
+        $dates['notAfter'] > $dateTime
+      );
     }
 
     public function hasExtensions()
@@ -86,14 +163,23 @@ class X509Certificate
 
     public function getQCStatements()
     {
-        if ($this->hasQCStatements()) {
-            if (empty($this->qcStatements)) {
-                $qcStatements = new QCStatements(
-                    $this->getParsed()['extensions']['qcStatements']
-                );
-                $this->qcStatements = $qcStatements->getStatements();
-            }
-            return $this->qcStatements;
+        return $this->qcStatements;
+    }
+
+    public function toDER()
+    {
+        return $this->crtBinary;
+    }
+
+    public function getExtensions()
+    {
+        return $this->extensions;
+    }
+
+    public function getCDPs()
+    {
+        if (array_key_exists('crlDistributionPoints', $this->extensions)) {
+            return $this->extensions['crlDistributionPoints']->getCDPs();
         }
     }
 }

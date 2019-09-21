@@ -330,13 +330,21 @@ class TrustedList
     public function getListIssueDateTime()
     {
         if (! $this->listIssueDateTime) {
-            $this->listIssueDateTime = strtotime(
+            $this->listIssueDateTime = new \DateTime(
                 (string)$this->tl->xpath(
                     './tsl:SchemeInformation/tsl:ListIssueDateTime'
                 )[0]
             );
         };
         return $this->listIssueDateTime;
+    }
+
+    public function getListIssueElapsedSeconds()
+    {
+        return (
+          (new \DateTime('now'))->getTimestamp() -
+          $this->getListIssueDateTime()->getTimestamp()
+        );
     }
 
     public function getNextUpdate()
@@ -380,12 +388,18 @@ class TrustedList
      * [getTrustedLists description]
      * @return TrustedList[] [description]
      */
-    public function getTrustedLists()
+    public function getTrustedLists($title = null)
     {
         if (sizeof($this->trustedLists) == 0) {
             $this->processTrustedLists();
         }
-        return $this->trustedLists;
+        if (empty($title)) {
+            return $this->trustedLists;
+        } elseif (array_key_exists($title, $this->trustedLists)) {
+            return $this->trustedLists[$title];
+        } else {
+            return false;
+        }
     }
 
     public function getTrustedListPointers($fileType = null)

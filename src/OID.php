@@ -7,6 +7,7 @@ namespace eIDASCertificate;
  */
 class OID
 {
+    const qcStatements = '1.3.6.1.5.5.7.1.3';
     const PKIX_QCSYNTAX_V2                    = '1.3.6.1.5.5.7.11.2';
     const qcs_QcCompliance                    = '0.4.0.1862.1.1';
     const QcLimitValue  = '0.4.0.1862.1.2';
@@ -23,6 +24,23 @@ class OID
     const PSP_AI  = '0.4.0.19495.1.3';
     const PSP_IC  = '0.4.0.19495.1.4';
     const PSD2  = '0.4.0.19495.2';
+    const PreCertPoison = '1.3.6.1.4.1.11129.2.4.3';
+    const BasicConstraints = '2.5.29.19';
+    const KeyUsage = '2.5.29.15';
+    const ExtendedKeyUsage = '2.5.29.37';
+    const SubjectKeyIdentifier = '2.5.29.14';
+    const AuthorityKeyIdentifier = '2.5.29.35';
+    const CRLDistributionPoints = '2.5.29.31';
+    const ServerAuth = '1.3.6.1.5.5.7.3.1';
+    const ClientAuth = '1.3.6.1.5.5.7.3.2';
+    const CodeSigning = '1.3.6.1.5.5.7.3.3';
+    const EmailProtection = '1.3.6.1.5.5.7.3.4';
+    const TimeStamping = '1.3.6.1.5.5.7.3.8';
+    const OCSPSigning = '1.3.6.1.5.5.7.3.9';
+    const TSLSigning = '0.4.0.2231.3.0';
+    // https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2
+    const MS_DOCUMENT_SIGNING = '1.3.6.1.4.1.311.10.3.12';
+    // https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography
 
     public static function getName($oidString)
     {
@@ -31,6 +49,9 @@ class OID
 
         $oidName = "unknown";
         switch ($oidString) {
+          case self::qcStatements:
+              $oidName = 'qcStatements';
+              break;
           case self::PKIX_QCSYNTAX_V2:
               $oidName = 'id-qcs-pkixQCSyntax-v2';
               break;
@@ -78,6 +99,51 @@ class OID
             break;
           case self::PSD2:
             $oidName = 'PSD2';
+            break;
+          case self::BasicConstraints:
+            $oidName = 'basicConstraints';
+            break;
+          case self::KeyUsage:
+            $oidName = 'keyUsage';
+            break;
+          case self::ExtendedKeyUsage:
+            $oidName = 'extKeyUsage';
+            break;
+          case self::CRLDistributionPoints:
+            $oidName = 'crlDistributionPoints';
+            break;
+          case self::PreCertPoison:
+            $oidName = 'preCertPoison';
+            break;
+          case self::AuthorityKeyIdentifier:
+            $oidName = 'authorityKeyIdentifier';
+            break;
+          case self::SubjectKeyIdentifier:
+            $oidName = 'subjectKeyIdentifier';
+            break;
+          case self::ServerAuth:
+            $oidName = 'serverAuth';
+            break;
+          case self::ClientAuth:
+            $oidName = 'clientAuth';
+            break;
+          case self::CodeSigning:
+            $oidName = 'codeSigning';
+            break;
+          case self::EmailProtection:
+            $oidName = 'emailProtection';
+            break;
+          case self::TimeStamping:
+            $oidName = 'timeStamping';
+            break;
+          case self::OCSPSigning:
+            $oidName = 'OCSPSigning';
+            break;
+          case self::TSLSigning:
+            $oidName = 'tslSigning';
+            break;
+          case self::MS_DOCUMENT_SIGNING:
+            $oidName = 'MS_DOCUMENT_SIGNING';
             break;
           }
         return $oidName;

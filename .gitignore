@@ -5,3 +5,5 @@ data
 ./certs
 doc
 composer.lock
+./.php_cs
+tools/
