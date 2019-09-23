@@ -2,29 +2,26 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
  */
 class QCSSCD extends QCStatement implements QCStatementInterface
 {
-    const type = 'QCSSCD';
-    const oid = '0.4.0.1862.1.4';
     private $binary;
 
-    public function __construct($statements)
+    const type = 'QCSSCD';
+    const oid = '0.4.0.1862.1.4';
+
+    public function __construct($qcStatementDER)
     {
-        // $statement = $statements->getContent();
-        if ($statements[0]->getContent() != self::oid) {
+        $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        if ($qcStatement->at(0)->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
-
-        if (sizeof($statements) > 1) {
-            throw new QCStatementException("More than one entry in QCSSCD Statement", 1);
-        };
-        $this->binary = $statements->getBinary();
+        $this->binary = $qcStatement;
     }
 
     public function getType()
