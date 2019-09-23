@@ -2,9 +2,9 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatementException;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -14,82 +14,60 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
     private $psd2Roles = [];
     private $psd2NCALongName;
     private $psd2NCAShortName;
+
     const type = 'QCPSD2';
     const oid = '0.4.0.19495.2';
 
-    public function __construct($statements)
+    public function __construct($qcStatementDER)
     {
-        $statement = $statements->getContent();
-        if ($statement[0]->getContent() != self::oid) {
+        $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QCStatement '" . self::type . "'", 1);
         }
-        array_shift($statement);
-        if (sizeof($statement) > 1) {
+        if ($qcStatement->count() > 2) {
             throw new QCStatementException("More than one entry in PSD2 Statement", 1);
-        } elseif (sizeof($statement) == 0) {
+        } elseif ($qcStatement->count() < 2) {
             throw new QCStatementException("No entries in PSD2 Statement", 1);
         };
-        $psd2Statement = $statement[0];
-        if (sizeof($psd2Statement) != 3) {
-            throw new QCStatementException("PSD2 Statement has wrong number of elements", 1);
-        };
-        $rolesStatement = $psd2Statement[0];
-        foreach ($rolesStatement as $role) {
-            if (get_class($role) != "FG\ASN1\Universal\Sequence") {
-                throw new QCStatementException(
-                    "PSD2 Roles not encoded as a Sequence: '" .
-                    base64_encode($statements->getBinary()).
-                    "'",
-                    1
-                );
-            }
-            $psd2Role = OID::getName($role[0]->getContent());
-            if ($psd2Role == 'unkown') {
+        $psd2Authorisation = $qcStatement->at(1)->asSequence();
+        $psd2Roles = $psd2Authorisation->at(0)->asSequence();
+        foreach ($psd2Roles->elements() as $psd2Role) {
+            $psd2Role = $psd2Role->asSequence();
+            $psd2RoleOID = $psd2Role->at(0)->asObjectIdentifier()->oid();
+            $psd2RoleName = OID::getName($psd2RoleOID);
+            if ($psd2RoleName == 'unkown') {
                 throw new QCStatementException("Unknown PSD2 Role '$psd2Role'", 1);
             }
-            switch ($psd2Role) {
+            $psd2RoleProvidedName = $psd2Role->at(1)->asUTF8String()->string();
+            if ($psd2RoleProvidedName != $psd2RoleName) {
+                throw new QCStatementException(
+                      "Included PSD2 Named Role '".
+                          $psd2RoleProvidedName.
+                          "' does not match OID Name '$psd2RoleName': '" .
+                          base64_encode($qcStatementDER) . "'",
+                      1
+                  );
+            }
+            switch ($psd2RoleName) {
               case 'PSP_AS':
               case 'PSP_PI':
               case 'PSP_AI':
               case 'PSP_IC':
-                if ($psd2Role != $role[1]->getContent()) {
-                    throw new QCStatementException(
-                        "PSD2 Named Role '".
-                            $role[1]->getContent().
-                            "' does not match OID Name '$psd2Role': '" .
-                            base64_encode($psd2Statement->getBinary()) .
-                        "'",
-                        1
-                    );
-                }
-                $this->psd2Roles[] = $psd2Role;
+                $this->psd2Roles[] = $psd2RoleName;
                 break;
 
               default:
                 throw new QCStatementException(
-                    "PSD2 Named Role '".$role[1]->getContent()."' unknown",
+                    "PSD2 Role OID $psd2RoleOID ($psd2RoleName) not recognised",
                     1
                 );
                 break;
             }
         }
-        if ($psd2Statement[1]->getType() != 12) {
-            throw new QCStatementException(
-                "PSD2 NCA Long Name not in string format",
-                1
-            );
-        } else {
-            $this->psd2NCALongName = $psd2Statement[1]->getContent();
-        }
-        if ($psd2Statement[2]->getType() != 12) {
-            throw new QCStatementException(
-                "PSD2 NCA Short Name not in string format",
-                1
-            );
-        } else {
-            $this->psd2NCAShortName = $psd2Statement[2]->getContent();
-        }
-        $this->binary = $statements->getBinary();
+        $this->psd2NCALongName = $psd2Authorisation->at(1)->asUTF8String()->string();
+        $this->psd2NCAShortName = $psd2Authorisation->at(2)->asUTF8String()->string();
+
+        $this->binary = $qcStatementDER;
     }
 
     public function getType()
