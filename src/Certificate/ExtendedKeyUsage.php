@@ -25,7 +25,8 @@ class ExtendedKeyUsage implements ExtensionInterface
             $ekuOID = $eku->asObjectIdentifier()->oid();
             $ekuName = OID::getName($ekuOID);
             if ($ekuName == 'unknown') {
-                throw new ExtensionException("Unrecognised EKU $ekuOID", 1);
+                // throw new ExtensionException("Unrecognised EKU $ekuOID", 1);
+                $this->ekus['unknown'] = true;
             } else {
                 $this->ekus[$ekuName] = true;
             }
