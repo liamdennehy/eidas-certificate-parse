@@ -5,9 +5,10 @@ namespace eIDASCertificate\tests;
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\Extension;
 use eIDASCertificate\Certificate\Extensions;
+use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
+use eIDASCertificate\Certificate\BasicConstraints;
 use eIDASCertificate\Certificate\CRLDistributionPoints;
 use eIDASCertificate\Certificate\ExtendedKeyUsage;
-use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
 
 class ExtensionTest extends TestCase
 {
@@ -81,6 +82,34 @@ class ExtensionTest extends TestCase
         $this->assertEquals(
             base64_encode($aki->getKeyId()),
             'fYROwtRr6sHXIoxow+mg9OyYihw='
+        );
+    }
+
+    public function testBasicConstraints()
+    {
+        $binary = base64_decode('MAYBAf8CAQA=');
+        $basicConstraints = new BasicConstraints($binary);
+        $this->assertEquals(
+            [
+              true,
+              0
+            ],
+            [
+              $basicConstraints->isCA(),
+              $basicConstraints->getPathLength()
+            ]
+        );
+        $binary = base64_decode('MAMBAf8=');
+        $basicConstraints = new BasicConstraints($binary);
+        $this->assertEquals(
+            [
+              false,
+              false
+            ],
+            [
+              $basicConstraints->isCA(),
+              $basicConstraints->getPathLength()
+            ]
         );
     }
 
