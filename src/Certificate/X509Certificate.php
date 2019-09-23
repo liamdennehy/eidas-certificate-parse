@@ -16,6 +16,8 @@ class X509Certificate
     private $parsed;
     private $extensions;
     private $keyUsage;
+    private $crl;
+    private $serialNumber;
 
     public function __construct($candidate)
     {
@@ -40,6 +42,7 @@ class X509Certificate
         } else {
             throw new CertificateException("Only X.509 v3 certificates are supported", 1);
         }
+        $this->serialNumber = $tbsCertificate->at(1)->asInteger()->number();
     }
 
     public static function emit($candidate)
@@ -182,5 +185,20 @@ class X509Certificate
                 return true;
             }
         }
+    }
+
+    public function withCRL($crlDER)
+    {
+        $this->crl = new CertificateRevocationList($crlDER);
+    }
+
+    public function isRevoked()
+    {
+        return $this->crl->isRevoked($this->serialNumber);
+    }
+
+    public function getCRL()
+    {
+        return $this->crl;
     }
 }
