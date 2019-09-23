@@ -11,7 +11,7 @@ class CertificateParseTest extends TestCase
     const mocrtfile = 'Maarten Joris Ottoy.crt';
     const eucrtfile = 'European-Commission.crt';
 
-    public function setUp()
+    public function getTestCerts()
     {
         $this->jmcrt = new X509Certificate(
             file_get_contents(
@@ -32,11 +32,20 @@ class CertificateParseTest extends TestCase
 
     public function testX509Parse()
     {
+        $this->getTestCerts();
         $crtParsed = $this->eucrt->getParsed();
         $this->assertEquals(
             '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342'.
             '/O=European Commission/CN=EC_CNECT',
             $crtParsed['name']
+        );
+        $this->assertTrue($this->eucrt->hasExtensions()) ;
+        $this->assertTrue($this->eucrt->hasQCStatements()) ;
+        $this->assertEquals(
+            [
+            'http://crl.quovadisglobal.com/qvbecag2.crl'
+          ],
+            $this->eucrt->getCDPs()
         );
         $crtParsed = $this->mocrt->getParsed();
         $this->assertEquals(
@@ -61,22 +70,24 @@ class CertificateParseTest extends TestCase
             ],
             $crtParsed['subject']
         );
+        $this->assertEquals(
+            [
+            'http://crl.quovadisglobal.com/qvbecag2.crl'
+          ],
+            $this->eucrt->getCDPs()
+        );
         $crtParsed = $this->jmcrt->getParsed();
         $this->assertEquals(
             '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/GN=Jean-Marc/serialNumber=67022330340',
             $crtParsed['name']
         );
-    }
-
-    public function testX509Extensions()
-    {
-        $this->assertTrue($this->eucrt->hasExtensions()) ;
         $this->assertTrue($this->jmcrt->hasExtensions()) ;
-    }
-
-    public function testX509hasQCStatements()
-    {
-        $this->assertTrue($this->eucrt->hasQCStatements()) ;
         $this->assertTrue($this->jmcrt->hasQCStatements()) ;
+        $this->assertEquals(
+            [
+            'http://crl.eid.belgium.be/eidc201508.crl'
+          ],
+            $this->jmcrt->getCDPs()
+        );
     }
 }
