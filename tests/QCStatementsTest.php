@@ -54,26 +54,28 @@ class QCStatementsTest extends TestCase
         $qcBinary = base64_decode("MBUGBgQAjkYBAjALEwNIVUYCAQUCAQY=");
         $qcLimitValue = new QCLimitValue($qcBinary);
         $this->assertEquals(
-          [
+            [
             'currency' => 'HUF',
             'amount' => '5',
             'exponent' => '6'
           ],
-          $qcLimitValue->getLimit()
-      );
+            $qcLimitValue->getLimit()
+        );
     }
 
     public function testQCPDS()
     {
         $binary = base64_decode(
-            'MEgGBgQAjkYBBTA+MDwWNmh0dHBzOi8vd3d3Lmx1eHRydXN0Lmx1L3VwbG9hZC9kYXRhL3JlcG9zaXRvcnkvUERTLnBkZhMCRU4='
+            'MEgGBgQAjkYBBTA+MDwWNmh0dHBzOi8vd3d3Lmx1eHRydXN0Lmx1L3VwbG9hZC9k'.
+            'YXRhL3JlcG9zaXRvcnkvUERTLnBkZhMCRU4='
         );
         $qcPDS = new QCPDS($binary);
         $this->assertEquals(
             [
               0 => [
                 [
-                  'url' => 'https://www.luxtrust.lu/upload/data/repository/PDS.pdf',
+                  'url' =>
+                      'https://www.luxtrust.lu/upload/data/repository/PDS.pdf',
                   'language' => 'en'
                 ]
               ]
@@ -83,7 +85,8 @@ class QCStatementsTest extends TestCase
             ]
         );
         $binary = base64_decode(
-            'MFMGBgQAjkYBBTBJMCQWHmh0dHBzOi8vY3AuZS1zemlnbm8uaHUvcWNwc19lbhMCZW4wIRYbaHR0cHM6Ly9jcC5lLXN6aWduby5odS9xY3BzEwJodQ=='
+            'MFMGBgQAjkYBBTBJMCQWHmh0dHBzOi8vY3AuZS1zemlnbm8uaHUvcWNwc19lbhMC'.
+            'ZW4wIRYbaHR0cHM6Ly9jcC5lLXN6aWduby5odS9xY3BzEwJodQ=='
         );
         $qcPDS = new QCPDS($binary);
         $this->assertEquals(
@@ -103,41 +106,43 @@ class QCStatementsTest extends TestCase
     public function testQPSD2()
     {
         $qcBinary = base64_decode(
-          'MHkGBgQAgZgnAjBvMDkwEQYHBACBmCcBAgwGUFNQX1BJMBEGBwQAgZgnAQMMBlBTUF9BSTARBgcEAIGYJwEEDAZQU1BfSUMMJ0Zpbm5pc2ggRmluYW5jaWFsIFN1cGVydmlzb3J5IEF1dGhvcml0eQwJRkktRklORlNB'
-      );
+            'MHkGBgQAgZgnAjBvMDkwEQYHBACBmCcBAgwGUFNQX1BJMBEGBwQAgZgnAQMMBlBT'.
+            'UF9BSTARBgcEAIGYJwEEDAZQU1BfSUMMJ0Zpbm5pc2ggRmluYW5jaWFsIFN1cGVy'.
+            'dmlzb3J5IEF1dGhvcml0eQwJRkktRklORlNB'
+        );
         $qcPSD2Statement = new QCPSD2($qcBinary);
         $this->assertEquals(
-          'QCPSD2',
-          $qcPSD2Statement->getType()
-      );
+            'QCPSD2',
+            $qcPSD2Statement->getType()
+        );
         $this->assertEquals(
-          [
-          'roles' => [
-            'PSP_PI',
-            'PSP_AI',
-            'PSP_IC'
-          ],
-          'NCAShortName' => 'FI-FINFSA',
-          'NCALongName' => 'Finnish Financial Supervisory Authority'
-        ],
-          $qcPSD2Statement->getAuthorisations()
-      );
+            [
+              'roles' => [
+                'PSP_PI',
+                'PSP_AI',
+                'PSP_IC'
+              ],
+              'NCAShortName' => 'FI-FINFSA',
+              'NCALongName' => 'Finnish Financial Supervisory Authority'
+            ],
+            $qcPSD2Statement->getAuthorisations()
+        );
         $qcBinary = base64_decode(
-          'MEgGBgQAgZgnAjA+MCYwEQYHBACBmCcBAQwGUFNQX0FTMBEGBwQAgZgnAQIMBlBTU'.
+            'MEgGBgQAgZgnAjA+MCYwEQYHBACBmCcBAQwGUFNQX0FTMBEGBwQAgZgnAQIMBlBTU'.
         'F9QSQwNQmFuayBvZiBTcGFpbgwFRVMtQkU='
-      );
+        );
         $qcPSD2Statement = new QCPSD2($qcBinary);
         $this->assertEquals(
-          [
-          'roles' => [
-            'PSP_AS',
-            'PSP_PI'
-          ],
-          'NCAShortName' => 'ES-BE',
-          'NCALongName' => 'Bank of Spain'
-        ],
-          $qcPSD2Statement->getAuthorisations()
-      );
+            [
+              'roles' => [
+                'PSP_AS',
+                'PSP_PI'
+              ],
+              'NCAShortName' => 'ES-BE',
+              'NCALongName' => 'Bank of Spain'
+            ],
+            $qcPSD2Statement->getAuthorisations()
+        );
     }
 
     public function testQCRetentionPeriod()
