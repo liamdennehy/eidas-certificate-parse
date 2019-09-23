@@ -2,10 +2,8 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use FG\ASN1\ASNObject;
-use FG\ASN1\Identifier;
-use FG\ASN1\TemplateParser;
 use eIDASCertificate\OID;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -16,24 +14,13 @@ class QCCompliance extends QCStatement implements QCStatementInterface
     const type = 'QCCompliance';
     const oid = '0.4.0.1862.1.1';
 
-    public function __construct($statements)
+    public function __construct($qcStatementDER)
     {
-        $qcComplianceStatementTemplate = [
-          Identifier::SEQUENCE => [
-            Identifier::OBJECT_IDENTIFIER
-          ]
-        ];
-        $parser = new TemplateParser();
-        try {
-            $statement = $parser->parseBinary($statements, $qcComplianceStatementTemplate);
-        } catch (\Exception $e) {
-            throw new QCStatementException("Error Parsing QCComplianceStatement Statement", 1);
-        }
-
-        if ($statement[0]->getContent() != self::oid) {
+        $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
-        $this->binary = $statements;
+        $this->binary = $qcStatementDER;
     }
 
     public function getType()
