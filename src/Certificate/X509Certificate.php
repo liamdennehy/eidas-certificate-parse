@@ -30,22 +30,12 @@ class X509Certificate
         $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
         $this->parsed = X509Certificate::parse($this->crtResource);
         $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
-        // print base64_encode($extensionsDER).PHP_EOL;
-        // foreach ($extensions->elements() as $e) {
-        //     print base64_encode($e->toDER()).PHP_EOL;
-        // }
         if ($crtVersion == 2) {
             if (array_key_exists('extensions', $this->parsed)) {
                 $extensions = new Extensions(
                     $extensionsDER
                 );
                 $this->extensions = $extensions->getExtensions();
-                if (array_key_exists('qcStatements', $this->parsed['extensions'])) {
-                    $qcStatements = new QCStatements(
-                        $this->parsed['extensions']['qcStatements']
-                    );
-                    $this->qcStatements = $qcStatements->getStatements();
-                }
             }
         } else {
             throw new CertificateException("Only X.509 v3 certificates are supported", 1);

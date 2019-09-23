@@ -54,7 +54,8 @@ class ExtensionTest extends TestCase
               'authorityKeyIdentifier',
               'unknown-2.5.29.17',
               'crlDistributionPoints',
-              'unknown-1.3.6.1.5.5.7.1.1'
+              'unknown-1.3.6.1.5.5.7.1.1',
+              'qcStatements'
             ],
             array_keys($extensions->getExtensions())
         );
