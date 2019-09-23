@@ -4,6 +4,7 @@ namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatementException;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -12,40 +13,40 @@ abstract class QCStatement
 {
     private $asn1Object;
 
-    public static function fromASNObject($statements)
+    public static function fromBinary($qcStatementDER)
     {
-        $statement = $statements->getContent();
-        $qcStatementOID = $statement[0]->getContent();
+        $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        $qcStatementOID = $qcStatement->at(0)->asObjectIdentifier()->oid();
         $qcStatementName = OID::getName($qcStatementOID);
         switch ($qcStatementName) {
-        case 'qcs-QcCompliance':
-          return new QCCompliance($statements->getBinary());
+        case 'QcCompliance':
+          return new QCCompliance($qcStatementDER);
           break;
         case 'QcLimitValue':
-          return new QCLimitValue($statements->getBinary());
+          return new QCLimitValue($qcStatementDER);
           break;
         case 'QcSSCD':
-          return new QCSSCD($statements);
+          return new QCSSCD($qcStatementDER);
           break;
         case 'QcPDS':
-          return new QCPDS($statements);
+          return new QCPDS($qcStatementDER);
           break;
         case 'QcType':
-          return new QCType($statements);
+          return new QCType($qcStatementDER);
           break;
         case 'QcRetentionPeriod':
-          return new QCRetentionPeriod($statements);
+          return new QCRetentionPeriod($qcStatementDER);
           break;
         case 'id-qcs-pkixQCSyntax-v2':
-          return new QCSyntaxV2($statements);
+          return new QCSyntaxV2($qcStatementDER);
           break;
         case 'PSD2':
-          return new QCPSD2($statements);
+          return new QCPSD2($qcStatementDER);
           break;
         default:
           throw new QCStatementException(
               "Unrecognised QCStatement OID $qcStatementOID ($qcStatementName): '".
-              base64_encode($statements->getBinary()) .
+              base64_encode($qcStatementDER) .
                "'",
               1
           );
