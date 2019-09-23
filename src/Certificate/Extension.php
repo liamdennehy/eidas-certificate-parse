@@ -19,7 +19,6 @@ abstract class Extension
         $extensionOid = $extension->at(0)->asObjectIdentifier()->oid();
         if ($extension->at(1)->isType(1)) {
             $isCritical = $extension->at(1)->asBoolean()->value();
-            // var_dump($extension->at(2)->asOctetString());
             $extnValue = $extension->at(2)->asOctetString()->string();
         } else {
             $isCritical = false;
@@ -37,8 +36,7 @@ abstract class Extension
             // TODO: Properly handle poisoned certificates
             break;
           case 'keyUsage':
-            return false; // Canot parse bit strings with current library
-            // return new KeyUsage($extnValue);
+            return new KeyUsage($extnValue);
             break;
           case 'authorityKeyIdentifier':
             // TODO: Implement AKI

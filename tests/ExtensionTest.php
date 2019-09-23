@@ -9,6 +9,7 @@ use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
 use eIDASCertificate\Certificate\BasicConstraints;
 use eIDASCertificate\Certificate\CRLDistributionPoints;
 use eIDASCertificate\Certificate\ExtendedKeyUsage;
+use eIDASCertificate\Certificate\KeyUsage;
 
 class ExtensionTest extends TestCase
 {
@@ -45,6 +46,7 @@ class ExtensionTest extends TestCase
         $extensions = new Extensions($extensionsDER);
         $this->assertEquals(
             [
+              'keyUsage',
               'preCertPoison',
               'extKeyUsage',
               'unknown-2.5.29.32',
@@ -72,6 +74,58 @@ class ExtensionTest extends TestCase
               'http://qtlsca2018-crl2.e-szigno.hu/qtlsca2018.crl',
               'http://qtlsca2018-crl3.e-szigno.hu/qtlsca2018.crl'
             ]
+        );
+    }
+
+    public function testKeyUsage()
+    {
+        $binary = base64_decode('AwIBBg==');
+        $keyUsage = new KeyUsage($binary);
+        $this->assertEquals(
+            [
+              'digitalSignature' => false,
+              'nonRepudiation' => false,
+              'keyEncipherment' => false,
+              'dataEncipherment' => false,
+              'keyAgreement' => false,
+              'keyCertSign' => true,
+              'cRLSign' => true,
+              'encipherOnly' => false,
+              'decipherOnly' => false
+            ],
+            $keyUsage->getKeyUsage()
+        );
+        $binary = base64_decode('AwIFoA==');
+        $keyUsage = new KeyUsage($binary);
+        $this->assertEquals(
+            [
+              'digitalSignature' => true,
+              'nonRepudiation' => false,
+              'keyEncipherment' => true,
+              'dataEncipherment' => false,
+              'keyAgreement' => false,
+              'keyCertSign' => false,
+              'cRLSign' => false,
+              'encipherOnly' => false,
+              'decipherOnly' => false
+            ],
+            $keyUsage->getKeyUsage()
+        );
+        $binary = base64_decode('AwIEMA==');
+        $keyUsage = new KeyUsage($binary);
+        $this->assertEquals(
+            [
+              'digitalSignature' => false,
+              'nonRepudiation' => false,
+              'keyEncipherment' => true,
+              'dataEncipherment' => true,
+              'keyAgreement' => false,
+              'keyCertSign' => false,
+              'cRLSign' => false,
+              'encipherOnly' => false,
+              'decipherOnly' => false
+            ],
+            $keyUsage->getKeyUsage()
         );
     }
 
