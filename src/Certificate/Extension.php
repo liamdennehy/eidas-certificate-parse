@@ -5,6 +5,7 @@ namespace eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
 use eIDASCertificate\Certificate\UnknownExtension;
+use eIDASCertificate\Extensions\QCStatements;
 use eIDASCertificate\OID;
 use ASN1\Type\UnspecifiedType;
 
@@ -51,7 +52,7 @@ abstract class Extension
             return new CRLDistributionPoints($extnValue);
             break;
           case 'qcStatements':
-            // TODO: Implemented on certificate object
+            return new QCStatements($extnValue);
             return false;
             break;
 
