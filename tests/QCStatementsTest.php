@@ -38,7 +38,7 @@ class QCStatementsTest extends TestCase
           $crtParsed['extensions']['qcStatements'];
         $qcStatements = new QCStatements($qcStatementBinary);
         $this->assertEquals(
-            ['QCSyntaxV2-LegalPerson',
+            ['QCSyntaxV2',
             'QCCompliance',
             'QCSSCD',
             'QCQualifiedType',
@@ -48,6 +48,10 @@ class QCStatementsTest extends TestCase
         $this->assertEquals(
             'eseal',
             $qcStatements->getQCType()
+        );
+        $this->assertEquals(
+            'LegalPerson',
+            $qcStatements->getStatements()['QCSyntaxV2']->getSemanticsType()
         );
         $this->assertEquals(
             [
