@@ -17,7 +17,6 @@ class QCType extends QCStatement implements QCStatementInterface
 
     public function __construct($qcStatementDER)
     {
-        // var_dump(base64_encode($qcStatementDER));
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
         if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
