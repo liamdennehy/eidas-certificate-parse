@@ -2,8 +2,8 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -11,44 +11,47 @@ use eIDASCertificate\OID;
 class QCSyntaxV2 extends QCStatement implements QCStatementInterface
 {
     const type = 'QCSyntaxV2';
-
     const oid = '1.3.6.1.5.5.7.11.2';
+    const uri = 'https://www.etsi.org/deliver/etsi_en/319400_319499/31941201/01.01.01_60/en_31941201v010101p.pdf#chapter-5.1';
+
     private $semanticsType;
 
-    public function __construct($statements)
+    public function __construct($qcStatementDER)
     {
-        $statement = $statements->getContent();
+        $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
 
-        if ($statement[0]->getContent() != self::oid) {
+        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
-        array_shift($statement);
-        if (sizeof($statement) > 1) {
+        if ($qcStatement->count() < 2) {
+            throw new QCStatementException("No QCSyntaxV2 Statements found", 1);
+        } elseif ($qcStatement->count() > 2) {
             throw new QCStatementException("More than one entry in QCSyntaxV2 Statement", 1);
-        } elseif (sizeof($statement) == 0) {
-            // TODO: What fresh hell is this?
-            $this->semanticsType = 'none';
-        } else {
-            $semanticsType = $statement[0][0]->getContent();
-            switch ($semanticsType) {
-              case '0.4.0.194121.1.2':
-              $this->semanticsType = 'LegalPerson';
-              break;
-              case '0.4.0.194121.1.1':
-              $this->semanticsType = 'NaturalPerson';
-              break;
-
-              default:
-              throw new QCStatementException("QCSyntaxV2 statement '".$statement[0][0]->getContent()."' not yet implemented");
-              break;
-            }
         }
-        $this->binary = $statements->getBinary();
+        $semanticsTypeOID = $qcStatement->at(1)->asSequence()->at(0)->asObjectIdentifier()->oid();
+        switch ($semanticsTypeOID) {
+          case '0.4.0.194121.1.2':
+          $this->semanticsType = 'LegalPerson';
+          break;
+          case '0.4.0.194121.1.1':
+          $this->semanticsType = 'NaturalPerson';
+          break;
+
+          default:
+          throw new QCStatementException("QCSyntaxV2 statement '$semanticsType' not yet implemented");
+          break;
+        }
+        $this->binary = $qcStatementDER;
     }
 
     public function getType()
     {
-        return self::type .'-' . $this->semanticsType;
+        return self::type;
+    }
+
+    public function getSemanticsType()
+    {
+        return $this->semanticsType;
     }
 
     public function getDescription()
@@ -67,7 +70,7 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     }
     public function getURI()
     {
-        return 'https://www.etsi.org/deliver/etsi_en/319400_319499/31941201/01.01.01_60/en_31941201v010101p.pdf#chapter-5.1';
+        return self::uri;
     }
 
 
