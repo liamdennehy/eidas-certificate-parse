@@ -6,26 +6,27 @@ use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
 use eIDASCertificate\Certificate\UnknownExtension;
 use eIDASCertificate\OID;
-use FG\ASN1\ASNObject;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
  */
 abstract class Extension
 {
-    public static function fromASNObject($extension)
+    public static function fromBinary($extensionDER)
     {
-        $extensionOid = $extension[0]->getContent();
-        if (get_class($extension[1]) == "FG\ASN1\Universal\Boolean") {
-            $isCritical = ($extension[1]->getContent() === "TRUE");
-            $extnValue = hex2bin($extension[2]->getContent());
+        $extension = UnspecifiedType::fromDER($extensionDER)->asSequence();
+        $extensionOid = $extension->at(0)->asObjectIdentifier()->oid();
+        if ($extension->at(1)->isType(1)) {
+            $isCritical = $extension->at(1)->asBoolean()->value();
+            // var_dump($extension->at(2)->asOctetString());
+            $extnValue = $extension->at(2)->asOctetString()->string();
         } else {
             $isCritical = false;
-            $extnValue = hex2bin($extension[1]->getContent());
+            $extnValue = $extension->at(1)->asOctetString()->string();
         }
         $extensionName = OID::getName($extensionOid);
-        // print "$extensionOid ($extensionName)" . PHP_EOL;
-        print "$extensionOid ($extensionName): " . base64_encode($extnValue) .PHP_EOL;
+        // print "$extensionOid ($extensionName): " . base64_encode($extnValue) .PHP_EOL;
         switch ($extensionName) {
           case 'basicConstraints':
             // TODO: Properly handle Basic Constraints
@@ -57,7 +58,7 @@ abstract class Extension
             break;
 
           default:
-            if ($extension[1]->getContent() === "TRUE") {
+            if ($isCritical) {
                 throw new ExtensionException(
                     "Unrecognised Critical Extension OID '$extensionOid' ($extensionName), cannot proceed: '" .
                     base64_encode($extension->getBinary()).
@@ -65,8 +66,10 @@ abstract class Extension
                     1
                 );
             } else {
-                // print $extensionName . PHP_EOL;
-                return new UnknownExtension($extension->getbinary());
+                return new UnknownExtension(
+                    $extnValue,
+                    $extensionOid
+                );
             }
             break;
         }
