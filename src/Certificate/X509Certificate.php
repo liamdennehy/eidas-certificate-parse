@@ -46,7 +46,6 @@ class X509Certificate
                     );
                     $this->qcStatements = $qcStatements->getStatements();
                 }
-                $this->extensions['keyUsage'] = new KeyUsage($this->parsed['extensions']['keyUsage']);
             }
         } else {
             throw new CertificateException("Only X.509 v3 certificates are supported", 1);
