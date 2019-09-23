@@ -2,9 +2,9 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatementException;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -12,27 +12,29 @@ use eIDASCertificate\QCStatements\QCStatementException;
 class QCPDS extends QCStatement implements QCStatementInterface
 {
     private $pdsLocations;
+    private $binary;
+
     const type = 'QCPDS';
     const oid = '0.4.0.1862.1.5';
 
-    public function __construct($statements)
+    public function __construct($qcStatementDER)
     {
-        $statement = $statements->getContent();
-        if ($statement[0]->getContent() != self::oid) {
+        $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
-        array_shift($statement);
-        if (sizeof($statement) > 1) {
+        if ($qcStatement->count() > 2) {
             throw new QCStatementException("More than one entry in PDS Statement", 1);
-        } elseif (sizeof($statement) == 0) {
+        } elseif ($qcStatement->count() <2) {
             throw new QCStatementException("No entries in PDS Statement", 1);
         };
-        foreach ($statement[0] as $value) {
-            $location['url'] = (string)$value[0];
-            $location['language'] = (string)$value[1];
+        foreach ($qcStatement->at(1)->asSequence()->elements() as $pdsLocation) {
+            $pdsLocation = $pdsLocation->asSequence();
+            $location['url'] = $pdsLocation->at(0)->asIA5String()->string();
+            $location['language'] = strtolower($pdsLocation->at(1)->asPrintableString()->string());
             $this->pdsLocations[] = $location;
         }
-        $this->binary = $statements->getBinary();
+        $this->binary = $qcStatementDER;
     }
 
     public function getLocations()

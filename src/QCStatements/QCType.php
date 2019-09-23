@@ -2,9 +2,9 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatementException;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -15,24 +15,23 @@ class QCType extends QCStatement implements QCStatementInterface
     const type = 'QCQualifiedType';
     const oid = '0.4.0.1862.1.6';
 
-    public function __construct($statements)
+    public function __construct($qcStatementDER)
     {
-        $statement = $statements->getContent();
-        if ($statement[0]->getContent() != self::oid) {
+        $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
-        array_shift($statement);
-        if (sizeof($statement) > 1) {
+
+        if ($qcStatement->count() > 2) {
             throw new QCStatementException("More than one entry in QCType Statement", 1);
-        } elseif (sizeof($statement) == 0) {
+        } elseif ($qcStatement->count() < 2) {
             throw new QCStatementException("No entries in QCType Statement", 1);
         };
-        if (sizeof($statement[0]) > 1) {
-            throw new QCStatementException("More than one QCType in Statement", 1);
-        } elseif (sizeof($statement[0]) == 0) {
-            throw new QCStatementException("No entries in QCType in Statement", 1);
-        };
-        $qcTypeOID = $statement[0][0]->getContent();
+        $qcTypes = $qcStatement->at(1)->asSequence();
+        if ($qcTypes->count() > 1) {
+            throw new QCStatementException("Multiple QCTypes not supported", 1);
+        }
+        $qcTypeOID = $qcTypes->at(0)->asObjectIdentifier()->oid();
         $qcTypeName = OID::getName($qcTypeOID);
         switch ($qcTypeName) {
           case 'esign':
@@ -45,7 +44,7 @@ class QCType extends QCStatement implements QCStatementInterface
             throw new QCStatementException("Unrecognised QCType OID $qcTypeOID ($qcTypeName)", 1);
             break;
         }
-        $this->binary = $statements->getBinary();
+        $this->binary = $qcStatementDER;
     }
 
     public function getType()

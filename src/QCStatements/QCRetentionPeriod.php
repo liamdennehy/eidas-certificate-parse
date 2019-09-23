@@ -2,33 +2,30 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use FG\ASN1\ASNObject;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatementException;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
  */
 class QCRetentionPeriod extends QCStatement implements QCStatementInterface
 {
-    const oid = '0.4.0.1862.1.3';
     private $retentionPeriod;
+    private $binary;
+
+    const oid = '0.4.0.1862.1.3';
     const type = 'QCRetentionPeriod';
 
-    public function __construct($statements)
+    public function __construct($qcStatementDER)
     {
-        $statement = $statements->getContent();
-        if ($statement[0]->getContent() != self::oid) {
+        $statement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        if ($statement->at(0)->asObjectIdentifier()->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
-        array_shift($statement);
-        if (sizeof($statement) > 1) {
-            throw new QCStatementException("More than one entry in QCRetentionPeriod Statement", 1);
-        } elseif (sizeof($statement) == 0) {
-            throw new QCStatementException("No entries in QCRetentionPeriod Statement", 1);
-        };
-        $this->retentionPeriod = $statement[0]->getContent();
-        $this->binary = $statements->getBinary();
+
+        $this->retentionPeriod = $statement->at(1)->asInteger()->intNumber();
+        $this->binary = $qcStatementDER;
     }
 
     public function getRetentionPeriodYears()

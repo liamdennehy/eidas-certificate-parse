@@ -5,8 +5,11 @@ namespace eIDASCertificate\tests;
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\Extension;
 use eIDASCertificate\Certificate\Extensions;
+use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
+use eIDASCertificate\Certificate\BasicConstraints;
 use eIDASCertificate\Certificate\CRLDistributionPoints;
 use eIDASCertificate\Certificate\ExtendedKeyUsage;
+use eIDASCertificate\Certificate\KeyUsage;
 
 class ExtensionTest extends TestCase
 {
@@ -43,23 +46,23 @@ class ExtensionTest extends TestCase
         $extensions = new Extensions($extensionsDER);
         $this->assertEquals(
             [
-            'preCertPoison',
-            'extKeyUsage',
-            'unknown-2.5.29.32',
-            'unknown-2.5.29.14',
-            'authorityKeyIdentifier',
-            'unknown-2.5.29.17',
-            'crlDistributionPoints',
-            'unknown-1.3.6.1.5.5.7.1.1'
-          ],
+              'keyUsage',
+              'preCertPoison',
+              'extKeyUsage',
+              'unknown-2.5.29.32',
+              'unknown-2.5.29.14',
+              'authorityKeyIdentifier',
+              'unknown-2.5.29.17',
+              'crlDistributionPoints',
+              'unknown-1.3.6.1.5.5.7.1.1',
+              'qcStatements'
+            ],
             array_keys($extensions->getExtensions())
         );
-        // TODO: Throw a full Extensions block at Extensions class and test result has right entries
     }
 
     public function testCRLDistributionPoints()
     {
-        $this->assertTrue(true);
         $binary = base64_decode('MIGrMDegNaAzhjFodHRwOi8vcXRsc2NhMjAxOC1jcmwxL'.
         'mUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3JsMDegNaAzhjFodHRwOi8vcXRsc2NhMjAxOC'.
         '1jcmwyLmUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3JsMDegNaAzhjFodHRwOi8vcXRsc2N'.
@@ -68,29 +71,120 @@ class ExtensionTest extends TestCase
         $this->assertEquals(
             $extnCDPs->getCDPs(),
             [
-            'http://qtlsca2018-crl1.e-szigno.hu/qtlsca2018.crl',
-            'http://qtlsca2018-crl2.e-szigno.hu/qtlsca2018.crl',
-            'http://qtlsca2018-crl3.e-szigno.hu/qtlsca2018.crl'
-          ]
+              'http://qtlsca2018-crl1.e-szigno.hu/qtlsca2018.crl',
+              'http://qtlsca2018-crl2.e-szigno.hu/qtlsca2018.crl',
+              'http://qtlsca2018-crl3.e-szigno.hu/qtlsca2018.crl'
+            ]
         );
     }
 
-    public function testExtendedKeyUsage()
+    public function testKeyUsage()
     {
-        $this->assertTrue(true);
-        $binary = base64_decode('MBQGCCsGAQUFBwMBBggrBgEFBQcDAg==');
-        $eku = new ExtendedKeyUsage($binary);
+        $binary = base64_decode('AwIBBg==');
+        $keyUsage = new KeyUsage($binary);
         $this->assertEquals(
             [
-            $eku->forPurpose('serverAuth'),
-            $eku->forPurpose('clientAuth'),
-            $eku->forPurpose('codeSigning')
-          ],
+              'digitalSignature' => false,
+              'nonRepudiation' => false,
+              'keyEncipherment' => false,
+              'dataEncipherment' => false,
+              'keyAgreement' => false,
+              'keyCertSign' => true,
+              'cRLSign' => true,
+              'encipherOnly' => false,
+              'decipherOnly' => false
+            ],
+            $keyUsage->getKeyUsage()
+        );
+        $binary = base64_decode('AwIFoA==');
+        $keyUsage = new KeyUsage($binary);
+        $this->assertEquals(
             [
-            true,
-            true,
-            false
-          ]
+              'digitalSignature' => true,
+              'nonRepudiation' => false,
+              'keyEncipherment' => true,
+              'dataEncipherment' => false,
+              'keyAgreement' => false,
+              'keyCertSign' => false,
+              'cRLSign' => false,
+              'encipherOnly' => false,
+              'decipherOnly' => false
+            ],
+            $keyUsage->getKeyUsage()
+        );
+        $binary = base64_decode('AwIEMA==');
+        $keyUsage = new KeyUsage($binary);
+        $this->assertEquals(
+            [
+              'digitalSignature' => false,
+              'nonRepudiation' => false,
+              'keyEncipherment' => true,
+              'dataEncipherment' => true,
+              'keyAgreement' => false,
+              'keyCertSign' => false,
+              'cRLSign' => false,
+              'encipherOnly' => false,
+              'decipherOnly' => false
+            ],
+            $keyUsage->getKeyUsage()
         );
     }
+
+    public function testAKI()
+    {
+        $binary = base64_decode('MBaAFH2ETsLUa+rB1yKMaMPpoPTsmIoc');
+        $aki = new AuthorityKeyIdentifier($binary);
+        $this->assertEquals(
+            base64_encode($aki->getKeyId()),
+            'fYROwtRr6sHXIoxow+mg9OyYihw='
+        );
+    }
+
+    public function testBasicConstraints()
+    {
+        $binary = base64_decode('MAYBAf8CAQA=');
+        $basicConstraints = new BasicConstraints($binary);
+        $this->assertEquals(
+            [
+              true,
+              0
+            ],
+            [
+              $basicConstraints->isCA(),
+              $basicConstraints->getPathLength()
+            ]
+        );
+        $binary = base64_decode('MAMBAf8=');
+        $basicConstraints = new BasicConstraints($binary);
+        $this->assertEquals(
+            [
+              false,
+              false
+            ],
+            [
+              $basicConstraints->isCA(),
+              $basicConstraints->getPathLength()
+            ]
+        );
+    }
+
+
+    // public function testExtendedKeyUsage()
+    // {
+    //     $this->assertTrue(true);
+    //     $binary = base64_decode('MBQGCCsGAQUFBwMBBggrBgEFBQcDAg==');
+    //     $eku = new ExtendedKeyUsage($binary);
+    //     $this->assertEquals(
+    //         [
+    //         $eku->forPurpose('serverAuth'),
+    //         $eku->forPurpose('clientAuth'),
+    //         $eku->forPurpose('codeSigning')
+    //       ],
+    //         [
+    //         true,
+    //         true,
+    //         false
+    //       ]
+    //     );
+    // }
 }

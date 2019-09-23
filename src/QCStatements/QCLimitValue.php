@@ -2,11 +2,9 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use FG\ASN1\ASNObject;
-use FG\ASN1\Identifier;
-use FG\ASN1\TemplateParser;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatementException;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -15,40 +13,24 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
 {
     const type = 'QcLimitValue';
     const oid = '0.4.0.1862.1.2';
+
     private $binary;
     private $currency;
     private $amount;
     private $exponent;
 
-    public function __construct($statements)
+    public function __construct($qcStatementDER)
     {
-        $qcLimitValueTemplate = [
-          Identifier::SEQUENCE => [
-            Identifier::OBJECT_IDENTIFIER,
-            Identifier::SEQUENCE => [
-              Identifier::PRINTABLE_STRING,
-              Identifier::INTEGER,
-              Identifier::INTEGER
-            ]
-          ]
-        ];
-        $parser = new TemplateParser();
-        try {
-            $statement = $parser->parseBinary($statements, $qcLimitValueTemplate);
-        } catch (\Exception $e) {
-            // var_dump(new ASNObject($statements));
-            throw new QCStatementException("Error Parsing QCLimitvalue Statement", 1);
-        }
-        $limitOID = $statement[0]->getContent();
-        if ($limitOID <> self::oid) {
+        $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
-        $limitValue = $statement[1];
-        // var_dump(base64_encode($statements)); exit;
-        $this->currency = $limitValue[0]->getContent();
-        $this->amount = $limitValue[1]->getContent();
-        $this->exponent = $limitValue[2]->getContent();
-        $this->binary = $statements;
+        $limitValue = $qcStatement->at(1)->asSequence();
+
+        $this->currency = $limitValue->at(0)->asPrintableString()->string();
+        $this->amount = $limitValue->at(1)->asInteger()->intNumber();
+        $this->exponent = $limitValue->at(2)->asInteger()->intNumber();
+        $this->binary = $qcStatementDER;
     }
 
     public function getLimit()
