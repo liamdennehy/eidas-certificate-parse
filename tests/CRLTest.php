@@ -9,6 +9,7 @@ use eIDASCertificate\DataSource;
 class CRLTest extends TestCase
 {
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
+    const eucrtfile = 'European-Commission.crt';
 
     public function setUp()
     {
@@ -17,12 +18,13 @@ class CRLTest extends TestCase
 
     public function testX509Parse()
     {
-        $jmcrt = new X509Certificate(
+        $eucrt = new X509Certificate(
             file_get_contents(
-              __DIR__ . "/certs/" . self::jmcrtfile
-          )
+                __DIR__ . "/certs/" . self::eucrtfile
+            )
         );
-        $crlURI = $jmcrt->getCDPs()[0];
+
+        $crlURI = $eucrt->getCDPs()[0];
         $crlURIId = hash('sha256', $crlURI);
         $crlFilePath = $this->datadir.'/'.$crlURIId.'.crl';
         // var_dump([$crlFilePath, file_exists($crlFilePath)]); exit;
@@ -33,13 +35,20 @@ class CRLTest extends TestCase
             $crlData = file_get_contents($crlFilePath);
         }
 
-        $jmcrt->withCRL($crlData);
+        $eucrt->withCRL($crlData);
         // exit;
         $this->assertFalse(
-            $jmcrt->isRevoked()
+            $eucrt->isRevoked()
         );
-        $this->assertTrue(
-            $jmcrt->getCRL()->getCount() > 60000
+        $this->assertEquals(
+            [
+            '502164680748718126229572676998261192453463359302',
+            '44802405597337679806284414787175963970124562034',
+            '493426603787953254575369944823793415078738475825',
+            '131347927415174182309564338619337891206250712126',
+            '275942328671361560927880637658069302925839493090'
+          ],
+            array_slice($eucrt->getCRL()->getRevokedSerials(), 0, 5)
         );
     }
 }
