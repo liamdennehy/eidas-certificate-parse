@@ -7,39 +7,39 @@ namespace eIDASCertificate;
  */
 class OID
 {
-    const qcStatements = '1.3.6.1.5.5.7.1.3';
-    const PKIX_QCSYNTAX_V2                    = '1.3.6.1.5.5.7.11.2';
-    const qcs_QcCompliance                    = '0.4.0.1862.1.1';
-    const QcLimitValue  = '0.4.0.1862.1.2';
-    const QcRetentionPeriod  = '0.4.0.1862.1.3';
-    const QcSSCD  = '0.4.0.1862.1.4';
-    const QcPDS  = '0.4.0.1862.1.5';
-    const QcType  = '0.4.0.1862.1.6';
-    const esign  = '0.4.0.1862.1.6.1';
-    const eseal  = '0.4.0.1862.1.6.2';
-    const web  = '0.4.0.1862.1.6.3';
-    const RoleOfPsp  = '0.4.0.19495.1';
-    const PSP_AS  = '0.4.0.19495.1.1';
-    const PSP_PI  = '0.4.0.19495.1.2';
-    const PSP_AI  = '0.4.0.19495.1.3';
-    const PSP_IC  = '0.4.0.19495.1.4';
-    const PSD2  = '0.4.0.19495.2';
-    const PreCertPoison = '1.3.6.1.4.1.11129.2.4.3';
-    const BasicConstraints = '2.5.29.19';
-    const KeyUsage = '2.5.29.15';
-    const ExtendedKeyUsage = '2.5.29.37';
-    const SubjectKeyIdentifier = '2.5.29.14';
-    const AuthorityKeyIdentifier = '2.5.29.35';
-    const CRLDistributionPoints = '2.5.29.31';
-    const ServerAuth = '1.3.6.1.5.5.7.3.1';
-    const ClientAuth = '1.3.6.1.5.5.7.3.2';
-    const CodeSigning = '1.3.6.1.5.5.7.3.3';
-    const EmailProtection = '1.3.6.1.5.5.7.3.4';
-    const TimeStamping = '1.3.6.1.5.5.7.3.8';
-    const OCSPSigning = '1.3.6.1.5.5.7.3.9';
-    const TSLSigning = '0.4.0.2231.3.0';
+    const qcStatements            = '1.3.6.1.5.5.7.1.3';
+    const PKIX_QCSYNTAX_V2        = '1.3.6.1.5.5.7.11.2';
+    const QcCompliance            = '0.4.0.1862.1.1';
+    const QcLimitValue            = '0.4.0.1862.1.2';
+    const QcRetentionPeriod       = '0.4.0.1862.1.3';
+    const QcSSCD                  = '0.4.0.1862.1.4';
+    const QcPDS                   = '0.4.0.1862.1.5';
+    const QcType                  = '0.4.0.1862.1.6';
+    const esign                   = '0.4.0.1862.1.6.1';
+    const eseal                   = '0.4.0.1862.1.6.2';
+    const web                     = '0.4.0.1862.1.6.3';
+    const RoleOfPsp               = '0.4.0.19495.1';
+    const PSP_AS                  = '0.4.0.19495.1.1';
+    const PSP_PI                  = '0.4.0.19495.1.2';
+    const PSP_AI                  = '0.4.0.19495.1.3';
+    const PSP_IC                  = '0.4.0.19495.1.4';
+    const PSD2                    = '0.4.0.19495.2';
+    const PreCertPoison           = '1.3.6.1.4.1.11129.2.4.3';
+    const BasicConstraints        = '2.5.29.19';
+    const KeyUsage                = '2.5.29.15';
+    const ExtendedKeyUsage        = '2.5.29.37';
+    const SubjectKeyIdentifier    = '2.5.29.14';
+    const AuthorityKeyIdentifier  = '2.5.29.35';
+    const CRLDistributionPoints   = '2.5.29.31';
+    const ServerAuth              = '1.3.6.1.5.5.7.3.1';
+    const ClientAuth              = '1.3.6.1.5.5.7.3.2';
+    const CodeSigning             = '1.3.6.1.5.5.7.3.3';
+    const EmailProtection         = '1.3.6.1.5.5.7.3.4';
+    const TimeStamping            = '1.3.6.1.5.5.7.3.8';
+    const OCSPSigning             = '1.3.6.1.5.5.7.3.9';
+    const TSLSigning              = '0.4.0.2231.3.0';
     // https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2
-    const MS_DOCUMENT_SIGNING = '1.3.6.1.4.1.311.10.3.12';
+    const MS_DOCUMENT_SIGNING     = '1.3.6.1.4.1.311.10.3.12';
     // https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography
 
     public static function getName($oidString)
@@ -55,8 +55,8 @@ class OID
           case self::PKIX_QCSYNTAX_V2:
               $oidName = 'id-qcs-pkixQCSyntax-v2';
               break;
-          case self::qcs_QcCompliance:
-              $oidName = 'qcs-QcCompliance';
+          case self::QcCompliance:
+              $oidName = 'QcCompliance';
               break;
           case self::QcLimitValue:
             $oidName = 'QcLimitValue';
