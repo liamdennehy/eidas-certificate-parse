@@ -175,6 +175,8 @@ class X509Certificate
     {
         if (array_key_exists('crlDistributionPoints', $this->extensions)) {
             return $this->extensions['crlDistributionPoints']->getCDPs();
+        } else {
+            return [];
         }
     }
 
@@ -200,5 +202,10 @@ class X509Certificate
     public function getCRL()
     {
         return $this->crl;
+    }
+
+    public function getSerial()
+    {
+        return $this->serialNumber;
     }
 }
