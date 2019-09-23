@@ -27,7 +27,6 @@ class CRLTest extends TestCase
         $crlURI = $eucrt->getCDPs()[0];
         $crlURIId = hash('sha256', $crlURI);
         $crlFilePath = $this->datadir.'/'.$crlURIId.'.crl';
-        // var_dump([$crlFilePath, file_exists($crlFilePath)]); exit;
         if (! file_exists($crlFilePath)) {
             $crlData = DataSource::getHTTP($crlURI);
             file_put_contents($crlFilePath, $crlData);

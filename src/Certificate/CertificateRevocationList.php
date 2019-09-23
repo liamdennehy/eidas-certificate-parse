@@ -32,8 +32,14 @@ class CertificateRevocationList
         $crlExtensions = $tbsCertList->at(6)->asTagged();
         foreach ($revokedCertificates->elements() as $revokedCertificate) {
             $certSerial = $revokedCertificate->at(0)->asInteger()->number();
-            $certRevokedDateTime = $revokedCertificate->at(1)->asUTCTime()->dateTime();
+            $certRevokedDateTime =
+                $revokedCertificate->at(1)->asUTCTime()->dateTime();
             $this->revokedCertificates[$certSerial]['time'] = $certRevokedDateTime;
+            if ($revokedCertificate->has(2)) {
+                $certRevokedExtensions = $revokedCertificate->at(2)->toDER();
+                $this->revokedCertificates[$certSerial]['extensions'] =
+                    $certRevokedExtensions;
+            }
         }
         $this->binary = $crlDER;
     }
@@ -57,8 +63,8 @@ class CertificateRevocationList
     {
         if (array_key_exists($certSerial, $this->revokedCertificates)) {
             $revoked['time'] = $this->revokedCertificates[$certSerial]['time'];
-            if (array_key_exists('reason', $this->revokedCertificates[$certSerial])) {
-                $revoked['reason'] = $this->revokedCertificates[$certSerial]['reason'];
+            if (array_key_exists('extensions', $this->revokedCertificates[$certSerial])) {
+                $revoked['extensions'] = $this->revokedCertificates[$certSerial]['extensions'];
             }
             return revoked;
         } else {
@@ -69,5 +75,10 @@ class CertificateRevocationList
     public function getCount()
     {
         return sizeof($this->revokedCertificates);
+    }
+
+    public function getRevokedSerials()
+    {
+        return array_keys($this->revokedCertificates);
     }
 }
