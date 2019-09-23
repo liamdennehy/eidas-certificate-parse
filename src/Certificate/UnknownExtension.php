@@ -4,41 +4,42 @@ namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\OID;
-use FG\ASN1\ASNObject;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
  */
- class UnknownExtension implements ExtensionInterface
- {
-     private $binary;
-     const type = 'unknown';
-     const uri = '';
+class UnknownExtension implements ExtensionInterface
+{
+    private $binary;
+    private $oid;
 
-     public function __construct($binary)
-     {
-         $object = ASNObject::fromBinary($binary);
-         $this->binary = $binary;
-         $this->oid = $object[0]->getContent();
-     }
+    const type = 'unknown';
+    const uri = '';
 
-     public function getType()
-     {
-         return self::type;
-     }
+    public function __construct($extensionDER, $extensionOid)
+    {
+        $this->oid = $extensionOid;
+        $this->binary = $extensionDER;
+    }
 
-     public function getURI()
-     {
-         return self::uri;
-     }
+    public function getType()
+    {
+        return self::type;
+    }
 
-     public function getOID()
-     {
-         return $this->oid;
-     }
+    public function getURI()
+    {
+        return self::uri;
+    }
 
-     public function getBinary()
-     {
-         return $this->binary;
-     }
- }
+    public function getOID()
+    {
+        return $this->oid;
+    }
+
+    public function getBinary()
+    {
+        return $this->binary;
+    }
+}
