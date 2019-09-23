@@ -38,9 +38,11 @@ class KeyUsage implements ExtensionInterface
         $bit = 0;
         while ($bit < 9) {
             if ($bit < $keyUsage->numBits()) {
-                $this->keyUsageBits[KeyUsage::getName($bit)] = $keyUsage->testBit($bit) === true;
+                $this->keyUsageBits[KeyUsage::getName($bit)] =
+                    $keyUsage->testBit($bit) === true;
             } else {
-                $this->keyUsageBits[KeyUsage::getName($bit)] = false;
+                $this->keyUsageBits[KeyUsage::getName($bit)] =
+                    false;
             }
             $bit++;
         }
