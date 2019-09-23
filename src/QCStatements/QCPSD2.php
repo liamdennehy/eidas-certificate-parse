@@ -41,12 +41,12 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
             $psd2RoleProvidedName = $psd2Role->at(1)->asUTF8String()->string();
             if ($psd2RoleProvidedName != $psd2RoleName) {
                 throw new QCStatementException(
-                      "Included PSD2 Named Role '".
+                    "Included PSD2 Named Role '".
                           $psd2RoleProvidedName.
                           "' does not match OID Name '$psd2RoleName': '" .
                           base64_encode($qcStatementDER) . "'",
-                      1
-                  );
+                    1
+                );
             }
             switch ($psd2RoleName) {
               case 'PSP_AS':
