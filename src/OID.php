@@ -41,13 +41,15 @@ class OID
     // https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2
     const MS_DOCUMENT_SIGNING     = '1.3.6.1.4.1.311.10.3.12';
     // https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography
+    const ipsecEndSystem          = '1.3.6.1.5.5.7.3.5';
+    const ipsecTunnel             = '1.3.6.1.5.5.7.3.6';
+    const ipsecUser               = '1.3.6.1.5.5.7.3.7';
 
     public static function getName($oidString)
     {
         // return 'blah';
         // throw new \Exception("Error Processing Request", 1);
 
-        $oidName = "unknown";
         switch ($oidString) {
           case self::qcStatements:
               $oidName = 'qcStatements';
@@ -144,6 +146,18 @@ class OID
             break;
           case self::MS_DOCUMENT_SIGNING:
             $oidName = 'MS_DOCUMENT_SIGNING';
+            break;
+          // case self::ipsecEndSystem:
+          //   $oidName = 'ipsecEndSystem';
+          //   break;
+          // case self::ipsecTunnel:
+          //   $oidName = 'ipsecTunnel';
+          //   break;
+          // case self::ipsecUser:
+          //   $oidName = 'ipsecUser';
+          //   break;
+          default:
+            $oidName = 'unknown';
             break;
           }
         return $oidName;
