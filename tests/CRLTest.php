@@ -8,7 +8,6 @@ use eIDASCertificate\DataSource;
 
 class CRLTest extends TestCase
 {
-    const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const eucrtfile = 'European-Commission.crt';
 
     public function setUp()
@@ -16,7 +15,7 @@ class CRLTest extends TestCase
         $this->datadir = __DIR__ . '/../data';
     }
 
-    public function testX509Parse()
+    public function testCRLParse()
     {
         $eucrt = new X509Certificate(
             file_get_contents(
