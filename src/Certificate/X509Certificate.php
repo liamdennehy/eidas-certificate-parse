@@ -2,8 +2,9 @@
 
 namespace eIDASCertificate\Certificate;
 
-use eIDASCertificate\QCStatements;
 use eIDASCertificate\CertificateException;
+use eIDASCertificate\OID;
+use eIDASCertificate\QCStatements;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -18,6 +19,7 @@ class X509Certificate
     private $keyUsage;
     private $crl;
     private $serialNumber;
+    private $publicKey;
 
     public function __construct($candidate)
     {
@@ -30,6 +32,22 @@ class X509Certificate
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
         $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
+        $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
+        $subjectPublicKeyInfoTypeOID =
+          $subjectPublicKeyInfo->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
+        $subjectPublicKeyInfoTypeName = OID::getName($subjectPublicKeyInfoTypeOID);
+        switch ($subjectPublicKeyInfoTypeName) {
+          case 'rsaEncryption':
+            $this->publicKey = $tbsCertificate->at(6)->toDER();
+            break;
+          default:
+            throw new CertificateException(
+                "Unrecognised Public Key Type OID $subjectPublicKeyInfoTypeOID ($subjectPublicKeyInfoTypeName)",
+                1
+            );
+
+            break;
+        }
         $this->parsed = X509Certificate::parse($this->crtResource);
         $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
         if ($crtVersion == 2) {
@@ -225,5 +243,10 @@ class X509Certificate
     public function getSerial()
     {
         return $this->serialNumber;
+    }
+
+    public function getPublicKey()
+    {
+        return $this->publicKey;
     }
 }

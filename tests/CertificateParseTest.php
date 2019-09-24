@@ -4,6 +4,7 @@ namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\X509Certificate;
+use ASN1\Type\UnspecifiedType;
 
 class CertificateParseTest extends TestCase
 {
@@ -50,11 +51,14 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             [
               '87c9bc3197127a73bb7ec03d4551b401259551ab',
+              'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
               'e811fc46be23b48f3ef7b1d778df0997b8ec4524'
             ],
             [
               bin2hex($this->eucrt->getAuthorityKeyIdentifier()),
-              bin2hex($this->eucrt->getSubjectKeyIdentifier())
+              bin2hex($this->eucrt->getSubjectKeyIdentifier()),
+              hash('sha1', UnspecifiedType::fromDER($this->eucrt->getPublicKey())->asSequence()->at(1)->asBitString()->string())
+
             ]
         );
         $crtParsed = $this->mocrt->getParsed();
@@ -104,11 +108,11 @@ class CertificateParseTest extends TestCase
         $this->assertTrue($this->jmcrt->hasExtensions()) ;
         $this->assertTrue($this->jmcrt->hasQCStatements()) ;
         $this->assertEquals(
-          [
+            [
             '6a6f51e5cc275d6509eea81b129403f040a008f2',
             ''
           ],
-          [
+            [
             bin2hex($this->jmcrt->getAuthorityKeyIdentifier()),
             bin2hex($this->jmcrt->getSubjectKeyIdentifier())
           ]
