@@ -289,7 +289,7 @@ class TrustedList
         foreach ($tsps as $tsp) {
             foreach ($tsp->getTSPServices($includeChildren) as $tspService) {
                 if ($tspService->getType() == $type) {
-                  $tspServices[$tsp->getName()][$tspService->getName()] = $tspService;
+                    $tspServices[$tsp->getName()][$tspService->getName()] = $tspService;
                 }
             }
         }
