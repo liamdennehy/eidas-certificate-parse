@@ -47,6 +47,16 @@ class CertificateParseTest extends TestCase
           ],
             $this->eucrt->getCDPs()
         );
+        $this->assertEquals(
+            [
+              '87c9bc3197127a73bb7ec03d4551b401259551ab',
+              'e811fc46be23b48f3ef7b1d778df0997b8ec4524'
+            ],
+            [
+              bin2hex($this->eucrt->getAuthorityKeyIdentifier()),
+              bin2hex($this->eucrt->getSubjectKeyIdentifier())
+            ]
+        );
         $crtParsed = $this->mocrt->getParsed();
         $this->assertEquals(
             '/C=BE/L=BE/O=European Commission/OU=0949.383.342'.
@@ -72,6 +82,16 @@ class CertificateParseTest extends TestCase
         );
         $this->assertEquals(
             [
+            '638fc28b03b1ab8ed85347961d99a87df6aca875',
+            '47c3b10901b1822b'
+          ],
+            [
+            bin2hex($this->mocrt->getAuthorityKeyIdentifier()),
+            bin2hex($this->mocrt->getSubjectKeyIdentifier())
+          ]
+        );
+        $this->assertEquals(
+            [
             'http://crl.quovadisglobal.com/qvbecag2.crl'
           ],
             $this->eucrt->getCDPs()
@@ -83,6 +103,16 @@ class CertificateParseTest extends TestCase
         );
         $this->assertTrue($this->jmcrt->hasExtensions()) ;
         $this->assertTrue($this->jmcrt->hasQCStatements()) ;
+        $this->assertEquals(
+          [
+            '6a6f51e5cc275d6509eea81b129403f040a008f2',
+            ''
+          ],
+          [
+            bin2hex($this->jmcrt->getAuthorityKeyIdentifier()),
+            bin2hex($this->jmcrt->getSubjectKeyIdentifier())
+          ]
+        );
         $this->assertEquals(
             [
             'http://crl.eid.belgium.be/eidc201508.crl'
