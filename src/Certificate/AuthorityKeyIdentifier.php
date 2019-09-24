@@ -20,13 +20,27 @@ class AuthorityKeyIdentifier implements ExtensionInterface
 
     public function __construct($extensionDER)
     {
+
         $seq = UnspecifiedType::fromDER($extensionDER)->asSequence();
         $tagDER = $seq->at(0)->asTagged()->toDER();
-        if (bin2hex($tagDER[0]) != '80') {
+        // var_dump([
+        //   bin2hex($tagDER[0]),
+        //   bin2hex(chr(0x80))
+        // ]);
+        switch ($tagDER[0]) {
+          case chr(0x80):
+            $tagDER[0] = chr(4);
+            $this->keyIdentifier = UnspecifiedType::fromDER($tagDER)->asOctetString()->string();
+            break;
+
+          default:
+            var_dump(base64_encode($extensionDER));
             throw new ExtensionException("Unrecognised AuthorityKeyIdentifier Format", 1);
+            // code...
+            break;
         }
-        $tagDER[0] = chr(4);
-        $this->keyIdentifier = UnspecifiedType::fromDER($tagDER)->asOctetString()->string();
+        // if ($tagDER[0] != chr(0x80)) {
+        // }
         $this->binary = $extensionDER;
     }
 
