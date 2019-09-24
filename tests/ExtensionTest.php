@@ -50,7 +50,7 @@ class ExtensionTest extends TestCase
               'preCertPoison',
               'extKeyUsage',
               'unknown-2.5.29.32',
-              'unknown-2.5.29.14',
+              'subjectKeyIdentifier',
               'authorityKeyIdentifier',
               'unknown-2.5.29.17',
               'crlDistributionPoints',

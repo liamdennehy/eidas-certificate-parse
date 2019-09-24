@@ -39,8 +39,10 @@ abstract class Extension
           case 'keyUsage':
             return new KeyUsage($extnValue);
             break;
+          case 'subjectKeyIdentifier':
+            return new SubjectKeyIdentifier($extnValue);
+            break;
           case 'authorityKeyIdentifier':
-            // TODO: Implement AKI
             return new AuthorityKeyIdentifier($extnValue);
             break;
           case 'extKeyUsage':

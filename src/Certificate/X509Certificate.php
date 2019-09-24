@@ -2,8 +2,9 @@
 
 namespace eIDASCertificate\Certificate;
 
-use eIDASCertificate\QCStatements;
 use eIDASCertificate\CertificateException;
+use eIDASCertificate\OID;
+use eIDASCertificate\QCStatements;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -16,6 +17,9 @@ class X509Certificate
     private $parsed;
     private $extensions;
     private $keyUsage;
+    private $crl;
+    private $serialNumber;
+    private $publicKey;
 
     public function __construct($candidate)
     {
@@ -28,6 +32,22 @@ class X509Certificate
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
         $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
+        $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
+        $subjectPublicKeyInfoTypeOID =
+          $subjectPublicKeyInfo->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
+        $subjectPublicKeyInfoTypeName = OID::getName($subjectPublicKeyInfoTypeOID);
+        switch ($subjectPublicKeyInfoTypeName) {
+          case 'rsaEncryption':
+            $this->publicKey = $tbsCertificate->at(6)->toDER();
+            break;
+          default:
+            throw new CertificateException(
+                "Unrecognised Public Key Type OID $subjectPublicKeyInfoTypeOID ($subjectPublicKeyInfoTypeName)",
+                1
+            );
+
+            break;
+        }
         $this->parsed = X509Certificate::parse($this->crtResource);
         $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
         if ($crtVersion == 2) {
@@ -40,6 +60,7 @@ class X509Certificate
         } else {
             throw new CertificateException("Only X.509 v3 certificates are supported", 1);
         }
+        $this->serialNumber = $tbsCertificate->at(1)->asInteger()->number();
     }
 
     public static function emit($candidate)
@@ -168,10 +189,30 @@ class X509Certificate
         return $this->extensions;
     }
 
+    public function getAuthorityKeyIdentifier()
+    {
+        if (array_key_exists('authorityKeyIdentifier', $this->extensions)) {
+            return $this->extensions['authorityKeyIdentifier']->getKeyId();
+        } else {
+            return false;
+        }
+    }
+
+    public function getSubjectKeyIdentifier()
+    {
+        if (array_key_exists('subjectKeyIdentifier', $this->extensions)) {
+            return $this->extensions['subjectKeyIdentifier']->getKeyId();
+        } else {
+            return false;
+        }
+    }
+
     public function getCDPs()
     {
         if (array_key_exists('crlDistributionPoints', $this->extensions)) {
             return $this->extensions['crlDistributionPoints']->getCDPs();
+        } else {
+            return [];
         }
     }
 
@@ -182,5 +223,30 @@ class X509Certificate
                 return true;
             }
         }
+    }
+
+    public function withCRL($crlDER)
+    {
+        $this->crl = new CertificateRevocationList($crlDER);
+    }
+
+    public function isRevoked()
+    {
+        return $this->crl->isRevoked($this->serialNumber);
+    }
+
+    public function getCRL()
+    {
+        return $this->crl;
+    }
+
+    public function getSerial()
+    {
+        return $this->serialNumber;
+    }
+
+    public function getPublicKey()
+    {
+        return $this->publicKey;
     }
 }
