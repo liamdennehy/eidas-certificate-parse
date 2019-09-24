@@ -171,6 +171,24 @@ class X509Certificate
         return $this->extensions;
     }
 
+    public function getAuthorityKeyIdentifier()
+    {
+        if (array_key_exists('authorityKeyIdentifier', $this->extensions)) {
+            return $this->extensions['authorityKeyIdentifier']->getKeyId();
+        } else {
+            return false;
+        }
+    }
+
+    public function getSubjectKeyIdentifier()
+    {
+        if (array_key_exists('subjectKeyIdentifier', $this->extensions)) {
+            return $this->extensions['subjectKeyIdentifier']->getKeyId();
+        } else {
+            return false;
+        }
+    }
+
     public function getCDPs()
     {
         if (array_key_exists('crlDistributionPoints', $this->extensions)) {
