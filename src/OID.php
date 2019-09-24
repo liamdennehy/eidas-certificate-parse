@@ -8,8 +8,11 @@ namespace eIDASCertificate;
 class OID
 {
     const qcStatements            = '1.3.6.1.5.5.7.1.3';
+    const PKIX_QCSYNTAX_V1        = '1.3.6.1.5.5.7.11.1';
     const PKIX_QCSYNTAX_V2        = '1.3.6.1.5.5.7.11.2';
+    const ecPublicKey             = '1.2.840.10045.2.1';
     const rsaEncryption           = '1.2.840.113549.1.1.1';
+    const RSASSA_PSS              = '1.2.840.113549.1.1.10';
     const QcCompliance            = '0.4.0.1862.1.1';
     const QcLimitValue            = '0.4.0.1862.1.2';
     const QcRetentionPeriod       = '0.4.0.1862.1.3';
@@ -57,11 +60,20 @@ class OID
           case self::qcStatements:
               $oidName = 'qcStatements';
               break;
+          case self::PKIX_QCSYNTAX_V1:
+              $oidName = 'id-qcs-pkixQCSyntax-v1';
+              break;
           case self::PKIX_QCSYNTAX_V2:
               $oidName = 'id-qcs-pkixQCSyntax-v2';
               break;
+          case self::ecPublicKey:
+              $oidName = 'ecPublicKey';
+              break;
           case self::rsaEncryption:
               $oidName = 'rsaEncryption';
+              break;
+          case self::RSASSA_PSS:
+              $oidName = 'RSASSA-PSS';
               break;
           case self::QcCompliance:
               $oidName = 'QcCompliance';
