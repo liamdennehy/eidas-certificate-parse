@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\CertificateException;
+use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements;
 use ASN1\Type\UnspecifiedType;
@@ -77,7 +78,7 @@ class X509Certificate implements DigitalIdInterface
         };
         $certificate = openssl_x509_read($candidate);
         if ($certificate) {
-            $this->crtResource = $certificate;
+            return $certificate;
         } else {
             throw new CertificateException("Cannot recognise certificate", 1);
         }
