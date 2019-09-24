@@ -21,12 +21,6 @@ class SubjectKeyIdentifier implements ExtensionInterface
     public function __construct($extensionDER)
     {
         $this->keyIdentifier = UnspecifiedType::fromDER($extensionDER)->asOctetString()->string();
-        // $tagDER = $seq->at(0)->asTagged()->toDER();
-        // if (bin2hex($tagDER[0]) != '80') {
-        //     throw new ExtensionException("Unrecognised SubjectKeyIdentifier Format", 1);
-        // }
-        // $tagDER[0] = chr(4);
-        // $this->keyIdentifier = UnspecifiedType::fromDER($tagDER)->asOctetString()->string();
         $this->binary = $extensionDER;
     }
 

@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\Extension;
 use eIDASCertificate\Certificate\Extensions;
 use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
+use eIDASCertificate\Certificate\SubjectKeyIdentifier;
 use eIDASCertificate\Certificate\BasicConstraints;
 use eIDASCertificate\Certificate\CRLDistributionPoints;
 use eIDASCertificate\Certificate\ExtendedKeyUsage;
@@ -135,8 +136,18 @@ class ExtensionTest extends TestCase
         $binary = base64_decode('MBaAFH2ETsLUa+rB1yKMaMPpoPTsmIoc');
         $aki = new AuthorityKeyIdentifier($binary);
         $this->assertEquals(
-            base64_encode($aki->getKeyId()),
-            'fYROwtRr6sHXIoxow+mg9OyYihw='
+            '7d844ec2d46beac1d7228c68c3e9a0f4ec988a1c',
+            bin2hex($aki->getKeyId())
+        );
+    }
+
+    public function testSKI()
+    {
+        $binary = base64_decode('BBQiO12gpPVHLXeokyqb5KdJtfU0ag==');
+        $aki = new SubjectKeyIdentifier($binary);
+        $this->assertEquals(
+            '223b5da0a4f5472d77a8932a9be4a749b5f5346a',
+            bin2hex($aki->getKeyId())
         );
     }
 
