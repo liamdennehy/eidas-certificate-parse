@@ -9,7 +9,7 @@ use eIDASCertificate\OID;
 /**
  *
  */
-class CertificateRevocationList
+class CertificateRevocationList implements RFC5280ProfileInterface
 {
     private $binary;
     private $revokedCertificates;
@@ -19,6 +19,9 @@ class CertificateRevocationList
     private $signatureAlgorithm;
     private $signatureValue;
     private $crlEntries = [];
+
+    const type = 'CertificateRevocationList';
+    const uri = 'https://tools.ietf.org/html/rfc5280#section-5';
 
     public function __construct($crlDER)
     {
