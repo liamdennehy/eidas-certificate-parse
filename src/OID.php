@@ -35,8 +35,10 @@ class OID
     const KeyUsage                = '2.5.29.15';
     const ExtendedKeyUsage        = '2.5.29.37';
     const SubjectKeyIdentifier    = '2.5.29.14';
-    const AuthorityKeyIdentifier  = '2.5.29.35';
     const CRLDistributionPoints   = '2.5.29.31';
+    const certificatePolicies     = '2.5.29.32';
+    const AuthorityKeyIdentifier  = '2.5.29.35';
+    const policyConstraints       = '2.5.29.36';
     const ServerAuth              = '1.3.6.1.5.5.7.3.1';
     const ClientAuth              = '1.3.6.1.5.5.7.3.2';
     const CodeSigning             = '1.3.6.1.5.5.7.3.3';
@@ -50,6 +52,7 @@ class OID
     const ipsecEndSystem          = '1.3.6.1.5.5.7.3.5';
     const ipsecTunnel             = '1.3.6.1.5.5.7.3.6';
     const ipsecUser               = '1.3.6.1.5.5.7.3.7';
+    const EuQCompliance           = '0.4.0.19422.1.1';
 
     public static function getName($oidString)
     {
@@ -141,8 +144,14 @@ class OID
           case self::crlInvalidityDate:
             $oidName = 'crlInvalidityDate';
             break;
+          case self::certificatePolicies:
+            $oidName = 'certificatePolicies';
+            break;
           case self::AuthorityKeyIdentifier:
             $oidName = 'authorityKeyIdentifier';
+            break;
+          case self::policyConstraints:
+            $oidName = 'policyConstraints';
             break;
           case self::SubjectKeyIdentifier:
             $oidName = 'subjectKeyIdentifier';
@@ -170,6 +179,9 @@ class OID
             break;
           case self::MS_DOCUMENT_SIGNING:
             $oidName = 'MS_DOCUMENT_SIGNING';
+            break;
+          case self::EuQCompliance:
+            $oidName = 'etsi-tsts-EuQCompliance';
             break;
           // case self::ipsecEndSystem:
           //   $oidName = 'ipsecEndSystem';
