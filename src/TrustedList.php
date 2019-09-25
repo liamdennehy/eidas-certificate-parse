@@ -271,6 +271,7 @@ class TrustedList
 
     public function getTSPServices($includeChildren = false)
     {
+        return $this->trustedLists;
         $tspServices = [];
         $tsps = $this->getTSPs($includeChildren);
         foreach ($tsps as $tsp) {
@@ -415,15 +416,12 @@ class TrustedList
      */
     public function getTrustedLists($title = null)
     {
-        if (sizeof($this->trustedLists) == 0) {
-            $this->processTrustedLists();
-        }
         if (empty($title)) {
             return $this->trustedLists;
         } elseif (array_key_exists($title, $this->trustedLists)) {
             return $this->trustedLists[$title];
         } else {
-            return false;
+            return [];
         }
     }
 
@@ -451,6 +449,9 @@ class TrustedList
 
     public function addTrustedListXML($title, $xml)
     {
+        if (empty($this->tslPointers)) {
+            $this->processTLPointers();
+        };
         if (! array_key_exists($title, $this->tslPointers['xml'])) {
             throw new TrustedListException("No pointer for Trusted List '".$title."'", 1);
         }
@@ -535,8 +536,8 @@ class TrustedList
 
     public function getTSLPointers($fileType = null)
     {
-        if (! $this->tslPointers) {
-            $this->processTSLPointers();
+        if (empty($this->tslPointers)) {
+            $this->processTLPointers();
         };
         if (! $fileType) {
             return $this->tslPointers;
