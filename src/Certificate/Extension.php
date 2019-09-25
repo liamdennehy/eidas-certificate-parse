@@ -55,6 +55,13 @@ abstract class Extension
             break;
           case 'qcStatements':
             return new QCStatements($extnValue);
+            break;
+          case 'certificatePolicies':
+            // TODO: Implement certificatePolicies QCStatement
+            return false;
+            break;
+          case 'policyConstraints':
+            // TODO: Implement policyConstraints QCStatement
             return false;
             break;
 
@@ -62,7 +69,7 @@ abstract class Extension
             if ($isCritical) {
                 throw new ExtensionException(
                     "Unrecognised Critical Extension OID '$extensionOid' ($extensionName), cannot proceed: '" .
-                    base64_encode($extension->getBinary()).
+                    base64_encode($extension->toDER()).
                     "'",
                     1
                 );
