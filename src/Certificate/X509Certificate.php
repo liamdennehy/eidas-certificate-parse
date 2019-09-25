@@ -11,7 +11,7 @@ use ASN1\Type\UnspecifiedType;
 /**
  *
  */
-class X509Certificate implements DigitalIdInterface
+class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 {
     private $crtResource;
     private $crtBinary;
@@ -32,6 +32,8 @@ class X509Certificate implements DigitalIdInterface
         $this->crtBinary = base64_decode(implode("", $crtPEM));
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
+        $signatureAlgorithm = $crtASN1->at(1)->asSequence();
+        $signatureValue = $crtASN1->at(2)->asBitString()->string();
         switch ($tbsCertificate->at(0)->typeClass()) {
           case 0:
             $crtVersion = $tbsCertificate->at(0)->asInteger()->intNumber();
@@ -45,8 +47,11 @@ class X509Certificate implements DigitalIdInterface
 
             break;
         }
+        $dates = $tbsCertificate->at(4)->asSequence();
+        $this->notBefore = $dates->at(0)->asUTCTime()->dateTime();
+        $this->notAfter = $dates->at(1)->asUTCTime()->dateTime();
         // TODO: Get rid of Parsed, generate on-the-fly if necessary
-        $this->parsed = X509Certificate::parse($this->crtResource);
+        // $this->parsed = X509Certificate::parse($this->crtResource);
         if ($crtVersion == 2) {
             if ($tbsCertificate->has(7)) {
                 $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
@@ -75,7 +80,7 @@ class X509Certificate implements DigitalIdInterface
             }
         } else {
             return null;
-            throw new CertificateException("Only X.509 v3 certificates are supported", 1);
+            throw new CertificateException("Only X.509 v3 certificates are supported: ".base64_encode($this->crtBinary), 1);
         }
         $this->serialNumber = $tbsCertificate->at(1)->asInteger()->number();
     }
@@ -111,6 +116,11 @@ class X509Certificate implements DigitalIdInterface
         "-----END CERTIFICATE-----\n";
     }
 
+    public function getBinary()
+    {
+        return $this->crtBinary;
+    }
+
     public function getDN()
     {
         return openssl_x509_parse($this->crtResource)['name'];
@@ -129,7 +139,7 @@ class X509Certificate implements DigitalIdInterface
 
     public function getParsed()
     {
-        return $this->parsed;
+        return openssl_x509_parse($this->crtResource);
     }
 
     public function getKeyUsage()
@@ -140,21 +150,26 @@ class X509Certificate implements DigitalIdInterface
     public function getDates()
     {
         return [
-          'notBefore' => date_create('@' .  $this->parsed['validFrom_time_t']),
-          'notAfter' => date_create('@' .  $this->parsed['validTo_time_t'])
+          $this->notBefore,
+          $this->notAfter
         ];
     }
 
-    public function isValidAt($dateTime = null)
+    public function isCurrent()
+    {
+        return $this->isCurrentAt(new DateTime);
+    }
+
+    public function isCurrentAt($dateTime = null)
     {
         if (empty($dateTime)) {
             $dateTime = new \DateTime; // now
         };
-        $dates = $this->getDates();
+        // $dates = $this->getDates();
         return (
-        $this->isStartedAt($dateTime) &&
-        $this->isNotFinishedAt($dateTime)
-      );
+          $this->isStartedAt($dateTime) &&
+          $this->isNotFinishedAt($dateTime)
+        );
     }
 
     public function isStartedAt($dateTime = null)
@@ -162,10 +177,9 @@ class X509Certificate implements DigitalIdInterface
         if (empty($dateTime)) {
             $dateTime = new \DateTime; // now
         };
-        $dates = $this->getDates();
         return (
-        $dates['notBefore'] < $dateTime
-      );
+          $this->notBefore < $dateTime
+        );
     }
 
     public function isNotFinishedAt($dateTime = null)
@@ -173,10 +187,9 @@ class X509Certificate implements DigitalIdInterface
         if (empty($dateTime)) {
             $dateTime = new \DateTime; // now
         };
-        $dates = $this->getDates();
         return (
-        $dates['notAfter'] > $dateTime
-      );
+          $this->notAfter > $dateTime
+        );
     }
 
     public function hasExtensions()
@@ -254,7 +267,11 @@ class X509Certificate implements DigitalIdInterface
 
     public function getCRL()
     {
-        return $this->crl;
+        if (! empty($this->crl)) {
+            return $this->crl;
+        } else {
+            return null;
+        }
     }
 
     public function getSerial()
