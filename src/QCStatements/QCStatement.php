@@ -44,12 +44,21 @@ abstract class QCStatement
           return new QCPSD2($qcStatementDER);
           break;
         default:
-          throw new QCStatementException(
-              "Unrecognised QCStatement OID $qcStatementOID ($qcStatementName): '".
-              base64_encode($qcStatementDER) .
-               "'",
-              1
-          );
+          // TODO: Clean up unhandled QCStatements
+          $tolerateUnhandled = [
+            'id-qcs-pkixQCSyntax-v1',
+            'etsi-tsts-EuQCompliance',
+            'eseal' // WHAT??
+          ];
+          if (! in_array($qcStatementName, $tolerateUnhandled)) {
+              // code...
+              throw new QCStatementException(
+                "Unrecognised QCStatement OID $qcStatementOID ($qcStatementName): '".
+                base64_encode($qcStatementDER) .
+                 "'",
+                1
+            );
+          }
           break;
       }
     }
