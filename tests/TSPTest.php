@@ -22,73 +22,47 @@ class TSPTest extends TestCase
         $this->datadir = __DIR__ . '/../data';
         $xmlFilePath = $this->datadir.self::lotlXMLFileName;
         if (! file_exists($xmlFilePath)) {
-            $this->lotlXML = DataSource::getHTTP(
+            $lotlXML = DataSource::getHTTP(
                 TrustedList::ListOfTrustedListsXMLPath
             );
             file_put_contents($xmlFilePath, $this->lotlXML);
         } else {
-            $this->lotlXML = file_get_contents($xmlFilePath);
+            $lotlXML = file_get_contents($xmlFilePath);
         }
-
-        // if (! $this->dataSource) {
-        //     $this->dataSource = new DataSource("sqlite", "/data");
-        // }
-        // if (! $this->lotlxml) {
-        //     $this->lotlxml = $this->dataSource->load(TrustedList::ListOfTrustedListsXMLPath, 'trustedLists');
-        // }
-        // if (! $this->lotl) {
-        //     $this->lotl = new TrustedList(
-        //         file_get_contents(__DIR__ . '/../data/eu-lotl.xml')
-        //     );
-        // };
+        $this->lotl = new TrustedList($lotlXML);
     }
 
-    // public function loadAllTLs()
-    // {
-    //     if (! $this->tls) {
-    //         foreach ($this->lotl->getTrustedListPointers('xml') as $tslPointer) {
-    //             try {
-    //                 $newTL = TrustedList::loadTrustedList($tslPointer);
-    //                 $this->tls[$newTL->getName()] = TrustedList::loadTrustedList($tslPointer);
-    //             } catch (ParseException $e) {
-    //                 // Tolerate unavailable/misbehaving authority
-    //             }
-    //         }
-    //     }
-    // }
-
-    public function testTrue()
+    public function testGetTSPs()
     {
-        $this->assertTrue(true);
+        $lotl = $this->lotl;
+        $this->assertEquals(
+            0,
+            sizeof($lotl->getTSPs(false))
+        );
+        $this->assertEquals(
+            0,
+            sizeof($lotl->getTSPs(true))
+        );
+        $nlFile = $this->datadir.'/tl-52f7b34b484ce888c5f1d277bcb2bfbff0b1d3bbf11217a44090fab4b6a83fd3.xml';
+        $this->lotl->addTrustedListXML("NL: Radiocommunications Agency", file_get_contents($nlFile));
+        $this->assertEquals(
+            1,
+            sizeof($lotl->getTrustedLists(false))
+        );
+        $nlTL = $lotl->getTrustedLists()["NL: Radiocommunications Agency"];
+        $this->assertGreaterThan(
+            0,
+            sizeof($nlTL->getTSPs(false))
+        );
+        $this->assertEquals(
+            0,
+            sizeof($lotl->getTSPs(false))
+        );
+        $this->assertGreaterThan(
+            0,
+            sizeof($lotl->getTSPs(true))
+        );
+
+        $tsps = $this->lotl->getTSPs(true);
     }
-    // public function testLoadAllTSPs()
-    // {
-    //     $this->lotl->verifyTSL();
-    //     $this->loadAllTLs();
-    //     $this->assertGreaterThan(
-    //         0,
-    //         sizeof($this->tls)
-    //     );
-    //     foreach ($this->tls as $TrustedList) {
-    //         $this->assertGreaterThan(
-    //             0,
-    //             $TrustedList->getTLX509Certificates()
-    //         );
-    //     }
-    // }
-    //
-    // public function testVerifyAllTLs()
-    // {
-    //     $lotlxml=DataSource::load(TrustedList::TrustedListOfListsXMLPath);
-    //     $TrustedListOfLists = new TrustedList($lotlxml, null, false);
-    //     $TrustedListOfLists->verifyTSL();
-    //     $this->assertTrue($TrustedListOfLists->verifyAllTLs());
-    //     $failedTLVerify = false;
-    //     foreach ($TrustedListOfLists as $tl) {
-    //         if (! $tl->getSignedBy) {
-    //             $failedTLVerify = true;
-    //         }
-    //     };
-    //     $this->assertFalse($failedTLVerify);
-    // }
 }

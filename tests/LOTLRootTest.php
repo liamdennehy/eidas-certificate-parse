@@ -40,6 +40,10 @@ class LOTLRootTest extends TestCase
             "EUlistofthelists",
             $this->lotl->getTSLType()->getType()
         );
+        $this->assertEquals(
+            'f286d89507b76ab640ff7f67fdff0cd016bde3220ec7284b4a74b72e3a0a3b9c',
+            $this->lotl->getXMLHash()
+        );
         $this->assertInternalType("int", $this->lotl->getVersionID());
         $this->assertInternalType("int", $this->lotl->getSequenceNumber());
         $this->assertEquals(
@@ -112,10 +116,7 @@ class LOTLRootTest extends TestCase
           'GN' => 'Patrick Jean',
           'serialNumber' => '72020329970',
         ];
-        // var_dump($lotl->getSignedBy()); exit;
         $lotlSignedByDNArray = $lotl->getSignedBy()->getSubjectParsed();
-        // $lotlSignedByCert = $lotl->getSignedBy();
-        // $lotlSignedByDNArray = openssl_x509_parse($lotlSignedByCert)['subject'];
         $this->assertEquals(
             $expectedSignedByDNArray,
             $lotlSignedByDNArray
@@ -170,6 +171,11 @@ class LOTLRootTest extends TestCase
         $verifiedTLs = [];
         $unVerifiedTLs = [];
         $lotl = new TrustedList($this->lotlXML);
+        $this->assertEquals(
+            0,
+            sizeof($lotl->getTrustedLists(true))
+        );
+
         $pointedTLs = [];
         foreach ($lotl->getTLPointerPaths() as $title => $tlPointer) {
             $localFile = $this->datadir.'/tl-'.$tlPointer['id'].'.xml';
@@ -185,22 +191,17 @@ class LOTLRootTest extends TestCase
                 // It seems that some ScheOperatorNames can differ between
                 // LOTL and country TL
                 $verifiedTLs[] = $schemeOperatorName;
-                $this->assertEquals(
-                    [$verifiedTLs],
-                    [array_keys($lotl->getTrustedLists())]
-                );
             } catch (SignatureException $e) {
                 $unVerifiedTLs[] = $title;
             }
         }
-        // try {
-        //     $lotl->verifyAllTLs();
-        // } catch (Exception $e) {
-        //     throw new \Exception(json_encode($e->getOut()), 1);
-        // }
         $this->assertEquals(
-            [], // Bad player, obscure algorithm
-            $unVerifiedTLs
+            0, // Bad player, obscure algorithm
+          sizeof($unVerifiedTLs)
+        );
+        $this->assertEquals(
+            sizeof($verifiedTLs),
+            sizeof($lotl->getTrustedLists(true))
         );
     }
 }

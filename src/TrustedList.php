@@ -109,7 +109,7 @@ class TrustedList
             $tspList  = $this->tl->TrustServiceProviderList;
             if ($tspList->TrustServiceProvider) {
                 foreach ($tspList->TrustServiceProvider as $tsp) {
-                    $newTSP = new TrustServiceProvider($tsp);
+                    $newTSP = new TrustServiceProvider($tsp, $this);
                     if ($newTSP) {
                         $this->TSPs[$newTSP->getName()] = $newTSP;
                     }
@@ -152,6 +152,7 @@ class TrustedList
             return $newTL;
         }
     }
+
     /**
      * [verifyTSL description]
      * @param  resource|resource[]|string|string[] $tlCerts [description]
@@ -159,9 +160,6 @@ class TrustedList
      */
     public function verifyTSL($certificates)
     {
-        // if (empty($certificates)) {
-        //     $certificates = [];
-        // } elseif (! is_array($certificates)) {
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         };
@@ -254,29 +252,30 @@ class TrustedList
      */
     public function getTSPs($includeChildren = false)
     {
-        $tsps = [];
-        if ($includeChildren && ! empty($this->trustedLists)) {
-            foreach ($this->getTrustedLists() as  $trustedList) {
-                foreach ($trustedList->getTSPs(true) as $tsp) {
-                    $tsps[] = $tsp;
-                }
-            }
-            return $tsps;
-        }
-        if (! $this->TSPs) {
+        if (empty($this->TSPs)) {
             $this->parseTSPs();
         }
-        return $this->TSPs;
+        $tsps = $this->TSPs;
+        if ($includeChildren) {
+            foreach ($this->getTrustedLists(true) as $trustedList) {
+                $tsps = array_merge($tsps, $trustedList->getTSPs(false));
+            }
+        }
+        return $tsps;
     }
 
     public function getTSPServices($includeChildren = false)
     {
-        return $this->trustedLists;
+        // return $this->trustedLists;
         $tspServices = [];
         $tsps = $this->getTSPs($includeChildren);
-        foreach ($tsps as $tsp) {
+        foreach ($tsps as $tspId => $tsp) {
             foreach ($tsp->getTSPServices() as $tspService) {
-                $tspServices[$tsp->getName()][$tspService->getName()] = $tspService;
+                $tspServiceId = hash('sha256', implode(":", [$tsp->getName(),$tspService->getName()]));
+                $tspServiceSummary = [
+                  'TSPServiceObject' => $tspService
+                ];
+                $tspServices[$tspServiceId] = $tspServiceSummary;
                 // code...
             }
         }
@@ -414,15 +413,15 @@ class TrustedList
      * [getTrustedLists description]
      * @return TrustedList[] [description]
      */
-    public function getTrustedLists($title = null)
+    public function getTrustedLists($includeChildren = false)
     {
-        if (empty($title)) {
-            return $this->trustedLists;
-        } elseif (array_key_exists($title, $this->trustedLists)) {
-            return $this->trustedLists[$title];
-        } else {
-            return [];
+        $trustedLists = $this->trustedLists;
+        if ($includeChildren) {
+            foreach ($this->trustedLists as $trustedList) {
+                array_merge($trustedLists, $trustedList->getTrustedLists($includeChildren));
+            }
         }
+        return $trustedLists;
     }
 
     public function getTrustedListPointers($fileType = null)
