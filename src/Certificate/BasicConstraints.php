@@ -21,6 +21,10 @@ class BasicConstraints implements ExtensionInterface
 
     public function __construct($extensionDER)
     {
+        if (bin2hex(substr($extensionDER, 0, 5)) == '3006010101') {
+            // Some CAs incorrectly encude isCA as TRUE as 0x01, parser expects 0xFF
+            $extensionDER[4] = chr(0xFF);
+        }
         $basicConstraints = UnspecifiedType::fromDER($extensionDER)->asSequence();
         if (sizeof($basicConstraints->elements()) > 1 && $basicConstraints->at(0)->isType(1)) {
             if ($basicConstraints->at(0)->asBoolean()->value() == true) {
