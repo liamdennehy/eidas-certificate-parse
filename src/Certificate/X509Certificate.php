@@ -32,33 +32,49 @@ class X509Certificate implements DigitalIdInterface
         $this->crtBinary = base64_decode(implode("", $crtPEM));
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
-        $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
-        $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
-        $subjectPublicKeyInfoTypeOID =
-          $subjectPublicKeyInfo->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
-        $subjectPublicKeyInfoTypeName = OID::getName($subjectPublicKeyInfoTypeOID);
-        switch ($subjectPublicKeyInfoTypeName) {
-          case 'rsaEncryption':
-            $this->publicKey = $tbsCertificate->at(6)->toDER();
+        switch ($tbsCertificate->at(0)->typeClass()) {
+          case 0:
+            $crtVersion = $tbsCertificate->at(0)->asInteger()->intNumber();
             break;
+          case 2:
+            $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
+            break;
+
           default:
-            throw new CertificateException(
-                "Unrecognised Public Key Type OID $subjectPublicKeyInfoTypeOID ($subjectPublicKeyInfoTypeName)",
-                1
-            );
+            throw new CertificateException("Trying to get version tag as ".$tbsCertificate->at(0)->typeClass() . " " . base64_encode($tbsCertificate->toDER()), 1);
 
             break;
         }
+        // TODO: Get rid of Parsed, generate on-the-fly if necessary
         $this->parsed = X509Certificate::parse($this->crtResource);
-        $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
         if ($crtVersion == 2) {
-            if (array_key_exists('extensions', $this->parsed)) {
+            if ($tbsCertificate->has(7)) {
+                $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
                 $extensions = new Extensions(
                     $extensionsDER
                 );
                 $this->extensions = $extensions->getExtensions();
             }
+            $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
+            $subjectPublicKeyInfoTypeOID =
+              $subjectPublicKeyInfo->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
+            $subjectPublicKeyInfoTypeName = OID::getName($subjectPublicKeyInfoTypeOID);
+            switch ($subjectPublicKeyInfoTypeName) {
+              case 'rsaEncryption':
+              case 'ecPublicKey':
+              case 'RSASSA-PSS':
+                $this->publicKey = $tbsCertificate->at(6)->toDER();
+                break;
+              default:
+                throw new CertificateException(
+                    "Unrecognised Public Key Type OID $subjectPublicKeyInfoTypeOID ($subjectPublicKeyInfoTypeName)",
+                    1
+                );
+
+                break;
+            }
         } else {
+            return null;
             throw new CertificateException("Only X.509 v3 certificates are supported", 1);
         }
         $this->serialNumber = $tbsCertificate->at(1)->asInteger()->number();
