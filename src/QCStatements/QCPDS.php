@@ -28,12 +28,19 @@ class QCPDS extends QCStatement implements QCStatementInterface
         } elseif ($qcStatement->count() <2) {
             throw new QCStatementException("No entries in PDS Statement", 1);
         };
-        foreach ($qcStatement->at(1)->asSequence()->elements() as $pdsLocation) {
-            $pdsLocation = $pdsLocation->asSequence();
-            $location['url'] = $pdsLocation->at(0)->asIA5String()->string();
-            $location['language'] = strtolower($pdsLocation->at(1)->asPrintableString()->string());
-            $this->pdsLocations[] = $location;
+        try {
+            $pdsLocations = $qcStatement->at(1)->asSequence()->elements();
+            foreach ($qcStatement->at(1)->asSequence()->elements() as $pdsLocation) {
+                $pdsLocation = $pdsLocation->asSequence();
+                $location['url'] = $pdsLocation->at(0)->asIA5String()->string();
+                $location['language'] = strtolower($pdsLocation->at(1)->asPrintableString()->string());
+                $this->pdsLocations[] = $location;
+            }
+        } catch (\Exception $e) {
+            // TODO: Figure out strange PDS
+          // throw new \Exception("Cannot understand PDS: ". base64_encode($qcStatementDER), 1);
         }
+
         $this->binary = $qcStatementDER;
     }
 
