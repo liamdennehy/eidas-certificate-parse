@@ -28,6 +28,11 @@
             "src/"
         ]
     },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
+    },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.13"
     },
