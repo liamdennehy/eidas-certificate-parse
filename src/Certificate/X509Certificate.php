@@ -47,12 +47,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
             break;
         }
-        $dates = $tbsCertificate->at(4)->asSequence();
-        $this->notBefore = $dates->at(0)->asUTCTime()->dateTime();
-        $this->notAfter = $dates->at(1)->asUTCTime()->dateTime();
-        // TODO: Get rid of Parsed, generate on-the-fly if necessary
-        // $this->parsed = X509Certificate::parse($this->crtResource);
+
         if ($crtVersion == 2) {
+            $dates = $tbsCertificate->at(4)->asSequence();
+            $this->notBefore = self::WrangleDate($dates->at(0));
+            $this->notAfter = self::WrangleDate($dates->at(1));;
             if ($tbsCertificate->has(7)) {
                 $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
                 $extensions = new Extensions(
@@ -103,6 +102,24 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         } else {
             throw new CertificateException("Cannot recognise certificate", 1);
         }
+    }
+
+    public static function WrangleDate($asn1Object)
+    {
+      switch ($asn1Object->tag()) {
+        case 23:
+          return $asn1Object->asUTCTime()->datetime();
+          break;
+        case 24:
+          return $asn1Object->asGeneralizedTime()->datetime();
+          break;
+
+        default:
+          throw new CertificateException(
+            "Cannot process date from tag ".$asn1Object->tag().": ".
+            base64_encode($asn1Object->toDER()), 1);
+          break;
+      }
     }
 
     public static function base64ToPEM($certificateString)
