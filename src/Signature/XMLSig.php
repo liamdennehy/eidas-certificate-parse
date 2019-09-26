@@ -19,6 +19,7 @@ class XMLSig
     private $doc;
     private $certificates = [];
     private $signedBy;
+    private $signedByHash;
     private $docname;
 
     /**
@@ -28,11 +29,6 @@ class XMLSig
      */
     public function __construct($xml, $certificates, $docName = '')
     {
-        // if (empty($certificates)) {
-        //   throw new CertificateException(
-        //     "No certificates supplied for XML Signature Validation", 1
-        //   );
-        // } elseif (! is_array($certificates)) {
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         }
@@ -59,6 +55,7 @@ class XMLSig
 
     public function verifySignature()
     {
+        $signedBy = null;
         $secDsig = new XMLSecurityDSig();
         $dsig = $secDsig->locateSignature($this->doc);
         if ($dsig === null) {
@@ -115,10 +112,10 @@ class XMLSig
                 foreach ($this->getX509Thumbprints('sha1') as $validThumb) {
                     $validThumbs[] = $validThumb;
                 }
-                $signedBy = $foundThumb;
             }
             if (in_array($foundThumb, $validThumbs)) {
                 $this->signedBy = $signedBy;
+                $this->signedByHash = $foundThumb;
                 return true;
             } else {
                 $out['signedBy'] = $foundThumb;
@@ -159,5 +156,10 @@ class XMLSig
     public function getSignedBy()
     {
         return $this->signedBy;
+    }
+
+    public function getSignedByHash()
+    {
+        return $this->signedByHash;
     }
 }
