@@ -20,12 +20,13 @@ class TSPService
     private $identities;
     private $siExtensions;
     private $serviceHistory;
+    private $tsp;
 
     /**
      * [__construct description]
      * @param SimpleXMLElement  $tspService [description]
      */
-    public function __construct($tspService)
+    public function __construct($tspService, $tsp = null)
     {
         $serviceInformation = $tspService->ServiceInformation;
         $this->name = (string)$serviceInformation->ServiceName->xpath("*[@xml:lang='en']")[0];
@@ -53,6 +54,11 @@ class TSPService
                 }
             }
         };
+
+        $this->tsp = [];
+        if (! empty($tsp)) {
+            $this->tsp = $tsp->getTSPAtrributes();
+        }
     }
 
     /**
@@ -121,5 +127,12 @@ class TSPService
     public function getTSPServiceHistory()
     {
         return $this->serviceHistory;
+    }
+
+    public function getTSPServiceAttributes()
+    {
+        return [
+          'TSP' => $this->tsp
+        ];
     }
 }
