@@ -13,6 +13,12 @@ use eIDASCertificate\Certificate\X509Certificate;
 class TLTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
+    const nltlAttributes = [
+        'SchemeTerritory' => 'NL',
+        'SchemeOperatorName' => 'Radiocommunications Agency',
+        'TSLSequenceNumber' => 44,
+        'TSLSignedBy' => 'def82d40878a148e21fcacbcbfdf7623ed9d6ca149d631ca1ed61051827f31fc',
+    ];
 
     private $tlolxml;
     private $tlol;
@@ -50,6 +56,14 @@ class TLTest extends TestCase
         //     };
         // }
     }
+
+    public static function getNLTLAttributes()
+    {
+        $tlAttributes = self::nltlAttributes;
+        $tlAttributes['ParentTSL'] = LOTLRootTest::getLOTLAttributes();
+        return $tlAttributes;
+    }
+
 
     public function TLAttributeTests($thistl)
     {

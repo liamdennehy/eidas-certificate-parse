@@ -14,10 +14,21 @@ use eIDASCertificate\TrustedListException;
 class LOTLRootTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
+    const lotlAttributes = [
+      'SchemeTerritory' => 'EU',
+      'SchemeOperatorName' => 'European Commission',
+      'TSLSequenceNumber' => 248,
+      'TSLSignedBy' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
+    ];
 
     private $lotlxml;
     private $lotl;
     private $datadir;
+
+    public static function getLOTLAttributes()
+    {
+        return self::lotlAttributes;
+    }
 
     public function setUp()
     {
@@ -217,12 +228,7 @@ class LOTLRootTest extends TestCase
             sizeof($lotl->getTrustedLists(true))
         );
         $this->assertEquals(
-            [
-            'SchemeTerritory' => 'EU',
-            'SchemeOperatorName' => 'European Commission',
-            'TSLSequenceNumber' => 248,
-            'TSLSignedBy' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
-          ],
+            self::lotlAttributes,
             $lotl->getTrustedLists()['DE: Federal Network Agency']->getParentTrustedListAtrributes()
         );
     }
