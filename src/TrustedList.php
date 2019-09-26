@@ -32,12 +32,14 @@ class TrustedList
     private $xml;
     private $verified;
     private $signedBy;
+    private $signedByHash;
     private $tl;
     private $xmlHash;
     private $distributionPoints = [];
     private $tslPointers = [];
     private $tlPointer;
     private $tolerateFailedTLs = false;
+    private $parentTSL;
 
     /**
      * [__construct description]
@@ -172,6 +174,7 @@ class TrustedList
             $xmlSig->verifySignature();
             $this->verified = true;
             $this->signedBy = $xmlSig->getSignedBy();
+            $this->signedByHash = $xmlSig->getSignedByHash();
             // unset($this->xml);
         } catch (SignatureException $e) {
             $this->verified = false;
@@ -225,6 +228,11 @@ class TrustedList
         return $this->signedBy;
     }
 
+    public function getSignedByHash()
+    {
+        return $this->signedByHash;
+    }
+
     /**
      * [getTLX509Certificates description]
      * @return array [description]
@@ -266,20 +274,7 @@ class TrustedList
 
     public function getTSPServices($includeChildren = false)
     {
-        // return $this->trustedLists;
-        $tspServices = [];
-        $tsps = $this->getTSPs($includeChildren);
-        foreach ($tsps as $tspId => $tsp) {
-            foreach ($tsp->getTSPServices() as $tspService) {
-                $tspServiceId = hash('sha256', implode(":", [$tsp->getName(),$tspService->getName()]));
-                $tspServiceSummary = [
-                  'TSPServiceObject' => $tspService
-                ];
-                $tspServices[$tspServiceId] = $tspServiceSummary;
-                // code...
-            }
-        }
-        return $tspServices;
+        // return $tspServices;
     }
 
     public function getTSPServicesByType($type, $includeChildren = false)
@@ -464,6 +459,7 @@ class TrustedList
         try {
             $trustedList = new TrustedList($xml, $this->tslPointers['xml'][$title]);
             $verified = $trustedList->verifyTSL($certificates);
+            $trustedList->setParentTrustedList($this);
         } catch (ParseException $e) {
             throw $e;
         }
@@ -571,5 +567,22 @@ class TrustedList
     public function getXMLHash()
     {
         return $this->xmlHash;
+    }
+
+    public function setParentTrustedList(TrustedList $trustedList)
+    {
+        $this->parentTSL = [];
+        $this->parentTSL['SchemeTerritory'] = $trustedList->getSchemeTerritory();
+        $this->parentTSL['SchemeOperatorName'] = $trustedList->getSchemeOperatorName();
+        $this->parentTSL['TSLSequenceNumber'] = $trustedList->getSequenceNumber();
+        $this->parentTSL['TSLSignedBy'] = $trustedList->getSignedByHash();
+        if (! empty($trustedList->getParentTrustedListAtrributes())) {
+            $this->parentTSL['ParentTSL'] = $trustedList->getParentTrustedListAtrributes();
+        }
+    }
+
+    public function getParentTrustedListAtrributes()
+    {
+        return $this->parentTSL;
     }
 }
