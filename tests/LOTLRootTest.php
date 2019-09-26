@@ -22,7 +22,7 @@ class LOTLRootTest extends TestCase
     public function setUp()
     {
         $this->datadir = __DIR__ . '/../data';
-        $xmlFilePath = $this->datadir.self::lotlXMLFileName;
+        $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
         if (! file_exists($xmlFilePath)) {
             $this->lotlXML = DataSource::getHTTP(
                 TrustedList::ListOfTrustedListsXMLPath
@@ -108,6 +108,11 @@ class LOTLRootTest extends TestCase
         $this->assertTrue($lotl->verifyTSL([$wrongCert,$rightCert]));
         $lotl = new TrustedList($this->lotlXML);
         $this->assertTrue($lotl->verifyTSL($rightCert));
+        $this->assertEquals(
+            'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
+            $lotl->getSignedBy()->getHash()
+        );
+
         $expectedSignedByDNArray =
         [
           'C' => 'BE',
@@ -177,6 +182,14 @@ class LOTLRootTest extends TestCase
         );
 
         $pointedTLs = [];
+        $crtFileName = $this->datadir.'/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';
+        $crt = file_get_contents($crtFileName);
+        $rightCert = new X509Certificate(file_get_contents($crtFileName));
+        $this->assertTrue($lotl->verifyTSL($rightCert));
+        $this->assertEquals(
+            'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
+            $lotl->getSignedByHash()
+        );
         foreach ($lotl->getTLPointerPaths() as $title => $tlPointer) {
             $localFile = $this->datadir.'/tl-'.$tlPointer['id'].'.xml';
             if (file_exists($localFile)) {
@@ -196,12 +209,21 @@ class LOTLRootTest extends TestCase
             }
         }
         $this->assertEquals(
-            0, // Bad player, obscure algorithm
+            0, // Bad player?
           sizeof($unVerifiedTLs)
         );
         $this->assertEquals(
             sizeof($verifiedTLs),
             sizeof($lotl->getTrustedLists(true))
+        );
+        $this->assertEquals(
+            [
+            'SchemeTerritory' => 'EU',
+            'SchemeOperatorName' => 'European Commission',
+            'TSLSequenceNumber' => 248,
+            'TSLSignedBy' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
+          ],
+            $lotl->getTrustedLists()['DE: Federal Network Agency']->getParentTrustedListAtrributes()
         );
     }
 }
