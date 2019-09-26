@@ -58,8 +58,8 @@ class TSPTest extends TestCase
             0,
             sizeof($lotl->getTSPs(false))
         );
-        $this->assertGreaterThan(
-            0,
+        $this->assertEquals(
+            11,
             sizeof($lotl->getTSPs(true))
         );
 
