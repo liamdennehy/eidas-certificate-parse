@@ -10,7 +10,6 @@ use eIDASCertificate\DataSource;
 class CRLTest extends TestCase
 {
     const eucrtfile = 'European-Commission.crt';
-    const eucrlpath = 'http://crl.quovadisglobal.com/qvbecag2.crl';
 
     public function setUp()
     {
@@ -24,8 +23,9 @@ class CRLTest extends TestCase
                 __DIR__ . "/certs/" . self::eucrtfile
             )
         );
+        $crlURI = $eucrt->getCDPs()[0];
 
-        $crlURIId = hash('sha256', self::eucrlpath);
+        $crlURIId = hash('sha256', $crlURI);
         $crlFilePath = $this->datadir.'/'.$crlURIId.'.crl';
         if (! file_exists($crlFilePath)) {
             $crlData = DataSource::getHTTP($crlURI);
