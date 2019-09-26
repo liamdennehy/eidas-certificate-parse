@@ -51,7 +51,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         if ($crtVersion == 2) {
             $dates = $tbsCertificate->at(4)->asSequence();
             $this->notBefore = self::WrangleDate($dates->at(0));
-            $this->notAfter = self::WrangleDate($dates->at(1));;
+            $this->notAfter = self::WrangleDate($dates->at(1));
+            ;
             if ($tbsCertificate->has(7)) {
                 $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
                 $extensions = new Extensions(
@@ -106,7 +107,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public static function WrangleDate($asn1Object)
     {
-      switch ($asn1Object->tag()) {
+        switch ($asn1Object->tag()) {
         case 23:
           return $asn1Object->asUTCTime()->datetime();
           break;
@@ -116,8 +117,10 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
         default:
           throw new CertificateException(
-            "Cannot process date from tag ".$asn1Object->tag().": ".
-            base64_encode($asn1Object->toDER()), 1);
+              "Cannot process date from tag ".$asn1Object->tag().": ".
+              base64_encode($asn1Object->toDER()),
+              1
+          );
           break;
       }
     }
