@@ -320,6 +320,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->getParsed()['subject'];
     }
 
+    public function getSubjectName()
+    {
+        return $this->getParsed()['name'];
+    }
+
     public function getType()
     {
         return 'X509Certificate';
