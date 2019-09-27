@@ -32,7 +32,7 @@ class TLTest extends TestCase
     public function setUp()
     {
         $this->datadir = __DIR__ . '/../data';
-        $xmlFilePath = $this->datadir.self::lotlXMLFileName;
+        $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
         if (! file_exists($xmlFilePath)) {
             $this->lotlXML = DataSource::getHTTP(
                 TrustedList::ListOfTrustedListsXMLPath
@@ -158,7 +158,7 @@ class TLTest extends TestCase
     //
     public function testLoadTLs()
     {
-        $crtFileName = $this->datadir.LOTLRootTest::lotlSingingCertPath;
+        $crtFileName = $this->datadir.'/'.LOTLRootTest::lotlSigningCertPath;
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $lotl = $this->lotl;

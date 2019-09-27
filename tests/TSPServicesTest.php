@@ -57,7 +57,7 @@ IA==
     public function setUp()
     {
         $this->datadir = __DIR__ . '/../data';
-        $xmlFilePath = $this->datadir.self::lotlXMLFileName;
+        $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
         if (! file_exists($xmlFilePath)) {
             $this->lotlXML = DataSource::getHTTP(
                 TrustedList::ListOfTrustedListsXMLPath
@@ -91,7 +91,7 @@ IA==
     public function testGetTSPServices()
     {
         $lotl = $this->lotl;
-        $crtFileName = $this->datadir.LOTLRootTest::lotlSingingCertPath;
+        $crtFileName = $this->datadir.'/'.LOTLRootTest::lotlSigningCertPath;
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $lotl->verifyTSL($rightCert);

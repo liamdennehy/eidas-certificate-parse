@@ -53,7 +53,7 @@ class TSPTest extends TestCase
             0,
             sizeof($lotl->getTSPs(true))
         );
-        $crtFileName = $this->datadir.LOTLRootTest::lotlSingingCertPath;
+        $crtFileName = $this->datadir.LOTLRootTest::lotlSigningCertPath;
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $lotl->verifyTSL($rightCert);

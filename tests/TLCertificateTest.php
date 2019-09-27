@@ -18,7 +18,7 @@ class TLCertificateTest extends TestCase
     public function setUp()
     {
         $this->datadir = __DIR__ . '/../data';
-        $xmlFilePath = $this->datadir.self::lotlXMLFileName;
+        $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
         if (! file_exists($xmlFilePath)) {
             $this->lotlXML = DataSource::getHTTP(
                 TrustedList::ListOfTrustedListsXMLPath
