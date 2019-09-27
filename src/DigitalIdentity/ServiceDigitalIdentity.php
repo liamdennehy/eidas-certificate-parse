@@ -10,6 +10,8 @@ class ServiceDigitalIdentity
     private $x509Certificates = [];
     private $x509SubjectName;
     private $x509SKI;
+    private $otherDigitalIds = [];
+
     /**
      * [__construct description]
      * @param SimpleXMLElement $serviceDigitalIdentity [description]
@@ -21,6 +23,9 @@ class ServiceDigitalIdentity
         $digitalIds = [];
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
             $newDigitalId = DigitalId::parse($digitalId);
+            if (empty($newDigitalId)) {
+                continue;
+            }
             switch ($newDigitalId->getType()) {
               case 'X509Certificate':
                 $this->x509Certificates[$newDigitalId->getIdentifier()] = $newDigitalId;
@@ -36,6 +41,9 @@ class ServiceDigitalIdentity
                     throw new \Exception("SDI already has a Subject Key Identifier", 1);
                 }
                 $this->x509SKI = $newDigitalId;
+                break;
+              case 'OtherDigitalId':
+                $this->otherDigitalIds[] = $newDigitalId;
                 break;
 
               default:

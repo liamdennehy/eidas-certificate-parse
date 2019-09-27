@@ -13,7 +13,12 @@ class OtherDigitalId implements DigitalIdInterface
 
     public function __construct($value)
     {
-        $this->value = $value;
+        $value = trim($value);
+        if (! empty($value)) {
+            $this->value = $value;
+        } else {
+            return null;
+        }
     }
 
     public function getValue()
@@ -24,5 +29,10 @@ class OtherDigitalId implements DigitalIdInterface
     public function getType()
     {
         return 'OtherDigitalId';
+    }
+
+    public function getIdentifier()
+    {
+        // code...
     }
 }
