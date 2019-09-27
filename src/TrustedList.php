@@ -5,6 +5,7 @@ namespace eIDASCertificate;
 use SimpleXMLElement;
 use eIDASCertificate\Signature\XMLSig;
 use eIDASCertificate\Certificate\X509Certificate;
+use DateTime;
 
 /**
  *
@@ -31,6 +32,7 @@ class TrustedList
     private $TSPs = [];
     private $xml;
     private $verified;
+    private $verifiedAt;
     private $signedBy;
     private $signedByHash;
     private $tl;
@@ -173,6 +175,7 @@ class TrustedList
         try {
             $xmlSig->verifySignature();
             $this->verified = true;
+            $this->verifiedAt = new DateTime('now');
             $this->signedBy = $xmlSig->getSignedBy();
             $this->signedByHash = $xmlSig->getSignedByHash();
             // unset($this->xml);
@@ -582,6 +585,7 @@ class TrustedList
         $tslAttributes['SchemeOperatorName'] = $this->getSchemeOperatorName();
         $tslAttributes['TSLSequenceNumber'] = $this->getSequenceNumber();
         $tslAttributes['TSLSignedBy'] = $this->getSignedByHash();
+        $tslAttributes['TSLSignatureVerifiedAt'] = $this->verifiedAt->format('U');
         if (! empty($this->getParentTrustedListAtrributes())) {
             $tslAttributes['ParentTSL'] = $this->getParentTrustedListAtrributes();
         }

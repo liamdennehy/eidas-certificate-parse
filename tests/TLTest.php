@@ -9,6 +9,7 @@ use eIDASCertificate\TrustedList\TSLType;
 use eIDASCertificate\TrustedList\TSLPointer;
 use eIDASCertificate\DigitalIdentity\ServiceDigitalIdentity;
 use eIDASCertificate\Certificate\X509Certificate;
+use DateTime;
 
 class TLTest extends TestCase
 {
@@ -164,10 +165,31 @@ class TLTest extends TestCase
         $lotl->verifyTSL($rightCert);
         $nlFile = $this->datadir.'/tl-52f7b34b484ce888c5f1d277bcb2bfbff0b1d3bbf11217a44090fab4b6a83fd3.xml';
         $lotl->addTrustedListXML("NL: Radiocommunications Agency", file_get_contents($nlFile));
+        $now = (new DateTime('now'))->format('U');
         $nlTL = $lotl->getTrustedLists()["NL: Radiocommunications Agency"];
+        $nlTLRefAttributes = self::getNLTLAttributes();
+        $nlTLTestAttributes = $nlTL->getTrustedListAtrributes();
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $nlTLTestAttributes['ParentTSL']
+        );
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $nlTLTestAttributes
+        );
+        $this->assertGreaterThan(
+            $now - 10,
+            $nlTLTestAttributes['TSLSignatureVerifiedAt']
+        );
+        $this->assertLessThanOrEqual(
+            $now,
+            $nlTLTestAttributes['TSLSignatureVerifiedAt']
+        );
+        unset($nlTLTestAttributes['TSLSignatureVerifiedAt']);
+        unset($nlTLTestAttributes['ParentTSL']['TSLSignatureVerifiedAt']);
         $this->assertEquals(
-            self::getNLTLAttributes(),
-            $nlTL->getTrustedListAtrributes()
+            $nlTLRefAttributes,
+            $nlTLTestAttributes
         );
     }
 

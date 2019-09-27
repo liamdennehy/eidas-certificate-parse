@@ -10,6 +10,7 @@ use eIDASCertificate\ParseException;
 use eIDASCertificate\SignatureException;
 use eIDASCertificate\CertificateException;
 use eIDASCertificate\TrustedListException;
+use DateTime;
 
 class LOTLRootTest extends TestCase
 {
@@ -29,7 +30,8 @@ class LOTLRootTest extends TestCase
 
     public static function getLOTLAttributes()
     {
-        return self::lotlAttributes;
+        $attributes = self::lotlAttributes;
+        return $attributes;
     }
 
     public function setUp()
@@ -199,6 +201,7 @@ class LOTLRootTest extends TestCase
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $this->assertTrue($lotl->verifyTSL($rightCert));
+        $now = (new DateTime('now'))->format('U');
         $this->assertEquals(
             'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
             $lotl->getSignedByHash()
@@ -229,9 +232,24 @@ class LOTLRootTest extends TestCase
             sizeof($verifiedTLs),
             sizeof($lotl->getTrustedLists(true))
         );
+        $lotlRefAttributes = self::getLOTLAttributes();
+        $lotlTestAttributes = $lotl->getTrustedListAtrributes();
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $lotlTestAttributes
+        );
+        $this->assertGreaterThan(
+            $now - 10,
+            $lotlTestAttributes['TSLSignatureVerifiedAt']
+        );
+        $this->assertLessthanOrEqual(
+            $now,
+            $lotlTestAttributes['TSLSignatureVerifiedAt']
+        );
+        unset($lotlTestAttributes['TSLSignatureVerifiedAt']);
         $this->assertEquals(
-            self::lotlAttributes,
-            $lotl->getTrustedListAtrributes()
+            $lotlRefAttributes,
+            $lotlTestAttributes
         );
     }
 }

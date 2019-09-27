@@ -73,10 +73,16 @@ class TSPTest extends TestCase
             sizeof($lotl->getTSPs(true))
         );
         $digidentityBV = $lotl->getTSPs(true)['Digidentity B.V.'];
+
+        $digidentityBVRefAttributes = self::getTSPAttributes();
+        $digidentityBVTestAttributes = $digidentityBV->getTSPAttributes();
+
+        unset($digidentityBVTestAttributes['TrustedList']['TSLSignatureVerifiedAt']);
+        unset($digidentityBVTestAttributes['TrustedList']['ParentTSL']['TSLSignatureVerifiedAt']);
+
         $this->assertEquals(
-            self::getTSPAttributes(),
-            $digidentityBV->getTSPAtrributes()
+            $digidentityBVRefAttributes,
+            $digidentityBVTestAttributes
         );
-        $tsps = $this->lotl->getTSPs(true);
     }
 }
