@@ -16,8 +16,9 @@ class TSPService
     private $name;
     private $serviceType;
     private $serviceStatus;
-    private $startingTime;
-    private $identities;
+    private $statusStartingTime;
+    private $identity;
+    private $attributes;
     private $siExtensions;
     private $serviceHistory;
     private $tsp;
@@ -36,10 +37,11 @@ class TSPService
         $this->serviceStatus = new ServiceStatus(
             (string)$serviceInformation->ServiceStatus
         );
-        $this->startingTime = strtotime((string)$serviceInformation->StatusStartingTime);
-        foreach ($serviceInformation->ServiceDigitalIdentity as $identity) {
-            $this->identities[] = new ServiceDigitalIdentity($identity);
-        };
+        $this->statusStartingTime = strtotime((string)$serviceInformation->StatusStartingTime);
+        if (sizeof($serviceInformation->ServiceDigitalIdentity) > 1) {
+            throw new ParseException("Multiple Service Identities in '$this->name '", 1);
+        }
+        $this->identity = new ServiceDigitalIdentity($serviceInformation->ServiceDigitalIdentity[0]);
         $this->serviceHistory = new ServiceHistory(
             $tspService->ServiceHistory
         );
@@ -72,8 +74,8 @@ class TSPService
             "type" => $this->serviceType->getType(),
             "isQualified" => $this->serviceType->isQualified(),
             "status" => $this->status->getStatus(),
-            "startingTime" => $this->startingTime,
-            "identities" => $this->identities,
+            "startingTime" => $this->statusStartingTime,
+            "identity" => $this->identity,
             "siExtensions" => $this->siExtensions,
             "history" => $this->serviceHistory
         ];
@@ -81,16 +83,16 @@ class TSPService
 
     public function getDate()
     {
-        return $this->startingTime;
+        return $this->statusStartingTime;
     }
 
     /**
      * [getIdentities description]
      * @return ServiceDigitalIdentity[] [description]
      */
-    public function getIdentities()
+    public function getIdentity()
     {
-        return $this->identities;
+        return $this->identity;
     }
 
     /**
@@ -100,6 +102,21 @@ class TSPService
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getX509Certificates()
+    {
+        return $this->identity->getX509Certificates();
+    }
+
+    public function getX509SubjectName()
+    {
+        return $this->identity->getX509SubjectName();
+    }
+
+    public function getX509SKI()
+    {
+        return $this->identity->getX509SKI();
     }
 
     /**
@@ -131,8 +148,18 @@ class TSPService
 
     public function getTSPServiceAttributes()
     {
-        return [
-          'TSP' => $this->tsp
-        ];
+        if (empty($this->attributes)) {
+            $this->attributes = ['TSP' => $this->tsp];
+            $this->attributes['ServiceName'] = $this->getName();
+            $this->attributes['ServiceStatus'] = $this->getStatus();
+            $this->attributes['StatusStartingTime'] = $this->getDate();
+            $this->attributes['Certificates'] = [];
+            foreach ($this->getX509Certificates() as $certificate) {
+                $this->attributes['Certificates'][$certificate->getIdentifier()] = $certificate->toPEM();
+            }
+            $this->attributes['SKI'] = $this->getX509SKI();
+            $this->attributes['SubjectName'] = $this->getX509SubjectName();
+        }
+        return $this->attributes;
     }
 }
