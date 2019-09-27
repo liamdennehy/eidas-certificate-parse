@@ -9,10 +9,17 @@ use eIDASCertificate\TrustedList\TSLType;
 use eIDASCertificate\TrustedList\TSLPointer;
 use eIDASCertificate\DigitalIdentity\ServiceDigitalIdentity;
 use eIDASCertificate\Certificate\X509Certificate;
+use DateTime;
 
 class TLTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
+    const nltlAttributes = [
+        'SchemeTerritory' => 'NL',
+        'SchemeOperatorName' => 'Radiocommunications Agency',
+        'TSLSequenceNumber' => 44,
+        'TSLSignedByHash' => 'def82d40878a148e21fcacbcbfdf7623ed9d6ca149d631ca1ed61051827f31fc',
+    ];
 
     private $tlolxml;
     private $tlol;
@@ -34,7 +41,7 @@ class TLTest extends TestCase
         } else {
             $this->lotlXML = file_get_contents($xmlFilePath);
         }
-        $this->tlol = new TrustedList($this->lotlXML);
+        $this->lotl = new TrustedList($this->lotlXML);
         // if (! $this->tlolxml) {
         //     $this->tlolxml=file_get_contents('data/eu-lotl.xml');
         // }
@@ -50,6 +57,14 @@ class TLTest extends TestCase
         //     };
         // }
     }
+
+    public static function getNLTLAttributes()
+    {
+        $tlAttributes = self::nltlAttributes;
+        $tlAttributes['ParentTSL'] = LOTLRootTest::getLOTLAttributes();
+        return $tlAttributes;
+    }
+
 
     public function TLAttributeTests($thistl)
     {
@@ -90,7 +105,7 @@ class TLTest extends TestCase
     public function testTLPointers()
     {
         foreach ($this->testSchemeTerritories as $schemeTerritory) {
-            $tslPointers = $this->tlol->getTrustedListPointer($schemeTerritory);
+            $tslPointers = $this->lotl->getTrustedListPointer($schemeTerritory);
             $this->assertEquals(
                 1,
                 sizeof($tslPointers)
@@ -143,9 +158,38 @@ class TLTest extends TestCase
     //
     public function testLoadTLs()
     {
+        $crtFileName = $this->datadir.LOTLRootTest::lotlSingingCertPath;
+        $crt = file_get_contents($crtFileName);
+        $rightCert = new X509Certificate(file_get_contents($crtFileName));
+        $lotl = $this->lotl;
+        $lotl->verifyTSL($rightCert);
+        $nlFile = $this->datadir.'/tl-52f7b34b484ce888c5f1d277bcb2bfbff0b1d3bbf11217a44090fab4b6a83fd3.xml';
+        $lotl->addTrustedListXML("NL: Radiocommunications Agency", file_get_contents($nlFile));
+        $now = (new DateTime('now'))->format('U');
+        $nlTL = $lotl->getTrustedLists()["NL: Radiocommunications Agency"];
+        $nlTLRefAttributes = self::getNLTLAttributes();
+        $nlTLTestAttributes = $nlTL->getTrustedListAtrributes();
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $nlTLTestAttributes['ParentTSL']
+        );
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $nlTLTestAttributes
+        );
         $this->assertGreaterThan(
-            12,
-            sizeof($this->tlol->getTrustedListPointers('xml'))
+            $now - 10,
+            $nlTLTestAttributes['TSLSignatureVerifiedAt']
+        );
+        $this->assertLessThanOrEqual(
+            $now,
+            $nlTLTestAttributes['TSLSignatureVerifiedAt']
+        );
+        unset($nlTLTestAttributes['TSLSignatureVerifiedAt']);
+        unset($nlTLTestAttributes['ParentTSL']['TSLSignatureVerifiedAt']);
+        $this->assertEquals(
+            $nlTLRefAttributes,
+            $nlTLTestAttributes
         );
     }
 

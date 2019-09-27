@@ -2,6 +2,8 @@
 
 namespace eIDASCertificate\TSPService;
 
+use eIDASCertificate\DigitalIdentity\ServiceDigitalIdentity;
+
 /**
  *
  */
@@ -36,7 +38,7 @@ class ServiceHistoryInstance
         return $this->serviceStatus->getStatus();
     }
 
-    public function getTime()
+    public function getStartingTime()
     {
         return $this->startingTime;
     }

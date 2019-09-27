@@ -12,6 +12,10 @@ class CertificateParseTest extends TestCase
     const mocrtfile = 'Maarten Joris Ottoy.crt';
     const eucrtfile = 'European-Commission.crt';
 
+    public function setUp()
+    {
+        $this->testTime = new \DateTime('@1569225604');
+    }
     public function getTestCerts()
     {
         $this->jmcrt = new X509Certificate(
@@ -44,8 +48,8 @@ class CertificateParseTest extends TestCase
         $this->assertTrue($this->eucrt->hasQCStatements()) ;
         $this->assertEquals(
             [
-            'http://crl.quovadisglobal.com/qvbecag2.crl'
-          ],
+              'http://crl.quovadisglobal.com/qvbecag2.crl'
+            ],
             $this->eucrt->getCDPs()
         );
         $this->assertEquals(
@@ -71,33 +75,34 @@ class CertificateParseTest extends TestCase
             $crtParsed['name']
         );
         $this->assertEquals(
-            ['C' => 'BE',
-            'L' => 'BE',
-            'O' => 'European Commission',
-            'OU' => '0949.383.342',
-            'CN' => 'Maarten Joris Ottoy',
-            'SN' => 'Ottoy',
-            'GN' => 'Maarten Joris',
-            'serialNumber' => '10304444110080837592',
-            'emailAddress' => 'maarten.ottoy@ec.europa.eu',
-            'title' => 'Professional Person'
+            [
+              'C' => 'BE',
+              'L' => 'BE',
+              'O' => 'European Commission',
+              'OU' => '0949.383.342',
+              'CN' => 'Maarten Joris Ottoy',
+              'SN' => 'Ottoy',
+              'GN' => 'Maarten Joris',
+              'serialNumber' => '10304444110080837592',
+              'emailAddress' => 'maarten.ottoy@ec.europa.eu',
+              'title' => 'Professional Person'
             ],
             $crtParsed['subject']
         );
         $this->assertEquals(
             [
-            '638fc28b03b1ab8ed85347961d99a87df6aca875',
-            '47c3b10901b1822b'
-          ],
+              '638fc28b03b1ab8ed85347961d99a87df6aca875',
+              '47c3b10901b1822b'
+            ],
             [
-            bin2hex($this->mocrt->getAuthorityKeyIdentifier()),
-            bin2hex($this->mocrt->getSubjectKeyIdentifier())
-          ]
+              bin2hex($this->mocrt->getAuthorityKeyIdentifier()),
+              bin2hex($this->mocrt->getSubjectKeyIdentifier())
+            ]
         );
         $this->assertEquals(
             [
-            'http://crl.quovadisglobal.com/qvbecag2.crl'
-          ],
+              'http://crl.quovadisglobal.com/qvbecag2.crl'
+            ],
             $this->eucrt->getCDPs()
         );
         $crtParsed = $this->jmcrt->getParsed();
@@ -109,19 +114,30 @@ class CertificateParseTest extends TestCase
         $this->assertTrue($this->jmcrt->hasQCStatements()) ;
         $this->assertEquals(
             [
-            '6a6f51e5cc275d6509eea81b129403f040a008f2',
-            ''
-          ],
+              '6a6f51e5cc275d6509eea81b129403f040a008f2',
+              ''
+            ],
             [
-            bin2hex($this->jmcrt->getAuthorityKeyIdentifier()),
-            bin2hex($this->jmcrt->getSubjectKeyIdentifier())
-          ]
+              bin2hex($this->jmcrt->getAuthorityKeyIdentifier()),
+              bin2hex($this->jmcrt->getSubjectKeyIdentifier())
+            ]
         );
         $this->assertEquals(
             [
-            'http://crl.eid.belgium.be/eidc201508.crl'
-          ],
+              'http://crl.eid.belgium.be/eidc201508.crl'
+            ],
             $this->jmcrt->getCDPs()
         );
+        $this->assertEquals(
+            [
+              true,
+              true
+            ],
+            [
+              $this->jmcrt->isStartedAt($this->testTime),
+              $this->jmcrt->isNotFinishedAt($this->testTime)
+            ]
+        );
+        $this->assertTrue($this->jmcrt->isCurrentAt($this->testTime));
     }
 }

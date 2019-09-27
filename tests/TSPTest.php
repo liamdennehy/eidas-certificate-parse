@@ -6,10 +6,12 @@ use PHPUnit\Framework\TestCase;
 use eIDASCertificate\DataSource;
 use eIDASCertificate\TrustedList;
 use eIDASCertificate\Certificate\X509Certificate;
+use eIDASCertificate\tests\LOTLRootTest;
 
 class TSPTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
+    const tspAttributes = ['TrustServiceProvider' => 'Digidentity B.V.'];
 
     private $lotlXML;
     private $lotl;
@@ -19,76 +21,75 @@ class TSPTest extends TestCase
 
     public function setUp()
     {
+        $abc = LOTLRootTest::lotlAttributes;
         $this->datadir = __DIR__ . '/../data';
-        $xmlFilePath = $this->datadir.self::lotlXMLFileName;
+        $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
         if (! file_exists($xmlFilePath)) {
-            $this->lotlXML = DataSource::getHTTP(
+            $lotlXML = DataSource::getHTTP(
                 TrustedList::ListOfTrustedListsXMLPath
             );
             file_put_contents($xmlFilePath, $this->lotlXML);
         } else {
-            $this->lotlXML = file_get_contents($xmlFilePath);
+            $lotlXML = file_get_contents($xmlFilePath);
         }
-
-        // if (! $this->dataSource) {
-        //     $this->dataSource = new DataSource("sqlite", "/data");
-        // }
-        // if (! $this->lotlxml) {
-        //     $this->lotlxml = $this->dataSource->load(TrustedList::ListOfTrustedListsXMLPath, 'trustedLists');
-        // }
-        // if (! $this->lotl) {
-        //     $this->lotl = new TrustedList(
-        //         file_get_contents(__DIR__ . '/../data/eu-lotl.xml')
-        //     );
-        // };
+        $this->lotl = new TrustedList($lotlXML);
     }
 
-    // public function loadAllTLs()
-    // {
-    //     if (! $this->tls) {
-    //         foreach ($this->lotl->getTrustedListPointers('xml') as $tslPointer) {
-    //             try {
-    //                 $newTL = TrustedList::loadTrustedList($tslPointer);
-    //                 $this->tls[$newTL->getName()] = TrustedList::loadTrustedList($tslPointer);
-    //             } catch (ParseException $e) {
-    //                 // Tolerate unavailable/misbehaving authority
-    //             }
-    //         }
-    //     }
-    // }
-
-    public function testTrue()
+    public static function getTSPAttributes()
     {
-        $this->assertTrue(true);
+        $tspAttributes = self::tspAttributes;
+        $tspAttributes['TrustedList'] = TLTest::getNLTLAttributes();
+        return $tspAttributes;
     }
-    // public function testLoadAllTSPs()
-    // {
-    //     $this->lotl->verifyTSL();
-    //     $this->loadAllTLs();
-    //     $this->assertGreaterThan(
-    //         0,
-    //         sizeof($this->tls)
-    //     );
-    //     foreach ($this->tls as $TrustedList) {
-    //         $this->assertGreaterThan(
-    //             0,
-    //             $TrustedList->getTLX509Certificates()
-    //         );
-    //     }
-    // }
-    //
-    // public function testVerifyAllTLs()
-    // {
-    //     $lotlxml=DataSource::load(TrustedList::TrustedListOfListsXMLPath);
-    //     $TrustedListOfLists = new TrustedList($lotlxml, null, false);
-    //     $TrustedListOfLists->verifyTSL();
-    //     $this->assertTrue($TrustedListOfLists->verifyAllTLs());
-    //     $failedTLVerify = false;
-    //     foreach ($TrustedListOfLists as $tl) {
-    //         if (! $tl->getSignedBy) {
-    //             $failedTLVerify = true;
-    //         }
-    //     };
-    //     $this->assertFalse($failedTLVerify);
-    // }
+
+    public function testGetTSPs()
+    {
+        $lotl = $this->lotl;
+        $this->assertEquals(
+            0,
+            sizeof($lotl->getTSPs(false))
+        );
+        $this->assertEquals(
+            0,
+            sizeof($lotl->getTSPs(true))
+        );
+        $crtFileName = $this->datadir.LOTLRootTest::lotlSingingCertPath;
+        $crt = file_get_contents($crtFileName);
+        $rightCert = new X509Certificate(file_get_contents($crtFileName));
+        $lotl->verifyTSL($rightCert);
+        $nlFile = $this->datadir.'/tl-52f7b34b484ce888c5f1d277bcb2bfbff0b1d3bbf11217a44090fab4b6a83fd3.xml';
+        $lotl->addTrustedListXML("NL: Radiocommunications Agency", file_get_contents($nlFile));
+        $this->assertEquals(
+            1,
+            sizeof($lotl->getTrustedLists(false))
+        );
+        $nlTL = $lotl->getTrustedLists()["NL: Radiocommunications Agency"];
+        $this->assertEquals(
+            0,
+            sizeof($lotl->getTSPs(false))
+        );
+        $this->assertEquals(
+            11,
+            sizeof($lotl->getTSPs(true))
+        );
+        $digidentityBV = $lotl->getTSPs(true)['Digidentity B.V.'];
+
+        $digidentityBVRefAttributes = self::getTSPAttributes();
+        $digidentityBVTestAttributes = $digidentityBV->getTSPAttributes();
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $digidentityBVTestAttributes['TrustedList']
+        );
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $digidentityBVTestAttributes['TrustedList']['ParentTSL']
+        );
+        unset($digidentityBVTestAttributes['TrustedList']['TSLSignatureVerifiedAt']);
+        unset($digidentityBVTestAttributes['TrustedList']['ParentTSL']['TSLSignatureVerifiedAt']);
+
+        $this->assertEquals(
+            $digidentityBVRefAttributes,
+            $digidentityBVTestAttributes
+        );
+    }
 }

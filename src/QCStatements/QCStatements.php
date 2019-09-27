@@ -28,13 +28,20 @@ class QCStatements implements ExtensionInterface
             $qcStatementElement = $qcStatementElement->asSequence();
             $qcStatementDER = $qcStatementElement->toDER();
             $qcStatement = QCStatement::fromBinary($qcStatementDER);
-            if (array_key_exists($qcStatement->getType(), $this->qcStatements)) {
-                throw new QCStatementException(
-                    "Multiple QCStatements of type " . $qcStatement->getType(),
-                    1
-                );
+            if (! empty($qcStatement)) {
+                $qcStatementName = $qcStatement->getType();
+                if (array_key_exists($qcStatementName, $this->qcStatements)) {
+                    // TODO: Figure out a way to handle multiple qcStatements of same name, if valid
+                    if ($qcStatementName != 'QCPDS') {
+                        throw new QCStatementException(
+                          "Multiple QCStatements of type " . $qcStatement->getType() . ": " . base64_encode($qcStatementsDER),
+                          1
+                      );
+                    }
+                } else {
+                    $this->qcStatements[$qcStatement->getType()] = $qcStatement;
+                }
             }
-            $this->qcStatements[$qcStatement->getType()] = $qcStatement;
         }
     }
 

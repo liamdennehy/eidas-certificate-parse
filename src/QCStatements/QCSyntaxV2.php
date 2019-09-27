@@ -24,22 +24,23 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
             throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
         }
         if ($qcStatement->count() < 2) {
-            throw new QCStatementException("No QCSyntaxV2 Statements found", 1);
+            $this->semanticsType = 'notProvided';
+        // throw new QCStatementException("No QCSyntaxV2 Statements found: ".base64_encode($qcStatementDER), 1);
         } elseif ($qcStatement->count() > 2) {
             throw new QCStatementException("More than one entry in QCSyntaxV2 Statement", 1);
-        }
-        $semanticsTypeOID = $qcStatement->at(1)->asSequence()->at(0)->asObjectIdentifier()->oid();
-        switch ($semanticsTypeOID) {
-          case '0.4.0.194121.1.2':
-          $this->semanticsType = 'LegalPerson';
-          break;
-          case '0.4.0.194121.1.1':
-          $this->semanticsType = 'NaturalPerson';
-          break;
-
-          default:
-          throw new QCStatementException("QCSyntaxV2 statement '$semanticsType' not yet implemented");
-          break;
+        } else {
+            $semanticsTypeOID = $qcStatement->at(1)->asSequence()->at(0)->asObjectIdentifier()->oid();
+            switch ($semanticsTypeOID) {
+            case '0.4.0.194121.1.2':
+            $this->semanticsType = 'LegalPerson';
+            break;
+            case '0.4.0.194121.1.1':
+            $this->semanticsType = 'NaturalPerson';
+            break;
+            default:
+            throw new QCStatementException("QCSyntaxV2 statement '$semanticsType' not yet implemented");
+            break;
+          }
         }
         $this->binary = $qcStatementDER;
     }

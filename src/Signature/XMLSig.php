@@ -5,7 +5,7 @@ namespace eIDASCertificate\Signature;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecEnc;
 use DOMDocument;
-use eIDASCertificate\Certificate;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\CertificateException;
 use eIDASCertificate\SignatureException;
 
@@ -19,6 +19,7 @@ class XMLSig
     private $doc;
     private $certificates = [];
     private $signedBy;
+    private $signedByHash;
     private $docname;
 
     /**
@@ -28,11 +29,6 @@ class XMLSig
      */
     public function __construct($xml, $certificates, $docName = '')
     {
-        // if (empty($certificates)) {
-        //   throw new CertificateException(
-        //     "No certificates supplied for XML Signature Validation", 1
-        //   );
-        // } elseif (! is_array($certificates)) {
         if (! is_array($certificates)) {
             $certificates = [$certificates];
         }
@@ -59,6 +55,7 @@ class XMLSig
 
     public function verifySignature()
     {
+        $signedBy = null;
         $secDsig = new XMLSecurityDSig();
         $dsig = $secDsig->locateSignature($this->doc);
         if ($dsig === null) {
@@ -100,22 +97,25 @@ class XMLSig
         //     $key->loadKey($certificate);
         // };
         if ($secDsig->verify($key) === 1) {
-            $signedBy = Certificate\X509Certificate::emit(
-                $key->getX509Certificate()
-            );
-            $validThumbs = [];
-            if ($signedBy) {
-                $foundThumb = openssl_x509_fingerprint($signedBy, 'sha256');
+            $keyCert = $key->getX509Certificate();
+            if ($keyCert) {
+                $signedBy = new X509Certificate($keyCert);
+                $foundThumb = $signedBy->getHash('sha256');
                 $validThumbs = $this->getX509Thumbprints('sha256');
             } else {
+                // TODO: Better explanation and handling of the case where no certificate is available in the doc
+                $validThumbs = [];
                 $foundThumb = $key->getX509Thumbprint();
+                if (empty($foundThumb)) {
+                    throw new \Exception("Empty thumbprint on signing key", 1);
+                }
                 foreach ($this->getX509Thumbprints('sha1') as $validThumb) {
                     $validThumbs[] = $validThumb;
                 }
-            };
-
+            }
             if (in_array($foundThumb, $validThumbs)) {
                 $this->signedBy = $signedBy;
+                $this->signedByHash = $foundThumb;
                 return true;
             } else {
                 $out['signedBy'] = $foundThumb;
@@ -156,5 +156,10 @@ class XMLSig
     public function getSignedBy()
     {
         return $this->signedBy;
+    }
+
+    public function getSignedByHash()
+    {
+        return $this->signedByHash;
     }
 }

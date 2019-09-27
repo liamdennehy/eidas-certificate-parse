@@ -30,7 +30,13 @@ class CRLDistributionPoints implements ExtensionInterface
                 $cdpEntryDER = UnspecifiedType::fromDER($cdpEntryDER)->asSequence()->at(0)->toDER();
             };
             $cdpEntryDER[0] = chr(22);
-            $cdpEntry = UnspecifiedType::fromDER($cdpEntryDER)->asIA5String()->string();
+            try {
+                $cdpEntry = UnspecifiedType::fromDER($cdpEntryDER)->asIA5String()->string();
+            } catch (\Exception $e) {
+                // TODO: Handle DN of CDPs
+                // throw new ExtensionException("Malformed Extension CDPs: ". base64_encode($extensionDER), 1);
+            }
+
             $this->cdpEntries[] = $cdpEntry;
         }
         $this->binary = $extensionDER;

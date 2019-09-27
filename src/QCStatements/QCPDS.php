@@ -28,12 +28,19 @@ class QCPDS extends QCStatement implements QCStatementInterface
         } elseif ($qcStatement->count() <2) {
             throw new QCStatementException("No entries in PDS Statement", 1);
         };
-        foreach ($qcStatement->at(1)->asSequence()->elements() as $pdsLocation) {
-            $pdsLocation = $pdsLocation->asSequence();
-            $location['url'] = $pdsLocation->at(0)->asIA5String()->string();
-            $location['language'] = strtolower($pdsLocation->at(1)->asPrintableString()->string());
-            $this->pdsLocations[] = $location;
+        try {
+            $pdsLocations = $qcStatement->at(1)->asSequence()->elements();
+            foreach ($qcStatement->at(1)->asSequence()->elements() as $pdsLocation) {
+                $pdsLocation = $pdsLocation->asSequence();
+                $location['url'] = $pdsLocation->at(0)->asIA5String()->string();
+                $location['language'] = strtolower($pdsLocation->at(1)->asPrintableString()->string());
+                $this->pdsLocations[] = $location;
+            }
+        } catch (\Exception $e) {
+            // TODO: Figure out strange PDS
+          // throw new \Exception("Cannot understand PDS: ". base64_encode($qcStatementDER), 1);
         }
+
         $this->binary = $qcStatementDER;
     }
 
@@ -53,12 +60,18 @@ class QCPDS extends QCStatement implements QCStatementInterface
             $description = "This QCStatement should hold URLs to PKI Disclosure ".
             "Statements, but none are present";
         } else {
-            $description = "This QCStatement holds URLs to ".sizeof($this->pdsLocations)." PKI Disclosure Statement";
+            $description = sizeof($this->pdsLocations)." PKI Disclosure Statement";
             if (sizeof($this->pdsLocations) > 1) {
                 $description .= "s";
             }
-            $description .= " (PDS)";
+            $description .= " (PDS) are available: ";
+            $locations = [];
+            foreach ($this->pdsLocations as $pdsLocation) {
+                $locations[] = "(" . $pdsLocation['language'] . ") " . $pdsLocation['url'];
+            }
+            $description .= implode(", ", $locations);
         }
+
         return $description;
         // s (PDS)";
     }

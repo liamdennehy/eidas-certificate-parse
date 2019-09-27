@@ -8,8 +8,11 @@ namespace eIDASCertificate;
 class OID
 {
     const qcStatements            = '1.3.6.1.5.5.7.1.3';
+    const PKIX_QCSYNTAX_V1        = '1.3.6.1.5.5.7.11.1';
     const PKIX_QCSYNTAX_V2        = '1.3.6.1.5.5.7.11.2';
+    const ecPublicKey             = '1.2.840.10045.2.1';
     const rsaEncryption           = '1.2.840.113549.1.1.1';
+    const RSASSA_PSS              = '1.2.840.113549.1.1.10';
     const QcCompliance            = '0.4.0.1862.1.1';
     const QcLimitValue            = '0.4.0.1862.1.2';
     const QcRetentionPeriod       = '0.4.0.1862.1.3';
@@ -32,8 +35,10 @@ class OID
     const KeyUsage                = '2.5.29.15';
     const ExtendedKeyUsage        = '2.5.29.37';
     const SubjectKeyIdentifier    = '2.5.29.14';
-    const AuthorityKeyIdentifier  = '2.5.29.35';
     const CRLDistributionPoints   = '2.5.29.31';
+    const certificatePolicies     = '2.5.29.32';
+    const AuthorityKeyIdentifier  = '2.5.29.35';
+    const policyConstraints       = '2.5.29.36';
     const ServerAuth              = '1.3.6.1.5.5.7.3.1';
     const ClientAuth              = '1.3.6.1.5.5.7.3.2';
     const CodeSigning             = '1.3.6.1.5.5.7.3.3';
@@ -47,6 +52,7 @@ class OID
     const ipsecEndSystem          = '1.3.6.1.5.5.7.3.5';
     const ipsecTunnel             = '1.3.6.1.5.5.7.3.6';
     const ipsecUser               = '1.3.6.1.5.5.7.3.7';
+    const EuQCompliance           = '0.4.0.19422.1.1';
 
     public static function getName($oidString)
     {
@@ -57,11 +63,20 @@ class OID
           case self::qcStatements:
               $oidName = 'qcStatements';
               break;
+          case self::PKIX_QCSYNTAX_V1:
+              $oidName = 'id-qcs-pkixQCSyntax-v1';
+              break;
           case self::PKIX_QCSYNTAX_V2:
               $oidName = 'id-qcs-pkixQCSyntax-v2';
               break;
+          case self::ecPublicKey:
+              $oidName = 'ecPublicKey';
+              break;
           case self::rsaEncryption:
               $oidName = 'rsaEncryption';
+              break;
+          case self::RSASSA_PSS:
+              $oidName = 'RSASSA-PSS';
               break;
           case self::QcCompliance:
               $oidName = 'QcCompliance';
@@ -129,8 +144,14 @@ class OID
           case self::crlInvalidityDate:
             $oidName = 'crlInvalidityDate';
             break;
+          case self::certificatePolicies:
+            $oidName = 'certificatePolicies';
+            break;
           case self::AuthorityKeyIdentifier:
             $oidName = 'authorityKeyIdentifier';
+            break;
+          case self::policyConstraints:
+            $oidName = 'policyConstraints';
             break;
           case self::SubjectKeyIdentifier:
             $oidName = 'subjectKeyIdentifier';
@@ -158,6 +179,9 @@ class OID
             break;
           case self::MS_DOCUMENT_SIGNING:
             $oidName = 'MS_DOCUMENT_SIGNING';
+            break;
+          case self::EuQCompliance:
+            $oidName = 'etsi-tsts-EuQCompliance';
             break;
           // case self::ipsecEndSystem:
           //   $oidName = 'ipsecEndSystem';

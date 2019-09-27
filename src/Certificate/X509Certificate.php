@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\CertificateException;
+use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements;
 use ASN1\Type\UnspecifiedType;
@@ -10,7 +11,7 @@ use ASN1\Type\UnspecifiedType;
 /**
  *
  */
-class X509Certificate
+class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 {
     private $crtResource;
     private $crtBinary;
@@ -31,34 +32,55 @@ class X509Certificate
         $this->crtBinary = base64_decode(implode("", $crtPEM));
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
-        $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
-        $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
-        $subjectPublicKeyInfoTypeOID =
-          $subjectPublicKeyInfo->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
-        $subjectPublicKeyInfoTypeName = OID::getName($subjectPublicKeyInfoTypeOID);
-        switch ($subjectPublicKeyInfoTypeName) {
-          case 'rsaEncryption':
-            $this->publicKey = $tbsCertificate->at(6)->toDER();
+        $signatureAlgorithm = $crtASN1->at(1)->asSequence();
+        $signatureValue = $crtASN1->at(2)->asBitString()->string();
+        switch ($tbsCertificate->at(0)->typeClass()) {
+          case 0:
+            $crtVersion = $tbsCertificate->at(0)->asInteger()->intNumber();
             break;
+          case 2:
+            $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
+            break;
+
           default:
-            throw new CertificateException(
-                "Unrecognised Public Key Type OID $subjectPublicKeyInfoTypeOID ($subjectPublicKeyInfoTypeName)",
-                1
-            );
+            throw new CertificateException("Trying to get version tag as ".$tbsCertificate->at(0)->typeClass() . " " . base64_encode($tbsCertificate->toDER()), 1);
 
             break;
         }
-        $this->parsed = X509Certificate::parse($this->crtResource);
-        $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
+
         if ($crtVersion == 2) {
-            if (array_key_exists('extensions', $this->parsed)) {
+            $dates = $tbsCertificate->at(4)->asSequence();
+            $this->notBefore = self::WrangleDate($dates->at(0));
+            $this->notAfter = self::WrangleDate($dates->at(1));
+            ;
+            if ($tbsCertificate->has(7)) {
+                $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
                 $extensions = new Extensions(
                     $extensionsDER
                 );
                 $this->extensions = $extensions->getExtensions();
             }
+            $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
+            $subjectPublicKeyInfoTypeOID =
+              $subjectPublicKeyInfo->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
+            $subjectPublicKeyInfoTypeName = OID::getName($subjectPublicKeyInfoTypeOID);
+            switch ($subjectPublicKeyInfoTypeName) {
+              case 'rsaEncryption':
+              case 'ecPublicKey':
+              case 'RSASSA-PSS':
+                $this->publicKey = $tbsCertificate->at(6)->toDER();
+                break;
+              default:
+                throw new CertificateException(
+                    "Unrecognised Public Key Type OID $subjectPublicKeyInfoTypeOID ($subjectPublicKeyInfoTypeName)",
+                    1
+                );
+
+                break;
+            }
         } else {
-            throw new CertificateException("Only X.509 v3 certificates are supported", 1);
+            return null;
+            throw new CertificateException("Only X.509 v3 certificates are supported: ".base64_encode($this->crtBinary), 1);
         }
         $this->serialNumber = $tbsCertificate->at(1)->asInteger()->number();
     }
@@ -83,6 +105,26 @@ class X509Certificate
         }
     }
 
+    public static function WrangleDate($asn1Object)
+    {
+        switch ($asn1Object->tag()) {
+        case 23:
+          return $asn1Object->asUTCTime()->datetime();
+          break;
+        case 24:
+          return $asn1Object->asGeneralizedTime()->datetime();
+          break;
+
+        default:
+          throw new CertificateException(
+              "Cannot process date from tag ".$asn1Object->tag().": ".
+              base64_encode($asn1Object->toDER()),
+              1
+          );
+          break;
+      }
+    }
+
     public static function base64ToPEM($certificateString)
     {
         // Handle line-wrapped presentations of base64
@@ -94,14 +136,24 @@ class X509Certificate
         "-----END CERTIFICATE-----\n";
     }
 
-    public static function getDN($cert)
+    public function getBinary()
     {
-        return openssl_x509_parse($cert)['name'];
+        return $this->crtBinary;
     }
 
-    public static function getHash($cert, $algo = 'sha256')
+    public function getDN()
     {
-        return openssl_x509_fingerprint($cert, $algo);
+        return openssl_x509_parse($this->crtResource)['name'];
+    }
+
+    public function getIDentifier()
+    {
+        return $this->getHash('sha256');
+    }
+
+    public function getHash($algo = 'sha256')
+    {
+        return openssl_x509_fingerprint($this->crtResource, $algo);
     }
 
     public static function parse($crt)
@@ -112,7 +164,7 @@ class X509Certificate
 
     public function getParsed()
     {
-        return $this->parsed;
+        return openssl_x509_parse($this->crtResource);
     }
 
     public function getKeyUsage()
@@ -123,21 +175,26 @@ class X509Certificate
     public function getDates()
     {
         return [
-          'notBefore' => date_create('@' .  $this->parsed['validFrom_time_t']),
-          'notAfter' => date_create('@' .  $this->parsed['validTo_time_t'])
+          $this->notBefore,
+          $this->notAfter
         ];
     }
 
-    public function isValidAt($dateTime = null)
+    public function isCurrent()
+    {
+        return $this->isCurrentAt(new DateTime);
+    }
+
+    public function isCurrentAt($dateTime = null)
     {
         if (empty($dateTime)) {
             $dateTime = new \DateTime; // now
         };
-        $dates = $this->getDates();
+        // $dates = $this->getDates();
         return (
-        $this->isStartedAt($dateTime) &&
-        $this->isNotFinishedAt($dateTime)
-      );
+          $this->isStartedAt($dateTime) &&
+          $this->isNotFinishedAt($dateTime)
+        );
     }
 
     public function isStartedAt($dateTime = null)
@@ -145,10 +202,9 @@ class X509Certificate
         if (empty($dateTime)) {
             $dateTime = new \DateTime; // now
         };
-        $dates = $this->getDates();
         return (
-        $dates['notBefore'] < $dateTime
-      );
+          $this->notBefore < $dateTime
+        );
     }
 
     public function isNotFinishedAt($dateTime = null)
@@ -156,10 +212,9 @@ class X509Certificate
         if (empty($dateTime)) {
             $dateTime = new \DateTime; // now
         };
-        $dates = $this->getDates();
         return (
-        $dates['notAfter'] > $dateTime
-      );
+          $this->notAfter > $dateTime
+        );
     }
 
     public function hasExtensions()
@@ -191,7 +246,7 @@ class X509Certificate
 
     public function getAuthorityKeyIdentifier()
     {
-        if (array_key_exists('authorityKeyIdentifier', $this->extensions)) {
+        if (! empty($this->extensions) && array_key_exists('authorityKeyIdentifier', $this->extensions)) {
             return $this->extensions['authorityKeyIdentifier']->getKeyId();
         } else {
             return false;
@@ -200,7 +255,7 @@ class X509Certificate
 
     public function getSubjectKeyIdentifier()
     {
-        if (array_key_exists('subjectKeyIdentifier', $this->extensions)) {
+        if (! empty($this->extensions) && array_key_exists('subjectKeyIdentifier', $this->extensions)) {
             return $this->extensions['subjectKeyIdentifier']->getKeyId();
         } else {
             return false;
@@ -209,7 +264,7 @@ class X509Certificate
 
     public function getCDPs()
     {
-        if (array_key_exists('crlDistributionPoints', $this->extensions)) {
+        if (! empty($this->extensions) && array_key_exists('crlDistributionPoints', $this->extensions)) {
             return $this->extensions['crlDistributionPoints']->getCDPs();
         } else {
             return [];
@@ -218,7 +273,7 @@ class X509Certificate
 
     public function forPurpose($name)
     {
-        if (array_key_exists('extendedKeyUsage', $this->extensions)) {
+        if (! empty($this->extensions) && array_key_exists('extendedKeyUsage', $this->extensions)) {
             if ($this->extensions['crlDistributionPoints']->forPurpose($purpose)) {
                 return true;
             }
@@ -237,7 +292,11 @@ class X509Certificate
 
     public function getCRL()
     {
-        return $this->crl;
+        if (! empty($this->crl)) {
+            return $this->crl;
+        } else {
+            return null;
+        }
     }
 
     public function getSerial()
@@ -248,5 +307,26 @@ class X509Certificate
     public function getPublicKey()
     {
         return $this->publicKey;
+    }
+
+    public function toPEM()
+    {
+        openssl_x509_export($this->crtResource, $pem);
+        return $pem;
+    }
+
+    public function getSubjectParsed()
+    {
+        return $this->getParsed()['subject'];
+    }
+
+    public function getSubjectName()
+    {
+        return $this->getParsed()['name'];
+    }
+
+    public function getType()
+    {
+        return 'X509Certificate';
     }
 }

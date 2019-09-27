@@ -4,6 +4,8 @@ namespace eIDASCertificate;
 
 use SimpleXMLElement;
 use eIDASCertificate\Signature\XMLSig;
+use eIDASCertificate\Certificate\X509Certificate;
+use DateTime;
 
 /**
  *
@@ -30,13 +32,16 @@ class TrustedList
     private $TSPs = [];
     private $xml;
     private $verified;
+    private $verifiedAt;
     private $signedBy;
+    private $signedByHash;
     private $tl;
     private $xmlHash;
     private $distributionPoints = [];
     private $tslPointers = [];
     private $tlPointer;
     private $tolerateFailedTLs = false;
+    private $parentTSLAttributes;
 
     /**
      * [__construct description]
@@ -108,7 +113,7 @@ class TrustedList
             $tspList  = $this->tl->TrustServiceProviderList;
             if ($tspList->TrustServiceProvider) {
                 foreach ($tspList->TrustServiceProvider as $tsp) {
-                    $newTSP = new TrustServiceProvider($tsp);
+                    $newTSP = new TrustServiceProvider($tsp, $this);
                     if ($newTSP) {
                         $this->TSPs[$newTSP->getName()] = $newTSP;
                     }
@@ -151,23 +156,28 @@ class TrustedList
             return $newTL;
         }
     }
+
     /**
      * [verifyTSL description]
      * @param  resource|resource[]|string|string[] $tlCerts [description]
      * @return boolean [description]
      */
-    public function verifyTSL($certificates = null)
+    public function verifyTSL($certificates)
     {
-        if (empty($certificates)) {
-            $certificates = [];
-        } elseif (! is_array($certificates)) {
+        if (! is_array($certificates)) {
             $certificates = [$certificates];
         };
-        $xmlSig = new XMLSig($this->xml, $certificates, $this->getName());
+        $pems = [];
+        foreach ($certificates as $certificate) {
+            $pems[($certificate->getHash())] = $certificate->toPEM();
+        }
+        $xmlSig = new XMLSig($this->xml, $pems, $this->getName());
         try {
             $xmlSig->verifySignature();
             $this->verified = true;
+            $this->verifiedAt = new DateTime('now');
             $this->signedBy = $xmlSig->getSignedBy();
+            $this->signedByHash = $xmlSig->getSignedByHash();
             // unset($this->xml);
         } catch (SignatureException $e) {
             $this->verified = false;
@@ -221,6 +231,11 @@ class TrustedList
         return $this->signedBy;
     }
 
+    public function getSignedByHash()
+    {
+        return $this->signedByHash;
+    }
+
     /**
      * [getTLX509Certificates description]
      * @return array [description]
@@ -235,7 +250,7 @@ class TrustedList
             as $serviceDigitalIdentity) {
             foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
                 $x509Certificates[
-                    Certificate\X509Certificate::getHash($x509Certificate, $algo)
+                    $x509Certificate->getHash($algo)
                     ] = $x509Certificate;
             };
         };
@@ -246,29 +261,44 @@ class TrustedList
      * [getTSPs description]
      * @return TrustServiceProvider[] [description]
      */
-    public function getTSPs()
+    public function getTSPs($includeChildren = false)
     {
-        if (! $this->TSPs) {
+        if (empty($this->TSPs)) {
             $this->parseTSPs();
         }
-        return $this->TSPs;
+        $tsps = $this->TSPs;
+        if ($includeChildren) {
+            foreach ($this->getTrustedLists(true) as $trustedList) {
+                $tsps = array_merge($tsps, $trustedList->getTSPs(false));
+            }
+        }
+        return $tsps;
     }
 
-    public function getTSPServices()
+    public function getTSPServices($includeChildren = false)
     {
         $tspServices = [];
-        if (! $this->isTLOL()) {
-            foreach ($this->getTSPs() as $tsp) {
-                foreach ($tsp->getTSPServices() as $tspService) {
-                    $tspServices
-                        [$this->schemeTerritory . ": " . $tsp->getName()]
-                            [$tspService->getName()]
-                                = $tspService;
+        $tsps = $this->getTSPs($includeChildren);
+        foreach ($tsps as $tspName => $tsp) {
+            foreach ($tsp->getTSPServices() as $tspService) {
+                $tspServices[$tspService->getName()] = $tspService->getTSPServiceAttributes();
+            }
+        }
+        return $tspServices;
+    }
+
+    public function getTSPServicesByType($type, $includeChildren = false)
+    {
+        $tspServices = [];
+        $tsps = $this->getTSPs($includeChildren);
+        foreach ($tsps as $tsp) {
+            foreach ($tsp->getTSPServices($includeChildren) as $tspService) {
+                if ($tspService->getType() == $type) {
+                    $tspServices[$tsp->getName()][$tspService->getName()] = $tspService;
                 }
-            };
-            return $tspServices;
-        };
-        return $this->TSPs;
+            }
+        }
+        return $tspServices;
     }
 
     /**
@@ -388,18 +418,15 @@ class TrustedList
      * [getTrustedLists description]
      * @return TrustedList[] [description]
      */
-    public function getTrustedLists($title = null)
+    public function getTrustedLists($includeChildren = false)
     {
-        if (sizeof($this->trustedLists) == 0) {
-            $this->processTrustedLists();
+        $trustedLists = $this->trustedLists;
+        if ($includeChildren) {
+            foreach ($this->trustedLists as $trustedList) {
+                array_merge($trustedLists, $trustedList->getTrustedLists($includeChildren));
+            }
         }
-        if (empty($title)) {
-            return $this->trustedLists;
-        } elseif (array_key_exists($title, $this->trustedLists)) {
-            return $this->trustedLists[$title];
-        } else {
-            return false;
-        }
+        return $trustedLists;
     }
 
     public function getTrustedListPointers($fileType = null)
@@ -426,6 +453,9 @@ class TrustedList
 
     public function addTrustedListXML($title, $xml)
     {
+        if (empty($this->tslPointers)) {
+            $this->processTLPointers();
+        };
         if (! array_key_exists($title, $this->tslPointers['xml'])) {
             throw new TrustedListException("No pointer for Trusted List '".$title."'", 1);
         }
@@ -439,6 +469,7 @@ class TrustedList
         try {
             $trustedList = new TrustedList($xml, $this->tslPointers['xml'][$title]);
             $verified = $trustedList->verifyTSL($certificates);
+            $trustedList->setParentTrustedList($this);
         } catch (ParseException $e) {
             throw $e;
         }
@@ -510,8 +541,8 @@ class TrustedList
 
     public function getTSLPointers($fileType = null)
     {
-        if (! $this->tslPointers) {
-            $this->processTSLPointers();
+        if (empty($this->tslPointers)) {
+            $this->processTLPointers();
         };
         if (! $fileType) {
             return $this->tslPointers;
@@ -546,5 +577,34 @@ class TrustedList
     public function getXMLHash()
     {
         return $this->xmlHash;
+    }
+
+    public function getTrustedListAtrributes()
+    {
+        $tslAttributes['SchemeTerritory'] = $this->getSchemeTerritory();
+        $tslAttributes['SchemeOperatorName'] = $this->getSchemeOperatorName();
+        $tslAttributes['TSLSequenceNumber'] = $this->getSequenceNumber();
+        if (!empty($this->getSignedByHash())) {
+            $tslAttributes['TSLSignedByHash'] = $this->getSignedByHash();
+        }
+        if (!empty($this->verifiedAt)) {
+            $tslAttributes['TSLSignatureVerifiedAt'] = $this->verifiedAt->format('U');
+        }
+        if (! empty($this->getParentTrustedListAtrributes())) {
+            $tslAttributes['ParentTSL'] = $this->getParentTrustedListAtrributes();
+        }
+
+        return $tslAttributes;
+    }
+
+    public function setParentTrustedList(TrustedList $parentTSL)
+    {
+        $this->parentTSLAttributes = $parentTSL->getTrustedListAtrributes();
+    }
+
+
+    public function getParentTrustedListAtrributes()
+    {
+        return $this->parentTSLAttributes;
     }
 }

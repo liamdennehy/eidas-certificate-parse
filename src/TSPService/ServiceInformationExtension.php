@@ -2,6 +2,8 @@
 
 namespace eIDASCertificate\TSPService;
 
+use eIDASCertificate\SafeException;
+
 /**
  *
  */

@@ -21,12 +21,21 @@ class AuthorityKeyIdentifier implements ExtensionInterface
     public function __construct($extensionDER)
     {
         $seq = UnspecifiedType::fromDER($extensionDER)->asSequence();
-        $tagDER = $seq->at(0)->asTagged()->toDER();
-        if (bin2hex($tagDER[0]) != '80') {
-            throw new ExtensionException("Unrecognised AuthorityKeyIdentifier Format", 1);
+        foreach ($seq->elements() as $akiElement) {
+            switch ($akiElement->tag()) {
+            case chr(0x80):
+              $this->keyIdentifier = $akiElement->asImplicit(0x04)->asOctetString()->string();
+              break;
+            case 1:
+            case 2:
+              // TODO: Handle complex AKIs
+              // https://tools.ietf.org/html/rfc5280#section-4.2.1.1
+              break;
+            default:
+              throw new ExtensionException("Unrecognised AuthorityKeyIdentifier ". $akiElement->tag()." Format: ". base64_encode($akiElement->toDER()), 1);
+              break;
+          }
         }
-        $tagDER[0] = chr(4);
-        $this->keyIdentifier = UnspecifiedType::fromDER($tagDER)->asOctetString()->string();
         $this->binary = $extensionDER;
     }
 
