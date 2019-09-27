@@ -38,7 +38,7 @@ class ServiceHistoryInstance
         return $this->serviceStatus->getStatus();
     }
 
-    public function getTime()
+    public function getStartingTime()
     {
         return $this->startingTime;
     }

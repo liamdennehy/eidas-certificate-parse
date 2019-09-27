@@ -159,6 +159,9 @@ class TSPService
             }
             $this->attributes['SKI'] = $this->getX509SKI();
             $this->attributes['SubjectName'] = $this->getX509SubjectName();
+            foreach ($this->serviceHistory->getInstances() as $serviceStatus) {
+                $this->attributes['ServiceHistory'][] = [$serviceStatus->getStartingTime(),$serviceStatus->getStatus()];
+            }
         }
         return $this->attributes;
     }

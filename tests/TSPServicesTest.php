@@ -14,6 +14,7 @@ use eIDASCertificate\TrustedListException;
 class TSPServicesTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
+    const TSPServiceCertHash = 'a7ffad289ed36fbba729621207504a8055614a5551ae2d580870326985b2ef9d';
     const TSPServicePEM = '-----BEGIN CERTIFICATE-----
 MIIFnTCCA4WgAwIBAgIBDDANBgkqhkiG9w0BAQsFADBNMQswCQYDVQQGEwJOTDEZ
 MBcGA1UECgwQRGlnaWRlbnRpdHkgQi5WLjEjMCEGA1UEAwwaRGlnaWRlbnRpdHkg
@@ -76,10 +77,13 @@ IA==
           'ServiceStatus' => 'granted',
           'StatusStartingTime' => 1467324000,
           'Certificates' => [
-            'a7ffad289ed36fbba729621207504a8055614a5551ae2d580870326985b2ef9d' => self::TSPServicePEM
+            self::TSPServiceCertHash => self::TSPServicePEM
           ],
           'SKI' => 'nANA8Q6eDO6E563JCATnnDy0o6Y=',
           'SubjectName' => '/C=NL/O=Digidentity B.V./CN=Digidentity SSCD CA - G2',
+          'ServiceHistory' => [
+            [1304439660, 'accredited']
+          ]
         ];
         return $attributes;
     }
