@@ -10,7 +10,7 @@ class TrustServiceProvider
     private $name;
     private $services = [];
     private $serviceHistory;
-    private $parentTSL;
+    private $parentTSLAtrributes;
 
     /**
      * [__construct description]
@@ -19,17 +19,10 @@ class TrustServiceProvider
     public function __construct($tsp, $trustedList)
     {
         $this->name = (string)$tsp->TSPInformation->TSPName->xpath("*[@xml:lang='en']")[0];
-        $this->parentTSL = [];
-        $this->parentTSL['SchemeTerritory'] = $trustedList->getSchemeTerritory();
-        $this->parentTSL['SchemeOperatorName'] = $trustedList->getSchemeOperatorName();
-        $this->parentTSL['TSLSequenceNumber'] = $trustedList->getSequenceNumber();
-        $this->parentTSL['TSLSignedBy'] = $trustedList->getSignedByHash();
-        if (! empty($trustedList->getParentTrustedListAtrributes())) {
-            $this->parentTSL['ParentTSL'] = $trustedList->getParentTrustedListAtrributes();
-        }
+        $this->parentTSLAttributes = $trustedList->getTrustedListAtrributes();
         foreach ($tsp->TSPServices->TSPService as $tspService) {
             $newTSPService = new TSPService($tspService, $this);
-            $this->services[$newTSPService->getDate()] = $newTSPService;
+            $this->services[$newTSPService->getName()] = $newTSPService;
         };
         sort($this->services);
     }
@@ -55,7 +48,7 @@ class TrustServiceProvider
     public function getTSPAtrributes()
     {
         return [
-          'ParentTSL' => $this->parentTSL,
+          'TrustedList' => $this->parentTSLAttributes,
           'TrustServiceProvider' => $this->getName()
         ];
     }
