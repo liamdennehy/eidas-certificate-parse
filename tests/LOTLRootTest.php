@@ -19,7 +19,7 @@ class LOTLRootTest extends TestCase
       'SchemeTerritory' => 'EU',
       'SchemeOperatorName' => 'European Commission',
       'TSLSequenceNumber' => 248,
-      'TSLSignedBy' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
+      'TSLSignedByHash' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
     ];
     const lotlSingingCertPath =
       '/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';

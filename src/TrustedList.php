@@ -584,8 +584,12 @@ class TrustedList
         $tslAttributes['SchemeTerritory'] = $this->getSchemeTerritory();
         $tslAttributes['SchemeOperatorName'] = $this->getSchemeOperatorName();
         $tslAttributes['TSLSequenceNumber'] = $this->getSequenceNumber();
-        $tslAttributes['TSLSignedBy'] = $this->getSignedByHash();
-        $tslAttributes['TSLSignatureVerifiedAt'] = $this->verifiedAt->format('U');
+        if (!empty($this->getSignedByHash())) {
+            $tslAttributes['TSLSignedByHash'] = $this->getSignedByHash();
+        }
+        if (!empty($this->verifiedAt)) {
+            $tslAttributes['TSLSignatureVerifiedAt'] = $this->verifiedAt->format('U');
+        }
         if (! empty($this->getParentTrustedListAtrributes())) {
             $tslAttributes['ParentTSL'] = $this->getParentTrustedListAtrributes();
         }

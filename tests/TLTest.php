@@ -18,7 +18,7 @@ class TLTest extends TestCase
         'SchemeTerritory' => 'NL',
         'SchemeOperatorName' => 'Radiocommunications Agency',
         'TSLSequenceNumber' => 44,
-        'TSLSignedBy' => 'def82d40878a148e21fcacbcbfdf7623ed9d6ca149d631ca1ed61051827f31fc',
+        'TSLSignedByHash' => 'def82d40878a148e21fcacbcbfdf7623ed9d6ca149d631ca1ed61051827f31fc',
     ];
 
     private $tlolxml;
