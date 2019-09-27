@@ -39,7 +39,7 @@ class TrustedList
     private $tslPointers = [];
     private $tlPointer;
     private $tolerateFailedTLs = false;
-    private $parentTSL;
+    private $parentTSLAttributes;
 
     /**
      * [__construct description]
@@ -274,7 +274,14 @@ class TrustedList
 
     public function getTSPServices($includeChildren = false)
     {
-        // return $tspServices;
+        $tspServices = [];
+        $tsps = $this->getTSPs($includeChildren);
+        foreach ($tsps as $tspName => $tsp) {
+            foreach ($tsp->getTSPServices() as $tspService) {
+                $tspServices[$tspService->getName()] = $tspService->getTSPServiceAttributes();
+            }
+        }
+        return $tspServices;
     }
 
     public function getTSPServicesByType($type, $includeChildren = false)
@@ -569,20 +576,27 @@ class TrustedList
         return $this->xmlHash;
     }
 
-    public function setParentTrustedList(TrustedList $trustedList)
+    public function getTrustedListAtrributes()
     {
-        $this->parentTSL = [];
-        $this->parentTSL['SchemeTerritory'] = $trustedList->getSchemeTerritory();
-        $this->parentTSL['SchemeOperatorName'] = $trustedList->getSchemeOperatorName();
-        $this->parentTSL['TSLSequenceNumber'] = $trustedList->getSequenceNumber();
-        $this->parentTSL['TSLSignedBy'] = $trustedList->getSignedByHash();
-        if (! empty($trustedList->getParentTrustedListAtrributes())) {
-            $this->parentTSL['ParentTSL'] = $trustedList->getParentTrustedListAtrributes();
+        $tslAttributes['SchemeTerritory'] = $this->getSchemeTerritory();
+        $tslAttributes['SchemeOperatorName'] = $this->getSchemeOperatorName();
+        $tslAttributes['TSLSequenceNumber'] = $this->getSequenceNumber();
+        $tslAttributes['TSLSignedBy'] = $this->getSignedByHash();
+        if (! empty($this->getParentTrustedListAtrributes())) {
+            $tslAttributes['ParentTSL'] = $this->getParentTrustedListAtrributes();
         }
+
+        return $tslAttributes;
     }
+
+    public function setParentTrustedList(TrustedList $parentTSL)
+    {
+        $this->parentTSLAttributes = $parentTSL->getTrustedListAtrributes();
+    }
+
 
     public function getParentTrustedListAtrributes()
     {
-        return $this->parentTSL;
+        return $this->parentTSLAttributes;
     }
 }
