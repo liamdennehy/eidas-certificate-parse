@@ -68,6 +68,22 @@ IA==
         $this->lotl = new TrustedList($this->lotlXML);
     }
 
+    public static function getTSPServicesAttributes()
+    {
+        $attributes = [
+          'TSP' =>  TSPTest::getTSPAttributes(),
+          'ServiceName' => 'Digidentity SSCD CA - G2',
+          'ServiceStatus' => 'granted',
+          'StatusStartingTime' => 1467324000,
+          'Certificates' => [
+            'a7ffad289ed36fbba729621207504a8055614a5551ae2d580870326985b2ef9d' => self::TSPServicePEM
+          ],
+          'SKI' => 'nANA8Q6eDO6E563JCATnnDy0o6Y=',
+          'SubjectName' => '/C=NL/O=Digidentity B.V./CN=Digidentity SSCD CA - G2',
+        ];
+        return $attributes;
+    }
+
     public function testGetTSPServices()
     {
         $lotl = $this->lotl;
@@ -83,19 +99,21 @@ IA==
             8,
             sizeof($nltl->getTSPs()['CIBG']->getTSPServices())
         );
+        $refAttributes = self::getTSPServicesAttributes();
+        $testAttributes = $tspServices['Digidentity SSCD CA - G2'];
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $testAttributes['TSP']['TrustedList']
+        );
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $testAttributes['TSP']['TrustedList']['ParentTSL']
+        );
+        unset($testAttributes['TSP']['TrustedList']['TSLSignatureVerifiedAt']);
+        unset($testAttributes['TSP']['TrustedList']['ParentTSL']['TSLSignatureVerifiedAt']);
         $this->assertEquals(
-            [
-              'TSP' =>  TSPTest::getTSPAttributes(),
-              'ServiceName' => 'Digidentity SSCD CA - G2',
-              'ServiceStatus' => 'granted',
-              'StatusStartingTime' => 1467324000,
-              'Certificates' => [
-                'a7ffad289ed36fbba729621207504a8055614a5551ae2d580870326985b2ef9d' => self::TSPServicePEM
-              ],
-              'SKI' => 'nANA8Q6eDO6E563JCATnnDy0o6Y=',
-              'SubjectName' => '/C=NL/O=Digidentity B.V./CN=Digidentity SSCD CA - G2',
-          ],
-            $tspServices['Digidentity SSCD CA - G2']
+            $refAttributes,
+            $testAttributes
         );
         $this->assertTrue(is_array($tspServices));
         $this->assertGreaterThan(0, sizeof($tspServices));

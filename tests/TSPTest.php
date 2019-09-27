@@ -76,7 +76,14 @@ class TSPTest extends TestCase
 
         $digidentityBVRefAttributes = self::getTSPAttributes();
         $digidentityBVTestAttributes = $digidentityBV->getTSPAttributes();
-
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $digidentityBVTestAttributes['TrustedList']
+        );
+        $this->assertArrayHasKey(
+            'TSLSignatureVerifiedAt',
+            $digidentityBVTestAttributes['TrustedList']['ParentTSL']
+        );
         unset($digidentityBVTestAttributes['TrustedList']['TSLSignatureVerifiedAt']);
         unset($digidentityBVTestAttributes['TrustedList']['ParentTSL']['TSLSignatureVerifiedAt']);
 
