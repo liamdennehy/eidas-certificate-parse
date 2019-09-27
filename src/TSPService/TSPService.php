@@ -59,7 +59,7 @@ class TSPService
 
         $this->tsp = [];
         if (! empty($tsp)) {
-            $this->tsp = $tsp->getTSPAtrributes();
+            $this->tsp = $tsp->getTSPAttributes();
         }
     }
 

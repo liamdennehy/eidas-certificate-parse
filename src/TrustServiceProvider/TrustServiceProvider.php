@@ -45,7 +45,7 @@ class TrustServiceProvider
         return $this->services;
     }
 
-    public function getTSPAtrributes()
+    public function getTSPAttributes()
     {
         return [
           'TrustedList' => $this->parentTSLAttributes,
