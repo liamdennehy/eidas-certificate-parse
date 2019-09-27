@@ -40,7 +40,7 @@ class TLTest extends TestCase
         } else {
             $this->lotlXML = file_get_contents($xmlFilePath);
         }
-        $this->tlol = new TrustedList($this->lotlXML);
+        $this->lotl = new TrustedList($this->lotlXML);
         // if (! $this->tlolxml) {
         //     $this->tlolxml=file_get_contents('data/eu-lotl.xml');
         // }
@@ -104,7 +104,7 @@ class TLTest extends TestCase
     public function testTLPointers()
     {
         foreach ($this->testSchemeTerritories as $schemeTerritory) {
-            $tslPointers = $this->tlol->getTrustedListPointer($schemeTerritory);
+            $tslPointers = $this->lotl->getTrustedListPointer($schemeTerritory);
             $this->assertEquals(
                 1,
                 sizeof($tslPointers)
@@ -157,9 +157,17 @@ class TLTest extends TestCase
     //
     public function testLoadTLs()
     {
-        $this->assertGreaterThan(
-            12,
-            sizeof($this->tlol->getTrustedListPointers('xml'))
+        $crtFileName = $this->datadir.LOTLRootTest::lotlSingingCertPath;
+        $crt = file_get_contents($crtFileName);
+        $rightCert = new X509Certificate(file_get_contents($crtFileName));
+        $lotl = $this->lotl;
+        $lotl->verifyTSL($rightCert);
+        $nlFile = $this->datadir.'/tl-52f7b34b484ce888c5f1d277bcb2bfbff0b1d3bbf11217a44090fab4b6a83fd3.xml';
+        $lotl->addTrustedListXML("NL: Radiocommunications Agency", file_get_contents($nlFile));
+        $nlTL = $lotl->getTrustedLists()["NL: Radiocommunications Agency"];
+        $this->assertEquals(
+            self::getNLTLAttributes(),
+            $nlTL->getTrustedListAtrributes()
         );
     }
 

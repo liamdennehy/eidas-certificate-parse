@@ -11,6 +11,7 @@ use eIDASCertificate\tests\LOTLRootTest;
 class TSPTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
+    const tspAttributes = ['TrustServiceProvider' => 'Digidentity B.V.'];
 
     private $lotlXML;
     private $lotl;
@@ -34,6 +35,13 @@ class TSPTest extends TestCase
         $this->lotl = new TrustedList($lotlXML);
     }
 
+    public static function getTSPAttributes()
+    {
+        $tspAttributes = self::tspAttributes;
+        $tspAttributes['TrustedList'] = TLTest::getNLTLAttributes();
+        return $tspAttributes;
+    }
+
     public function testGetTSPs()
     {
         $lotl = $this->lotl;
@@ -45,7 +53,7 @@ class TSPTest extends TestCase
             0,
             sizeof($lotl->getTSPs(true))
         );
-        $crtFileName = $this->datadir.'/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';
+        $crtFileName = $this->datadir.LOTLRootTest::lotlSingingCertPath;
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $lotl->verifyTSL($rightCert);
@@ -56,10 +64,6 @@ class TSPTest extends TestCase
             sizeof($lotl->getTrustedLists(false))
         );
         $nlTL = $lotl->getTrustedLists()["NL: Radiocommunications Agency"];
-        $this->assertGreaterThan(
-            0,
-            sizeof($nlTL->getTSPs(false))
-        );
         $this->assertEquals(
             0,
             sizeof($lotl->getTSPs(false))
@@ -69,13 +73,8 @@ class TSPTest extends TestCase
             sizeof($lotl->getTSPs(true))
         );
         $digidentityBV = $lotl->getTSPs(true)['Digidentity B.V.'];
-        $nlAttributes = TLTest::getNLTLAttributes();
-        $nlAttributes['ParentTSL'] = LOTLRootTest::lotlAttributes;
         $this->assertEquals(
-            [
-            'ParentTSL' => $nlAttributes,
-            'TrustServiceProvider' => 'Digidentity B.V.'
-          ],
+            self::getTSPAttributes(),
             $digidentityBV->getTSPAtrributes()
         );
         $tsps = $this->lotl->getTSPs(true);
