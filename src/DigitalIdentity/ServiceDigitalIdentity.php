@@ -7,8 +7,9 @@ namespace eIDASCertificate\DigitalIdentity;
  */
 class ServiceDigitalIdentity
 {
-    private $digitalIds = [];
-
+    private $x509Certificates = [];
+    private $x509SubjectName;
+    private $x509SKI;
     /**
      * [__construct description]
      * @param SimpleXMLElement $serviceDigitalIdentity [description]
@@ -17,10 +18,30 @@ class ServiceDigitalIdentity
     public function __construct($serviceDigitalIdentity)
     {
         // TODO: Make sure SKIs, fingerprints and certificates actually match
-        $this->digitalIds = [];
+        $digitalIds = [];
         foreach ($serviceDigitalIdentity->children() as $digitalId) {
             $newDigitalId = DigitalId::parse($digitalId);
-            $this->digitalIds[$newDigitalId->getType()][] = $newDigitalId;
+            switch ($newDigitalId->getType()) {
+              case 'X509Certificate':
+                $this->x509Certificates[$newDigitalId->getIdentifier()] = $newDigitalId;
+                break;
+              case 'X509SubjectName':
+                if (!empty($this->x509SubjectName)) {
+                    throw new \Exception("SDI already has a subject name", 1);
+                }
+                $this->x509SubjectName = $newDigitalId;
+                break;
+              case 'X509SKI':
+                if (!empty($this->x509SKI)) {
+                    throw new \Exception("SDI already has a Subject Key Identifier", 1);
+                }
+                $this->x509SKI = $newDigitalId;
+                break;
+
+              default:
+                throw new \Exception("Unhandled SDI: ".$newDigitalId->getType(), 1);
+                break;
+            }
         };
     }
 
@@ -30,33 +51,7 @@ class ServiceDigitalIdentity
      */
     public function getX509Certificates()
     {
-        $x509Certificates = [];
-        foreach ($this->digitalIds as $type => $digitalIds) {
-            if ($type == 'X509Certificate') {
-                foreach ($digitalIds as $certificate) {
-                    $x509Certificates[] = $certificate;
-                }
-            }
-        };
-        return $x509Certificates;
-    }
-
-    /**
-     * [getDigitalIds description]
-     * @return array [description]
-     */
-    public function getDigitalIds($type = null)
-    {
-        if ($type) {
-            return $this->digitalIds[$type];
-        } else {
-            return $this->digitalIds;
-        }
-    }
-
-    public function getX509Certificate()
-    {
-        return $this->x509Certificate;
+        return $this->x509Certificates;
     }
 
     public function getX509Thumbprint()
@@ -69,19 +64,22 @@ class ServiceDigitalIdentity
      * @param  string $algo [description]
      * @return [type]       [description]
      */
-    public function getX509SKI($algo = 'sha256')
+    public function getX509SKI()
     {
-        if (! $this->x509SKI) {
-            $pubkey = openssl_pkey_get_public($this->x509Certificate);
-            $pubkeyn = openssl_pkey_get_details($pubkey)['rsa']['n'];
-            return base64_encode(hash($algo, $pubkeyn, true));
-        } else {
-            return $this->x509SKI;
+        if (empty($this->x509SKI) && sizeof($this->x509Certificates) > 0) {
+            $this->x509SKI = base64_encode(
+                current($this->x509Certificates)->getSubjectKeyIdentifier()
+            );
         }
+        return $this->x509SKI;
     }
 
     public function getX509SubjectName()
     {
+        if (empty($this->x509SubjectName) && sizeof($this->x509Certificates) > 0) {
+            $this->x509SubjectName =
+          current($this->x509Certificates)->getSubjectName();
+        }
         return $this->x509SubjectName;
     }
 }
