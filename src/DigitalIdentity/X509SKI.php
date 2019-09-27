@@ -13,12 +13,17 @@ class X509SKI implements DigitalIdInterface
 
     public function __construct($value)
     {
-        $this->ski = $value;
+        $this->ski = base64_decode($value);
     }
 
     public function getSKI()
     {
         return $this->ski;
+    }
+
+    public function getIdentifier()
+    {
+        return $this->getSKI();
     }
 
     public function getSKIBase64()

@@ -21,6 +21,11 @@ class X509SubjectName implements DigitalIdInterface
         return $this->subjectName;
     }
 
+    public function getIDentifier()
+    {
+        return hash('sha256',$this->getSubjectName());
+    }
+
     public function getType()
     {
         return 'X509SubjectName';

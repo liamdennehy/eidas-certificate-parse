@@ -146,6 +146,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return openssl_x509_parse($this->crtResource)['name'];
     }
 
+    public function getIDentifier()
+    {
+        return $this->getHash('sha256');
+    }
+
     public function getHash($algo = 'sha256')
     {
         return openssl_x509_fingerprint($this->crtResource, $algo);
