@@ -80,10 +80,12 @@ class ServiceDigitalIdentity
 
     public function getX509SubjectName()
     {
-        if (empty($this->x509SubjectName) && sizeof($this->x509Certificates) > 0) {
-            $this->x509SubjectName =
-          current($this->x509Certificates)->getSubjectName();
+        if (! empty($this->x509SubjectName)) {
+            return $this->x509SubjectName->getSubjectName();
+        } elseif (sizeof($this->x509Certificates) > 0) {
+            return  current($this->x509Certificates)->getSubjectName();
+        } else {
+            return null;
         }
-        return $this->x509SubjectName;
     }
 }
