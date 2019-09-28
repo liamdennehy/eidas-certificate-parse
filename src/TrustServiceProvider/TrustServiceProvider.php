@@ -11,15 +11,18 @@ class TrustServiceProvider
     private $services = [];
     private $serviceHistory;
     private $parentTSLAtrributes;
+    private $attributes = [];
 
     /**
      * [__construct description]
      * @param SimpleXMLElement  $tsp     [description]
      */
-    public function __construct($tsp, $trustedList)
+    public function __construct($tsp, $trustedList = null)
     {
         $this->name = (string)$tsp->TSPInformation->TSPName->xpath("*[@xml:lang='en']")[0];
-        $this->parentTSLAttributes = $trustedList->getTrustedListAtrributes();
+        if (! empty($trustedList)) {
+            $this->parentTSLAttributes = $trustedList->getTrustedListAtrributes();
+        }
         foreach ($tsp->TSPServices->TSPService as $tspService) {
             $newTSPService = new TSPService($tspService, $this);
             $this->services[$newTSPService->getName()] = $newTSPService;
@@ -47,9 +50,12 @@ class TrustServiceProvider
 
     public function getTSPAttributes()
     {
-        return [
-          'TrustedList' => $this->parentTSLAttributes,
-          'TrustServiceProvider' => $this->getName()
-        ];
+        if (empty($this->attributes)) {
+            $this->attributes['TrustServiceProvider'] = $this->getName();
+            if (! empty($this->parentTSLAttributes)) {
+                $this->attributes['TrustedList'] = $this->parentTSLAttributes;
+            }
+        }
+        return $this->attributes;
     }
 }
