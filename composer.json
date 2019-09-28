@@ -10,7 +10,7 @@
     ],
     "require": {
         "phpseclib/phpseclib": "^2.0",
-        "robrichards/xmlseclibs": "dev-mgf1#c2e5a1424804c462ec5342bb68858725cbe78256",
+        "robrichards/xmlseclibs": "dev-mgf1#c2e5a1424804c462ec5342bb68858725cbe78256@dev",
         "php": ">=7.1",
         "guzzlehttp/guzzle": "^6.3",
         "phpunit/phpunit": "^7",
