@@ -129,7 +129,7 @@ class ServiceType
      * [IsQualified description]
      * @return boolean [description]
      */
-    public function IsQualified()
+    public function getIsQualified()
     {
         return $this->isQualified;
     }
