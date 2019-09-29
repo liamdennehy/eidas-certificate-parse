@@ -21,6 +21,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $crl;
     private $serialNumber;
     private $publicKey;
+    private $issuerCert;
 
     public function __construct($candidate)
     {
@@ -330,7 +331,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return 'X509Certificate';
     }
 
-    public function gatAttributes()
+    public function getAttributes()
     {
         $attributes = [];
         $attributes["subject"] = $this->getSubjectName();
@@ -343,5 +344,19 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
         }
         return $attributes;
+    }
+
+    public function withIssuer($candidate)
+    {
+        if (! is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
+            $issuer = new X509Certificate($candidate);
+        }
+        if ($issuer->getSubjectName() <> $this->getSubjectName()) {
+            throw new CertificateException("Subject name mismatch between certificate and issuer", 1);
+        } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
+            throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
+        } else {
+            $this->issuer = $issuer;
+        }
     }
 }

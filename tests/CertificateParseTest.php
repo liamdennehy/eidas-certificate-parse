@@ -155,7 +155,7 @@ class CertificateParseTest extends TestCase
         $this->getTestCerts();
         $this->assertEquals(
             $this->eucrtAttributes,
-            $this->eucrt->gatAttributes()
+            $this->eucrt->getAttributes()
         );
     }
 }
