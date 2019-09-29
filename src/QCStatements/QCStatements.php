@@ -31,12 +31,15 @@ class QCStatements implements ExtensionInterface
             if (! empty($qcStatement)) {
                 $qcStatementName = $qcStatement->getType();
                 if (array_key_exists($qcStatementName, $this->qcStatements)) {
-                    // TODO: Figure out a way to handle multiple qcStatements of same name, if valid
+                    // TODO: Figure out a way to handle multiple qcStatements
+                    // of same name, if valid
                     if ($qcStatementName != 'QCPDS') {
                         throw new QCStatementException(
-                          "Multiple QCStatements of type " . $qcStatement->getType() . ": " . base64_encode($qcStatementsDER),
-                          1
-                      );
+                            "Multiple QCStatements of type " .
+                            $qcStatement->getType() . ": " .
+                            base64_encode($qcStatementsDER),
+                            1
+                        );
                     }
                 } else {
                     $this->qcStatements[$qcStatement->getType()] = $qcStatement;
@@ -48,6 +51,11 @@ class QCStatements implements ExtensionInterface
     public function getStatements()
     {
         return $this->qcStatements;
+    }
+
+    public function getStatementNames()
+    {
+        return array_keys($this->qcStatements);
     }
 
     public function getPDSLocations()
