@@ -7,3 +7,4 @@ doc
 composer.lock
 ./.php_cs
 tools/
+.tags_swap

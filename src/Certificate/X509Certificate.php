@@ -16,11 +16,16 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $crtResource;
     private $crtBinary;
     private $parsed;
-    private $extensions;
+    private $extensions = [];
     private $keyUsage;
     private $crl;
     private $serialNumber;
     private $publicKey;
+    private $issuerCert;
+    private $issuer;
+    private $attributes = [];
+    private $issuerExpanded = [];
+    private $subjectExpanded = [];
 
     public function __construct($candidate)
     {
@@ -78,6 +83,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
                 break;
             }
+            $this->issuer = $tbsCertificate->at(3)->asSequence()->toDER();
+            $this->subject = $tbsCertificate->at(5)->asSequence()->toDER();
         } else {
             return null;
             throw new CertificateException("Only X.509 v3 certificates are supported: ".base64_encode($this->crtBinary), 1);
@@ -219,19 +226,27 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function hasExtensions()
     {
-        return array_key_exists('extensions', $this->getParsed());
+        return (! empty($this->extensions));
     }
 
     public function hasQCStatements()
     {
         if ($this->hasExtensions()) {
-            return array_key_exists('qcStatements', $this->getParsed()['extensions']);
+            return array_key_exists('qcStatements', $this->extensions);
         }
     }
 
-    public function getQCStatements()
+    protected function getQCStatements()
     {
+        if ($this->hasQCStatements()) {
+            return $this->getExtensions()['qcStatements']->getStatements();
+        }
         return $this->qcStatements;
+    }
+
+    public function getQCStatementNames()
+    {
+        return $this->getExtensions()['qcStatements']->getStatementNames();
     }
 
     public function toDER()
@@ -239,9 +254,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->crtBinary;
     }
 
-    public function getExtensions()
+    protected function getExtensions()
     {
         return $this->extensions;
+    }
+
+    public function getExtensionNames()
+    {
+        return array_keys($this->extensions);
     }
 
     public function getAuthorityKeyIdentifier()
@@ -325,8 +345,143 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->getParsed()['name'];
     }
 
+    public function getIssuerName()
+    {
+        return $this->getParsed()['issuer'];
+    }
+
+    public function getSubject()
+    {
+        if (empty($this->subjectExpanded)) {
+            $subjectDN = UnspecifiedType::fromDER($this->subject)->asSequence();
+            foreach ($subjectDN as $DNPart) {
+                $this->subjectExpanded[] = self::getDNPartExpanded($DNPart);
+            }
+        }
+        return $this->subjectExpanded;
+    }
+
+    public function getIssuer()
+    {
+        if (empty($this->issuerExpanded)) {
+            $issuerDN = UnspecifiedType::fromDER($this->issuer)->asSequence();
+            foreach ($issuerDN as $DNPart) {
+                $this->issuerExpanded[] = self::getDNPartExpanded($DNPart);
+            }
+        }
+        return $this->issuerExpanded;
+    }
+
+    public function getDNPartExpanded($dnPart)
+    {
+        $dnElement = $dnPart->asSet()->at(0)->asSequence();
+        $oid = $dnElement->at(0)->asObjectIdentifier()->oid();
+        $oidName = OID::getName($oid);
+        $identifier = $dnElement->at(1)->tag();
+        switch ($identifier) {
+          case 12:
+            $dnPartExpanded['oid'] = "$oidName ($oid)";
+            $dnPartExpanded['value'] = $dnElement->at(1)->asUTF8String()->string();
+            break;
+          case 19:
+            $dnPartExpanded['oid'] = "$oidName ($oid)";
+            $dnPartExpanded['value'] = $dnElement->at(1)->asPrintableString()->string();
+            break;
+          case 22:
+            $dnPartExpanded['oid'] = "$oidName ($oid)";
+            $dnPartExpanded['value'] = $dnElement->at(1)->asIA5String()->string();
+            break;
+          case 16:
+            $elements = [];
+            foreach ($dnElement->at(1)->asSequence()->elements() as $element) {
+                $elementTag = $element->tag();
+                switch ($elementTag) {
+                case 12:
+                  $elements[] = $element->asUTF8String()->string();
+                  break;
+
+                default:
+                  throw new ParseException(
+                      "Unknown DN component element type ".
+                    $elementTag.
+                    ": ".
+                    base64_encode($element->toDER()),
+                      1
+                  );
+                  break;
+              }
+            }
+            $dnPartExpanded['oid'] = "$oidName ($oid)";
+            $dnPartExpanded['value'] = $elements;
+            break;
+
+          default:
+            throw new ParseException(
+                "Unknown DN component type ".
+                $identifier.
+                ": ".
+                base64_encode($dnElement->toDER()),
+                1
+            );
+
+            break;
+        }
+        if ($oidName == 'unknown') {
+            throw new ParseException(
+                "Unknown OID $oid in DN: ".
+                base64_encode($dnElement->toDER()),
+                1
+            );
+        }
+        return $dnPartExpanded;
+    }
+
     public function getType()
     {
         return 'X509Certificate';
+    }
+
+    public function getAttributes()
+    {
+        if (! array_key_exists('Subject', $this->attributes)) {
+            $this->attributes["subjectDN"] = $this->getSubjectName();
+            $issuerDN = [];
+            foreach ($this->getParsed()['issuer'] as $key => $value) {
+                $issuerDN[] = $key.'='.$value;
+            }
+            $this->attributes["issuerDN"] = implode('/', $issuerDN);
+            $this->attributes["fingerprint"] = $this->getIDentifier();
+            $this->attributes["SKIHex"] = bin2hex($this->getSubjectKeyIdentifier());
+            $this->attributes["SKIBase64"] = base64_encode($this->getSubjectKeyIdentifier());
+            $this->attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
+            $this->attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
+            $this->attributes["Subject"] = $this->getSubject();
+            $this->attributes["Issuer"] = $this->getIssuer();
+            if (!empty($this->issuerCert)) {
+                $this->attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
+            };
+        }
+
+        return $this->attributes;
+    }
+
+    public function withIssuer($candidate)
+    {
+        if (! is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
+            $issuer = new X509Certificate($candidate);
+        }
+        if ($issuer->getSubjectName() <> $this->getSubjectName()) {
+            throw new CertificateException("Subject name mismatch between certificate and issuer", 1);
+        } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
+            throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
+        } else {
+            // TODO: Check signatures and DN match
+            $this->issuer = $issuer;
+        }
+    }
+
+    public function setTrustedList($trustedList)
+    {
+        $this->attributes['TrustedList'] = $trustedList->getAttributes();
     }
 }
