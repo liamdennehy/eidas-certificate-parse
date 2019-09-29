@@ -162,7 +162,8 @@ class ExtensionTest extends TestCase
             'Z25vLmh1L3F0bHNjYTIwMTguY3J0MDwGCCsGAQUFBzAChjBodHRwOi8vcXRsc2Nh'.
             'MjAxOC1jYTIuZS1zemlnbm8uaHUvcXRsc2NhMjAxOC5jcnQwPAYIKwYBBQUHMAKG'.
             'MGh0dHA6Ly9xdGxzY2EyMDE4LWNhMy5lLXN6aWduby5odS9xdGxzY2EyMDE4LmNy'.
-            'dA==');
+            'dA=='
+        );
         $aia = new AuthorityInformationAccess($binary);
         $this->assertEquals(
             [
