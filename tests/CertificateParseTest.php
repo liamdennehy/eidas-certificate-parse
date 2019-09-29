@@ -63,7 +63,8 @@ class CertificateParseTest extends TestCase
           'SKIBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
           'AKIHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
           'AKIBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
-          'Subject' => $this->eucrtSubject
+          'Subject' => $this->eucrtSubject,
+          'Issuer' => $this->eucrtIssuer
         ];
     }
     public function getTestCerts()

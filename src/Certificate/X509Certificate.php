@@ -395,7 +395,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                   break;
 
                 default:
-                  // code...
                   throw new ParseException(
                       "Unknown DN component element type ".
                     $elementTag.
@@ -427,7 +426,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 base64_encode($dnElement->toDER()),
                 1
             );
-            // }
         }
         return $dnPartExpanded;
     }
@@ -447,9 +445,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         $attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
         $attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
         $attributes["Subject"] = $this->getSubject();
+        $attributes["Issuer"] = $this->getIssuer();
         if (!empty($this->issuerCert)) {
             $attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
-        }
+        };
+
         return $attributes;
     }
 
