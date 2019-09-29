@@ -73,6 +73,7 @@ class CertificateParseTest extends TestCase
               hash('sha1', UnspecifiedType::fromDER($this->eucrt->getPublicKey())->asSequence()->at(1)->asBitString()->string())
             ]
         );
+        $this->assertTrue($this->eucrt->hasExtensions());
         $this->assertEquals(
             [
               'authorityInfoAccess',
@@ -86,6 +87,17 @@ class CertificateParseTest extends TestCase
               'qcStatements'
             ],
             $this->eucrt->getExtensionNames()
+        );
+        $this->assertTrue($this->eucrt->hasQCStatements());
+        $this->assertEquals(
+            [
+              'QCSyntaxV2',
+              'QCCompliance',
+              'QCSSCD',
+              'QCQualifiedType',
+              'QCPDS'
+            ],
+            $this->eucrt->getQCStatementNames()
         );
         $crtParsed = $this->mocrt->getParsed();
         $this->assertEquals(
