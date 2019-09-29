@@ -154,7 +154,15 @@ class ExtensionTest extends TestCase
 
     public function testAIA()
     {
-        $binary = base64_decode('MIIBTTAvBggrBgEFBQcwAYYjaHR0cDovL3F0bHNjYTIwMTgtb2NzcDEuZS1zemlnbm8uaHUwLwYIKwYBBQUHMAGGI2h0dHA6Ly9xdGxzY2EyMDE4LW9jc3AyLmUtc3ppZ25vLmh1MC8GCCsGAQUFBzABhiNodHRwOi8vcXRsc2NhMjAxOC1vY3NwMy5lLXN6aWduby5odTA8BggrBgEFBQcwAoYwaHR0cDovL3F0bHNjYTIwMTgtY2ExLmUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3J0MDwGCCsGAQUFBzAChjBodHRwOi8vcXRsc2NhMjAxOC1jYTIuZS1zemlnbm8uaHUvcXRsc2NhMjAxOC5jcnQwPAYIKwYBBQUHMAKGMGh0dHA6Ly9xdGxzY2EyMDE4LWNhMy5lLXN6aWduby5odS9xdGxzY2EyMDE4LmNydA==');
+        $binary = base64_decode(
+            'MIIBTTAvBggrBgEFBQcwAYYjaHR0cDovL3F0bHNjYTIwMTgtb2NzcDEuZS1zemln'.
+            'bm8uaHUwLwYIKwYBBQUHMAGGI2h0dHA6Ly9xdGxzY2EyMDE4LW9jc3AyLmUtc3pp'.
+            'Z25vLmh1MC8GCCsGAQUFBzABhiNodHRwOi8vcXRsc2NhMjAxOC1vY3NwMy5lLXN6'.
+            'aWduby5odTA8BggrBgEFBQcwAoYwaHR0cDovL3F0bHNjYTIwMTgtY2ExLmUtc3pp'.
+            'Z25vLmh1L3F0bHNjYTIwMTguY3J0MDwGCCsGAQUFBzAChjBodHRwOi8vcXRsc2Nh'.
+            'MjAxOC1jYTIuZS1zemlnbm8uaHUvcXRsc2NhMjAxOC5jcnQwPAYIKwYBBQUHMAKG'.
+            'MGh0dHA6Ly9xdGxzY2EyMDE4LWNhMy5lLXN6aWduby5odS9xdGxzY2EyMDE4LmNy'.
+            'dA==');
         $aia = new AuthorityInformationAccess($binary);
         $this->assertEquals(
             [
