@@ -15,6 +15,46 @@ class CertificateParseTest extends TestCase
     public function setUp()
     {
         $this->testTime = new \DateTime('@1569225604');
+        $this->eucrtSubject = [
+          [
+            'oid' => 'countryName (2.5.4.6)',
+            'value' => 'BE'
+          ],
+          [
+            'oid' => 'organizationalUnitName (2.5.4.11)',
+            'value' => 'DG CONNECT'
+          ],
+          [
+            'oid' => 'organizationIdentifier (2.5.4.97)',
+            'value' => 'VATBE-0949.383.342'
+          ],
+          [
+            'oid' => 'organizationName (2.5.4.10)',
+            'value' => 'European Commission'
+          ],
+          [
+            'oid' => 'commonName (2.5.4.3)',
+            'value' => 'EC_CNECT'
+          ]
+        ];
+        $this->eucrtIssuer = [
+          [
+            'oid' => 'countryName (2.5.4.6)',
+            'value' => 'BE'
+          ],
+          [
+            'oid' => 'organizationIdentifier (2.5.4.97)',
+            'value' => 'NTRBE-0537698318'
+          ],
+          [
+            'oid' => 'organizationName (2.5.4.10)',
+            'value' => 'QuoVadis Trustlink BVBA'
+          ],
+          [
+            'oid' => 'commonName (2.5.4.3)',
+            'value' => 'QuoVadis Belgium Issuing CA G2'
+          ],
+        ];
         $this->eucrtAttributes =
         [
           'subject' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
@@ -22,7 +62,8 @@ class CertificateParseTest extends TestCase
           'SKIHex' => 'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
           'SKIBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
           'AKIHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
-          'AKIBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas='
+          'AKIBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
+          'Subject' => $this->eucrtSubject
         ];
     }
     public function getTestCerts()
@@ -181,6 +222,19 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             $this->eucrtAttributes,
             $this->eucrt->getAttributes()
+        );
+    }
+
+    public function testDistinguishedNames()
+    {
+        $this->getTestCerts();
+        $this->assertEquals(
+            $this->eucrtSubject,
+            $this->eucrt->getSubject()
+        );
+        $this->assertEquals(
+            $this->eucrtIssuer,
+            $this->eucrt->getIssuer()
         );
     }
 }

@@ -22,6 +22,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $serialNumber;
     private $publicKey;
     private $issuerCert;
+    private $issuer;
+    private $issuerExpanded = [];
+    private $subjectExpanded = [];
 
     public function __construct($candidate)
     {
@@ -79,6 +82,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
                 break;
             }
+            $this->issuer = $tbsCertificate->at(3)->asSequence()->toDER();
+            $this->subject = $tbsCertificate->at(5)->asSequence()->toDER();
         } else {
             return null;
             throw new CertificateException("Only X.509 v3 certificates are supported: ".base64_encode($this->crtBinary), 1);
@@ -339,6 +344,94 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->getParsed()['name'];
     }
 
+    public function getSubject()
+    {
+        if (empty($this->subjectExpanded)) {
+            $subjectDN = UnspecifiedType::fromDER($this->subject)->asSequence();
+            foreach ($subjectDN as $DNPart) {
+                $this->subjectExpanded[] = self::getDNPartExpanded($DNPart);
+            }
+        }
+        return $this->subjectExpanded;
+    }
+
+    public function getIssuer()
+    {
+        if (empty($this->issuerExpanded)) {
+            $issuerDN = UnspecifiedType::fromDER($this->issuer)->asSequence();
+            foreach ($issuerDN as $DNPart) {
+                $this->issuerExpanded[] = self::getDNPartExpanded($DNPart);
+            }
+        }
+        return $this->issuerExpanded;
+    }
+
+    public function getDNPartExpanded($dnPart)
+    {
+        $dnElement = $dnPart->asSet()->at(0)->asSequence();
+        $oid = $dnElement->at(0)->asObjectIdentifier()->oid();
+        $oidName = OID::getName($oid);
+        $identifier = $dnElement->at(1)->tag();
+        switch ($identifier) {
+          case 12:
+            $dnPartExpanded['oid'] = "$oidName ($oid)";
+            $dnPartExpanded['value'] = $dnElement->at(1)->asUTF8String()->string();
+            break;
+          case 19:
+            $dnPartExpanded['oid'] = "$oidName ($oid)";
+            $dnPartExpanded['value'] = $dnElement->at(1)->asPrintableString()->string();
+            break;
+          case 22:
+            $dnPartExpanded['oid'] = "$oidName ($oid)";
+            $dnPartExpanded['value'] = $dnElement->at(1)->asIA5String()->string();
+            break;
+          case 16:
+            $elements = [];
+            foreach ($dnElement->at(1)->asSequence()->elements() as $element) {
+                $elementTag = $element->tag();
+                switch ($elementTag) {
+                case 12:
+                  $elements[] = $element->asUTF8String()->string();
+                  break;
+
+                default:
+                  // code...
+                  throw new ParseException(
+                      "Unknown DN component element type ".
+                    $elementTag.
+                    ": ".
+                    base64_encode($element->toDER()),
+                      1
+                  );
+                  break;
+              }
+            }
+            $dnPartExpanded['oid'] = "$oidName ($oid)";
+            $dnPartExpanded['value'] = $elements;
+            break;
+
+          default:
+            throw new ParseException(
+                "Unknown DN component type ".
+                $identifier.
+                ": ".
+                base64_encode($dnElement->toDER()),
+                1
+            );
+
+            break;
+        }
+        if ($oidName == 'unknown') {
+            throw new ParseException(
+                "Unknown OID $oid in DN: ".
+                base64_encode($dnElement->toDER()),
+                1
+            );
+            // }
+        }
+        return $dnPartExpanded;
+    }
+
     public function getType()
     {
         return 'X509Certificate';
@@ -353,6 +446,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         $attributes["SKIBase64"] = base64_encode($this->getSubjectKeyIdentifier());
         $attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
         $attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
+        $attributes["Subject"] = $this->getSubject();
         if (!empty($this->issuerCert)) {
             $attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
         }
