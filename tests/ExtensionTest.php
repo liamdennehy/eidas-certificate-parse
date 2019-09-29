@@ -5,6 +5,7 @@ namespace eIDASCertificate\tests;
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\Extension;
 use eIDASCertificate\Certificate\Extensions;
+use eIDASCertificate\Certificate\AuthorityInformationAccess;
 use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
 use eIDASCertificate\Certificate\SubjectKeyIdentifier;
 use eIDASCertificate\Certificate\BasicConstraints;
@@ -55,7 +56,7 @@ class ExtensionTest extends TestCase
               'authorityKeyIdentifier',
               'unknown-2.5.29.17',
               'crlDistributionPoints',
-              'unknown-1.3.6.1.5.5.7.1.1',
+              'authorityInfoAccess',
               'qcStatements'
             ],
             array_keys($extensions->getExtensions())
@@ -148,6 +149,28 @@ class ExtensionTest extends TestCase
         $this->assertEquals(
             '223b5da0a4f5472d77a8932a9be4a749b5f5346a',
             bin2hex($aki->getKeyId())
+        );
+    }
+
+    public function testAIA()
+    {
+        $binary = base64_decode('MIIBTTAvBggrBgEFBQcwAYYjaHR0cDovL3F0bHNjYTIwMTgtb2NzcDEuZS1zemlnbm8uaHUwLwYIKwYBBQUHMAGGI2h0dHA6Ly9xdGxzY2EyMDE4LW9jc3AyLmUtc3ppZ25vLmh1MC8GCCsGAQUFBzABhiNodHRwOi8vcXRsc2NhMjAxOC1vY3NwMy5lLXN6aWduby5odTA8BggrBgEFBQcwAoYwaHR0cDovL3F0bHNjYTIwMTgtY2ExLmUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3J0MDwGCCsGAQUFBzAChjBodHRwOi8vcXRsc2NhMjAxOC1jYTIuZS1zemlnbm8uaHUvcXRsc2NhMjAxOC5jcnQwPAYIKwYBBQUHMAKGMGh0dHA6Ly9xdGxzY2EyMDE4LWNhMy5lLXN6aWduby5odS9xdGxzY2EyMDE4LmNydA==');
+        $aia = new AuthorityInformationAccess($binary);
+        $this->assertEquals(
+            [
+              'http://qtlsca2018-ca1.e-szigno.hu/qtlsca2018.crt',
+              'http://qtlsca2018-ca2.e-szigno.hu/qtlsca2018.crt',
+              'http://qtlsca2018-ca3.e-szigno.hu/qtlsca2018.crt'
+            ],
+            $aia->getCAIssuers()
+        );
+        $this->assertEquals(
+            [
+              'http://qtlsca2018-ocsp1.e-szigno.hu',
+              'http://qtlsca2018-ocsp2.e-szigno.hu',
+              'http://qtlsca2018-ocsp3.e-szigno.hu'
+            ],
+            $aia->getOCSP()
         );
     }
 

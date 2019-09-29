@@ -39,6 +39,9 @@ abstract class Extension
           case 'keyUsage':
             return new KeyUsage($extnValue);
             break;
+          case 'authorityInfoAccess':
+            return new AuthorityInformationAccess($extnValue);
+            break;
           case 'subjectKeyIdentifier':
             return new SubjectKeyIdentifier($extnValue);
             break;

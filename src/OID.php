@@ -40,6 +40,8 @@ class OID
     const AuthorityKeyIdentifier  = '2.5.29.35';
     const policyConstraints       = '2.5.29.36';
     const AuthorityInformationAccess = '1.3.6.1.5.5.7.1.1';
+    const ocsp                    = '1.3.6.1.5.5.7.48.1';
+    const caIssuers               = '1.3.6.1.5.5.7.48.2';
     const ServerAuth              = '1.3.6.1.5.5.7.3.1';
     const ClientAuth              = '1.3.6.1.5.5.7.3.2';
     const CodeSigning             = '1.3.6.1.5.5.7.3.3';
@@ -162,6 +164,12 @@ class OID
             break;
           case self::AuthorityInformationAccess:
             $oidName = 'authorityInfoAccess';
+            break;
+          case self::caIssuers:
+            $oidName = 'caIssuers';
+            break;
+          case self::ocsp:
+            $oidName = 'ocsp';
             break;
           case self::ClientAuth:
             $oidName = 'clientAuth';
