@@ -71,8 +71,21 @@ class CertificateParseTest extends TestCase
               bin2hex($this->eucrt->getAuthorityKeyIdentifier()),
               bin2hex($this->eucrt->getSubjectKeyIdentifier()),
               hash('sha1', UnspecifiedType::fromDER($this->eucrt->getPublicKey())->asSequence()->at(1)->asBitString()->string())
-
             ]
+        );
+        $this->assertEquals(
+            [
+              'authorityInfoAccess',
+              'subjectKeyIdentifier',
+              'authorityKeyIdentifier',
+              'crlDistributionPoints',
+              'keyUsage',
+              'extKeyUsage',
+              'unknown-1.2.840.113583.1.1.9.2',
+              'unknown-1.2.840.113583.1.1.9.1',
+              'qcStatements'
+            ],
+            $this->eucrt->getExtensionNames()
         );
         $crtParsed = $this->mocrt->getParsed();
         $this->assertEquals(

@@ -240,9 +240,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->crtBinary;
     }
 
-    public function getExtensions()
+    protected function getExtensions()
     {
         return $this->extensions;
+    }
+
+    public function getExtensionNames()
+    {
+        return array_keys($this->extensions);
     }
 
     public function getAuthorityKeyIdentifier()
