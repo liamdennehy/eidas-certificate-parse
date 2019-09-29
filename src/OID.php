@@ -39,6 +39,7 @@ class OID
     const certificatePolicies     = '2.5.29.32';
     const AuthorityKeyIdentifier  = '2.5.29.35';
     const policyConstraints       = '2.5.29.36';
+    const AuthorityInformationAccess = '1.3.6.1.5.5.7.1.1';
     const ServerAuth              = '1.3.6.1.5.5.7.3.1';
     const ClientAuth              = '1.3.6.1.5.5.7.3.2';
     const CodeSigning             = '1.3.6.1.5.5.7.3.3';
@@ -158,6 +159,9 @@ class OID
             break;
           case self::ServerAuth:
             $oidName = 'serverAuth';
+            break;
+          case self::AuthorityInformationAccess:
+            $oidName = 'authorityInfoAccess';
             break;
           case self::ClientAuth:
             $oidName = 'clientAuth';
