@@ -15,6 +15,15 @@ class CertificateParseTest extends TestCase
     public function setUp()
     {
         $this->testTime = new \DateTime('@1569225604');
+        $this->eucrtAttributes =
+        [
+          'subject' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
+          'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
+          'SKIHex' => 'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
+          'SKIBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
+          'AKIHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
+          'AKIBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas='
+        ];
     }
     public function getTestCerts()
     {
@@ -139,5 +148,14 @@ class CertificateParseTest extends TestCase
             ]
         );
         $this->assertTrue($this->jmcrt->isCurrentAt($this->testTime));
+    }
+
+    public function testX509Atrributes()
+    {
+        $this->getTestCerts();
+        $this->assertEquals(
+            $this->eucrtAttributes,
+            $this->eucrt->gatAttributes()
+        );
     }
 }

@@ -329,4 +329,19 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     {
         return 'X509Certificate';
     }
+
+    public function gatAttributes()
+    {
+        $attributes = [];
+        $attributes["subject"] = $this->getSubjectName();
+        $attributes["fingerprint"] = $this->getIDentifier();
+        $attributes["SKIHex"] = bin2hex($this->getSubjectKeyIdentifier());
+        $attributes["SKIBase64"] = base64_encode($this->getSubjectKeyIdentifier());
+        $attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
+        $attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
+        if (!empty($this->issuerCert)) {
+            $attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
+        }
+        return $attributes;
+    }
 }
