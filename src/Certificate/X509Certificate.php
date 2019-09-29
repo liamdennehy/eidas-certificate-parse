@@ -16,7 +16,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $crtResource;
     private $crtBinary;
     private $parsed;
-    private $extensions;
+    private $extensions = [];
     private $keyUsage;
     private $crl;
     private $serialNumber;
@@ -220,19 +220,27 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function hasExtensions()
     {
-        return array_key_exists('extensions', $this->getParsed());
+        return (! empty($this->extensions));
     }
 
     public function hasQCStatements()
     {
         if ($this->hasExtensions()) {
-            return array_key_exists('qcStatements', $this->getParsed()['extensions']);
+            return array_key_exists('qcStatements', $this->extensions);
         }
     }
 
-    public function getQCStatements()
+    protected function getQCStatements()
     {
+        if ($this->hasQCStatements()) {
+            return $this->getExtensions()['qcStatements']->getStatements();
+        }
         return $this->qcStatements;
+    }
+
+    public function getQCStatementNames()
+    {
+        return $this->getExtensions()['qcStatements']->getStatementNames();
     }
 
     public function toDER()
