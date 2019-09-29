@@ -61,6 +61,7 @@ class OID
     const ipsecUser               = '1.3.6.1.5.5.7.3.7';
     const EuQCompliance           = '0.4.0.19422.1.1';
     const commonName              = '2.5.4.3';
+    const surname                 = '2.5.4.4';
     const serialNumber            = '2.5.4.5';
     const countryName             = '2.5.4.6';
     const localityName            = '2.5.4.7';
@@ -71,6 +72,7 @@ class OID
     const businessCategory        = '2.5.4.15';
     const postalAddress           = '2.5.4.16';
     const postalCode              = '2.5.4.17';
+    const givenName               = '2.5.4.42';
     const organizationIdentifier  = '2.5.4.97';
     // https://www.itu.int/rec/dologin.asp?lang=e&id=T-REC-X.520-201210-S!Cor3!PDF-E&type=items
 
@@ -226,6 +228,12 @@ class OID
             break;
           case self::commonName:
             $oidName = 'commonName';
+            break;
+          case self::surname:
+            $oidName = 'surname';
+            break;
+          case self::givenName:
+            $oidName = 'givenName';
             break;
           case self::serialNumber:
             $oidName = 'serialNumber';

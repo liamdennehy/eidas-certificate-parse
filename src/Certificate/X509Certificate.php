@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\CertificateException;
+use eIDASCertificate\ParseException;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements;
