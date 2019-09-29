@@ -23,6 +23,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $publicKey;
     private $issuerCert;
     private $issuer;
+    private $attributes = [];
     private $issuerExpanded = [];
     private $subjectExpanded = [];
 
@@ -344,6 +345,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->getParsed()['name'];
     }
 
+    public function getIssuerName()
+    {
+        return $this->getParsed()['issuer'];
+    }
+
     public function getSubject()
     {
         if (empty($this->subjectExpanded)) {
@@ -437,20 +443,26 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getAttributes()
     {
-        $attributes = [];
-        $attributes["subject"] = $this->getSubjectName();
-        $attributes["fingerprint"] = $this->getIDentifier();
-        $attributes["SKIHex"] = bin2hex($this->getSubjectKeyIdentifier());
-        $attributes["SKIBase64"] = base64_encode($this->getSubjectKeyIdentifier());
-        $attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
-        $attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
-        $attributes["Subject"] = $this->getSubject();
-        $attributes["Issuer"] = $this->getIssuer();
-        if (!empty($this->issuerCert)) {
-            $attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
-        };
+        if (! array_key_exists('Subject', $this->attributes)) {
+            $this->attributes["subjectDN"] = $this->getSubjectName();
+            $issuerDN = [];
+            foreach ($this->getParsed()['issuer'] as $key => $value) {
+                $issuerDN[] = $key.'='.$value;
+            }
+            $this->attributes["issuerDN"] = implode('/', $issuerDN);
+            $this->attributes["fingerprint"] = $this->getIDentifier();
+            $this->attributes["SKIHex"] = bin2hex($this->getSubjectKeyIdentifier());
+            $this->attributes["SKIBase64"] = base64_encode($this->getSubjectKeyIdentifier());
+            $this->attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
+            $this->attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
+            $this->attributes["Subject"] = $this->getSubject();
+            $this->attributes["Issuer"] = $this->getIssuer();
+            if (!empty($this->issuerCert)) {
+                $this->attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
+            };
+        }
 
-        return $attributes;
+        return $this->attributes;
     }
 
     public function withIssuer($candidate)
@@ -463,7 +475,13 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
             throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
         } else {
+            // TODO: Check signatures and DN match
             $this->issuer = $issuer;
         }
+    }
+
+    public function setTrustedList($trustedList)
+    {
+        $this->attributes['TrustedList'] = $trustedList->getAttributes();
     }
 }

@@ -57,7 +57,8 @@ class CertificateParseTest extends TestCase
         ];
         $this->eucrtAttributes =
         [
-          'subject' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
+          'subjectDN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
+          'issuerDN' => 'C=BE/UNDEF=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
           'SKIHex' => 'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
           'SKIBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
