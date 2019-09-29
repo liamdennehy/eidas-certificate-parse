@@ -5,6 +5,7 @@ namespace eIDASCertificate\tests;
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\DataSource;
 use eIDASCertificate\TrustedList;
+use eIDASCertificate\TSPService;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\ParseException;
 use eIDASCertificate\SignatureException;
@@ -73,8 +74,11 @@ IA==
     {
         $attributes = [
           'TSP' =>  TSPTest::getTSPAttributes(),
-          'ServiceName' => 'Digidentity SSCD CA - G2',
-          'ServiceStatus' => 'granted',
+          'Name' => 'Digidentity SSCD CA - G2',
+          'Type' => 'CA/QC',
+          'Status' => 'granted',
+          'IsActive' => true,
+          'IsQualified' => true,
           'StatusStartingTime' => 1467324000,
           'Certificates' => [
             self::TSPServiceCertHash => self::TSPServicePEM

@@ -62,11 +62,6 @@ class ServiceDigitalIdentity
         return $this->x509Certificates;
     }
 
-    public function getX509Thumbprint()
-    {
-        return openssl_x509_fingerprint($this->x509Certificate);
-    }
-
     /**
      * [getX509SKI description]
      * @param  string $algo [description]
@@ -74,20 +69,23 @@ class ServiceDigitalIdentity
      */
     public function getX509SKI()
     {
-        if (empty($this->x509SKI) && sizeof($this->x509Certificates) > 0) {
-            $this->x509SKI = base64_encode(
-                current($this->x509Certificates)->getSubjectKeyIdentifier()
-            );
+        if (! empty($this->x509SKI)) {
+            return $this->x509SKI->getSKI();
+        } elseif (sizeof($this->x509Certificates) > 0) {
+            return current($this->x509Certificates)->getSubjectKeyIdentifier();
+        } else {
+            return null;
         }
-        return $this->x509SKI;
     }
 
     public function getX509SubjectName()
     {
-        if (empty($this->x509SubjectName) && sizeof($this->x509Certificates) > 0) {
-            $this->x509SubjectName =
-          current($this->x509Certificates)->getSubjectName();
+        if (! empty($this->x509SubjectName)) {
+            return $this->x509SubjectName->getSubjectName();
+        } elseif (sizeof($this->x509Certificates) > 0) {
+            return  current($this->x509Certificates)->getSubjectName();
+        } else {
+            return null;
         }
-        return $this->x509SubjectName;
     }
 }
