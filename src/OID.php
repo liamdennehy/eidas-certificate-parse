@@ -13,6 +13,7 @@ class OID
     const ecPublicKey             = '1.2.840.10045.2.1';
     const rsaEncryption           = '1.2.840.113549.1.1.1';
     const RSASSA_PSS              = '1.2.840.113549.1.1.10';
+    const emailAddress            = '1.2.840.113549.1.9.1';
     const QcCompliance            = '0.4.0.1862.1.1';
     const QcLimitValue            = '0.4.0.1862.1.2';
     const QcRetentionPeriod       = '0.4.0.1862.1.3';
@@ -30,6 +31,9 @@ class OID
     const PSD2                    = '0.4.0.19495.2';
     const crlReason               = '2.5.29.21';
     const crlInvalidityDate       = '2.5.29.24';
+    const JurisdictionL           = '1.3.6.1.4.1.311.60.2.1.1';
+    const JurisdictionST          = '1.3.6.1.4.1.311.60.2.1.2';
+    const JurisdictionC           = '1.3.6.1.4.1.311.60.2.1.3';
     const PreCertPoison           = '1.3.6.1.4.1.11129.2.4.3';
     const BasicConstraints        = '2.5.29.19';
     const KeyUsage                = '2.5.29.15';
@@ -56,6 +60,19 @@ class OID
     const ipsecTunnel             = '1.3.6.1.5.5.7.3.6';
     const ipsecUser               = '1.3.6.1.5.5.7.3.7';
     const EuQCompliance           = '0.4.0.19422.1.1';
+    const commonName              = '2.5.4.3';
+    const serialNumber            = '2.5.4.5';
+    const countryName             = '2.5.4.6';
+    const localityName            = '2.5.4.7';
+    const stateOrProvinceName     = '2.5.4.8';
+    const streetAddress           = '2.5.4.9';
+    const organizationName        = '2.5.4.10';
+    const organizationalUnitName  = '2.5.4.11';
+    const businessCategory        = '2.5.4.15';
+    const postalAddress           = '2.5.4.16';
+    const postalCode              = '2.5.4.17';
+    const organizationIdentifier  = '2.5.4.97';
+    // https://www.itu.int/rec/dologin.asp?lang=e&id=T-REC-X.520-201210-S!Cor3!PDF-E&type=items
 
     public static function getName($oidString)
     {
@@ -80,6 +97,9 @@ class OID
               break;
           case self::RSASSA_PSS:
               $oidName = 'RSASSA-PSS';
+              break;
+          case self::emailAddress:
+              $oidName = 'emailAddress';
               break;
           case self::QcCompliance:
               $oidName = 'QcCompliance';
@@ -138,6 +158,15 @@ class OID
           case self::CRLDistributionPoints:
             $oidName = 'crlDistributionPoints';
             break;
+          case self::JurisdictionST:
+            $oidName = 'JurisdictionST';
+            break;
+          case self::JurisdictionC:
+            $oidName = 'JurisdictionC';
+            break;
+          case self::JurisdictionL:
+            $oidName = 'JurisdictionL';
+            break;
           case self::PreCertPoison:
             $oidName = 'preCertPoison';
             break;
@@ -195,15 +224,42 @@ class OID
           case self::EuQCompliance:
             $oidName = 'etsi-tsts-EuQCompliance';
             break;
-          // case self::ipsecEndSystem:
-          //   $oidName = 'ipsecEndSystem';
-          //   break;
-          // case self::ipsecTunnel:
-          //   $oidName = 'ipsecTunnel';
-          //   break;
-          // case self::ipsecUser:
-          //   $oidName = 'ipsecUser';
-          //   break;
+          case self::commonName:
+            $oidName = 'commonName';
+            break;
+          case self::serialNumber:
+            $oidName = 'serialNumber';
+            break;
+          case self::countryName:
+            $oidName = 'countryName';
+            break;
+          case self::localityName:
+            $oidName = 'localityName';
+            break;
+          case self::stateOrProvinceName:
+            $oidName = 'stateOrProvinceName';
+            break;
+          case self::organizationName:
+            $oidName = 'organizationName';
+            break;
+          case self::organizationalUnitName:
+            $oidName = 'organizationalUnitName';
+            break;
+          case self::businessCategory:
+            $oidName = 'businessCategory';
+            break;
+          case self::postalAddress:
+            $oidName = 'postalAddress';
+            break;
+          case self::streetAddress:
+            $oidName = 'streetAddress';
+            break;
+          case self::postalCode:
+            $oidName = 'postalCode';
+            break;
+          case self::organizationIdentifier:
+            $oidName = 'organizationIdentifier';
+            break;
           default:
             $oidName = 'unknown';
             break;
