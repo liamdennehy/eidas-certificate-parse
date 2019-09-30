@@ -579,7 +579,7 @@ class TrustedList
         return $this->xmlHash;
     }
 
-    public function getTLXML()
+    public function getXML()
     {
         return $this->xml;
     }
