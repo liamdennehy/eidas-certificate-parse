@@ -214,8 +214,8 @@ class ExtensionTest extends TestCase
         $basicConstraints = new BasicConstraints($binary);
         $this->assertEquals(
             [
-              false,
-              false
+              true,
+              null
             ],
             [
               $basicConstraints->isCA(),

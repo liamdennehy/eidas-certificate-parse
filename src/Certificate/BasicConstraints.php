@@ -26,10 +26,12 @@ class BasicConstraints implements ExtensionInterface
             $extensionDER[4] = chr(0xFF);
         }
         $basicConstraints = UnspecifiedType::fromDER($extensionDER)->asSequence();
-        if (sizeof($basicConstraints->elements()) > 1 && $basicConstraints->at(0)->isType(1)) {
+        if ($basicConstraints->has(0) && $basicConstraints->at(0)->isType(1)) {
             if ($basicConstraints->at(0)->asBoolean()->value() == true) {
                 $this->isCA = true;
-                $this->pathLength = $basicConstraints->at(1)->asInteger()->intNumber();
+                if ($basicConstraints->has(1)) {
+                    $this->pathLength = $basicConstraints->at(1)->asInteger()->intNumber();
+                }
             }
         } else {
             $this->isCA = false;
@@ -54,11 +56,7 @@ class BasicConstraints implements ExtensionInterface
 
     public function getPathLength()
     {
-        if ($this->isCA) {
-            return $this->pathLength;
-        } else {
-            return false;
-        }
+        return $this->pathLength;
     }
 
     public function getBinary()
