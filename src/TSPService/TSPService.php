@@ -158,25 +158,26 @@ class TSPService
     public function getTSPServiceAttributes()
     {
         if (empty($this->attributes)) {
-            $this->attributes['TSP'] = $this->tspAttributes;
-            $this->attributes['Name'] = $this->getName();
-            $this->attributes['Type'] = $this->getType();
-            $this->attributes['IsQualified'] = $this->getIsQualified();
-            $this->attributes['Status'] = $this->getStatus();
-            $this->attributes['IsActive'] = $this->getIsActive();
-            $this->attributes['StatusStartingTime'] = $this->getDate();
-            $this->attributes['Certificates'] = [];
+            $this->attributes['trustServiceProvider'] = $this->tspAttributes;
+            $this->attributes['name'] = $this->getName();
+            $this->attributes['type'] = $this->getType();
+            $this->attributes['isQualified'] = $this->getIsQualified();
+            $this->attributes['status'] = $this->getStatus();
+            $this->attributes['isActive'] = $this->getIsActive();
+            $this->attributes['statusStartingTime'] = $this->getDate();
+            $this->attributes['certificates'] = [];
             foreach ($this->getX509Certificates() as $certificate) {
-                $this->attributes['Certificates'][$certificate->getIdentifier()] = $certificate->toPEM();
+                $this->attributes['certificates'][$certificate->getIdentifier()] = $certificate->toPEM();
             }
-            $this->attributes['SKI'] = base64_encode($this->getX509SKI());
-            $this->attributes['SubjectName'] = $this->getX509SubjectName();
-            $this->attributes['ServiceHistory'][] = [
+            $this->attributes['skiBase64'] = base64_encode($this->getX509SKI());
+            $this->attributes['skiHex'] = bin2hex($this->getX509SKI());
+            $this->attributes['subjectName'] = $this->getX509SubjectName();
+            $this->attributes['serviceHistory'][] = [
                 $this->getDate(),
                 $this->getStatus()
             ];
             foreach ($this->serviceHistory->getInstances() as $serviceStatus) {
-                $this->attributes['ServiceHistory'][] = [
+                $this->attributes['serviceHistory'][] = [
                     $serviceStatus->getStartingTime(),
                     $serviceStatus->getStatus()
                 ];

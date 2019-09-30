@@ -73,19 +73,20 @@ IA==
     public static function getTSPServicesAttributes()
     {
         $attributes = [
-          'TSP' =>  TSPTest::getTSPAttributes(),
-          'Name' => 'Digidentity SSCD CA - G2',
-          'Type' => 'CA/QC',
-          'Status' => 'granted',
-          'IsActive' => true,
-          'IsQualified' => true,
-          'StatusStartingTime' => 1467324000,
-          'Certificates' => [
+          'trustServiceProvider' =>  TSPTest::getTSPAttributes(),
+          'name' => 'Digidentity SSCD CA - G2',
+          'type' => 'CA/QC',
+          'status' => 'granted',
+          'isActive' => true,
+          'isQualified' => true,
+          'statusStartingTime' => 1467324000,
+          'certificates' => [
             self::TSPServiceCertHash => self::TSPServicePEM
           ],
-          'SKI' => 'nANA8Q6eDO6E563JCATnnDy0o6Y=',
-          'SubjectName' => '/C=NL/O=Digidentity B.V./CN=Digidentity SSCD CA - G2',
-          'ServiceHistory' => [
+          'skiBase64' => 'nANA8Q6eDO6E563JCATnnDy0o6Y=',
+          'skiHex' => '9c0340f10e9e0cee84e7adc90804e79c3cb4a3a6',
+          'subjectName' => '/C=NL/O=Digidentity B.V./CN=Digidentity SSCD CA - G2',
+          'serviceHistory' => [
             [1467324000, 'granted'],
             [1304439660, 'accredited']
           ]
@@ -112,14 +113,14 @@ IA==
         $testAttributes = $tspServices['Digidentity SSCD CA - G2'];
         $this->assertArrayHasKey(
             'TSLSignatureVerifiedAt',
-            $testAttributes['TSP']['TrustedList']
+            $testAttributes['trustServiceProvider']['TrustedList']
         );
         $this->assertArrayHasKey(
             'TSLSignatureVerifiedAt',
-            $testAttributes['TSP']['TrustedList']['ParentTSL']
+            $testAttributes['trustServiceProvider']['TrustedList']['ParentTSL']
         );
-        unset($testAttributes['TSP']['TrustedList']['TSLSignatureVerifiedAt']);
-        unset($testAttributes['TSP']['TrustedList']['ParentTSL']['TSLSignatureVerifiedAt']);
+        unset($testAttributes['trustServiceProvider']['TrustedList']['TSLSignatureVerifiedAt']);
+        unset($testAttributes['trustServiceProvider']['TrustedList']['ParentTSL']['TSLSignatureVerifiedAt']);
         $this->assertEquals(
             $refAttributes,
             $testAttributes
