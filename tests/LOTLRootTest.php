@@ -16,10 +16,10 @@ class LOTLRootTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
     const lotlAttributes = [
-      'SchemeTerritory' => 'EU',
-      'SchemeOperatorName' => 'European Commission',
-      'TSLSequenceNumber' => 248,
-      'TSLSignedByHash' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
+      'schemeTerritory' => 'EU',
+      'schemeOperatorName' => 'European Commission',
+      'tslSequenceNumber' => 248,
+      'tslSignedByHash' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
     ];
     const lotlSigningCertPath =
       '/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';
@@ -235,18 +235,18 @@ class LOTLRootTest extends TestCase
         $lotlRefAttributes = self::getLOTLAttributes();
         $lotlTestAttributes = $lotl->getTrustedListAtrributes();
         $this->assertArrayHasKey(
-            'TSLSignatureVerifiedAt',
+            'tslSignatureVerifiedAt',
             $lotlTestAttributes
         );
         $this->assertGreaterThan(
             $now - 10,
-            $lotlTestAttributes['TSLSignatureVerifiedAt']
+            $lotlTestAttributes['tslSignatureVerifiedAt']
         );
         $this->assertLessthanOrEqual(
             $now,
-            $lotlTestAttributes['TSLSignatureVerifiedAt']
+            $lotlTestAttributes['tslSignatureVerifiedAt']
         );
-        unset($lotlTestAttributes['TSLSignatureVerifiedAt']);
+        unset($lotlTestAttributes['tslSignatureVerifiedAt']);
         $this->assertEquals(
             $lotlRefAttributes,
             $lotlTestAttributes

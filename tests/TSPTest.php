@@ -11,7 +11,7 @@ use eIDASCertificate\tests\LOTLRootTest;
 class TSPTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
-    const tspAttributes = ['TrustServiceProvider' => 'Digidentity B.V.'];
+    const tspAttributes = ['trustServiceProvider' => 'Digidentity B.V.'];
 
     private $lotlXML;
     private $lotl;
@@ -38,7 +38,7 @@ class TSPTest extends TestCase
     public static function getTSPAttributes()
     {
         $tspAttributes = self::tspAttributes;
-        $tspAttributes['TrustedList'] = TLTest::getNLTLAttributes();
+        $tspAttributes['trustedList'] = TLTest::getNLTLAttributes();
         return $tspAttributes;
     }
 
@@ -77,15 +77,15 @@ class TSPTest extends TestCase
         $digidentityBVRefAttributes = self::getTSPAttributes();
         $digidentityBVTestAttributes = $digidentityBV->getTSPAttributes();
         $this->assertArrayHasKey(
-            'TSLSignatureVerifiedAt',
-            $digidentityBVTestAttributes['TrustedList']
+            'tslSignatureVerifiedAt',
+            $digidentityBVTestAttributes['trustedList']
         );
         $this->assertArrayHasKey(
-            'TSLSignatureVerifiedAt',
-            $digidentityBVTestAttributes['TrustedList']['ParentTSL']
+            'tslSignatureVerifiedAt',
+            $digidentityBVTestAttributes['trustedList']['parentTSL']
         );
-        unset($digidentityBVTestAttributes['TrustedList']['TSLSignatureVerifiedAt']);
-        unset($digidentityBVTestAttributes['TrustedList']['ParentTSL']['TSLSignatureVerifiedAt']);
+        unset($digidentityBVTestAttributes['trustedList']['tslSignatureVerifiedAt']);
+        unset($digidentityBVTestAttributes['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
 
         $this->assertEquals(
             $digidentityBVRefAttributes,

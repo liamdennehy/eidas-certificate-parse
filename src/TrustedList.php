@@ -586,17 +586,17 @@ class TrustedList
 
     public function getTrustedListAtrributes()
     {
-        $tslAttributes['SchemeTerritory'] = $this->getSchemeTerritory();
-        $tslAttributes['SchemeOperatorName'] = $this->getSchemeOperatorName();
-        $tslAttributes['TSLSequenceNumber'] = $this->getSequenceNumber();
+        $tslAttributes['schemeTerritory'] = $this->getSchemeTerritory();
+        $tslAttributes['schemeOperatorName'] = $this->getSchemeOperatorName();
+        $tslAttributes['tslSequenceNumber'] = $this->getSequenceNumber();
         if (!empty($this->getSignedByHash())) {
-            $tslAttributes['TSLSignedByHash'] = $this->getSignedByHash();
+            $tslAttributes['tslSignedByHash'] = $this->getSignedByHash();
         }
         if (!empty($this->verifiedAt)) {
-            $tslAttributes['TSLSignatureVerifiedAt'] = $this->verifiedAt->format('U');
+            $tslAttributes['tslSignatureVerifiedAt'] = $this->verifiedAt->format('U');
         }
         if (! empty($this->getParentTrustedListAtrributes())) {
-            $tslAttributes['ParentTSL'] = $this->getParentTrustedListAtrributes();
+            $tslAttributes['parentTSL'] = $this->getParentTrustedListAtrributes();
         }
 
         return $tslAttributes;

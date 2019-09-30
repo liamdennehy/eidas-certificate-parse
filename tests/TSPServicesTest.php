@@ -112,15 +112,15 @@ IA==
         $refAttributes = self::getTSPServicesAttributes();
         $testAttributes = $tspServices['Digidentity SSCD CA - G2'];
         $this->assertArrayHasKey(
-            'TSLSignatureVerifiedAt',
-            $testAttributes['trustServiceProvider']['TrustedList']
+            'tslSignatureVerifiedAt',
+            $testAttributes['trustServiceProvider']['trustedList']
         );
         $this->assertArrayHasKey(
-            'TSLSignatureVerifiedAt',
-            $testAttributes['trustServiceProvider']['TrustedList']['ParentTSL']
+            'tslSignatureVerifiedAt',
+            $testAttributes['trustServiceProvider']['trustedList']['parentTSL']
         );
-        unset($testAttributes['trustServiceProvider']['TrustedList']['TSLSignatureVerifiedAt']);
-        unset($testAttributes['trustServiceProvider']['TrustedList']['ParentTSL']['TSLSignatureVerifiedAt']);
+        unset($testAttributes['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
+        unset($testAttributes['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
         $this->assertEquals(
             $refAttributes,
             $testAttributes
