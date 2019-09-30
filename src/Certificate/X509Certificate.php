@@ -95,7 +95,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public static function emit($candidate)
     {
-        if (is_null($candidate)) {
+        if (empty($candidate)) {
             return false;
         };
         try {
@@ -506,5 +506,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         } else {
             return $this->extensions['basicConstraints']->getPathLength();
         }
+    }
+
+    public function getIssuerURIs()
+    {
+      $uris = [];
+      if (array_key_exists('authorityInfoAccess', $this->extensions)) {
+          $uris = $this->extensions['authorityInfoAccess']->getCAIssuers();
+      }
+      return $uris;
     }
 }
