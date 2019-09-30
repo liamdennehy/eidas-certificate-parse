@@ -348,7 +348,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->getParsed()['name'];
     }
 
-    public function getIssuerName()
+    public function getIssuerParsed()
     {
         return $this->getParsed()['issuer'];
     }
@@ -470,7 +470,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function withIssuer($candidate)
     {
-        if (! is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
+        if (is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
+            $issuer = $candidate;
+        } else {
             $issuer = new X509Certificate($candidate);
         }
         if ($issuer->getSubjectName() <> $this->getSubjectName()) {
