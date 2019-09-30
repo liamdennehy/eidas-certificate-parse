@@ -89,6 +89,11 @@ class CertificateParseTest extends TestCase
 
     public function testX509Parse()
     {
+        $PEM = file(__DIR__ . "/certs/" . self::jmcrtfile);
+        array_shift($PEM);
+        unset($PEM[sizeof($PEM)]);
+        $DER = base64_decode(implode('', $PEM));
+        $crtFromDER = new X509Certificate($DER);
         $this->getTestCerts();
         $crtParsed = $this->eucrt->getParsed();
         $this->assertEquals(

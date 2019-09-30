@@ -101,6 +101,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         try {
             if (substr($candidate, 0, 3) == 'MII') {
                 $candidate = X509Certificate::base64ToPEM($candidate);
+            } elseif (substr(base64_encode($candidate), 0, 3) == 'MII') {
+                $candidate = X509Certificate::base64ToPEM(base64_encode($candidate));
             };
         } catch (\Exception $e) {
             // No-op, probably already X.509 Resource
@@ -510,10 +512,10 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getIssuerURIs()
     {
-      $uris = [];
-      if (array_key_exists('authorityInfoAccess', $this->extensions)) {
-          $uris = $this->extensions['authorityInfoAccess']->getCAIssuers();
-      }
-      return $uris;
+        $uris = [];
+        if (array_key_exists('authorityInfoAccess', $this->extensions)) {
+            $uris = $this->extensions['authorityInfoAccess']->getCAIssuers();
+        }
+        return $uris;
     }
 }
