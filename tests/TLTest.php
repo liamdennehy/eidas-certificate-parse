@@ -163,6 +163,16 @@ class TLTest extends TestCase
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $lotl = $this->lotl;
         $lotl->verifyTSL($rightCert);
+        $lotlHash = hash('sha256', $this->lotlXML);
+        $this->assertEquals(
+            $lotlHash,
+            hash('sha256', $lotl->getXML())
+        );
+        $this->assertEquals(
+            $lotlHash,
+            $lotl->getXMLHash()
+        );
+
         $nlFile = $this->datadir.'/tl-52f7b34b484ce888c5f1d277bcb2bfbff0b1d3bbf11217a44090fab4b6a83fd3.xml';
         $lotl->addTrustedListXML("NL: Radiocommunications Agency", file_get_contents($nlFile));
         $now = (new DateTime('now'))->format('U');
