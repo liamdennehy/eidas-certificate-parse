@@ -222,6 +222,24 @@ class CertificateParseTest extends TestCase
         );
         $this->assertTrue($this->jmcrt->isCurrentAt($this->testTime));
         $this->assertFalse($this->jmcrt->isCA());
+        $this->assertEquals(
+            [
+              'C' => 'BE',
+              'CN' => 'Jean-Marc Verbergt (Signature)',
+              'SN' => 'Verbergt',
+              'GN' => 'Jean-Marc',
+              'serialNumber' => '67022330340'
+            ],
+            $this->jmcrt->getSubjectParsed()
+        );
+        $this->assertEquals(
+            [
+              'C' => 'BE',
+              'CN' => 'Citizen CA',
+              'serialNumber' => '201508'
+            ],
+            $this->jmcrt->getIssuerParsed()
+        );
         $cacrt1 = new X509Certificate(TSPServicesTest::TSPServicePEM);
         $this->assertTrue($cacrt1->isCA());
         $this->assertNull($cacrt1->getPathLength());
