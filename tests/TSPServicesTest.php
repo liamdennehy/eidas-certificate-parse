@@ -73,7 +73,6 @@ IA==
     public static function getTSPServicesAttributes()
     {
         $attributes = [
-          'trustServiceProvider' =>  TSPTest::getTSPAttributes(),
           'name' => 'Digidentity SSCD CA - G2',
           'type' => 'CA/QC',
           'status' => 'granted',
@@ -91,6 +90,7 @@ IA==
             [1304439660, 'accredited']
           ]
         ];
+        $attributes['trustServiceProvider'] =  TSPTest::getTSPAttributes();
         return $attributes;
     }
 
