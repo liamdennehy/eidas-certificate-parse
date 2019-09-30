@@ -181,6 +181,19 @@ class ExtensionTest extends TestCase
             ],
             $aia->getOCSP()
         );
+        // This is broken for some reason... Expect no error.
+        $binary = base64_decode(
+            'MFswNgYIKwYBBQUHMAKGKmh0dHA6Ly9lcC5uYnUuZ292LnNrL3NuY2EvY2VydHMz'.
+            'L3NuY2EzLnA3YzAhBggrBgEFBQcwAqQVMBMxETAPBgNVBAUTCFRMSVNLLTgy'
+        );
+        $aia = new AuthorityInformationAccess($binary);
+        // Proprietary OID, not going to bother. Expect no error..
+        $binary = base64_decode(
+            'MG4wNgYIKwYBBQUHMAGGKmh0dHBzOi8vaWRlbnRydXN0cm9vdC5vY3NwdG4uaWRl'.
+            'bnRydXN0LmNvbTA0BggqhkiG+mUEAYYoaHR0cHM6Ly9pZGVudHJ1c3Ryb290LnRj'.
+            'dG4uaWRlbnRydXN0LmNvbQ=='
+        );
+        $aia = new AuthorityInformationAccess($binary);
     }
 
     public function testBasicConstraints()
