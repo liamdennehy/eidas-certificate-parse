@@ -482,6 +482,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
         }
 
+        // http://phpseclib.sourceforge.net/x509/2.0/examples.html
         $x509Verifier = new X509;
         $x509Verifier->loadX509($this->toPEM());
         $x509Verifier->loadCA($issuer->toPEM());
