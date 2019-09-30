@@ -475,14 +475,13 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         } else {
             $issuer = new X509Certificate($candidate);
         }
-        if ($issuer->getSubjectName() <> $this->getSubjectName()) {
+        if (!empty(array_diff($issuer->getSubjectParsed(),$this->getIssuerParsed()))) {
             throw new CertificateException("Subject name mismatch between certificate and issuer", 1);
         } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
             throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
-        } else {
-            // TODO: Check signatures and DN match
-            $this->issuer = $issuer;
         }
+        // TODO: Check signatures and DN match
+        $this->issuer = $issuer;
     }
 
     public function setTrustedList($trustedList)
