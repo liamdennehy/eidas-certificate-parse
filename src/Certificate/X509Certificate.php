@@ -8,6 +8,7 @@ use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements;
 use ASN1\Type\UnspecifiedType;
+use phpseclib\File\X509;
 
 /**
  *
@@ -95,12 +96,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public static function emit($candidate)
     {
-        if (is_null($candidate)) {
+        if (empty($candidate)) {
             return false;
         };
         try {
             if (substr($candidate, 0, 3) == 'MII') {
                 $candidate = X509Certificate::base64ToPEM($candidate);
+            } elseif (substr(base64_encode($candidate), 0, 3) == 'MII') {
+                $candidate = X509Certificate::base64ToPEM(base64_encode($candidate));
             };
         } catch (\Exception $e) {
             // No-op, probably already X.509 Resource
@@ -346,12 +349,12 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->getParsed()['name'];
     }
 
-    public function getIssuerName()
+    public function getIssuerParsed()
     {
         return $this->getParsed()['issuer'];
     }
 
-    public function getSubject()
+    public function getSubjectExpanded()
     {
         if (empty($this->subjectExpanded)) {
             $subjectDN = UnspecifiedType::fromDER($this->subject)->asSequence();
@@ -362,7 +365,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->subjectExpanded;
     }
 
-    public function getIssuer()
+    public function getIssuerExpanded()
     {
         if (empty($this->issuerExpanded)) {
             $issuerDN = UnspecifiedType::fromDER($this->issuer)->asSequence();
@@ -456,8 +459,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $this->attributes["SKIBase64"] = base64_encode($this->getSubjectKeyIdentifier());
             $this->attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
             $this->attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
-            $this->attributes["Subject"] = $this->getSubject();
-            $this->attributes["Issuer"] = $this->getIssuer();
+            $this->attributes["Subject"] = $this->getSubjectExpanded();
+            $this->attributes["Issuer"] = $this->getIssuerExpanded();
             if (!empty($this->issuerCert)) {
                 $this->attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
             };
@@ -468,21 +471,67 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function withIssuer($candidate)
     {
-        if (! is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
+        if (is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
+            $issuer = $candidate;
+        } else {
             $issuer = new X509Certificate($candidate);
         }
-        if ($issuer->getSubjectName() <> $this->getSubjectName()) {
+        if (!empty(array_diff($issuer->getSubjectParsed(), $this->getIssuerParsed()))) {
             throw new CertificateException("Subject name mismatch between certificate and issuer", 1);
         } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
             throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
-        } else {
-            // TODO: Check signatures and DN match
-            $this->issuer = $issuer;
         }
+
+        // http://phpseclib.sourceforge.net/x509/2.0/examples.html
+        $x509Verifier = new X509;
+        $x509Verifier->loadX509($this->toPEM());
+        $x509Verifier->loadCA($issuer->toPEM());
+        if ($x509Verifier->validateSignature()) {
+            $this->issuer = $issuer;
+            return $issuer;
+        } else {
+            return false;
+        }
+    }
+
+    public function getIssuer()
+    {
+        return $this->issuer;
     }
 
     public function setTrustedList($trustedList)
     {
         $this->attributes['TrustedList'] = $trustedList->getAttributes();
+    }
+
+    public function isCA()
+    {
+        if (array_key_exists('basicConstraints', $this->extensions)) {
+            if ($this->extensions['basicConstraints']->isCA() === true) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getPathLength()
+    {
+        if (
+          ! $this->isCA() ||
+          ! array_key_exists('basicConstraints', $this->extensions)
+        ) {
+            return false;
+        } else {
+            return $this->extensions['basicConstraints']->getPathLength();
+        }
+    }
+
+    public function getIssuerURIs()
+    {
+        $uris = [];
+        if (array_key_exists('authorityInfoAccess', $this->extensions)) {
+            $uris = $this->extensions['authorityInfoAccess']->getCAIssuers();
+        }
+        return $uris;
     }
 }

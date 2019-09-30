@@ -18,12 +18,13 @@ class LOTLRootTest extends TestCase
     const lotlAttributes = [
       'schemeTerritory' => 'EU',
       'schemeOperatorName' => 'European Commission',
-      'tslSequenceNumber' => 248,
+      'tslSequenceNumber' => 249,
       'tslSignedByHash' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
     ];
     const lotlSigningCertPath =
       '/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';
-
+    const lotlHash =
+      'b0ff2aa96d0111f69a3254d7d4cfc13a52990e2bae8c9d13c1300b4b513cccc5';
     private $lotlxml;
     private $lotl;
     private $datadir;
@@ -56,7 +57,7 @@ class LOTLRootTest extends TestCase
             $this->lotl->getTSLType()->getType()
         );
         $this->assertEquals(
-            'f286d89507b76ab640ff7f67fdff0cd016bde3220ec7284b4a74b72e3a0a3b9c',
+            self::lotlHash,
             $this->lotl->getXMLHash()
         );
         $this->assertInternalType("int", $this->lotl->getVersionID());

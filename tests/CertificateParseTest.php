@@ -11,6 +11,7 @@ class CertificateParseTest extends TestCase
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const mocrtfile = 'Maarten Joris Ottoy.crt';
     const eucrtfile = 'European-Commission.crt';
+    const euissuercrtfile = 'qvbecag2.crt';
 
     public function setUp()
     {
@@ -85,10 +86,19 @@ class CertificateParseTest extends TestCase
                 __DIR__ . "/certs/" . self::eucrtfile
             )
         );
+        $this->euissuercrt =
+            file_get_contents(
+                __DIR__ . "/certs/" . self::euissuercrtfile
+            );
     }
 
     public function testX509Parse()
     {
+        $PEM = file(__DIR__ . "/certs/" . self::jmcrtfile);
+        array_shift($PEM);
+        unset($PEM[sizeof($PEM)]);
+        $DER = base64_decode(implode('', $PEM));
+        $crtFromDER = new X509Certificate($DER);
         $this->getTestCerts();
         $crtParsed = $this->eucrt->getParsed();
         $this->assertEquals(
@@ -216,6 +226,28 @@ class CertificateParseTest extends TestCase
             ]
         );
         $this->assertTrue($this->jmcrt->isCurrentAt($this->testTime));
+        $this->assertFalse($this->jmcrt->isCA());
+        $this->assertEquals(
+            [
+              'C' => 'BE',
+              'CN' => 'Jean-Marc Verbergt (Signature)',
+              'SN' => 'Verbergt',
+              'GN' => 'Jean-Marc',
+              'serialNumber' => '67022330340'
+            ],
+            $this->jmcrt->getSubjectParsed()
+        );
+        $this->assertEquals(
+            [
+              'C' => 'BE',
+              'CN' => 'Citizen CA',
+              'serialNumber' => '201508'
+            ],
+            $this->jmcrt->getIssuerParsed()
+        );
+        $cacrt1 = new X509Certificate(TSPServicesTest::TSPServicePEM);
+        $this->assertTrue($cacrt1->isCA());
+        $this->assertNull($cacrt1->getPathLength());
     }
 
     public function testX509Atrributes()
@@ -232,11 +264,21 @@ class CertificateParseTest extends TestCase
         $this->getTestCerts();
         $this->assertEquals(
             $this->eucrtSubject,
-            $this->eucrt->getSubject()
+            $this->eucrt->getSubjectExpanded()
         );
         $this->assertEquals(
             $this->eucrtIssuer,
-            $this->eucrt->getIssuer()
+            $this->eucrt->getIssuerExpanded()
+        );
+    }
+
+    public function testIssuerValidate()
+    {
+        $this->getTestCerts();
+        $issuer = $this->eucrt->withIssuer($this->euissuercrt);
+        $this->assertEquals(
+            'eIDASCertificate\Certificate\X509Certificate',
+            get_class($issuer)
         );
     }
 }
