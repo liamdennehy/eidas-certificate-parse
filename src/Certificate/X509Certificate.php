@@ -8,6 +8,7 @@ use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements;
 use ASN1\Type\UnspecifiedType;
+use phpseclib\File\X509;
 
 /**
  *
@@ -353,7 +354,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->getParsed()['issuer'];
     }
 
-    public function getSubject()
+    public function getSubjectExpanded()
     {
         if (empty($this->subjectExpanded)) {
             $subjectDN = UnspecifiedType::fromDER($this->subject)->asSequence();
@@ -364,7 +365,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->subjectExpanded;
     }
 
-    public function getIssuer()
+    public function getIssuerExpanded()
     {
         if (empty($this->issuerExpanded)) {
             $issuerDN = UnspecifiedType::fromDER($this->issuer)->asSequence();
@@ -458,8 +459,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $this->attributes["SKIBase64"] = base64_encode($this->getSubjectKeyIdentifier());
             $this->attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
             $this->attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
-            $this->attributes["Subject"] = $this->getSubject();
-            $this->attributes["Issuer"] = $this->getIssuer();
+            $this->attributes["Subject"] = $this->getSubjectExpanded();
+            $this->attributes["Issuer"] = $this->getIssuerExpanded();
             if (!empty($this->issuerCert)) {
                 $this->attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
             };
@@ -475,13 +476,26 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         } else {
             $issuer = new X509Certificate($candidate);
         }
-        if (!empty(array_diff($issuer->getSubjectParsed(),$this->getIssuerParsed()))) {
+        if (!empty(array_diff($issuer->getSubjectParsed(), $this->getIssuerParsed()))) {
             throw new CertificateException("Subject name mismatch between certificate and issuer", 1);
         } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
             throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
         }
-        // TODO: Check signatures and DN match
-        $this->issuer = $issuer;
+
+        $x509Verifier = new X509;
+        $x509Verifier->loadX509($this->toPEM());
+        $x509Verifier->loadCA($issuer->toPEM());
+        if ($x509Verifier->validateSignature()) {
+            $this->issuer = $issuer;
+            return $issuer;
+        } else {
+            return false;
+        }
+    }
+
+    public function getIssuer()
+    {
+        return $this->issuer;
     }
 
     public function setTrustedList($trustedList)
