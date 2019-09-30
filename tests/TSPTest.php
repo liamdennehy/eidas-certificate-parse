@@ -11,7 +11,6 @@ use eIDASCertificate\tests\LOTLRootTest;
 class TSPTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
-    const tspAttributes = ['trustServiceProvider' => 'Digidentity B.V.'];
 
     private $lotlXML;
     private $lotl;
@@ -37,7 +36,7 @@ class TSPTest extends TestCase
 
     public static function getTSPAttributes()
     {
-        $tspAttributes = self::tspAttributes;
+        $tspAttributes['name'] = 'Digidentity B.V.';
         $tspAttributes['trustedList'] = TLTest::getNLTLAttributes();
         return $tspAttributes;
     }
