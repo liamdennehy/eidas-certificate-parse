@@ -75,6 +75,8 @@ class OID
     const givenName               = '2.5.4.42';
     const organizationIdentifier  = '2.5.4.97';
     // https://www.itu.int/rec/dologin.asp?lang=e&id=T-REC-X.520-201210-S!Cor3!PDF-E&type=items
+    const identrusOCSP            = '1.2.840.114021.4.1';
+    // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
 
     public static function getName($oidString)
     {
@@ -267,6 +269,9 @@ class OID
             break;
           case self::organizationIdentifier:
             $oidName = 'organizationIdentifier';
+            break;
+          case self::identrusOCSP:
+            $oidName = 'identrusOCSP';
             break;
           default:
             $oidName = 'unknown';

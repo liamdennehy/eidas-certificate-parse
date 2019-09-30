@@ -29,6 +29,10 @@ class AuthorityInformationAccess implements ExtensionInterface
             $oidName = OID::getName($oid);
             switch ($oidName) {
             case 'caIssuers':
+              if ($accessDescription->at(1)->asTagged()->tag() != 6) {
+                  // Truly weird content!
+                  break;
+              }
               $caIssuer = $accessDescription->at(1)->asTagged()->expectExplicit(6)->toDER();
               if ($caIssuer[0] == chr(0x86)) {
                   $caIssuer[0] = chr(22);
@@ -42,9 +46,14 @@ class AuthorityInformationAccess implements ExtensionInterface
               }
               $this->ocsp[] = UnspecifiedType::fromDER($ocsp)->asIA5String()->string();
               break;
-
+            case 'authorityInfoAccess':
+              // this is just broken!
+              break;
+            case 'identrusOCSP':
+              // Proprietary, not going to handle
+              break;
             default:
-              throw new ExtensionException("Unhknown authorityInfoAccess OID $oid ($oidName)", 1);
+              throw new ExtensionException("Unknown authorityInfoAccess OID $oid ($oidName): ".base64_encode($extensionDER), 1);
 
               break;
           }

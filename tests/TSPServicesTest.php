@@ -86,6 +86,7 @@ IA==
           'SKI' => 'nANA8Q6eDO6E563JCATnnDy0o6Y=',
           'SubjectName' => '/C=NL/O=Digidentity B.V./CN=Digidentity SSCD CA - G2',
           'ServiceHistory' => [
+            [1467324000, 'granted'],
             [1304439660, 'accredited']
           ]
         ];
