@@ -579,6 +579,11 @@ class TrustedList
         return $this->xmlHash;
     }
 
+    public function getTLXML()
+    {
+        return $this->xml;
+    }
+
     public function getTrustedListAtrributes()
     {
         $tslAttributes['SchemeTerritory'] = $this->getSchemeTerritory();
