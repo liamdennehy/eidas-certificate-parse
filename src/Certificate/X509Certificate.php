@@ -485,4 +485,26 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     {
         $this->attributes['TrustedList'] = $trustedList->getAttributes();
     }
+
+    public function isCA()
+    {
+        if (array_key_exists('basicConstraints', $this->extensions)) {
+            if ($this->extensions['basicConstraints']->isCA() === true) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getPathLength()
+    {
+        if (
+          ! $this->isCA() ||
+          ! array_key_exists('basicConstraints', $this->extensions)
+        ) {
+            return false;
+        } else {
+            return $this->extensions['basicConstraints']->getPathLength();
+        }
+    }
 }

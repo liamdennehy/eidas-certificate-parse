@@ -216,6 +216,10 @@ class CertificateParseTest extends TestCase
             ]
         );
         $this->assertTrue($this->jmcrt->isCurrentAt($this->testTime));
+        $this->assertFalse($this->jmcrt->isCA());
+        $cacrt1 = new X509Certificate(TSPServicesTest::TSPServicePEM);
+        $this->assertTrue($cacrt1->isCA());
+        $this->assertNull($cacrt1->getPathLength());
     }
 
     public function testX509Atrributes()
