@@ -51,9 +51,9 @@ class TrustServiceProvider
     public function getTSPAttributes()
     {
         if (empty($this->attributes)) {
-            $this->attributes['TrustServiceProvider'] = $this->getName();
+            $this->attributes['trustServiceProvider'] = $this->getName();
             if (! empty($this->parentTSLAttributes)) {
-                $this->attributes['TrustedList'] = $this->parentTSLAttributes;
+                $this->attributes['trustedList'] = $this->parentTSLAttributes;
             }
         }
         return $this->attributes;
