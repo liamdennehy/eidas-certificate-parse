@@ -483,6 +483,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             if (!empty($this->getOCSPURIs())) {
                 $this->attributes["ocsp"] = $this->getOCSPURIs();
             }
+            if ($this->hasExtensions()) {
+              foreach ($this->extensions as $name => $extension) {
+                if ($extension->getType() == 'unknown') {
+                  $this->attributes["unRecognizedExtensions"][$extension->getOID()] = base64_encode($extension->getBinary());
+
+                }
+              }
+            }
         }
 
         return $this->attributes;
