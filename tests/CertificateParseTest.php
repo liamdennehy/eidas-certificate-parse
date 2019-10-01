@@ -275,7 +275,23 @@ class CertificateParseTest extends TestCase
     public function testIssuerValidate()
     {
         $this->getTestCerts();
+        $this->assertEquals(
+            0,
+            sizeof($this->eucrt->getIssuers())
+        );
         $issuer = $this->eucrt->withIssuer($this->euissuercrt);
+        $this->assertTrue(
+            is_array($this->eucrt->getIssuers())
+        );
+        $this->assertEquals(
+            1,
+            sizeof($this->eucrt->getIssuers())
+        );
+        $issuer = $this->eucrt->withIssuer($this->euissuercrt);
+        $this->assertEquals(
+            1,
+            sizeof($this->eucrt->getIssuers())
+        );
         $this->assertEquals(
             'eIDASCertificate\Certificate\X509Certificate',
             get_class($issuer)

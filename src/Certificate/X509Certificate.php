@@ -24,7 +24,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $serialNumber;
     private $publicKey;
     private $issuerCert;
-    private $issuer;
+    private $issuers = [];
     private $attributes = [];
     private $issuerExpanded = [];
     private $subjectExpanded = [];
@@ -476,6 +476,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         } else {
             $issuer = new X509Certificate($candidate);
         }
+        if (array_key_exists($issuer->getIdentifier(), $this->issuers)) {
+            return $issuer;
+        }
         if (!empty(array_diff($issuer->getSubjectParsed(), $this->getIssuerParsed()))) {
             throw new CertificateException("Subject name mismatch between certificate and issuer", 1);
         } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
@@ -487,16 +490,16 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         $x509Verifier->loadX509($this->toPEM());
         $x509Verifier->loadCA($issuer->toPEM());
         if ($x509Verifier->validateSignature()) {
-            $this->issuer = $issuer;
+            $this->issuers[$issuer->getIDentifier()] = $issuer;
             return $issuer;
         } else {
             return false;
         }
     }
 
-    public function getIssuer()
+    public function getIssuers()
     {
-        return $this->issuer;
+        return $this->issuers;
     }
 
     public function setTrustedList($trustedList)
