@@ -11,6 +11,7 @@ use eIDASCertificate\SignatureException;
 use eIDASCertificate\CertificateException;
 use eIDASCertificate\TrustedListException;
 use DateTime;
+use eIDASCertificate\tests\Helper;
 
 class LOTLRootTest extends TestCase
 {
