@@ -141,4 +141,9 @@ class KeyUsage implements ExtensionInterface
     {
         return $this->binary;
     }
+
+    public function getDescription()
+    {
+        return "This is an KeyUsage extension";
+    }
 }

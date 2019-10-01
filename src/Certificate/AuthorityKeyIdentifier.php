@@ -58,4 +58,9 @@ class AuthorityKeyIdentifier implements ExtensionInterface
     {
         return $this->keyIdentifier;
     }
+
+    public function getDescription()
+    {
+        return "This is an AuthorityKeyIdentifier extension";
+    }
 }

@@ -61,4 +61,9 @@ class ExtendedKeyUsage implements ExtensionInterface
             return false;
         }
     }
+
+    public function getDescription()
+    {
+        return "This is an ExtendedKeyUsage extension";
+    }
 }
