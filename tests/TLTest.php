@@ -14,11 +14,13 @@ use DateTime;
 class TLTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
-    const nltlAttributes = [
-        'schemeTerritory' => 'NL',
-        'schemeOperatorName' => 'Radiocommunications Agency',
+    const testTLName = 'BE: FPS Economy, SMEs, Self-employed and Energy - Quality and Safety';
+    const testTLXMLFileName = 'tl-61c0487109be27255c19cff26d8f56bea621e7f381a7b4cbe7fb4750bd477bf9.xml';
+    const testTLAttributes = [
+        'schemeTerritory' => 'BE',
+        'schemeOperatorName' => 'FPS Economy, SMEs, Self-employed and Energy - Quality and Safety',
         'tslSequenceNumber' => 44,
-        'tslSignedByHash' => 'def82d40878a148e21fcacbcbfdf7623ed9d6ca149d631ca1ed61051827f31fc',
+        'tslSignedByHash' => 'cfde6ceda889bd628bde8ed18092b06392d23cf2',
     ];
 
     private $tlolxml;
@@ -42,25 +44,14 @@ class TLTest extends TestCase
             $this->lotlXML = file_get_contents($xmlFilePath);
         }
         $this->lotl = new TrustedList($this->lotlXML);
-        // if (! $this->tlolxml) {
-        //     $this->tlolxml=file_get_contents('data/eu-lotl.xml');
-        // }
-        // if (! $this->tlol) {
-        //     $this->tlol = new TrustedList($this->tlolxml, null, false);
-        // };
         if (! $this->testSchemeTerritories) {
             $this->testSchemeTerritories = ['HU','DE','SK'];
         }
-        // if (! $this->tls) {
-        //     foreach ($this->testSchemeTerritories as $schemeTerritory) {
-        //         $this->tls[$schemeTerritory] = $this->loadTL($schemeTerritory);
-        //     };
-        // }
     }
 
-    public static function getNLTLAttributes()
+    public static function getTestTLAttributes()
     {
-        $tlAttributes = self::nltlAttributes;
+        $tlAttributes = self::testTLAttributes;
         $tlAttributes['parentTSL'] = LOTLRootTest::getLOTLAttributes();
         return $tlAttributes;
     }
@@ -93,9 +84,6 @@ class TLTest extends TestCase
                     $dp,
                     FILTER_VALIDATE_URL,
                     FILTER_FLAG_PATH_REQUIRED
-                    // FILTER_FLAG_PATH_REQUIRED |
-                    // FILTER_FLAG_HOST_REQUIRED |
-                    // FILTER_FLAG_SCHEME_REQUIRED
                 )
             );
         };
@@ -141,21 +129,11 @@ class TLTest extends TestCase
                     $tslPointer->getTSLLocation(),
                     FILTER_VALIDATE_URL,
                     FILTER_FLAG_PATH_REQUIRED
-                    // FILTER_FLAG_PATH_REQUIRED |
-                    // FILTER_FLAG_HOST_REQUIRED |
-                    // FILTER_FLAG_SCHEME_REQUIRED
                 )
             );
         };
     }
 
-    // public function loadTL($schemeTerritory)
-    // {
-    //     $tslPointers = $this->tlol->getTrustedListPointer($schemeTerritory);
-    //     $newTL = TrustedList::loadFromPointer($tslPointers[0]);
-    //     return $newTL;
-    // }
-    //
     public function testLoadTLs()
     {
         $crtFileName = $this->datadir.'/'.LOTLRootTest::lotlSigningCertPath;
@@ -173,47 +151,33 @@ class TLTest extends TestCase
             $lotl->getXMLHash()
         );
 
-        $nlFile = $this->datadir.'/tl-52f7b34b484ce888c5f1d277bcb2bfbff0b1d3bbf11217a44090fab4b6a83fd3.xml';
-        $lotl->addTrustedListXML("NL: Radiocommunications Agency", file_get_contents($nlFile));
+        $testTLFilePath = $this->datadir.'/'.self::testTLXMLFileName;
+        $lotl->addTrustedListXML(self::testTLName, file_get_contents($testTLFilePath));
         $now = (new DateTime('now'))->format('U');
-        $nlTL = $lotl->getTrustedLists()["NL: Radiocommunications Agency"];
-        $nlTLRefAttributes = self::getNLTLAttributes();
-        $nlTLTestAttributes = $nlTL->getTrustedListAtrributes();
+        $testTL = $lotl->getTrustedLists()[self::testTLName];
+        $testTLRefAttributes = self::getTestTLAttributes();
+        $testTLTestAttributes = $testTL->getTrustedListAtrributes();
         $this->assertArrayHasKey(
             'tslSignatureVerifiedAt',
-            $nlTLTestAttributes['parentTSL']
+            $testTLTestAttributes['parentTSL']
         );
         $this->assertArrayHasKey(
             'tslSignatureVerifiedAt',
-            $nlTLTestAttributes
+            $testTLTestAttributes
         );
         $this->assertGreaterThan(
             $now - 10,
-            $nlTLTestAttributes['tslSignatureVerifiedAt']
+            $testTLTestAttributes['tslSignatureVerifiedAt']
         );
         $this->assertLessThanOrEqual(
             $now,
-            $nlTLTestAttributes['tslSignatureVerifiedAt']
+            $testTLTestAttributes['tslSignatureVerifiedAt']
         );
-        unset($nlTLTestAttributes['tslSignatureVerifiedAt']);
-        unset($nlTLTestAttributes['parentTSL']['tslSignatureVerifiedAt']);
+        unset($testTLTestAttributes['tslSignatureVerifiedAt']);
+        unset($testTLTestAttributes['parentTSL']['tslSignatureVerifiedAt']);
         $this->assertEquals(
-            $nlTLRefAttributes,
-            $nlTLTestAttributes
+            $testTLRefAttributes,
+            $testTLTestAttributes
         );
     }
-
-    // public function testTLAttributes()
-    // {
-    //     foreach ($this->testSchemeTerritories as $schemeTerritory) {
-    //         $this->TLAttributeTests($this->tls[$schemeTerritory]);
-    //     };
-    // }
-
-    // public function testVerifyAllTLs()
-    // {
-    //     $this->tlol->verifyTSL();
-    //     $this->tlol->setTolerateFailedTLs(true);
-    //     $this->assertTrue($this->tlol->verifyAllTLs());
-    // }
 }
