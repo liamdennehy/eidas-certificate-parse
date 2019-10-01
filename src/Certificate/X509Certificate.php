@@ -474,22 +474,27 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             if (!empty($this->tspServiceAttributes)) {
                 $this->attributes["tspService"] = $this->tspServiceAttributes;
             }
-            if (!empty($this->getIssuerURIs())) {
-                $this->attributes["caIssuers"] = $this->getIssuerURIs();
-            }
-            if (!empty($this->getCDPs())) {
-                $this->attributes["crlDistributionPoints"] = $this->getCDPs();
-            }
-            if (!empty($this->getOCSPURIs())) {
-                $this->attributes["ocsp"] = $this->getOCSPURIs();
-            }
             if ($this->hasExtensions()) {
-              foreach ($this->extensions as $name => $extension) {
-                if ($extension->getType() == 'unknown') {
-                  $this->attributes["unRecognizedExtensions"][$extension->getOID()] = base64_encode($extension->getBinary());
-
+                if (!empty($this->getIssuerURIs())) {
+                    $this->attributes["caIssuers"] = $this->getIssuerURIs();
                 }
-              }
+                if (!empty($this->getCDPs())) {
+                    $this->attributes["crlDistributionPoints"] = $this->getCDPs();
+                }
+                if (!empty($this->getOCSPURIs())) {
+                    $this->attributes["ocsp"] = $this->getOCSPURIs();
+                }
+                foreach ($this->extensions as $name => $extension) {
+                    switch ($extension->getType()) {
+                    case 'preCertPoison':
+                      $this->attributes["isPrecert"] = true;
+                      break;
+
+                    case 'unknown':
+                      $this->attributes["unRecognizedExtensions"][$extension->getOID()] = base64_encode($extension->getBinary());
+                      break;
+                  }
+                }
             }
         }
 
