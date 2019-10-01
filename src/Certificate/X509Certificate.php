@@ -7,6 +7,7 @@ use eIDASCertificate\ParseException;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements;
+use eIDASCertificate\TSPService\TSPServiceException;
 use ASN1\Type\UnspecifiedType;
 use phpseclib\File\X509;
 
@@ -23,11 +24,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $crl;
     private $serialNumber;
     private $publicKey;
-    private $issuerCert;
     private $issuers = [];
     private $attributes = [];
     private $issuerExpanded = [];
     private $subjectExpanded = [];
+    private $tspServiceAttributes;
 
     public function __construct($candidate)
     {
@@ -157,9 +158,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return openssl_x509_parse($this->crtResource)['name'];
     }
 
-    public function getIDentifier()
+    public function getIDentifier($algo = 'sha256')
     {
-        return $this->getHash('sha256');
+        return $this->getHash($algo);
     }
 
     public function getHash($algo = 'sha256')
@@ -455,15 +456,25 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             }
             $this->attributes["issuerDN"] = implode('/', $issuerDN);
             $this->attributes["fingerprint"] = $this->getIDentifier();
-            $this->attributes["SKIHex"] = bin2hex($this->getSubjectKeyIdentifier());
-            $this->attributes["SKIBase64"] = base64_encode($this->getSubjectKeyIdentifier());
-            $this->attributes["AKIHex"] = bin2hex($this->getAuthorityKeyIdentifier());
-            $this->attributes["AKIBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
-            $this->attributes["Subject"] = $this->getSubjectExpanded();
-            $this->attributes["Issuer"] = $this->getIssuerExpanded();
-            if (!empty($this->issuerCert)) {
-                $this->attributes["IssuerCert"] = $this->issuerCert->gatAttributes();
+            if (!empty($this->getSubjectKeyIdentifier())) {
+                $this->attributes["skiHex"] = bin2hex($this->getSubjectKeyIdentifier());
+                $this->attributes["skiBase64"] = base64_encode($this->getSubjectKeyIdentifier());
+            }
+            if (!empty($this->getAuthorityKeyIdentifier())) {
+                $this->attributes["akiHex"] = bin2hex($this->getAuthorityKeyIdentifier());
+                $this->attributes["akiBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
+            }
+            $this->attributes["subjectExpanded"] = $this->getSubjectExpanded();
+            $this->attributes["issuerExpanded"] = $this->getIssuerExpanded();
+            if (!empty($this->issuers)) {
+                foreach ($this->issuers as $id => $issuer) {
+                    $this->attributes["issuerCerts"][$id] = $issuer->getAttributes();
+                }
             };
+            if (!empty($this->tspServiceAttributes)) {
+                $this->attributes["tspService"] = $this->tspServiceAttributes;
+                ;
+            }
         }
 
         return $this->attributes;
@@ -471,12 +482,13 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function withIssuer($candidate)
     {
-        if (is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
+        if (is_object($candidate) && is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
             $issuer = $candidate;
         } else {
             $issuer = new X509Certificate($candidate);
         }
         if (array_key_exists($issuer->getIdentifier(), $this->issuers)) {
+            $this->issuers[$issuer->getIdentifier()] = $issuer;
             return $issuer;
         }
         if (!empty(array_diff($issuer->getSubjectParsed(), $this->getIssuerParsed()))) {
@@ -536,5 +548,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $uris = $this->extensions['authorityInfoAccess']->getCAIssuers();
         }
         return $uris;
+    }
+
+    public function setTSPService($tspServiceAttributes)
+    {
+        if ($tspServiceAttributes['skiHex'] === bin2hex($this->getSubjectKeyIdentifier())) {
+            $this->tspServiceAttributes = $tspServiceAttributes;
+        } else {
+            throw new TSPServiceException("TSP Service '$tspServiceAttributes' SKI mismatch with this certificate", 1);
+        }
     }
 }

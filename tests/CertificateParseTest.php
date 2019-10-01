@@ -4,6 +4,7 @@ namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\X509Certificate;
+use eIDASCertificate\TrustedList;
 use ASN1\Type\UnspecifiedType;
 
 class CertificateParseTest extends TestCase
@@ -12,6 +13,8 @@ class CertificateParseTest extends TestCase
     const mocrtfile = 'Maarten Joris Ottoy.crt';
     const eucrtfile = 'European-Commission.crt';
     const euissuercrtfile = 'qvbecag2.crt';
+    const euIssuercertId = 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c';
+    const lotlSignerHash = 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474';
 
     public function setUp()
     {
@@ -38,7 +41,7 @@ class CertificateParseTest extends TestCase
             'value' => 'EC_CNECT'
           ]
         ];
-        $this->eucrtIssuer = [
+        $this->eucrtIssuerSubject = [
           [
             'oid' => 'countryName (2.5.4.6)',
             'value' => 'BE'
@@ -61,13 +64,41 @@ class CertificateParseTest extends TestCase
           'subjectDN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
           'issuerDN' => 'C=BE/UNDEF=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
-          'SKIHex' => 'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
-          'SKIBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
-          'AKIHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
-          'AKIBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
-          'Subject' => $this->eucrtSubject,
-          'Issuer' => $this->eucrtIssuer
+          'skiHex' => 'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
+          'skiBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
+          'akiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
+          'akiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
+          'subjectExpanded' => $this->eucrtSubject,
+          'issuerExpanded' => $this->eucrtIssuerSubject
         ];
+        $this->euIssuercrtIssuerAttributes = [
+          [
+            'oid' => 'countryName (2.5.4.6)',
+            'value' => 'BM'
+          ],
+          [
+            'oid' => 'organizationName (2.5.4.10)',
+            'value' => 'QuoVadis Limited'
+          ],
+          [
+            'oid' => 'commonName (2.5.4.3)',
+            'value' => 'QuoVadis Enterprise Trust CA 1 G3'
+          ]
+        ];
+
+        $this->euIssuercrtAttributes =
+        [
+          'subjectDN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
+          'issuerDN' => 'C=BM/O=QuoVadis Limited/CN=QuoVadis Enterprise Trust CA 1 G3',
+          'fingerprint' => 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c',
+          'skiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
+          'skiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
+          'akiHex' => '6c26bd605529294e663207a0ff638b835a4b34c6',
+          'akiBase64' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
+          'subjectExpanded' => $this->eucrtIssuerSubject,
+          'issuerExpanded' => $this->euIssuercrtIssuerAttributes
+        ];
+        $this->euIssuerCrtId = 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c';
     }
     public function getTestCerts()
     {
@@ -245,9 +276,12 @@ class CertificateParseTest extends TestCase
             ],
             $this->jmcrt->getIssuerParsed()
         );
-        $cacrt1 = new X509Certificate(TSPServicesTest::TSPServicePEM);
+        $cacrt1 = new X509Certificate(file_get_contents(__DIR__.'/certs/'.TSPServicesTest::testTSPServiceCertFile));
         $this->assertTrue($cacrt1->isCA());
-        $this->assertNull($cacrt1->getPathLength());
+        $this->assertEquals(
+            0,
+            $cacrt1->getPathLength()
+        );
     }
 
     public function testX509Atrributes()
@@ -267,7 +301,7 @@ class CertificateParseTest extends TestCase
             $this->eucrt->getSubjectExpanded()
         );
         $this->assertEquals(
-            $this->eucrtIssuer,
+            $this->eucrtIssuerSubject,
             $this->eucrt->getIssuerExpanded()
         );
     }
@@ -295,6 +329,58 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             'eIDASCertificate\Certificate\X509Certificate',
             get_class($issuer)
+        );
+        $this->getTestCerts();
+
+        $euissuercrt = new X509Certificate($this->euissuercrt);
+        $issuer = $this->eucrt->withIssuer($euissuercrt);
+
+        $this->assertEquals(
+            1,
+            sizeof($this->eucrt->getIssuers())
+        );
+    }
+
+    public function testQCIssuer()
+    {
+        $this->getTestCerts();
+        $dataDir = __DIR__.'/../data/';
+        $signingCertPEM = file_get_contents($dataDir.'/journal/c-276-1/'.self::lotlSignerHash.'.crt');
+        $signingCert = new X509Certificate($signingCertPEM);
+        $lotl = new TrustedList(file_get_contents($dataDir.'/eu-lotl.xml'));
+        $beTLTitle = 'BE: FPS Economy, SMEs, Self-employed and Energy - Quality and Safety';
+        $issuerTSPServiceName = 'QuoVadis BE PKI Certification Authority G2';
+        // $eucrt = new X509Certificate($this->eucrt);
+        $euissuercrt = new X509Certificate($this->euissuercrt);
+        // $euissuercrt->setTSPService($tspServiceAttributes);)
+        $lotl->verifyTSL($signingCert);
+        $beTLXML = file_get_contents($dataDir.'tl-61c0487109be27255c19cff26d8f56bea621e7f381a7b4cbe7fb4750bd477bf9.xml');
+        $beTLPointer = $lotl->getTLPointerPaths()[$beTLTitle];
+        $lotl->addTrustedListXML($beTLTitle, $beTLXML);
+        $issuerTSPService = ($lotl->getTSPServices(true)[$issuerTSPServiceName]);
+        $euissuercrt->setTSPService($issuerTSPService);
+        $eucrt = $this->eucrt;
+        $eucrt->withIssuer($euissuercrt);
+        $eucrtRefAttributes = $this->eucrtAttributes;
+        $eucrtRefAttributes['issuerCerts'][$this->euIssuerCrtId] = $this->euIssuercrtAttributes;
+        $eucrtAttributes = $eucrt->getAttributes();
+        unset($eucrtAttributes['issuerCerts'][self::euIssuercertId]['tspService']['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
+        unset($eucrtAttributes['issuerCerts'][self::euIssuercertId]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
+        $this->assertArrayHasKey(
+            'issuerCerts',
+            $eucrtAttributes
+        );
+        $this->assertArrayHasKey(
+            self::euIssuercertId,
+            $eucrtAttributes['issuerCerts']
+        );
+        $this->assertArrayHasKey(
+            'tspService',
+            $eucrtAttributes['issuerCerts'][self::euIssuercertId]
+        );
+        $this->assertEquals(
+            TSPServicesTest::getTSPServiceAttributes(),
+            $eucrtAttributes['issuerCerts'][self::euIssuercertId]['tspService']
         );
     }
 }
