@@ -486,14 +486,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 }
                 foreach ($this->extensions as $name => $extension) {
                     switch ($extension->getType()) {
-                    case 'preCertPoison':
-                      $this->attributes["isPrecert"] = true;
-                      break;
+                      case 'preCertPoison':
+                        $this->attributes["isPrecert"] = true;
+                        break;
 
-                    case 'unknown':
-                      $this->attributes["unRecognizedExtensions"][$extension->getOID()] = base64_encode($extension->getBinary());
-                      break;
-                  }
+                      case 'unknown':
+                        $this->attributes["unRecognizedExtensions"][$extension->getOID()] = base64_encode($extension->getBinary());
+                        break;
+                    }
                 }
             }
         }
