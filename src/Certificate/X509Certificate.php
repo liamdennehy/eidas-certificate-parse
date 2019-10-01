@@ -473,7 +473,15 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             };
             if (!empty($this->tspServiceAttributes)) {
                 $this->attributes["tspService"] = $this->tspServiceAttributes;
-                ;
+            }
+            if (!empty($this->getIssuerURIs())) {
+                $this->attributes["caIssuers"] = $this->getIssuerURIs();
+            }
+            if (!empty($this->getCDPs())) {
+                $this->attributes["crlDistributionPoints"] = $this->getCDPs();
+            }
+            if (!empty($this->getOCSPURIs())) {
+                $this->attributes["ocsp"] = $this->getOCSPURIs();
             }
         }
 
@@ -546,6 +554,15 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         $uris = [];
         if (array_key_exists('authorityInfoAccess', $this->extensions)) {
             $uris = $this->extensions['authorityInfoAccess']->getCAIssuers();
+        }
+        return $uris;
+    }
+
+    public function getOCSPURIs()
+    {
+        $uris = [];
+        if (array_key_exists('authorityInfoAccess', $this->extensions)) {
+            $uris = $this->extensions['authorityInfoAccess']->getOCSP();
         }
         return $uris;
     }

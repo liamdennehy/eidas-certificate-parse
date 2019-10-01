@@ -71,7 +71,16 @@ class CertificateParseTest extends TestCase
           'akiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
           'akiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           'subjectExpanded' => $this->eucrtSubject,
-          'issuerExpanded' => $this->eucrtIssuerSubject
+          'issuerExpanded' => $this->eucrtIssuerSubject,
+          'caIssuers' => [
+            'http://trust.quovadisglobal.com/qvbecag2.crt'
+          ],
+          'crlDistributionPoints' => [
+            'http://crl.quovadisglobal.com/qvbecag2.crl'
+          ],
+          'ocsp' => [
+            'http://uw.ocsp.quovadisglobal.com'
+          ],
         ];
         $this->euIssuercrtIssuerAttributes = [
           [
