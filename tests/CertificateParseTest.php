@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\TrustedList;
 use ASN1\Type\UnspecifiedType;
+use eIDASCertificate\tests\Helper;
 
 class CertificateParseTest extends TestCase
 {
@@ -18,6 +19,7 @@ class CertificateParseTest extends TestCase
 
     public function setUp()
     {
+        Helper::getHTTP(TLTest::testTLURI, 'tl');
         $this->testTime = new \DateTime('@1569225604');
         $this->eucrtSubject = [
           [
@@ -98,7 +100,6 @@ class CertificateParseTest extends TestCase
           'subjectExpanded' => $this->eucrtIssuerSubject,
           'issuerExpanded' => $this->euIssuercrtIssuerAttributes
         ];
-        $this->euIssuerCrtId = 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c';
     }
     public function getTestCerts()
     {
@@ -348,21 +349,18 @@ class CertificateParseTest extends TestCase
         $signingCertPEM = file_get_contents($dataDir.'/journal/c-276-1/'.self::lotlSignerHash.'.crt');
         $signingCert = new X509Certificate($signingCertPEM);
         $lotl = new TrustedList(file_get_contents($dataDir.'/eu-lotl.xml'));
-        $beTLTitle = 'BE: FPS Economy, SMEs, Self-employed and Energy - Quality and Safety';
-        $issuerTSPServiceName = 'QuoVadis BE PKI Certification Authority G2';
         // $eucrt = new X509Certificate($this->eucrt);
         $euissuercrt = new X509Certificate($this->euissuercrt);
         // $euissuercrt->setTSPService($tspServiceAttributes);)
         $lotl->verifyTSL($signingCert);
-        $beTLXML = file_get_contents($dataDir.'tl-61c0487109be27255c19cff26d8f56bea621e7f381a7b4cbe7fb4750bd477bf9.xml');
-        $beTLPointer = $lotl->getTLPointerPaths()[$beTLTitle];
-        $lotl->addTrustedListXML($beTLTitle, $beTLXML);
-        $issuerTSPService = ($lotl->getTSPServices(true)[$issuerTSPServiceName]);
+        $testTLXML = file_get_contents($dataDir.TLTest::testTLXMLFileName);
+        $lotl->addTrustedListXML(TLTest::testTLName, $testTLXML);
+        $issuerTSPService = ($lotl->getTSPServices(true)[TSPServicesTest::testTSPServiceName]);
         $euissuercrt->setTSPService($issuerTSPService);
         $eucrt = $this->eucrt;
         $eucrt->withIssuer($euissuercrt);
         $eucrtRefAttributes = $this->eucrtAttributes;
-        $eucrtRefAttributes['issuerCerts'][$this->euIssuerCrtId] = $this->euIssuercrtAttributes;
+        $eucrtRefAttributes['issuerCerts'][self::euIssuercertId] = $this->euIssuercrtAttributes;
         $eucrtAttributes = $eucrt->getAttributes();
         unset($eucrtAttributes['issuerCerts'][self::euIssuercertId]['tspService']['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
         unset($eucrtAttributes['issuerCerts'][self::euIssuercertId]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);

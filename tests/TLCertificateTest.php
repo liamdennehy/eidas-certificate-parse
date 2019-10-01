@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use eIDASCertificate\DataSource;
 use eIDASCertificate\TrustedList;
 use eIDASCertificate\Certificate\X509Certificate;
+use eIDASCertificate\tests\Helper;
 
 class TLCertificateTest extends TestCase
 {

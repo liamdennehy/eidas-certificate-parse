@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\CertificateRevocationList;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\DataSource;
+use eIDASCertificate\tests\Helper;
 
 class CRLTest extends TestCase
 {

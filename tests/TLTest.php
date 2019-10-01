@@ -10,11 +10,13 @@ use eIDASCertificate\TrustedList\TSLPointer;
 use eIDASCertificate\DigitalIdentity\ServiceDigitalIdentity;
 use eIDASCertificate\Certificate\X509Certificate;
 use DateTime;
+use eIDASCertificate\tests\Helper;
 
 class TLTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
     const testTLName = 'BE: FPS Economy, SMEs, Self-employed and Energy - Quality and Safety';
+    const testTLURI = 'https://tsl.belgium.be/tsl-be.xml';
     const testTLXMLFileName = 'tl-61c0487109be27255c19cff26d8f56bea621e7f381a7b4cbe7fb4750bd477bf9.xml';
     const testTLAttributes = [
         'schemeTerritory' => 'BE',
@@ -33,6 +35,7 @@ class TLTest extends TestCase
 
     public function setUp()
     {
+        Helper::getHTTP(self::testTLURI, 'tl');
         $this->datadir = __DIR__ . '/../data';
         $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
         if (! file_exists($xmlFilePath)) {

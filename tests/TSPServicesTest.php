@@ -11,6 +11,7 @@ use eIDASCertificate\ParseException;
 use eIDASCertificate\SignatureException;
 use eIDASCertificate\CertificateException;
 use eIDASCertificate\TrustedListException;
+use eIDASCertificate\tests\Helper;
 
 class TSPServicesTest extends TestCase
 {
@@ -24,6 +25,7 @@ class TSPServicesTest extends TestCase
 
     public function setUp()
     {
+        Helper::getHTTP(TLTest::testTLURI, 'tl');
         $this->datadir = __DIR__ . '/../data/';
         $xmlFilePath = $this->datadir.self::lotlXMLFileName;
         if (! file_exists($xmlFilePath)) {

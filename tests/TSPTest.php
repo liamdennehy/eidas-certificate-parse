@@ -7,6 +7,7 @@ use eIDASCertificate\DataSource;
 use eIDASCertificate\TrustedList;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\tests\LOTLRootTest;
+use eIDASCertificate\tests\Helper;
 
 class TSPTest extends TestCase
 {
@@ -19,6 +20,7 @@ class TSPTest extends TestCase
 
     public function setUp()
     {
+        Helper::getHTTP(TLTest::testTLURI, 'tl');
         $abc = LOTLRootTest::lotlAttributes;
         $this->datadir = __DIR__ . '/../data';
         $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
