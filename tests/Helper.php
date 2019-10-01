@@ -6,7 +6,7 @@ use eIDASCertificate\DataSource;
 
 class Helper
 {
-    public function getHTTP($URI, $type)
+    public static function getHTTP($URI, $type)
     {
         $datadir = __DIR__ . '/../data/';
         $uriId = hash('sha256', $URI);
