@@ -10,7 +10,7 @@ use ASN1\Type\UnspecifiedType;
 /**
  *
  */
-class Extensions
+class Extensions implements ParseInterface
 {
     private $extensions = [];
 
