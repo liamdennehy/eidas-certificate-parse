@@ -5,6 +5,7 @@ namespace eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -13,6 +14,7 @@ use ASN1\Type\UnspecifiedType;
 class Extensions implements ParseInterface
 {
     private $extensions = [];
+    private $findings = [];
 
     public function __construct($extensionsDER)
     {
@@ -28,11 +30,15 @@ class Extensions implements ParseInterface
                     $extName = $v3Extension->getType();
                 }
                 if (array_key_exists($extName, $this->extensions)) {
-                    throw new ExtensionException(
-                        "Multiple Certificate Extensions of type " . $extName,
-                        1
+                    $this->findings[] = new Finding(
+                        'extensions',
+                        'error',
+                        "Multiple Certificate Extensions of type " . $extName
                     );
+                    unset($this->extensions[$extName]);
+                    continue;
                 }
+                $this->findings = array_merge($v3Extension->getFindings(), $this->findings);
                 $this->extensions[$extName] = $v3Extension;
             }
         }
@@ -47,5 +53,10 @@ class Extensions implements ParseInterface
     public function getExtensions()
     {
         return $this->extensions;
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

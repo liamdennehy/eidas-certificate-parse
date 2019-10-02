@@ -6,6 +6,7 @@ use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\OID;
 use ASN1\Type\UnspecifiedType;
+use eIDASCertificate\Findings;
 
 /**
  *
@@ -14,6 +15,7 @@ class KeyUsage implements ExtensionInterface
 {
     private $binary;
     private $keyUsageBits;
+    private $findings = [];
 
     const type = 'keyUsage';
     const oid = '2.5.29.15';
@@ -145,5 +147,10 @@ class KeyUsage implements ExtensionInterface
     public function getDescription()
     {
         return "This is an KeyUsage extension";
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

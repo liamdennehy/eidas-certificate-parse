@@ -40,4 +40,9 @@ class QCUnknown extends QCStatement implements QCStatementInterface
     {
         return $this->binary;
     }
+
+    public function getFindings()
+    {
+        return [];
+    }
 }

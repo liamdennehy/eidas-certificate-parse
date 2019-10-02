@@ -48,4 +48,9 @@ class SubjectKeyIdentifier implements ExtensionInterface
     {
         return "This is a SubjectKeyIDentifier extension";
     }
+
+    public function getFindings()
+    {
+        return [];
+    }
 }

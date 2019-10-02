@@ -5,6 +5,7 @@ namespace eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -15,6 +16,8 @@ class BasicConstraints implements ExtensionInterface
     private $binary;
     private $pathLength;
     private $isCA;
+    private $findings = [];
+
     const type = 'basicConstraints';
     const oid = '2.5.29.19';
     const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.9';
@@ -22,7 +25,13 @@ class BasicConstraints implements ExtensionInterface
     public function __construct($extensionDER)
     {
         if (bin2hex(substr($extensionDER, 0, 5)) == '3006010101') {
-            // Some CAs incorrectly encude isCA as TRUE as 0x01, parser expects 0xFF
+            // Some CAs incorrectly encode isCA as TRUE as 0x01, parser expects 0xFF
+            $this->findings[] = new Finding(
+                self::type,
+                'warning',
+                "isCA not correctly encoded in ASN1, expectedd 0xff found 0x".
+              bin2hex($extensionDER[4])
+            );
             $extensionDER[4] = chr(0xFF);
         }
         $basicConstraints = UnspecifiedType::fromDER($extensionDER)->asSequence();
@@ -67,5 +76,10 @@ class BasicConstraints implements ExtensionInterface
     public function getDescription()
     {
         return "This is a BasicConstraints extension";
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

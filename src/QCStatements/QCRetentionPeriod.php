@@ -3,6 +3,7 @@
 namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use eIDASCertificate\QCStatements\QCStatementException;
 use ASN1\Type\UnspecifiedType;
 
@@ -12,6 +13,7 @@ use ASN1\Type\UnspecifiedType;
 class QCRetentionPeriod extends QCStatement implements QCStatementInterface
 {
     private $retentionPeriod;
+    private $findings = [];
     private $binary;
 
     const oid = '0.4.0.1862.1.3';
@@ -19,12 +21,18 @@ class QCRetentionPeriod extends QCStatement implements QCStatementInterface
 
     public function __construct($qcStatementDER)
     {
-        $statement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
-        if ($statement->at(0)->asObjectIdentifier()->oid() != self::oid) {
-            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+        try {
+            $statement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+            $this->retentionPeriod = $statement->at(1)->asInteger()->intNumber();
+        } catch (\Exception $e) {
+            $this->findings[] = new Finding(
+              self::type,
+              'error',
+              "Cannot understand QCRetentionPeriod: " .
+              base64_encode($qcStatementsDER)
+          );
         }
 
-        $this->retentionPeriod = $statement->at(1)->asInteger()->intNumber();
         $this->binary = $qcStatementDER;
     }
 
@@ -53,5 +61,10 @@ class QCRetentionPeriod extends QCStatement implements QCStatementInterface
     public function getBinary()
     {
         return $this->binary;
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

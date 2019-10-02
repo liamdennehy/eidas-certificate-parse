@@ -3,6 +3,7 @@
 namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -15,32 +16,44 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     const uri = 'https://www.etsi.org/deliver/etsi_en/319400_319499/31941201/01.01.01_60/en_31941201v010101p.pdf#chapter-5.1';
 
     private $semanticsType;
+    private $findings = [];
 
     public function __construct($qcStatementDER)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
-
-        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
-            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
-        }
         if ($qcStatement->count() < 2) {
             $this->semanticsType = 'notProvided';
+            $this->findings[] = new Finding(
+                self::type,
+                'error',
+                "No QCSyntaxV2 Statements found: ".base64_encode($qcStatementDER)
+            );
         // throw new QCStatementException("No QCSyntaxV2 Statements found: ".base64_encode($qcStatementDER), 1);
         } elseif ($qcStatement->count() > 2) {
-            throw new QCStatementException("More than one entry in QCSyntaxV2 Statement", 1);
+            $this->findings[] = new Finding(
+                self::type,
+                'error',
+                "More than one entry in QCSyntaxV2 Statement: ".base64_encode($qcStatementDER)
+            );
+        // throw new QCStatementException("More than one entry in QCSyntaxV2 Statement", 1);
         } else {
             $semanticsTypeOID = $qcStatement->at(1)->asSequence()->at(0)->asObjectIdentifier()->oid();
             switch ($semanticsTypeOID) {
-            case '0.4.0.194121.1.2':
-            $this->semanticsType = 'LegalPerson';
-            break;
-            case '0.4.0.194121.1.1':
-            $this->semanticsType = 'NaturalPerson';
-            break;
-            default:
-            throw new QCStatementException("QCSyntaxV2 statement '$semanticsType' not yet implemented");
-            break;
-          }
+              case '0.4.0.194121.1.2':
+                $this->semanticsType = 'LegalPerson';
+                break;
+              case '0.4.0.194121.1.1':
+                $this->semanticsType = 'NaturalPerson';
+                break;
+              default:
+                $this->findings[] = new Finding(
+                    self::type,
+                    'error',
+                    "QCSyntaxV2 semantics type '$semanticsType' not understood: ".base64_encode($qcStatementDER)
+                );
+                // throw new QCStatementException("QCSyntaxV2 statement '$semanticsType' not yet implemented");
+                break;
+            }
         }
         $this->binary = $qcStatementDER;
     }
@@ -74,9 +87,13 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
         return self::uri;
     }
 
-
     public function getBinary()
     {
         return $this->binary;
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

@@ -5,7 +5,7 @@ namespace eIDASCertificate\Certificate;
 /**
  *
  */
- interface ExtensionInterface
+ interface ExtensionInterface extends ParseInterface
  {
      public function getType();
      public function getDescription();

@@ -3,6 +3,7 @@
 namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use eIDASCertificate\QCStatements\QCStatementException;
 use ASN1\Type\UnspecifiedType;
 
@@ -12,36 +13,57 @@ use ASN1\Type\UnspecifiedType;
 class QCType extends QCStatement implements QCStatementInterface
 {
     private $qcType;
+    private $findings = [];
+
     const type = 'QCQualifiedType';
     const oid = '0.4.0.1862.1.6';
 
     public function __construct($qcStatementDER)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
-        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
-            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
-        }
-
-        if ($qcStatement->count() > 2) {
-            throw new QCStatementException("More than one entry in QCType Statement", 1);
-        } elseif ($qcStatement->count() < 2) {
-            throw new QCStatementException("No entries in QCType Statement", 1);
-        };
-        $qcTypes = $qcStatement->at(1)->asSequence();
-        if ($qcTypes->count() > 1) {
-            throw new QCStatementException("Multiple QCTypes not supported", 1);
-        }
-        $qcTypeOID = $qcTypes->at(0)->asObjectIdentifier()->oid();
-        $qcTypeName = OID::getName($qcTypeOID);
-        switch ($qcTypeName) {
-          case 'esign':
-          case 'eseal':
-          case 'web':
-            $this->qcType = $qcTypeName;
+        switch (true) {
+          case $qcStatement->count() > 2:
+            $this->findings[] = new Finding(
+                self::type,
+                'error',
+                "More than one entry in QCType Statement: ".base64_encode($qcStatementDER)
+            );
             break;
 
+          case $qcStatement->count() < 2:
+            $this->findings[] = new Finding(
+                self::type,
+                'error',
+                "No entries in QCType Statement: ".base64_encode($qcStatementDER)
+            );
+            break;
           default:
-            throw new QCStatementException("Unrecognised QCType OID $qcTypeOID ($qcTypeName)", 1);
+            $qcTypes = $qcStatement->at(1)->asSequence();
+            if ($qcTypes->count() > 1) {
+                $this->findings[] = new Finding(
+                  self::type,
+                  'error',
+                  "Multiple QCType statements not permitted: ".base64_encode($qcStatementDER)
+              );
+            } else {
+                $qcTypeOID = $qcTypes->at(0)->asObjectIdentifier()->oid();
+                $qcTypeName = OID::getName($qcTypeOID);
+                switch ($qcTypeName) {
+                case 'esign':
+                case 'eseal':
+                case 'web':
+                  $this->qcType = $qcTypeName;
+                  break;
+
+                default:
+                  $this->findings[] = new Finding(
+                      self::type,
+                      'error',
+                      "Unrecognised QCType OID $qcTypeOID ($qcTypeName): ".base64_encode($qcStatementDER)
+                  );
+                  break;
+              }
+            }
             break;
         }
         $this->binary = $qcStatementDER;
@@ -71,11 +93,9 @@ class QCType extends QCStatement implements QCStatementInterface
             break;
 
           default:
-          throw new QCStatementException("Cannot describe QCType OID ".self::oid." (".$this->qcType.")", 1);
-
+            return "QCType malformed or not recognised";
             break;
         }
-        return self::oid . " Some text about " .  self::type;
     }
 
     public function getURI()
@@ -86,5 +106,10 @@ class QCType extends QCStatement implements QCStatementInterface
     public function getBinary()
     {
         return $this->binary;
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }
