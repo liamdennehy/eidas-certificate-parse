@@ -42,4 +42,9 @@ class UnknownExtension implements ExtensionInterface
     {
         return $this->binary;
     }
+
+    public function getDescription()
+    {
+        return "I know nothing about this extension";
+    }
 }

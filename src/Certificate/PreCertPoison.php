@@ -33,4 +33,10 @@ class PreCertPoison implements ExtensionInterface
     {
         return $this->binary;
     }
+
+
+    public function getDescription()
+    {
+        return "The is a PrecertPoison extension";
+    }
 }

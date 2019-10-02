@@ -43,4 +43,9 @@ class SubjectKeyIdentifier implements ExtensionInterface
     {
         return $this->keyIdentifier;
     }
+
+    public function getDescription()
+    {
+        return "This is a SubjectKeyIDentifier extension";
+    }
 }

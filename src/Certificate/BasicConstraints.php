@@ -63,4 +63,9 @@ class BasicConstraints implements ExtensionInterface
     {
         return $this->binary;
     }
+
+    public function getDescription()
+    {
+        return "This is a BasicConstraints extension";
+    }
 }
