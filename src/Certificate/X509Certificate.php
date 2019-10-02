@@ -6,6 +6,7 @@ use eIDASCertificate\CertificateException;
 use eIDASCertificate\ParseException;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\TSPService\TSPServiceException;
 use ASN1\Type\UnspecifiedType;
@@ -28,6 +29,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $attributes = [];
     private $issuerExpanded = [];
     private $subjectExpanded = [];
+    private $findings = [];
     private $tspServiceAttributes;
 
     public function __construct($candidate)
@@ -66,6 +68,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 $extensions = new Extensions(
                     $extensionsDER
                 );
+                $this->findings = $extensions->getFindings();
                 $this->extensions = $extensions->getExtensions();
             }
             $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
@@ -496,6 +499,17 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                     }
                 }
             }
+            if (!empty($this->findings)) {
+                $findings = [];
+                foreach ($this->findings as $findingObject) {
+                    $finding = $findingObject->getFinding();
+                    $findings[$finding['severity']] = [
+                  'component' => $finding['component'],
+                  'message' => $finding['message']
+                ];
+                }
+                $this->attributes['findings'] = $findings;
+            }
         }
 
         return $this->attributes;
@@ -587,5 +601,10 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         } else {
             throw new TSPServiceException("TSP Service '$tspServiceAttributes' SKI mismatch with this certificate", 1);
         }
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

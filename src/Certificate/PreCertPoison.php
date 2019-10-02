@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\Finding;
 
 /**
  *
@@ -10,12 +11,19 @@ use eIDASCertificate\Certificate\ExtensionInterface;
 class PreCertPoison implements ExtensionInterface
 {
     private $binary;
+    private $findings = [];
+
     const type = 'preCertPoison';
     const oid = '1.3.6.1.4.1.11129.2.4.3';
     const uri = 'https://tools.ietf.org/html/rfc6962#section-3.1';
 
     public function __construct($qcStatementDER)
     {
+        $this->findings[] = new Finding(
+            self::type,
+            'warning',
+            "This is a precert, so should not be seen in production"
+        );
         $this->binary = $qcStatementDER;
     }
 
@@ -34,9 +42,13 @@ class PreCertPoison implements ExtensionInterface
         return $this->binary;
     }
 
-
     public function getDescription()
     {
         return "The is a PrecertPoison extension";
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

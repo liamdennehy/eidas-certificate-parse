@@ -3,6 +3,7 @@
 namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use eIDASCertificate\QCStatements\QCStatementException;
 use ASN1\Type\UnspecifiedType;
 
@@ -11,7 +12,8 @@ use ASN1\Type\UnspecifiedType;
  */
 class QCPDS extends QCStatement implements QCStatementInterface
 {
-    private $pdsLocations;
+    private $pdsLocations = [];
+    private $findings = [];
     private $binary;
 
     const type = 'QCPDS';
@@ -20,27 +22,39 @@ class QCPDS extends QCStatement implements QCStatementInterface
     public function __construct($qcStatementDER)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
-        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
-            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
-        }
         if ($qcStatement->count() > 2) {
-            throw new QCStatementException("More than one entry in PDS Statement", 1);
+            $this->findings[] = new Finding(
+                self::type,
+                'error',
+                "More than one entry in QCPDS Statement: ".base64_encode($qcStatementDER)
+            );
+        // throw new QCStatementException("More than one entry in PDS Statement", 1);
         } elseif ($qcStatement->count() <2) {
-            throw new QCStatementException("No entries in PDS Statement", 1);
-        };
-        try {
-            $pdsLocations = $qcStatement->at(1)->asSequence()->elements();
-            foreach ($qcStatement->at(1)->asSequence()->elements() as $pdsLocation) {
-                $pdsLocation = $pdsLocation->asSequence();
-                $location['url'] = $pdsLocation->at(0)->asIA5String()->string();
-                $location['language'] = strtolower($pdsLocation->at(1)->asPrintableString()->string());
-                $this->pdsLocations[] = $location;
+            $this->findings[] = new Finding(
+                self::type,
+                'error',
+                "No entries in QCPDS Statement: ".base64_encode($qcStatementDER)
+            );
+        // throw new QCStatementException("No entries in PDS Statement", 1);
+        } else {
+            try {
+                $pdsLocations = $qcStatement->at(1)->asSequence()->elements();
+                foreach ($qcStatement->at(1)->asSequence()->elements() as $pdsLocation) {
+                    $pdsLocation = $pdsLocation->asSequence();
+                    $location['url'] = $pdsLocation->at(0)->asIA5String()->string();
+                    $location['language'] = strtolower($pdsLocation->at(1)->asPrintableString()->string());
+                    $this->pdsLocations[] = $location;
+                }
+            } catch (\Exception $e) {
+                // TODO: Figure out strange PDS
+                $this->findings[] = new Finding(
+                self::type,
+                'error',
+                "Cannot understand QCPDS: ".base64_encode($qcStatementDER)
+            );
+                // throw new \Exception("Cannot understand PDS: ". base64_encode($qcStatementDER), 1);
             }
-        } catch (\Exception $e) {
-            // TODO: Figure out strange PDS
-          // throw new \Exception("Cannot understand PDS: ". base64_encode($qcStatementDER), 1);
         }
-
         $this->binary = $qcStatementDER;
     }
 
@@ -73,7 +87,6 @@ class QCPDS extends QCStatement implements QCStatementInterface
         }
 
         return $description;
-        // s (PDS)";
     }
 
     public function getURI()
@@ -84,5 +97,10 @@ class QCPDS extends QCStatement implements QCStatementInterface
     public function getBinary()
     {
         return $this->binary;
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

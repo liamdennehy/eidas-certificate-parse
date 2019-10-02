@@ -3,6 +3,7 @@
 namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use eIDASCertificate\QCStatements\QCStatementException;
 use ASN1\Type\UnspecifiedType;
 
@@ -18,18 +19,25 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
     private $currency;
     private $amount;
     private $exponent;
+    private $findings = [];
 
     public function __construct($qcStatementDER)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
-        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
-            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
+        try {
+            $limitValue = $qcStatement->at(1)->asSequence();
+            $this->currency = $limitValue->at(0)->asPrintableString()->string();
+            $this->amount = $limitValue->at(1)->asInteger()->intNumber();
+            $this->exponent = $limitValue->at(2)->asInteger()->intNumber();
+        } catch (\Exception $e) {
+            $this->findings[] = new Finding(
+              self::type,
+              'error',
+              "Cannot parse QCLimitValue: " .
+              base64_encode($qcStatementsDER)
+          );
         }
-        $limitValue = $qcStatement->at(1)->asSequence();
 
-        $this->currency = $limitValue->at(0)->asPrintableString()->string();
-        $this->amount = $limitValue->at(1)->asInteger()->intNumber();
-        $this->exponent = $limitValue->at(2)->asInteger()->intNumber();
         $this->binary = $qcStatementDER;
     }
 
@@ -61,5 +69,10 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
     public function getBinary()
     {
         return $this->binary;
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

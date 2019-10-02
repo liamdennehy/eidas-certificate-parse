@@ -18,10 +18,7 @@ class QCSSCD extends QCStatement implements QCStatementInterface
     public function __construct($qcStatementDER)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
-        if ($qcStatement->at(0)->oid() != self::oid) {
-            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
-        }
-        $this->binary = $qcStatement;
+        $this->binary = $qcStatement->toDER();
     }
 
     public function getType()
@@ -45,5 +42,10 @@ class QCSSCD extends QCStatement implements QCStatementInterface
     public function getBinary()
     {
         return $this->binary;
+    }
+
+    public function getFindings()
+    {
+        return [];
     }
 }

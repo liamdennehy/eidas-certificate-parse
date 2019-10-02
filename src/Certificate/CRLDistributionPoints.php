@@ -5,6 +5,7 @@ namespace eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -14,6 +15,7 @@ class CRLDistributionPoints implements ExtensionInterface
 {
     private $binary;
     private $cdpEntries;
+    private $findings = [];
 
     const type = 'crlDistributionPoints';
     const oid = '2.5.29.31';
@@ -34,7 +36,12 @@ class CRLDistributionPoints implements ExtensionInterface
                 $cdpEntry = UnspecifiedType::fromDER($cdpEntryDER)->asIA5String()->string();
             } catch (\Exception $e) {
                 // TODO: Handle DN of CDPs
-                // throw new ExtensionException("Malformed Extension CDPs: ". base64_encode($extensionDER), 1);
+                $this->findings[] = new Finding(
+                    self::type,
+                    'warning',
+                    "Unrecognised crlDistributionPoints entry: ".
+                  base64_encode($extensionDER)
+                );
             }
 
             $this->cdpEntries[] = $cdpEntry;
@@ -64,5 +71,10 @@ class CRLDistributionPoints implements ExtensionInterface
     public function getDescription()
     {
         return "This is an CRLDistributionPoints extension";
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

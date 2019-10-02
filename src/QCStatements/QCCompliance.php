@@ -11,15 +11,13 @@ use ASN1\Type\UnspecifiedType;
 class QCCompliance extends QCStatement implements QCStatementInterface
 {
     private $binary;
+
     const type = 'QCCompliance';
     const oid = '0.4.0.1862.1.1';
 
     public function __construct($qcStatementDER)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
-        if ($qcStatement->at(0)->asObjectIdentifier()->oid() != self::oid) {
-            throw new QCStatementException("Wrong OID for QC '" . self::type . "'", 1);
-        }
         $this->binary = $qcStatementDER;
     }
 
@@ -44,5 +42,10 @@ class QCCompliance extends QCStatement implements QCStatementInterface
     public function getBinary()
     {
         return $this->binary;
+    }
+
+    public function getFindings()
+    {
+        return [];
     }
 }

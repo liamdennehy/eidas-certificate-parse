@@ -2,10 +2,12 @@
 
 namespace eIDASCertificate\QCStatements;
 
+use eIDASCertificate\Certificate\ExtensionInterface;
+
 /**
  *
  */
- interface QCStatementInterface
+ interface QCStatementInterface extends ExtensionInterface
  {
      public function getType();
      public function getDescription();

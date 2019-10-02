@@ -4,6 +4,8 @@ namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\CertificateException;
+use eIDASCertificate\Finding;
+use eIDASCertificate\eIDASCertificate;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -13,6 +15,7 @@ class AuthorityKeyIdentifier implements ExtensionInterface
 {
     private $binary;
     private $keyIdentifier;
+    private $findings = [];
 
     const type = 'authorityKeyIdentifier';
     const oid = '2.5.29.35';
@@ -32,7 +35,14 @@ class AuthorityKeyIdentifier implements ExtensionInterface
               // https://tools.ietf.org/html/rfc5280#section-4.2.1.1
               break;
             default:
-              throw new ExtensionException("Unrecognised AuthorityKeyIdentifier ". $akiElement->tag()." Format: ". base64_encode($akiElement->toDER()), 1);
+              $this->findings[] = new Finding(
+                  self::type,
+                  'error',
+                  "Unrecognised AuthorityKeyIdentifier ".
+                  $akiElement->tag().
+                  " Format: ".
+                  base64_encode($akiElement->toDER())
+              );
               break;
           }
         }
@@ -62,5 +72,10 @@ class AuthorityKeyIdentifier implements ExtensionInterface
     public function getDescription()
     {
         return "This is an AuthorityKeyIdentifier extension";
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }

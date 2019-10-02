@@ -47,4 +47,9 @@ class UnknownExtension implements ExtensionInterface
     {
         return "I know nothing about this extension";
     }
+
+    public function getFindings()
+    {
+        return [];
+    }
 }

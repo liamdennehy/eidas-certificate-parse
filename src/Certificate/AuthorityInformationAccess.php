@@ -5,6 +5,7 @@ namespace eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\CertificateException;
 use eIDASCertificate\OID;
+use eIDASCertificate\Finding;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -15,6 +16,8 @@ class AuthorityInformationAccess implements ExtensionInterface
     private $binary;
     private $caIssuers = [];
     private $ocsp = [];
+    private $findings = [];
+
 
     const type = 'authorityInfoAccess';
     const oid = '1.3.6.1.5.5.7.1.1';
@@ -46,15 +49,13 @@ class AuthorityInformationAccess implements ExtensionInterface
               }
               $this->ocsp[] = UnspecifiedType::fromDER($ocsp)->asIA5String()->string();
               break;
-            case 'authorityInfoAccess':
-              // this is just broken!
-              break;
-            case 'identrusOCSP':
-              // Proprietary, not going to handle
-              break;
             default:
-              throw new ExtensionException("Unknown authorityInfoAccess OID $oid ($oidName): ".base64_encode($extensionDER), 1);
-
+              $this->findings[] = new Finding(
+                  self::type,
+                  'warning',
+                  "Unrecognised authorityInfoAccess OID $oid ($oidName): ".
+                base64_encode($extensionDER)
+              );
               break;
           }
         }
@@ -89,5 +90,10 @@ class AuthorityInformationAccess implements ExtensionInterface
     public function getDescription()
     {
         return "This is an AuthorityInformationAccess extension";
+    }
+
+    public function getFindings()
+    {
+        return $this->findings;
     }
 }
