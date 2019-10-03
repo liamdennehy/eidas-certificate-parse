@@ -64,7 +64,7 @@ class CertificateParseTest extends TestCase
         $this->eucrtAttributes =
         [
           'subjectDN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
-          'issuerDN' => 'C=BE/UNDEF=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
+          'issuerDN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
           'skiHex' => 'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
           'skiBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
@@ -145,11 +145,15 @@ class CertificateParseTest extends TestCase
         $DER = base64_decode(implode('', $PEM));
         $crtFromDER = new X509Certificate($DER);
         $this->getTestCerts();
-        $crtParsed = $this->eucrt->getParsed();
         $this->assertEquals(
             '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342'.
             '/O=European Commission/CN=EC_CNECT',
-            $crtParsed['name']
+            $this->eucrt->getSubjectName()
+        );
+        $this->assertEquals(
+            '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA'.
+            '/CN=QuoVadis Belgium Issuing CA G2',
+            $this->eucrt->getIssuerName()
         );
         $this->assertTrue($this->eucrt->hasExtensions()) ;
         $this->assertTrue($this->eucrt->hasQCStatements()) ;
@@ -197,30 +201,30 @@ class CertificateParseTest extends TestCase
             ],
             $this->eucrt->getQCStatementNames()
         );
-        $crtParsed = $this->mocrt->getParsed();
+        // $crtParsed = $this->mocrt->getParsed();
         $this->assertEquals(
             '/C=BE/L=BE/O=European Commission/OU=0949.383.342'.
-            '/CN=Maarten Joris Ottoy/SN=Ottoy/GN=Maarten Joris'.
+            '/CN=Maarten Joris Ottoy/SN=Ottoy/givenName=Maarten Joris'.
             '/serialNumber=10304444110080837592'.
             '/emailAddress=maarten.ottoy@ec.europa.eu'.
             '/title=Professional Person',
-            $crtParsed['name']
+            $this->mocrt->getSubjectName()
         );
-        $this->assertEquals(
-            [
-              'C' => 'BE',
-              'L' => 'BE',
-              'O' => 'European Commission',
-              'OU' => '0949.383.342',
-              'CN' => 'Maarten Joris Ottoy',
-              'SN' => 'Ottoy',
-              'GN' => 'Maarten Joris',
-              'serialNumber' => '10304444110080837592',
-              'emailAddress' => 'maarten.ottoy@ec.europa.eu',
-              'title' => 'Professional Person'
-            ],
-            $crtParsed['subject']
-        );
+        // $this->assertEquals(
+        //     [
+        //       ['C' => 'BE'],
+        //       'L' => 'BE',
+        //       'O' => 'European Commission',
+        //       'OU' => '0949.383.342',
+        //       'CN' => 'Maarten Joris Ottoy',
+        //       'SN' => 'Ottoy',
+        //       'GN' => 'Maarten Joris',
+        //       'serialNumber' => '10304444110080837592',
+        //       'emailAddress' => 'maarten.ottoy@ec.europa.eu',
+        //       'title' => 'Professional Person'
+        //     ],
+        //     $this->mocrt->getSubjectExpanded()
+        // );
         $this->assertEquals(
             [
               '638fc28b03b1ab8ed85347961d99a87df6aca875',
@@ -237,10 +241,10 @@ class CertificateParseTest extends TestCase
             ],
             $this->eucrt->getCDPs()
         );
-        $crtParsed = $this->jmcrt->getParsed();
+        // $crtParsed = $this->jmcrt->getParsed();
         $this->assertEquals(
-            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/GN=Jean-Marc/serialNumber=67022330340',
-            $crtParsed['name']
+            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/givenName=Jean-Marc/serialNumber=67022330340',
+            $this->jmcrt->getSubjectName()
         );
         $this->assertTrue($this->jmcrt->hasExtensions()) ;
         $this->assertTrue($this->jmcrt->hasQCStatements()) ;
@@ -273,22 +277,12 @@ class CertificateParseTest extends TestCase
         $this->assertTrue($this->jmcrt->isCurrentAt($this->testTime));
         $this->assertFalse($this->jmcrt->isCA());
         $this->assertEquals(
-            [
-              'C' => 'BE',
-              'CN' => 'Jean-Marc Verbergt (Signature)',
-              'SN' => 'Verbergt',
-              'GN' => 'Jean-Marc',
-              'serialNumber' => '67022330340'
-            ],
-            $this->jmcrt->getSubjectParsed()
+            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/givenName=Jean-Marc/serialNumber=67022330340',
+            $this->jmcrt->getSubjectName()
         );
         $this->assertEquals(
-            [
-              'C' => 'BE',
-              'CN' => 'Citizen CA',
-              'serialNumber' => '201508'
-            ],
-            $this->jmcrt->getIssuerParsed()
+            '/C=BE/CN=Citizen CA/serialNumber=201508',
+            $this->jmcrt->getIssuerName()
         );
         $cacrt1 = new X509Certificate(file_get_contents(__DIR__.'/certs/'.TSPServicesTest::testTSPServiceCertFile));
         $this->assertTrue($cacrt1->isCA());

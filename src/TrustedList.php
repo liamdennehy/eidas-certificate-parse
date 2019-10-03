@@ -169,7 +169,7 @@ class TrustedList
         };
         $pems = [];
         foreach ($certificates as $certificate) {
-            $pems[($certificate->getHash())] = $certificate->toPEM();
+            $pems[($certificate->getIdentifier())] = $certificate->toPEM();
         }
         $xmlSig = new XMLSig($this->xml, $pems, $this->getName());
         try {
@@ -250,7 +250,7 @@ class TrustedList
             as $serviceDigitalIdentity) {
             foreach ($serviceDigitalIdentity->getX509Certificates() as $x509Certificate) {
                 $x509Certificates[
-                    $x509Certificate->getHash($algo)
+                    $x509Certificate->getIdentifier($algo)
                     ] = $x509Certificate;
             };
         };

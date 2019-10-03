@@ -78,8 +78,8 @@ class LOTLRootTest extends TestCase
         );
         foreach ($this->lotl->getTLX509Certificates() as $lotlCert) {
             $this->assertGreaterThan(
-                12,
-                strlen($lotlCert->getDN())
+                20,
+                strlen($lotlCert->getSubjectName())
             );
         }
     }
@@ -127,20 +127,12 @@ class LOTLRootTest extends TestCase
         $this->assertTrue($lotl->verifyTSL($rightCert));
         $this->assertEquals(
             'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
-            $lotl->getSignedBy()->getHash()
+            $lotl->getSignedBy()->getIdentifier()
         );
 
-        $expectedSignedByDNArray =
-        [
-          'C' => 'BE',
-          'CN' => 'Patrick Kremer (Signature)',
-          'SN' => 'Kremer',
-          'GN' => 'Patrick Jean',
-          'serialNumber' => '72020329970',
-        ];
-        $lotlSignedByDNArray = $lotl->getSignedBy()->getSubjectParsed();
+        $lotlSignedByDNArray = $lotl->getSignedBy()->getSubjectName();
         $this->assertEquals(
-            $expectedSignedByDNArray,
+            '/C=BE/CN=Patrick Kremer (Signature)/SN=Kremer/givenName=Patrick Jean/serialNumber=72020329970',
             $lotlSignedByDNArray
         );
     }
