@@ -34,7 +34,7 @@ class XMLSig
         }
         foreach ($certificates as $certificate) {
             try {
-                $signingCertificate = openssl_x509_read($certificate);
+                $signingCertificate = new X509Certificate($certificate);
             } catch (\Exception $e) {
                 //No op, we'll handle this later
             }
@@ -137,17 +137,17 @@ class XMLSig
     {
         $thumbprints = [];
         foreach ($this->certificates as $certificate) {
-            $thumbprints[] = openssl_x509_fingerprint($certificate, $algo);
+            $thumbprints[] = $certificate->getIdentifier($algo);
         };
         return $thumbprints;
     }
 
-    public function getX509Certificates()
+    public function getX509Certificates($algo = 'sha256')
     {
         $certificates = [];
         foreach ($this->certificates as $certificate) {
             $certificates[
-                openssl_x509_fingerprint($certificate, 'sha256')
+                $certificate->getIdentifier($algo)
                 ] = $certificate;
         };
         return $certificates;
