@@ -44,7 +44,9 @@ abstract class QCStatement
           return new QCPSD2($qcStatementDER);
           break;
         default:
-          return new QCUnknown($qcStatementDER, $qcStatementOID);
+          $qcStatement = new QCUnknown($qcStatementDER, $qcStatementOID);
+          $qcStatement->setOID($qcStatementOID);
+          return $qcStatement;
           break;
       }
     }

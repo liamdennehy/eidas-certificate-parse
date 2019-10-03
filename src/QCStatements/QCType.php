@@ -18,7 +18,7 @@ class QCType extends QCStatement implements QCStatementInterface
     const type = 'QCQualifiedType';
     const oid = '0.4.0.1862.1.6';
 
-    public function __construct($qcStatementDER)
+    public function __construct($qcStatementDER, $isCritical = false)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
         switch (true) {
@@ -41,10 +41,10 @@ class QCType extends QCStatement implements QCStatementInterface
             $qcTypes = $qcStatement->at(1)->asSequence();
             if ($qcTypes->count() > 1) {
                 $this->findings[] = new Finding(
-                  self::type,
-                  'error',
-                  "Multiple QCType statements not permitted: ".base64_encode($qcStatementDER)
-              );
+                    self::type,
+                    'error',
+                    "Multiple QCType statements not permitted: ".base64_encode($qcStatementDER)
+                );
             } else {
                 $qcTypeOID = $qcTypes->at(0)->asObjectIdentifier()->oid();
                 $qcTypeName = OID::getName($qcTypeOID);
@@ -111,5 +111,10 @@ class QCType extends QCStatement implements QCStatementInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return false;
     }
 }

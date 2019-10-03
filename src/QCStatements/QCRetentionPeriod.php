@@ -19,18 +19,18 @@ class QCRetentionPeriod extends QCStatement implements QCStatementInterface
     const oid = '0.4.0.1862.1.3';
     const type = 'QCRetentionPeriod';
 
-    public function __construct($qcStatementDER)
+    public function __construct($qcStatementDER, $isCritical = false)
     {
         try {
             $statement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
             $this->retentionPeriod = $statement->at(1)->asInteger()->intNumber();
         } catch (\Exception $e) {
             $this->findings[] = new Finding(
-              self::type,
-              'error',
-              "Cannot understand QCRetentionPeriod: " .
+                self::type,
+                'error',
+                "Cannot understand QCRetentionPeriod: " .
               base64_encode($qcStatementsDER)
-          );
+            );
         }
 
         $this->binary = $qcStatementDER;
@@ -66,5 +66,10 @@ class QCRetentionPeriod extends QCStatement implements QCStatementInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return false;
     }
 }

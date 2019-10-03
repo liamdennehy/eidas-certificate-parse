@@ -16,13 +16,15 @@ class CRLDistributionPoints implements ExtensionInterface
     private $binary;
     private $cdpEntries;
     private $findings = [];
+    private $isCritical;
 
     const type = 'crlDistributionPoints';
     const oid = '2.5.29.31';
     const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.13';
 
-    public function __construct($extensionDER)
+    public function __construct($extensionDER, $isCritical = false)
     {
+        $this->isCritical = $isCritical;
         $this->cdpEntries = [];
         $sequence = UnspecifiedType::fromDER($extensionDER)->asSequence();
         foreach ($sequence->elements() as $cdpEntry) {
@@ -76,5 +78,10 @@ class CRLDistributionPoints implements ExtensionInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return $this->isCritical;
     }
 }

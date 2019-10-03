@@ -21,7 +21,7 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
     private $exponent;
     private $findings = [];
 
-    public function __construct($qcStatementDER)
+    public function __construct($qcStatementDER, $isCritical = false)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
         try {
@@ -31,11 +31,11 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
             $this->exponent = $limitValue->at(2)->asInteger()->intNumber();
         } catch (\Exception $e) {
             $this->findings[] = new Finding(
-              self::type,
-              'error',
-              "Cannot parse QCLimitValue: " .
+                self::type,
+                'error',
+                "Cannot parse QCLimitValue: " .
               base64_encode($qcStatementsDER)
-          );
+            );
         }
 
         $this->binary = $qcStatementDER;
@@ -74,5 +74,10 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return false;
     }
 }

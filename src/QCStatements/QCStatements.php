@@ -17,13 +17,15 @@ class QCStatements implements ExtensionInterface
     private $binary;
     private $qcStatements = [];
     private $findings = [];
+    private $isCritical;
 
     const type = 'qcStatements';
     const oid = '1.3.6.1.5.5.7.1.3';
     const uri = 'https://tools.ietf.org/html/rfc3739.html';
 
-    public function __construct($qcStatementsDER)
+    public function __construct($qcStatementsDER, $isCritical = false)
     {
+        $this->isCritical = $isCritical;
         $this->binary = $qcStatementsDER;
         $qcStatements = UnspecifiedType::fromDER($qcStatementsDER)->asSequence();
         foreach ($qcStatements->elements() as $qcStatementElement) {
@@ -48,6 +50,14 @@ class QCStatements implements ExtensionInterface
                     unset($this->qcStatements[$qcStatementName]);
                 } else {
                     $this->qcStatements[$qcStatement->getType()] = $qcStatement;
+                    if (substr($qcStatement->getType(), 0, 8) == 'unknown-') {
+                        $this->findings[] = new Finding(
+                          'qcStatements',
+                          'warning',
+                          "Unrecognised qcStatement: " .
+                          base64_encode($qcStatementDER)
+                      );
+                    }
                 }
             }
         }
@@ -105,5 +115,10 @@ class QCStatements implements ExtensionInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return $this->isCritical;
     }
 }

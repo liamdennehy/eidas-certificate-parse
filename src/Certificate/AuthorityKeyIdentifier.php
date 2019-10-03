@@ -16,13 +16,15 @@ class AuthorityKeyIdentifier implements ExtensionInterface
     private $binary;
     private $keyIdentifier;
     private $findings = [];
+    private $isCritical;
 
     const type = 'authorityKeyIdentifier';
     const oid = '2.5.29.35';
     const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.1';
 
-    public function __construct($extensionDER)
+    public function __construct($extensionDER, $isCritical = false)
     {
+        $this->isCritical = $isCritical;
         $seq = UnspecifiedType::fromDER($extensionDER)->asSequence();
         foreach ($seq->elements() as $akiElement) {
             switch ($akiElement->tag()) {
@@ -77,5 +79,10 @@ class AuthorityKeyIdentifier implements ExtensionInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return $this->isCritical;
     }
 }

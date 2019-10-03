@@ -15,10 +15,14 @@ class QCUnknown extends QCStatement implements QCStatementInterface
 
     const type = 'unknown';
 
-    public function __construct($qcStatementDER, $oid)
+    public function __construct($qcStatementDER, $isCritical = false)
+    {
+        $this->binary = $qcStatementDER;
+    }
+
+    public function setOID($oid)
     {
         $this->oid = $oid;
-        $this->binary = $qcStatementDER;
     }
 
     public function getType()
@@ -44,5 +48,10 @@ class QCUnknown extends QCStatement implements QCStatementInterface
     public function getFindings()
     {
         return [];
+    }
+
+    public function getIsCritical()
+    {
+        return false;
     }
 }

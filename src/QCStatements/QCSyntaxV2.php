@@ -18,7 +18,7 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     private $semanticsType;
     private $findings = [];
 
-    public function __construct($qcStatementDER)
+    public function __construct($qcStatementDER, $isCritical = false)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
         if ($qcStatement->count() < 2) {
@@ -95,5 +95,10 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return false;
     }
 }

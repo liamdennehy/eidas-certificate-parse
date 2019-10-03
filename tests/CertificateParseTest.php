@@ -84,6 +84,7 @@ class CertificateParseTest extends TestCase
           'unRecognizedExtensions' => [
             '1.2.840.113583.1.1.9.2' => 'MAMCAQE=',
             '1.2.840.113583.1.1.9.1' => 'MCQCAQGGH2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU=',
+            '2.5.29.32' => 'MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM=',
           ]
         ];
         $this->euIssuercrtIssuerAttributes = [
@@ -181,6 +182,7 @@ class CertificateParseTest extends TestCase
               'authorityInfoAccess',
               'subjectKeyIdentifier',
               'authorityKeyIdentifier',
+              'unknown-2.5.29.32',
               'crlDistributionPoints',
               'keyUsage',
               'extKeyUsage',

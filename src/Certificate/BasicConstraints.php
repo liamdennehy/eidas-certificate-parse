@@ -17,13 +17,15 @@ class BasicConstraints implements ExtensionInterface
     private $pathLength;
     private $isCA;
     private $findings = [];
+    private $isCritical;
 
     const type = 'basicConstraints';
     const oid = '2.5.29.19';
     const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.9';
 
-    public function __construct($extensionDER)
+    public function __construct($extensionDER, $isCritical = false)
     {
+        $this->isCritical = $isCritical;
         if (bin2hex(substr($extensionDER, 0, 5)) == '3006010101') {
             // Some CAs incorrectly encode isCA as TRUE as 0x01, parser expects 0xFF
             $this->findings[] = new Finding(
@@ -81,5 +83,10 @@ class BasicConstraints implements ExtensionInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return $this->isCritical;
     }
 }
