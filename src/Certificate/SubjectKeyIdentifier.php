@@ -13,13 +13,15 @@ class SubjectKeyIdentifier implements ExtensionInterface
 {
     private $binary;
     private $keyIdentifier;
+    private $isCritical;
 
     const type = 'subjectKeyIdentifier';
     const oid = '2.5.29.14';
     const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.2';
 
-    public function __construct($extensionDER)
+    public function __construct($extensionDER, $isCritical = false)
     {
+        $this->isCritical = $isCritical;
         $this->keyIdentifier = UnspecifiedType::fromDER($extensionDER)->asOctetString()->string();
         $this->binary = $extensionDER;
     }
@@ -52,5 +54,10 @@ class SubjectKeyIdentifier implements ExtensionInterface
     public function getFindings()
     {
         return [];
+    }
+
+    public function getIsCritical()
+    {
+        return $this->isCritical;
     }
 }

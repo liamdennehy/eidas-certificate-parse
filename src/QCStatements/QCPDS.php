@@ -19,7 +19,7 @@ class QCPDS extends QCStatement implements QCStatementInterface
     const type = 'QCPDS';
     const oid = '0.4.0.1862.1.5';
 
-    public function __construct($qcStatementDER)
+    public function __construct($qcStatementDER, $isCritical = false)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
         if ($qcStatement->count() > 2) {
@@ -48,10 +48,10 @@ class QCPDS extends QCStatement implements QCStatementInterface
             } catch (\Exception $e) {
                 // TODO: Figure out strange PDS
                 $this->findings[] = new Finding(
-                self::type,
-                'error',
-                "Cannot understand QCPDS: ".base64_encode($qcStatementDER)
-            );
+                    self::type,
+                    'error',
+                    "Cannot understand QCPDS: ".base64_encode($qcStatementDER)
+                );
                 // throw new \Exception("Cannot understand PDS: ". base64_encode($qcStatementDER), 1);
             }
         }
@@ -102,5 +102,10 @@ class QCPDS extends QCStatement implements QCStatementInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return false;
     }
 }

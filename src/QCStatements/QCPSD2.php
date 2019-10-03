@@ -20,7 +20,7 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
     const type = 'QCPSD2';
     const oid = '0.4.0.19495.2';
 
-    public function __construct($qcStatementDER)
+    public function __construct($qcStatementDER, $isCritical = false)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
         if ($qcStatement->count() > 2) {
@@ -47,21 +47,21 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
                     $psd2RoleName = OID::getName($psd2RoleOID);
                     if ($psd2RoleName == 'unkown') {
                         $this->findings[] = new Finding(
-                      self::type,
-                      'error',
-                      "Unrecognised PSD2 Role '$psd2Role': ".
+                            self::type,
+                            'error',
+                            "Unrecognised PSD2 Role '$psd2Role': ".
                     base64_encode($qcStatementDER)
-                  );
+                        );
                     }
                     $psd2RoleProvidedName = $psd2Role->at(1)->asUTF8String()->string();
                     if ($psd2RoleProvidedName != $psd2RoleName) {
                         $this->findings[] = new Finding(
-                      self::type,
-                      'error',
-                      "Included PSD2 Named Role '$psd2RoleProvidedName' ".
+                            self::type,
+                            'error',
+                            "Included PSD2 Named Role '$psd2RoleProvidedName' ".
                     "does not match OID Name '$psd2RoleName': ".
                     base64_encode($qcStatementDER)
-                  );
+                        );
                     }
                     switch ($psd2RoleName) {
                   case 'PSP_AS':
@@ -85,12 +85,12 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
                 $this->psd2NCAShortName = $psd2Authorisation->at(2)->asUTF8String()->string();
             } catch (\Exception $e) {
                 $this->findings[] = new Finding(
-                  self::type,
-                  'error',
-                  "Malformed PSD2 Statement, ".
+                    self::type,
+                    'error',
+                    "Malformed PSD2 Statement, ".
                 $e->getMessage().": ".
                 base64_encode($qcStatementDER)
-              );
+                );
             }
         }
         $this->binary = $qcStatementDER;
@@ -137,5 +137,10 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return false;
     }
 }

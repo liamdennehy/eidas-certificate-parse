@@ -17,14 +17,16 @@ class AuthorityInformationAccess implements ExtensionInterface
     private $caIssuers = [];
     private $ocsp = [];
     private $findings = [];
+    private $isCritical;
 
 
     const type = 'authorityInfoAccess';
     const oid = '1.3.6.1.5.5.7.1.1';
     const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.2.1';
 
-    public function __construct($extensionDER)
+    public function __construct($extensionDER, $isCritical = false)
     {
+        $this->isCritical = $isCritical;
         $seq = UnspecifiedType::fromDER($extensionDER)->asSequence();
         foreach ($seq->elements() as $accessDescription) {
             $accessDescription = $accessDescription->asSequence();
@@ -95,5 +97,10 @@ class AuthorityInformationAccess implements ExtensionInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return $this->isCritical;
     }
 }

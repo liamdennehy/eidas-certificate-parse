@@ -15,13 +15,15 @@ class ExtendedKeyUsage implements ExtensionInterface
     private $binary;
     private $ekus = [];
     private $findings = [];
+    private $isCritical;
 
     const type = 'extKeyUsage';
     const oid = '2.5.29.37';
     const uri = 'https://tools.ietf.org/html/rfc5280#section-4.2.1.12';
 
-    public function __construct($extensionDER)
+    public function __construct($extensionDER, $isCritical = false)
     {
+        $this->isCritical = $isCritical;
         $this->ekus = [];
         $ekus = UnspecifiedType::fromDER($extensionDER)->asSequence();
         foreach ($ekus->elements() as $eku) {
@@ -78,5 +80,10 @@ class ExtendedKeyUsage implements ExtensionInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return $this->isCritical;
     }
 }

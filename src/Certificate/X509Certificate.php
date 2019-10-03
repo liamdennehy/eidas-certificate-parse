@@ -486,10 +486,10 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 $findings = [];
                 foreach ($this->findings as $findingObject) {
                     $finding = $findingObject->getFinding();
-                    $findings[$finding['severity']] = [
-                  'component' => $finding['component'],
-                  'message' => $finding['message']
-                ];
+                    $severity = $finding['severity'];
+                    $findings[$severity]['component'][] = [
+                        $finding['message']
+                    ];
                 }
                 $this->attributes['findings'] = $findings;
             }

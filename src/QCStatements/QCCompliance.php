@@ -15,7 +15,7 @@ class QCCompliance extends QCStatement implements QCStatementInterface
     const type = 'QCCompliance';
     const oid = '0.4.0.1862.1.1';
 
-    public function __construct($qcStatementDER)
+    public function __construct($qcStatementDER, $isCritical = false)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
         $this->binary = $qcStatementDER;
@@ -47,5 +47,10 @@ class QCCompliance extends QCStatement implements QCStatementInterface
     public function getFindings()
     {
         return [];
+    }
+
+    public function getIsCritical()
+    {
+        return false;
     }
 }

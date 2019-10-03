@@ -16,6 +16,7 @@ class KeyUsage implements ExtensionInterface
     private $binary;
     private $keyUsageBits;
     private $findings = [];
+    private $isCritical;
 
     const type = 'keyUsage';
     const oid = '2.5.29.15';
@@ -33,8 +34,9 @@ class KeyUsage implements ExtensionInterface
     const encipherOnly       = 7;
     const decipherOnly       = 8;
 
-    public function __construct($extensionDER)
+    public function __construct($extensionDER, $isCritical = false)
     {
+        $this->isCritical = $isCritical;
         $bits = [];
         $keyUsage = UnspecifiedType::fromDER($extensionDER)->asBitString();
         $bit = 0;
@@ -152,5 +154,10 @@ class KeyUsage implements ExtensionInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getIsCritical()
+    {
+        return $this->isCritical;
     }
 }

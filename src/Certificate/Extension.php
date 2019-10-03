@@ -30,43 +30,43 @@ abstract class Extension
         switch ($extensionName) {
           case 'basicConstraints':
             // TODO: Properly handle Basic Constraints
-            return new BasicConstraints($extnValue);
+            return new BasicConstraints($extnValue, $isCritical);
             break;
           case 'preCertPoison':
-            return new PreCertPoison($extnValue);
+            return new PreCertPoison($extnValue, $isCritical);
             // TODO: Properly handle poisoned certificates
             break;
           case 'keyUsage':
-            return new KeyUsage($extnValue);
+            return new KeyUsage($extnValue, $isCritical);
             break;
           case 'authorityInfoAccess':
-            return new AuthorityInformationAccess($extnValue);
+            return new AuthorityInformationAccess($extnValue, $isCritical);
             break;
           case 'subjectKeyIdentifier':
-            return new SubjectKeyIdentifier($extnValue);
+            return new SubjectKeyIdentifier($extnValue, $isCritical);
             break;
           case 'authorityKeyIdentifier':
-            return new AuthorityKeyIdentifier($extnValue);
+            return new AuthorityKeyIdentifier($extnValue, $isCritical);
             break;
           case 'extKeyUsage':
             // TODO: Implement EKU
-            return new ExtendedKeyUsage($extnValue);
+            return new ExtendedKeyUsage($extnValue, $isCritical);
             break;
           case 'crlDistributionPoints':
             // TODO: Implement CDPs
-            return new CRLDistributionPoints($extnValue);
+            return new CRLDistributionPoints($extnValue, $isCritical);
             break;
           case 'qcStatements':
-            return new QCStatements($extnValue);
+            return new QCStatements($extnValue, $isCritical);
             break;
-          case 'certificatePolicies':
+          // case 'certificatePolicies':
             // TODO: Implement certificatePolicies QCStatement
-            return false;
-            break;
-          case 'policyConstraints':
+            // return false;
+            // break;
+          // case 'policyConstraints':
             // TODO: Implement policyConstraints QCStatement
-            return false;
-            break;
+            // return false;
+            // break;
 
           default:
             if ($isCritical) {
@@ -77,10 +77,12 @@ abstract class Extension
                     1
                 );
             } else {
-                return new UnknownExtension(
+                $extension = new UnknownExtension(
                     $extnValue,
-                    $extensionOid
+                    $isCritical
                 );
+                $extension->setOID($extensionOid);
+                return $extension;
             }
             break;
         }
