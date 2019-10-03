@@ -100,7 +100,7 @@ class XMLSig
             $keyCert = $key->getX509Certificate();
             if ($keyCert) {
                 $signedBy = new X509Certificate($keyCert);
-                $foundThumb = $signedBy->getHash('sha256');
+                $foundThumb = $signedBy->getIdentifier('sha256');
                 $validThumbs = $this->getX509Thumbprints('sha256');
             } else {
                 // TODO: Better explanation and handling of the case where no certificate is available in the doc

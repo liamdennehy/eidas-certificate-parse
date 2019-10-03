@@ -17,6 +17,7 @@ use phpseclib\File\X509;
  */
 class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 {
+    private $x509;
     private $crtResource;
     private $crtBinary;
     private $parsed;
@@ -31,15 +32,15 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $subjectExpanded = [];
     private $findings = [];
     private $tspServiceAttributes;
+    private $subjectName;
 
     public function __construct($candidate)
     {
-        $this->crtResource = X509Certificate::emit($candidate);
-        openssl_x509_export($this->crtResource, $crtPEM);
-        $crtPEM = explode("\n", $crtPEM);
-        unset($crtPEM[sizeof($crtPEM)-1]);
-        unset($crtPEM[0]);
-        $this->crtBinary = base64_decode(implode("", $crtPEM));
+        $this->x509 = new X509();
+        $this->crtBinary = X509Certificate::emit($candidate);
+        $this->crtResource = $this->x509->loadX509($this->crtBinary);
+        // openssl_x509_export($this->crtResource, $crtPEM);
+        // $this->crtBinary = base64_decode(implode("", $crtPEM));
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
         $signatureAlgorithm = $crtASN1->at(1)->asSequence();
@@ -100,24 +101,26 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public static function emit($candidate)
     {
-        if (empty($candidate)) {
-            return false;
-        };
-        try {
-            if (substr($candidate, 0, 3) == 'MII') {
-                $candidate = X509Certificate::base64ToPEM($candidate);
-            } elseif (substr(base64_encode($candidate), 0, 3) == 'MII') {
-                $candidate = X509Certificate::base64ToPEM(base64_encode($candidate));
-            };
-        } catch (\Exception $e) {
-            // No-op, probably already X.509 Resource
-        };
-        $certificate = openssl_x509_read($candidate);
-        if ($certificate) {
-            return $certificate;
+        if (!is_string($candidate)) {
+            throw new \Exception("X509Certificate requires string-ish input", 1);
         } else {
-            throw new CertificateException("Cannot recognise certificate", 1);
+            $candidate = trim($candidate);
+            $crtPEM = explode("\n", $candidate);
+            if ($crtPEM[0] == "-----BEGIN CERTIFICATE-----") {
+                unset($crtPEM[sizeof($crtPEM)-1]);
+                unset($crtPEM[0]);
+                $crtDER = base64_decode(implode('', $crtPEM));
+            } elseif (substr($candidate, 0, 3) == 'MII') {
+                $crtDER = base64_decode($candidate);
+            } else {
+                try {
+                    $crtDER = UnspecifiedType::fromDER($candidate)->asSequence()->toDER();
+                } catch (\Exception $e) {
+                    throw new CertificateException("Cannot wrangle input into a certificate format", 1);
+                }
+            }
         }
+        return $crtDER;
     }
 
     public static function WrangleDate($asn1Object)
@@ -161,14 +164,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return openssl_x509_parse($this->crtResource)['name'];
     }
 
-    public function getIDentifier($algo = 'sha256')
+    public function getIdentifier($algo = 'sha256')
     {
-        return $this->getHash($algo);
-    }
-
-    public function getHash($algo = 'sha256')
-    {
-        return openssl_x509_fingerprint($this->crtResource, $algo);
+        return hash($algo, $this->crtBinary);
     }
 
     public static function parse($crt)
@@ -177,6 +175,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $crtParsed;
     }
 
+    // TODO: Get rid of this
     public function getParsed()
     {
         return openssl_x509_parse($this->crtResource);
@@ -339,8 +338,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function toPEM()
     {
-        openssl_x509_export($this->crtResource, $pem);
-        return $pem;
+        return self::base64ToPEM(base64_encode($this->crtBinary));
     }
 
     public function getSubjectParsed()
@@ -350,7 +348,21 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getSubjectName()
     {
-        return $this->getParsed()['name'];
+        // TODO: Produce a string even if oids are duplicated
+        foreach ($this->x509->getDN(true) as $key => $value) {
+            $subject[] = $key.'='.$value;
+        }
+
+        return '/'.implode('/', $subject);
+    }
+
+    public function getIssuerName()
+    {
+        foreach ($this->x509->getIssuerDN(true) as $key => $value) {
+            $issuer[] = $key.'='.$value;
+        }
+
+        return '/'.implode('/', $issuer);
     }
 
     public function getIssuerParsed()
@@ -454,11 +466,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         if (! array_key_exists('Subject', $this->attributes)) {
             $this->attributes["subjectDN"] = $this->getSubjectName();
             $issuerDN = [];
-            foreach ($this->getParsed()['issuer'] as $key => $value) {
+            foreach ($this->x509->getIssuerDN(true) as $key => $value) {
                 $issuerDN[] = $key.'='.$value;
             }
-            $this->attributes["issuerDN"] = implode('/', $issuerDN);
-            $this->attributes["fingerprint"] = $this->getIDentifier();
+            $this->attributes["issuerDN"] = '/'.implode('/', $issuerDN);
+            $this->attributes["fingerprint"] = $this->getIdentifier();
             if (!empty($this->getSubjectKeyIdentifier())) {
                 $this->attributes["skiHex"] = bin2hex($this->getSubjectKeyIdentifier());
                 $this->attributes["skiBase64"] = base64_encode($this->getSubjectKeyIdentifier());
@@ -526,7 +538,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $this->issuers[$issuer->getIdentifier()] = $issuer;
             return $issuer;
         }
-        if (!empty(array_diff($issuer->getSubjectParsed(), $this->getIssuerParsed()))) {
+
+        if (!($this->getIssuerName() === $issuer->getSubjectName())) {
             throw new CertificateException("Subject name mismatch between certificate and issuer", 1);
         } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
             throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
@@ -534,10 +547,10 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
         // http://phpseclib.sourceforge.net/x509/2.0/examples.html
         $x509Verifier = new X509;
-        $x509Verifier->loadX509($this->toPEM());
-        $x509Verifier->loadCA($issuer->toPEM());
+        $x509Verifier->loadX509($this->toDER());
+        $x509Verifier->loadCA($issuer->toDER());
         if ($x509Verifier->validateSignature()) {
-            $this->issuers[$issuer->getIDentifier()] = $issuer;
+            $this->issuers[$issuer->getIdentifier()] = $issuer;
             return $issuer;
         } else {
             return false;

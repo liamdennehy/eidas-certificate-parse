@@ -69,6 +69,7 @@ class OID
     const streetAddress           = '2.5.4.9';
     const organizationName        = '2.5.4.10';
     const organizationalUnitName  = '2.5.4.11';
+    const title                   = '2.5.4.12';
     const businessCategory        = '2.5.4.15';
     const postalAddress           = '2.5.4.16';
     const postalCode              = '2.5.4.17';
@@ -254,6 +255,9 @@ class OID
             break;
           case self::organizationalUnitName:
             $oidName = 'organizationalUnitName';
+            break;
+          case self::title:
+            $oidName = 'title';
             break;
           case self::businessCategory:
             $oidName = 'businessCategory';
