@@ -39,8 +39,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         $this->x509 = new X509();
         $this->crtBinary = X509Certificate::emit($candidate);
         $this->crtResource = $this->x509->loadX509($this->crtBinary);
-        // openssl_x509_export($this->crtResource, $crtPEM);
-        // $this->crtBinary = base64_decode(implode("", $crtPEM));
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
         $signatureAlgorithm = $crtASN1->at(1)->asSequence();
@@ -159,26 +157,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return $this->crtBinary;
     }
 
-    public function getDN()
-    {
-        return openssl_x509_parse($this->crtResource)['name'];
-    }
-
     public function getIdentifier($algo = 'sha256')
     {
         return hash($algo, $this->crtBinary);
-    }
-
-    public static function parse($crt)
-    {
-        $crtParsed = openssl_x509_parse($crt);
-        return $crtParsed;
-    }
-
-    // TODO: Get rid of this
-    public function getParsed()
-    {
-        return openssl_x509_parse($this->crtResource);
     }
 
     public function getKeyUsage()
@@ -341,11 +322,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return self::base64ToPEM(base64_encode($this->crtBinary));
     }
 
-    public function getSubjectParsed()
-    {
-        return $this->getParsed()['subject'];
-    }
-
     public function getSubjectName()
     {
         // TODO: Produce a string even if oids are duplicated
@@ -363,11 +339,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         }
 
         return '/'.implode('/', $issuer);
-    }
-
-    public function getIssuerParsed()
-    {
-        return $this->getParsed()['issuer'];
     }
 
     public function getSubjectExpanded()

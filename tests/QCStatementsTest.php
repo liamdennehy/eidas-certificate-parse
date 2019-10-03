@@ -193,17 +193,21 @@ class QCStatementsTest extends TestCase
 
     public function testQCStatementsParse()
     {
-        $this->getTestCerts();
-        $crtParsed = $this->eucrt->getParsed();
-        $qcStatementBinary =
-          $crtParsed['extensions']['qcStatements'];
-        $qcStatements = new QCStatements($qcStatementBinary);
+        $der=base64_decode(
+            'MH0wFQYIKwYBBQUHCwIwCQYHBACL7EkBAjAIBgYEAI5GAQEwCAYGBACORgEEMBMGBg'.
+            'QAjkYBBjAJBgcEAI5GAQYCMDsGBgQAjkYBBTAxMC8WKWh0dHBzOi8vd3d3LnF1b3Zh'.
+            'ZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5EwJlbg=='
+        );
+        // $this->getTestCerts();
+        $qcStatements = new QCStatements($der);
         $this->assertEquals(
-            ['QCSyntaxV2',
-            'QCCompliance',
-            'QCSSCD',
-            'QCQualifiedType',
-            'QCPDS'],
+            [
+              'QCSyntaxV2',
+              'QCCompliance',
+              'QCSSCD',
+              'QCQualifiedType',
+              'QCPDS'
+            ],
             array_keys($qcStatements->getStatements())
         );
         $this->assertEquals(
@@ -211,22 +215,10 @@ class QCStatementsTest extends TestCase
             $qcStatements->getQCType()
         );
 
-        $crtParsed = $this->jmcrt->getParsed();
-        $qcStatementBinary =
-          $crtParsed['extensions']['qcStatements'];
-        $qcStatements = new QCStatements($qcStatementBinary);
-        $this->assertEquals(
-            [
-              'QCCompliance',
-              'QCSSCD'
-            ],
-            array_keys($qcStatements->getStatements())
+        $der=base64_decode(
+            'MBQwCAYGBACORgEBMAgGBgQAjkYBBA=='
         );
-
-        $crtParsed = $this->mocrt->getParsed();
-        $qcStatementBinary =
-          $crtParsed['extensions']['qcStatements'];
-        $qcStatements = new QCStatements($qcStatementBinary);
+        $qcStatements = new QCStatements($der);
         $this->assertEquals(
             [
               'QCCompliance',
