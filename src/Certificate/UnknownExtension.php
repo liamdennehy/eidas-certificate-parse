@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\Finding;
 use eIDASCertificate\OID;
 use ASN1\Type\UnspecifiedType;
 
@@ -57,15 +58,33 @@ class UnknownExtension implements ExtensionInterface
 
     public function getFindings()
     {
-        if ($this->isCritical) {
-            new Finding(
-                'extensions',
-                'error',
-                "Unhandled extension '$this->oid' marked critical: ".
-                base64_encode($this->binary)
-            );
+        if (empty($this->oid)) {
+          throw new Exception("OID not set on unknown extension", 1);
         }
-        return [];
+        $name = OID::getName($this->oid);
+        if ($name == 'unknown') {
+          $name = "'$this->oid'";
+        } else {
+          $name = "'$name' ($this->oid)";
+        }
+        $findings = [];
+        if ($this->isCritical) {
+            $level = 'critical';
+            $message =
+              "Unhandled extension $name marked critical: ".
+              base64_encode($this->binary);
+        } else {
+            $level = 'warning';
+            $message =
+              "Unhandled extension $name: ".
+              base64_encode($this->binary);
+        }
+        $findings[] = new Finding(
+            'extensions',
+            $level,
+            $message
+        );
+        return $findings;
     }
 
     public function getIsCritical()
