@@ -35,7 +35,7 @@ class TLCertificateTest extends TestCase
         $TrustedListOfLists = new TrustedList($this->lotlXML, null, false);
         $TLOLCerts = $TrustedListOfLists->getTLX509Certificates();
         foreach ($TLOLCerts as $cert) {
-            $this->assertTrue(strlen($cert->getSubjectName()) > 20);
+            $this->assertTrue(strlen($cert->getSubjectDN()) > 20);
         };
         $this->assertTrue(true);
         // foreach ($TrustedListOfLists->getTrustedLists() as $tl) {
