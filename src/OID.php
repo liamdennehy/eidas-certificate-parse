@@ -39,6 +39,7 @@ class OID
     const KeyUsage                = '2.5.29.15';
     const ExtendedKeyUsage        = '2.5.29.37';
     const SubjectKeyIdentifier    = '2.5.29.14';
+    const SubjectAltName          = '2.5.29.17';
     const CRLDistributionPoints   = '2.5.29.31';
     const certificatePolicies     = '2.5.29.32';
     const AuthorityKeyIdentifier  = '2.5.29.35';
@@ -192,6 +193,9 @@ class OID
             break;
           case self::SubjectKeyIdentifier:
             $oidName = 'subjectKeyIdentifier';
+            break;
+          case self::SubjectAltName:
+            $oidName = 'SubjectAltName';
             break;
           case self::ServerAuth:
             $oidName = 'serverAuth';

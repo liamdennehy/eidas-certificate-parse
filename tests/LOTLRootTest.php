@@ -19,13 +19,13 @@ class LOTLRootTest extends TestCase
     const lotlAttributes = [
       'schemeTerritory' => 'EU',
       'schemeOperatorName' => 'European Commission',
-      'tslSequenceNumber' => 249,
+      'tslSequenceNumber' => 250,
       'tslSignedByHash' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
     ];
     const lotlSigningCertPath =
       '/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';
     const lotlHash =
-      'b0ff2aa96d0111f69a3254d7d4cfc13a52990e2bae8c9d13c1300b4b513cccc5';
+      '56bbdeb154d25bfc735bda4f958fead0b578712f79037227f87d2ad7bcf7880d';
     private $lotlxml;
     private $lotl;
     private $datadir;
