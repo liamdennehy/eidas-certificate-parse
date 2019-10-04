@@ -79,7 +79,7 @@ class LOTLRootTest extends TestCase
         foreach ($this->lotl->getTLX509Certificates() as $lotlCert) {
             $this->assertGreaterThan(
                 20,
-                strlen($lotlCert->getSubjectName())
+                strlen($lotlCert->getSubjectDN())
             );
         }
     }
@@ -130,10 +130,10 @@ class LOTLRootTest extends TestCase
             $lotl->getSignedBy()->getIdentifier()
         );
 
-        $lotlSignedByDNArray = $lotl->getSignedBy()->getSubjectName();
+        $lotlSignedByDN = $lotl->getSignedBy()->getSubjectDN();
         $this->assertEquals(
             '/C=BE/CN=Patrick Kremer (Signature)/SN=Kremer/givenName=Patrick Jean/serialNumber=72020329970',
-            $lotlSignedByDNArray
+            $lotlSignedByDN
         );
     }
 

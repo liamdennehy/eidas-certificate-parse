@@ -322,23 +322,22 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         return self::base64ToPEM(base64_encode($this->crtBinary));
     }
 
-    public function getSubjectName()
+    public function getSubjectDN()
     {
-        // TODO: Produce a string even if oids are duplicated
-        foreach ($this->x509->getDN(true) as $key => $value) {
-            $subject[] = $key.'='.$value;
+        $dn = "";
+        foreach ($this->getSubjectExpanded() as $dnPart) {
+            $dn .= '/'.$dnPart['shortName'].'='.$dnPart['value'];
         }
-
-        return '/'.implode('/', $subject);
+        return $dn;
     }
 
-    public function getIssuerName()
+    public function getIssuerDN()
     {
-        foreach ($this->x509->getIssuerDN(true) as $key => $value) {
-            $issuer[] = $key.'='.$value;
+        $dn = "";
+        foreach ($this->getIssuerExpanded() as $dnPart) {
+            $dn .= '/'.$dnPart['shortName'].'='.$dnPart['value'];
         }
-
-        return '/'.implode('/', $issuer);
+        return $dn;
     }
 
     public function getSubjectExpanded()
@@ -368,18 +367,18 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         $dnElement = $dnPart->asSet()->at(0)->asSequence();
         $oid = $dnElement->at(0)->asObjectIdentifier()->oid();
         $oidName = OID::getName($oid);
+        $dnPartExpanded['name'] = $oidName;
+        $dnPartExpanded['shortName'] = OID::getShortName($oidName);
+        $dnPartExpanded['oid'] = $oid;
         $identifier = $dnElement->at(1)->tag();
         switch ($identifier) {
           case 12:
-            $dnPartExpanded['oid'] = "$oidName ($oid)";
             $dnPartExpanded['value'] = $dnElement->at(1)->asUTF8String()->string();
             break;
           case 19:
-            $dnPartExpanded['oid'] = "$oidName ($oid)";
             $dnPartExpanded['value'] = $dnElement->at(1)->asPrintableString()->string();
             break;
           case 22:
-            $dnPartExpanded['oid'] = "$oidName ($oid)";
             $dnPartExpanded['value'] = $dnElement->at(1)->asIA5String()->string();
             break;
           case 16:
@@ -402,7 +401,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                   break;
               }
             }
-            $dnPartExpanded['oid'] = "$oidName ($oid)";
             $dnPartExpanded['value'] = $elements;
             break;
 
@@ -435,12 +433,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     public function getAttributes()
     {
         if (! array_key_exists('Subject', $this->attributes)) {
-            $this->attributes["subjectDN"] = $this->getSubjectName();
+            $this->attributes["subjectDN"] = $this->getSubjectDN();
             $issuerDN = [];
             foreach ($this->x509->getIssuerDN(true) as $key => $value) {
                 $issuerDN[] = $key.'='.$value;
             }
             $this->attributes["issuerDN"] = '/'.implode('/', $issuerDN);
+            $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
+            $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
             $this->attributes["fingerprint"] = $this->getIdentifier();
             if (!empty($this->getSubjectKeyIdentifier())) {
                 $this->attributes["skiHex"] = bin2hex($this->getSubjectKeyIdentifier());
@@ -477,7 +477,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                         break;
 
                       case 'unknown':
-                        $this->attributes["unRecognizedExtensions"][$extension->getOID()] = base64_encode($extension->getBinary());
+                        $this->attributes["unRecognizedExtensions"][] =
+                        [
+                          'oid' => $extension->getOID(),
+                          'value' => base64_encode($extension->getBinary())
+                        ];
                         break;
                     }
                 }
@@ -511,7 +515,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             return $issuer;
         }
 
-        if (!($this->getIssuerName() === $issuer->getSubjectName())) {
+        if (!($this->getIssuerDN() === $issuer->getSubjectDN())) {
             throw new CertificateException("Subject name mismatch between certificate and issuer", 1);
         } elseif ($issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()) {
             throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);

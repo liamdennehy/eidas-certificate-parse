@@ -288,4 +288,35 @@ class OID
         return $oidName;
         // return "$oidString ($oidName)";
     }
+
+    public static function getShortName($name)
+    {
+        switch ($name) {
+          case 'countryName':
+            return 'C';
+            break;
+          case 'organizationalUnitName':
+            return 'OU';
+            break;
+          case 'organizationName':
+            return 'O';
+            break;
+          case 'commonName':
+            return 'CN';
+            break;
+          case 'organizationIdentifier':
+            return '2.5.4.97';
+            break;
+          case 'localityName':
+            return 'L';
+            break;
+          case 'surname':
+            return 'SN';
+            break;
+
+          default:
+            return $name;
+            break;
+        }
+    }
 }
