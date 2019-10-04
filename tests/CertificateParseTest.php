@@ -23,41 +23,59 @@ class CertificateParseTest extends TestCase
         $this->testTime = new \DateTime('@1569225604');
         $this->eucrtSubject = [
           [
-            'oid' => 'countryName (2.5.4.6)',
+            'oid' => '2.5.4.6',
+            'name' => 'countryName',
+            'shortName' => 'C',
             'value' => 'BE'
           ],
           [
-            'oid' => 'organizationalUnitName (2.5.4.11)',
+            'oid' => '2.5.4.11',
+            'name' => 'organizationalUnitName',
+            'shortName' => 'OU',
             'value' => 'DG CONNECT'
           ],
           [
-            'oid' => 'organizationIdentifier (2.5.4.97)',
+            'oid' => '2.5.4.97',
+            'name' => 'organizationIdentifier',
+            'shortName' => '2.5.4.97',
             'value' => 'VATBE-0949.383.342'
           ],
           [
-            'oid' => 'organizationName (2.5.4.10)',
+            'oid' => '2.5.4.10',
+            'name' => 'organizationName',
+            'shortName' => 'O',
             'value' => 'European Commission'
           ],
           [
-            'oid' => 'commonName (2.5.4.3)',
+            'oid' => '2.5.4.3',
+            'name' => 'commonName',
+            'shortName' => 'CN',
             'value' => 'EC_CNECT'
           ]
         ];
         $this->eucrtIssuerSubject = [
           [
-            'oid' => 'countryName (2.5.4.6)',
+            'oid' => '2.5.4.6',
+            'name' => 'countryName',
+            'shortName' => 'C',
             'value' => 'BE'
           ],
           [
-            'oid' => 'organizationIdentifier (2.5.4.97)',
+            'oid' => '2.5.4.97',
+            'name' => 'organizationIdentifier',
+            'shortName' => '2.5.4.97',
             'value' => 'NTRBE-0537698318'
           ],
           [
-            'oid' => 'organizationName (2.5.4.10)',
+            'oid' => '2.5.4.10',
+            'name' => 'organizationName',
+            'shortName' => 'O',
             'value' => 'QuoVadis Trustlink BVBA'
           ],
           [
-            'oid' => 'commonName (2.5.4.3)',
+            'oid' => '2.5.4.3',
+            'name' => 'commonName',
+            'shortName' => 'CN',
             'value' => 'QuoVadis Belgium Issuing CA G2'
           ],
         ];
@@ -110,15 +128,21 @@ class CertificateParseTest extends TestCase
         ];
         $this->euIssuercrtIssuerAttributes = [
           [
-            'oid' => 'countryName (2.5.4.6)',
+            'oid' => '2.5.4.6',
+            'name' => 'countryName',
+            'shortName' => 'C',
             'value' => 'BM'
           ],
           [
-            'oid' => 'organizationName (2.5.4.10)',
+            'oid' => '2.5.4.10',
+            'name' => 'organizationName',
+            'shortName' => 'O',
             'value' => 'QuoVadis Limited'
           ],
           [
-            'oid' => 'commonName (2.5.4.3)',
+            'oid' => '2.5.4.3',
+            'name' => 'commonName',
+            'shortName' => 'CN',
             'value' => 'QuoVadis Enterprise Trust CA 1 G3'
           ]
         ];
@@ -195,12 +219,12 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342'.
             '/O=European Commission/CN=EC_CNECT',
-            $this->eucrt->getSubjectName()
+            $this->eucrt->getSubjectDN()
         );
         $this->assertEquals(
             '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA'.
             '/CN=QuoVadis Belgium Issuing CA G2',
-            $this->eucrt->getIssuerName()
+            $this->eucrt->getIssuerDN()
         );
         $this->assertTrue($this->eucrt->hasExtensions()) ;
         $this->assertTrue($this->eucrt->hasQCStatements()) ;
@@ -262,7 +286,7 @@ class CertificateParseTest extends TestCase
             '/serialNumber=10304444110080837592'.
             '/emailAddress=maarten.ottoy@ec.europa.eu'.
             '/title=Professional Person',
-            $this->mocrt->getSubjectName()
+            $this->mocrt->getSubjectDN()
         );
         // $this->assertEquals(
         //     [
@@ -298,7 +322,7 @@ class CertificateParseTest extends TestCase
         // $crtParsed = $this->jmcrt->getParsed();
         $this->assertEquals(
             '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/givenName=Jean-Marc/serialNumber=67022330340',
-            $this->jmcrt->getSubjectName()
+            $this->jmcrt->getSubjectDN()
         );
         $this->assertTrue($this->jmcrt->hasExtensions()) ;
         $this->assertTrue($this->jmcrt->hasQCStatements()) ;
@@ -332,11 +356,11 @@ class CertificateParseTest extends TestCase
         $this->assertFalse($this->jmcrt->isCA());
         $this->assertEquals(
             '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/givenName=Jean-Marc/serialNumber=67022330340',
-            $this->jmcrt->getSubjectName()
+            $this->jmcrt->getSubjectDN()
         );
         $this->assertEquals(
             '/C=BE/CN=Citizen CA/serialNumber=201508',
-            $this->jmcrt->getIssuerName()
+            $this->jmcrt->getIssuerDN()
         );
         $cacrt1 = new X509Certificate(
             file_get_contents(
