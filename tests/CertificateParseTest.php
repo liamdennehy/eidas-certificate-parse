@@ -100,12 +100,29 @@ class CertificateParseTest extends TestCase
             'http://uw.ocsp.quovadisglobal.com'
           ],
           'unRecognizedExtensions' => [
-            '1.2.840.113583.1.1.9.2' => 'MAMCAQE=',
-            '1.2.840.113583.1.1.9.1' =>
-              'MCQCAQGGH2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU=',
-            '2.5.29.32' =>
-              'MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3'.
-              'ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM=',
+            'oid' => '1.2.840.113583.1.1.9.2',
+            'value' => 'MAMCAQE='
+          ],
+          'unRecognizedExtensions' => [
+            'oid' => '1.2.840.113583.1.1.9.1',
+            'value' => 'MCQCAQGGH2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU='
+          ],
+          'unRecognizedExtensions' => [
+            [
+              'oid' => '2.5.29.32',
+              'value' =>
+                'MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3'.
+                'ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
+            ],
+            [
+              'oid' => '1.2.840.113583.1.1.9.2',
+              'value' => 'MAMCAQE='
+            ],
+            [
+              'oid' => '1.2.840.113583.1.1.9.1',
+              'value' =>
+                'MCQCAQGGH2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU='
+            ],
           ],
           'findings' => [
             'warning' => [
@@ -172,7 +189,10 @@ class CertificateParseTest extends TestCase
             'http://ocsp.quovadisglobal.com'
           ],
           'unRecognizedExtensions' => [
-            '2.5.29.32' => 'MAgwBgYEVR0gAA=='
+            [
+              'oid' => '2.5.29.32',
+              'value' => 'MAgwBgYEVR0gAA=='
+            ]
           ],
           'findings' => [
             'warning' => [

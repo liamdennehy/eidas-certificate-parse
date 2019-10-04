@@ -475,7 +475,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                         break;
 
                       case 'unknown':
-                        $this->attributes["unRecognizedExtensions"][$extension->getOID()] = base64_encode($extension->getBinary());
+                        $this->attributes["unRecognizedExtensions"][] =
+                        [
+                          'oid' => $extension->getOID(),
+                          'value' => base64_encode($extension->getBinary())
+                        ];
                         break;
                     }
                 }
