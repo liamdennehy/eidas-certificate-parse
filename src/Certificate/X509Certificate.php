@@ -454,7 +454,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $this->attributes["issuerExpanded"] = $this->getIssuerExpanded();
             if (!empty($this->issuers)) {
                 foreach ($this->issuers as $id => $issuer) {
-                    $this->attributes["issuerCerts"][$id] = $issuer->getAttributes();
+                    $this->attributes["issuerCerts"][] = $issuer->getAttributes();
                 }
             };
             if (!empty($this->tspServiceAttributes)) {
@@ -487,7 +487,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 foreach ($this->findings as $findingObject) {
                     $finding = $findingObject->getFinding();
                     $severity = $finding['severity'];
-                    $findings[$severity]['component'][] = [
+                    $component = $finding['component'];
+                    $findings[$severity][$component][] = [
                         $finding['message']
                     ];
                 }
