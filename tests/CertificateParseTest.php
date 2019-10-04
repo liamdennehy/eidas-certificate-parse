@@ -91,7 +91,7 @@ class CertificateParseTest extends TestCase
           ],
           'findings' => [
             'warning' => [
-              'component' => [
+              'extensions' => [
                 [
                   'Unhandled extension \'1.2.840.113583.1.1.9.1\': MCQCAQGGH'.
                   '2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU='
@@ -123,17 +123,42 @@ class CertificateParseTest extends TestCase
           ]
         ];
 
+        $this->eucrtIssuerTSPService =
+          TSPServicesTest::getTSPServiceAttributes();
+
         $this->euIssuercrtAttributes =
         [
           'subjectDN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
-          'issuerDN' => 'C=BM/O=QuoVadis Limited/CN=QuoVadis Enterprise Trust CA 1 G3',
+          'issuerDN' => '/C=BM/O=QuoVadis Limited/CN=QuoVadis Enterprise Trust CA 1 G3',
           'fingerprint' => 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c',
           'skiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
           'skiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           'akiHex' => '6c26bd605529294e663207a0ff638b835a4b34c6',
           'akiBase64' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
           'subjectExpanded' => $this->eucrtIssuerSubject,
-          'issuerExpanded' => $this->euIssuercrtIssuerAttributes
+          'issuerExpanded' => $this->euIssuercrtIssuerAttributes,
+          'tspService' => $this->eucrtIssuerTSPService,
+          'caIssuers' => [
+            'http://trust.quovadisglobal.com/qventca1g3.crt'
+          ],
+          'crlDistributionPoints' => [
+            'http://crl.quovadisglobal.com/qventca1g3.crl'
+          ],
+          'ocsp' => [
+            'http://ocsp.quovadisglobal.com'
+          ],
+          'unRecognizedExtensions' => [
+            '2.5.29.32' => 'MAgwBgYEVR0gAA=='
+          ],
+          'findings' => [
+            'warning' => [
+              'extensions' => [
+                [
+                  'Unhandled extension \'certificatePolicies\' (2.5.29.32): MAgwBgYEVR0gAA=='
+                ]
+              ]
+            ]
+          ],
         ];
     }
     public function getTestCerts()
@@ -400,25 +425,29 @@ class CertificateParseTest extends TestCase
         $eucrt = $this->eucrt;
         $eucrt->withIssuer($euissuercrt);
         $eucrtRefAttributes = $this->eucrtAttributes;
-        $eucrtRefAttributes['issuerCerts'][self::euIssuercertId] = $this->euIssuercrtAttributes;
+        $eucrtRefAttributes['issuerCerts'][0] = $this->euIssuercrtAttributes;
         $eucrtAttributes = $eucrt->getAttributes();
-        unset($eucrtAttributes['issuerCerts'][self::euIssuercertId]['tspService']['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
-        unset($eucrtAttributes['issuerCerts'][self::euIssuercertId]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
+        unset($eucrtAttributes['issuerCerts'][0]['tspService']['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
+        unset($eucrtAttributes['issuerCerts'][0]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
+        $this->assertEquals(
+            1,
+            sizeof($eucrtAttributes['issuerCerts'])
+        );
         $this->assertArrayHasKey(
             'issuerCerts',
             $eucrtAttributes
         );
-        $this->assertArrayHasKey(
-            self::euIssuercertId,
-            $eucrtAttributes['issuerCerts']
+        $this->assertEquals(
+            $this->euIssuercrtAttributes,
+            $eucrtAttributes['issuerCerts'][0]
         );
         $this->assertArrayHasKey(
             'tspService',
-            $eucrtAttributes['issuerCerts'][self::euIssuercertId]
+            $eucrtAttributes['issuerCerts'][0]
         );
         $this->assertEquals(
             TSPServicesTest::getTSPServiceAttributes(),
-            $eucrtAttributes['issuerCerts'][self::euIssuercertId]['tspService']
+            $eucrtAttributes['issuerCerts'][0]['tspService']
         );
     }
 }
