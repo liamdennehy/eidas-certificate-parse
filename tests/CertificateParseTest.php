@@ -84,6 +84,8 @@ class CertificateParseTest extends TestCase
           'subjectDN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
           'issuerDN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
+          'notBefore' => 1520438443,
+          'notAfter' => 1615133400,
           'skiHex' => 'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
           'skiBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
           'akiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
@@ -171,6 +173,8 @@ class CertificateParseTest extends TestCase
         [
           'subjectDN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
           'issuerDN' => '/C=BM/O=QuoVadis Limited/CN=QuoVadis Enterprise Trust CA 1 G3',
+          'notBefore' => 1465820525,
+          'notAfter' => 1781353325,
           'fingerprint' => 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c',
           'skiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
           'skiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
