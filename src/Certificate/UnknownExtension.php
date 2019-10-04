@@ -59,13 +59,13 @@ class UnknownExtension implements ExtensionInterface
     public function getFindings()
     {
         if (empty($this->oid)) {
-          throw new Exception("OID not set on unknown extension", 1);
+            throw new Exception("OID not set on unknown extension", 1);
         }
         $name = OID::getName($this->oid);
         if ($name == 'unknown') {
-          $name = "'$this->oid'";
+            $name = "'$this->oid'";
         } else {
-          $name = "'$name' ($this->oid)";
+            $name = "'$name' ($this->oid)";
         }
         $findings = [];
         if ($this->isCritical) {
