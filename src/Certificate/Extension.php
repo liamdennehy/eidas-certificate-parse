@@ -69,21 +69,13 @@ abstract class Extension
             // break;
 
           default:
-            if ($isCritical) {
-                throw new ExtensionException(
-                    "Unrecognised Critical Extension OID '$extensionOid' ($extensionName), cannot proceed: '" .
-                    base64_encode($extension->toDER()).
-                    "'",
-                    1
-                );
-            } else {
                 $extension = new UnknownExtension(
                     $extnValue,
                     $isCritical
                 );
                 $extension->setOID($extensionOid);
                 return $extension;
-            }
+            // }
             break;
         }
     }
