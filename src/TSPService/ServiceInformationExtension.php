@@ -3,6 +3,7 @@
 namespace eIDASCertificate\TSPService;
 
 use eIDASCertificate\SafeException;
+use eIDASCertificate\ParseException;
 
 /**
  *

@@ -83,7 +83,7 @@ class ServiceDigitalIdentity
         if (! empty($this->x509SubjectName)) {
             return $this->x509SubjectName->getSubjectName();
         } elseif (sizeof($this->x509Certificates) > 0) {
-            return  current($this->x509Certificates)->getSubjectName();
+            return  current($this->x509Certificates)->getSubjectDN();
         } else {
             return null;
         }

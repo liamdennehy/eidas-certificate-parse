@@ -378,6 +378,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
           case 19:
             $dnPartExpanded['value'] = $dnElement->at(1)->asPrintableString()->string();
             break;
+          case 20:
+            $dnPartExpanded['value'] = $dnElement->at(1)->asT61String()->string();
+            break;
           case 22:
             $dnPartExpanded['value'] = $dnElement->at(1)->asIA5String()->string();
             break;
@@ -388,6 +391,15 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 switch ($elementTag) {
                 case 12:
                   $elements[] = $element->asUTF8String()->string();
+                  break;
+                case 19:
+                  $elements[] = $element->asPrintableString()->string();
+                  break;
+                case 20:
+                  $elements[] = $element->asT61String()->string();
+                  break;
+                case 22:
+                  $elements[] = $element->asIA5String()->string();
                   break;
 
                 default:

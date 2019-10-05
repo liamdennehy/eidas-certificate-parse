@@ -157,17 +157,22 @@ class TSPService
 
     public function getTSPServiceAttributes()
     {
-        if (empty($this->attributes)) {
-            $this->attributes['trustServiceProvider'] = $this->tspAttributes;
+        if (!array_key_exists('name', $this->attributes)) {
             $this->attributes['name'] = $this->getName();
             $this->attributes['type'] = $this->getType();
+            if (!empty($this->tspAttributes)) {
+                $this->attributes['trustServiceProvider'] = $this->tspAttributes;
+            }
             $this->attributes['isQualified'] = $this->getIsQualified();
             $this->attributes['status'] = $this->getStatus();
             $this->attributes['isActive'] = $this->getIsActive();
             $this->attributes['statusStartingTime'] = $this->getDate();
             $this->attributes['certificates'] = [];
             foreach ($this->getX509Certificates() as $certificate) {
-                $this->attributes['certificates'][$certificate->getIdentifier()] = $certificate->toPEM();
+                $this->attributes['certificates'][] = [
+                  'id' => $certificate->getIdentifier(),
+                  'PEM' => $certificate->toPEM()
+                ];
             }
             $this->attributes['skiBase64'] = base64_encode($this->getX509SKI());
             $this->attributes['skiHex'] = bin2hex($this->getX509SKI());
