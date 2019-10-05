@@ -170,9 +170,9 @@ class TSPService implements AttributeInterface
             $this->attributes['status'] = $this->getStatus();
             $this->attributes['isActive'] = $this->getIsActive();
             $this->attributes['statusStartingTime'] = $this->getDate();
-            $this->attributes['certificates'] = [];
+            $this->attributes['x509Certificates'] = [];
             foreach ($this->getX509Certificates() as $certificate) {
-                $this->attributes['certificates'][] = [
+                $this->attributes['x509Certificates'][] = [
                   'id' => $certificate->getIdentifier(),
                   'PEM' => $certificate->toPEM()
                 ];

@@ -48,7 +48,7 @@ class TSPServicesTest extends TestCase
           'isActive' => true,
           'isQualified' => true,
           'statusStartingTime' => 1518048000,
-          'certificates' => [
+          'x509Certificates' => [
             [
               'id' => self::TSPServiceCertHash,
               'PEM' => file_get_contents(__DIR__.'/certs/'.self::testTSPServiceCertFile)
