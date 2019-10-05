@@ -20,6 +20,7 @@ class ServiceInformationExtension
      */
     public function __construct($identifier)
     {
+        // TODO: Parse Qualifications and criticality
         $uri = (string)$identifier->AdditionalServiceInformation->URI;
         if (substr($uri, 0, 50) != 'http://uri.etsi.org/TrstSvc/TrustedList/SvcInfoExt') {
             throw new SafeException("Non-ETSI Extensions are not supported ($uri)");
