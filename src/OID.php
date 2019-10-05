@@ -74,11 +74,16 @@ class OID
     const businessCategory        = '2.5.4.15';
     const postalAddress           = '2.5.4.16';
     const postalCode              = '2.5.4.17';
+    const telephoneNumber         = '2.5.4.20';
     const givenName               = '2.5.4.42';
+    const pseudonym               = '2.5.4.65';
     const organizationIdentifier  = '2.5.4.97';
     // https://www.itu.int/rec/dologin.asp?lang=e&id=T-REC-X.520-201210-S!Cor3!PDF-E&type=items
     const identrusOCSP            = '1.2.840.114021.4.1';
     // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
+    const nameDistinguisher        = '0.2.262.1.10.7.20';
+    // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
+    const domainComponent          = '0.9.2342.19200300.100.1.25';
 
     public static function getName($oidString)
     {
@@ -242,6 +247,9 @@ class OID
           case self::givenName:
             $oidName = 'givenName';
             break;
+          case self::pseudonym:
+            $oidName = 'pseudonym';
+            break;
           case self::serialNumber:
             $oidName = 'serialNumber';
             break;
@@ -269,6 +277,9 @@ class OID
           case self::postalAddress:
             $oidName = 'postalAddress';
             break;
+          case self::telephoneNumber:
+            $oidName = 'telephoneNumber';
+            break;
           case self::streetAddress:
             $oidName = 'streetAddress';
             break;
@@ -280,6 +291,12 @@ class OID
             break;
           case self::identrusOCSP:
             $oidName = 'identrusOCSP';
+            break;
+          case self::nameDistinguisher:
+            $oidName = 'nameDistinguisher';
+            break;
+          case self::domainComponent:
+            $oidName = 'domainComponent';
             break;
           default:
             $oidName = 'unknown';
@@ -312,6 +329,9 @@ class OID
             break;
           case 'surname':
             return 'SN';
+            break;
+          case 'domainComponent':
+            return 'DC';
             break;
 
           default:
