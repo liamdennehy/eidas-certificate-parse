@@ -181,13 +181,13 @@ class TSPService implements AttributeInterface
             $this->attributes['skiHex'] = bin2hex($this->getX509SKI());
             $this->attributes['subjectName'] = $this->getX509SubjectName();
             $this->attributes['serviceHistory'][] = [
-                $this->getDate(),
-                $this->getStatus()
+                'statusStartingTime' => $this->getDate(),
+                'status' => $this->getStatus()
             ];
             foreach ($this->serviceHistory->getInstances() as $serviceStatus) {
                 $this->attributes['serviceHistory'][] = [
-                    $serviceStatus->getStartingTime(),
-                    $serviceStatus->getStatus()
+                  'statusStartingTime' => $serviceStatus->getStartingTime(),
+                  'status' => $serviceStatus->getStatus()
                 ];
             }
         }

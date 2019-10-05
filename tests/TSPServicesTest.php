@@ -58,9 +58,18 @@ class TSPServicesTest extends TestCase
           'skiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
           'subjectName' => 'CN=QuoVadis Belgium Issuing CA G2, O=QuoVadis Trustlink BVBA, OID.2.5.4.97=NTRBE-0537698318, C=BE',
           'serviceHistory' => [
-            [1518048000, 'granted'],
-            [1467324000, 'granted'],
-            [1465776000, 'undersupervision']
+            [
+              'statusStartingTime' => 1518048000,
+              'status' =>'granted'
+            ],
+            [
+              'statusStartingTime' => 1467324000,
+              'status' =>'granted'
+            ],
+            [
+              'statusStartingTime' => 1465776000,
+              'status' =>'undersupervision'
+            ],
           ]
         ];
         $attributes['trustServiceProvider'] =  TSPTest::getTSPAttributes();
