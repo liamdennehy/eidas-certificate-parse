@@ -71,11 +71,12 @@ class ExtendedKeyUsage implements ExtensionInterface
 
     public function forPurpose($purpose)
     {
-        if (array_key_exists($purpose, $this->ekus)) {
-            return $this->ekus[$purpose];
-        } else {
-            return false;
+        foreach ($this->ekus as $eku) {
+            if ($eku['name'] == $purpose) {
+                return true;
+            }
         }
+        return false;
     }
 
     public function getDescription()
