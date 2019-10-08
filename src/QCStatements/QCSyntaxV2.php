@@ -17,6 +17,7 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     const uri = 'https://www.etsi.org/deliver/etsi_en/319400_319499/31941201/01.01.01_60/en_31941201v010101p.pdf#chapter-5.1';
 
     private $semanticsType;
+    private $subjectDN;
     private $findings = [];
 
     public function __construct($qcStatementDER, $isCritical = false)
@@ -105,11 +106,11 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
 
     public function setCertificate(X509Certificate $cert)
     {
-        null;
+        $this->subject = $cert->getSubjectExpanded();
     }
 
     public function getAttributes()
     {
-        return [];
+        return ['subjectFormat' => $this->getDescription()];
     }
 }

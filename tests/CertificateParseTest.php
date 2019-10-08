@@ -92,6 +92,7 @@ class CertificateParseTest extends TestCase
           'akiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           'subjectExpanded' => $this->eucrtSubject,
           'issuerExpanded' => $this->eucrtIssuerSubject,
+          'subjectFormat' => 'The values in the Subject DN are interpreted according to the rules of a Legal Person',
           'caIssuers' => [
             'http://trust.quovadisglobal.com/qvbecag2.crt'
           ],
