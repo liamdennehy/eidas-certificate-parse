@@ -225,13 +225,13 @@ class ExtensionTest extends TestCase
         );
     }
 
-    public function testPrecertPoisin()
+    public function testPreCertPoisin()
     {
         $binary = base64_decode('BQA=');
         $preCertPoison = new PreCertPoison($binary, true);
         $this->assertEquals(
             ['isPrecert' => true],
-            $preCertPoison->getAttributes(),
+            $preCertPoison->getAttributes()
         );
     }
 

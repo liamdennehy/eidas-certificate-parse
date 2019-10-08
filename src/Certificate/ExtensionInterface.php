@@ -9,7 +9,7 @@ use eIDASCertificate\Certificate\X509Certificate;
  */
  interface ExtensionInterface extends ParseInterface
  {
-     public function __construct($extensionDER, bool $isCritical);
+     public function __construct($extensionDER, $isCritical);
      public function getType();
      public function getDescription();
      public function getURI();
