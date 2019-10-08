@@ -114,6 +114,12 @@ class CertificateParseTest extends TestCase
               'language' => 'en'
             ]
           ],
+          'QCType' => [
+            'type' => 'eseal',
+            'description' =>
+              'Certificate for Electronic Signatures (QSealC) according to '.
+              'Regulation (EU) No 910/2014 Article 38'
+          ],
           'keyPurposes' => [
             'keyUsage' => [
               'digitalSignature' => true,

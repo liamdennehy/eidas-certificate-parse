@@ -132,6 +132,7 @@ class QCStatements implements ExtensionInterface
 
     public function getAttributes()
     {
+        // TODO: Properly align QCType variations according to ETSI EN 319 412-5 Chapter 4.2
         $attrs = [];
         foreach ($this->qcStatements as $name => $qcStatement) {
             $attrs = array_merge($attrs, $qcStatement->getAttributes());

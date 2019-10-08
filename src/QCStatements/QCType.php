@@ -18,6 +18,17 @@ class QCType extends QCStatement implements QCStatementInterface
 
     const type = 'QCQualifiedType';
     const oid = '0.4.0.1862.1.6';
+    const uri = 'https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.2.3';
+    const qSigCDescription =
+      'Certificate for Electronic Signatures (QSigC) according to '.
+      'Regulation (EU) No 910/2014 Article 28';
+    const qSealCDescription =
+      'Certificate for Electronic Signatures (QSealC) according to '.
+      'Regulation (EU) No 910/2014 Article 38';
+    const qWACDescription =
+      'Certificate for Electronic Signatures (QWAC) according to '.
+      'Regulation (EU) No 910/2014 Article 45';
+
 
     public function __construct($qcStatementDER, $isCritical = false)
     {
@@ -51,9 +62,13 @@ class QCType extends QCStatement implements QCStatementInterface
                 $qcTypeName = OID::getName($qcTypeOID);
                 switch ($qcTypeName) {
                 case 'esign':
+                  $this->description = self::qSigCDescription;
+                  break;
                 case 'eseal':
+                  $this->description = self::qSealCDescription;
+                  break;
                 case 'web':
-                  $this->qcType = $qcTypeName;
+                  $this->description = self::qWACDescription;
                   break;
 
                 default:
@@ -64,6 +79,7 @@ class QCType extends QCStatement implements QCStatementInterface
                   );
                   break;
               }
+                $this->qcType = $qcTypeName;
             }
             break;
         }
@@ -82,26 +98,12 @@ class QCType extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        switch ($this->qcType) {
-          case 'esign':
-            return "Certificate for Electronic Signatures";
-            break;
-          case 'eseal':
-            return "Certificate for Electronic Seals";
-            break;
-          case 'web':
-            return "Certificate for Website Authentication";
-            break;
-
-          default:
-            return "QCType malformed or not recognised";
-            break;
-        }
+        return $this->description;
     }
 
     public function getURI()
     {
-        return "https://www.etsi.org/deliver/etsi_en/319400_319499/31941205/02.02.01_60/en_31941205v020201p.pdf#chapter-4.2.3";
+        return self::uri;
     }
 
     public function getBinary()
@@ -126,6 +128,10 @@ class QCType extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        return [];
+        // TODO: QCType Sanity checks?
+        return ['QCType' => [
+          'type' => $this->qcType,
+          'description' => $this->getDescription()
+          ]];
     }
 }
