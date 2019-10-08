@@ -97,6 +97,10 @@ class BasicConstraints implements ExtensionInterface
 
     public function getAttributes()
     {
-        return [];
+        $attrs = ['isCA' => $this->isCA];
+        if (!empty($this->pathLength)) {
+          $attrs['pathLength'] = $this->pathLength;
+        }
+        return $attrs;
     }
 }

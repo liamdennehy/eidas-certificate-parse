@@ -180,6 +180,7 @@ class CertificateParseTest extends TestCase
           'skiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           'akiHex' => '6c26bd605529294e663207a0ff638b835a4b34c6',
           'akiBase64' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
+          'isCA' => true,
           'subjectExpanded' => $this->eucrtIssuerSubject,
           'issuerExpanded' => $this->euIssuercrtIssuerAttributes,
           'tspService' => $this->eucrtIssuerTSPService,
