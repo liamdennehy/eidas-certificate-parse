@@ -19,8 +19,19 @@ class QCStatementsTest extends TestCase
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const eucrtfile = 'European-Commission.crt';
     const mocrtfile = 'Maarten Joris Ottoy.crt';
+    const QCComplianceBaseDescription =
+      'The certificate is an EU qualified certificate that is issued '.
+      'according to Directive 1999/93/EC or the Annex I, III or IV of the '.
+      'Regulation (EU) No 910/2014 whichever is in force at the time of '.
+      'issuance.';
+    const QCComplianceESDDescription =
+      'The certificate is an EU qualified certificate that is issued '.
+      'according to Directive 1999/93/EC';
+    const QCComplianceeIDASDescription =
+      'The certificate is an EU qualified certificate that is issued '.
+      'according to Annex I, III or IV of the Regulation (EU) No 910/2014.';
 
-    public function getTestCerts()
+    public function setUp()
     {
         $this->jmcrt = new X509Certificate(
             file_get_contents(
@@ -46,6 +57,20 @@ class QCStatementsTest extends TestCase
         $this->assertEquals(
             '99b818e96263d013819f99c0ec5c4b426c0dbbf8389309b86a02e641208adb95',
             hash('sha256', $qcCompliance->getDescription())
+        );
+        $this->assertEquals(
+            self::QCComplianceBaseDescription,
+            $qcCompliance->getDescription()
+        );
+        $qcCompliance->setCertificate($this->jmcrt);
+        $this->assertEquals(
+            self::QCComplianceESDDescription,
+            $qcCompliance->getDescription()
+        );
+        $qcCompliance->setCertificate($this->eucrt);
+        $this->assertEquals(
+            self::QCComplianceeIDASDescription,
+            $qcCompliance->getDescription()
         );
     }
 
