@@ -94,6 +94,12 @@ class ExtendedKeyUsage implements ExtensionInterface
 
     public function getAttributes()
     {
-        return [];
+        return
+        [
+          'keyPurposes' =>
+          [
+            'extendedKeyUsage' => array_keys($this->ekus)
+          ]
+        ];
     }
 }

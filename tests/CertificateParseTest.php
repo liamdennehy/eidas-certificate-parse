@@ -101,6 +101,13 @@ class CertificateParseTest extends TestCase
           'ocsp' => [
             'http://uw.ocsp.quovadisglobal.com'
           ],
+          'keyPurposes' => [
+            'extendedKeyUsage' => [
+              'clientAuth',
+              'emailProtection',
+              'MS_DOCUMENT_SIGNING'
+            ]
+          ],
           'unRecognizedExtensions' => [
             'oid' => '1.2.840.113583.1.1.9.2',
             'value' => 'MAMCAQE='
