@@ -53,4 +53,14 @@ class QCCompliance extends QCStatement implements QCStatementInterface
     {
         return false;
     }
+
+    public function setCertificate()
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return [];
+    }
 }

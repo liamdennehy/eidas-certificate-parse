@@ -48,7 +48,7 @@ class SubjectKeyIdentifier implements ExtensionInterface
 
     public function getDescription()
     {
-        return "This is a SubjectKeyIDentifier extension";
+        return "This is a SubjectKeyIdentifier extension";
     }
 
     public function getFindings()
@@ -59,5 +59,15 @@ class SubjectKeyIdentifier implements ExtensionInterface
     public function getIsCritical()
     {
         return $this->isCritical;
+    }
+
+    public function setCertificate()
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return [];
     }
 }

@@ -160,4 +160,14 @@ class KeyUsage implements ExtensionInterface
     {
         return $this->isCritical;
     }
+
+    public function setCertificate()
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return [];
+    }
 }

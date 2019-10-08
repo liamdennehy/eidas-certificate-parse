@@ -52,11 +52,11 @@ class QCStatements implements ExtensionInterface
                     $this->qcStatements[$qcStatement->getType()] = $qcStatement;
                     if (substr($qcStatement->getType(), 0, 8) == 'unknown-') {
                         $this->findings[] = new Finding(
-                          'qcStatements',
-                          'warning',
-                          "Unrecognised qcStatement: " .
+                            'qcStatements',
+                            'warning',
+                            "Unrecognised qcStatement: " .
                           base64_encode($qcStatementDER)
-                      );
+                        );
                     }
                 }
             }
@@ -120,5 +120,15 @@ class QCStatements implements ExtensionInterface
     public function getIsCritical()
     {
         return $this->isCritical;
+    }
+
+    public function setCertificate()
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return [];
     }
 }
