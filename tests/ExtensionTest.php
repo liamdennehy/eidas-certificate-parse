@@ -12,6 +12,7 @@ use eIDASCertificate\Certificate\BasicConstraints;
 use eIDASCertificate\Certificate\CRLDistributionPoints;
 use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
+use eIDASCertificate\Certificate\PreCertPoison;
 
 class ExtensionTest extends TestCase
 {
@@ -221,6 +222,16 @@ class ExtensionTest extends TestCase
               $basicConstraints->isCA(),
               $basicConstraints->getPathLength()
             ]
+        );
+    }
+
+    public function testPrecertPoisin()
+    {
+        $binary = base64_decode('BQA=');
+        $preCertPoison = new PreCertPoison($binary, true);
+        $this->assertEquals(
+            ['isPrecert' => true],
+            $preCertPoison->getAttributes(),
         );
     }
 

@@ -66,6 +66,6 @@ class PreCertPoison implements ExtensionInterface
 
     public function getAttributes()
     {
-        return [];
+        return ['isPrecert' => true];
     }
 }

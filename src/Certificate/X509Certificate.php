@@ -471,10 +471,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             if ($this->hasExtensions()) {
                 foreach ($this->extensions as $name => $extension) {
                     switch ($extension->getType()) {
-                      case 'preCertPoison':
-                        $this->attributes["isPrecert"] = true;
-                        break;
-
                       case 'unknown':
                         $this->attributes["unRecognizedExtensions"][] =
                         [
