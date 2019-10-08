@@ -58,7 +58,15 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        $description = "Currency Limit";
+        $basisValue = (string)($this->amount * (10 ** $this->exponent));
+        $basisValue = strrev(chunk_split(strrev($basisValue), 3, ','));
+        if (substr($basisValue, 0, 1) == ',') {
+            $basisValue = substr($basisValue, 1, strlen($basisValue)-1);
+        }
+        $description =
+          'This certificate is authorised for transactions up to '.
+          $basisValue .
+          ' units of currency '.$this->currency;
         return $description;
     }
 
@@ -89,6 +97,8 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        return [];
+        return [
+          'transactionValueLimit' => $this->getDescription
+        ];
     }
 }

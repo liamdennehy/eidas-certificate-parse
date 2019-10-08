@@ -86,6 +86,10 @@ class QCStatementsTest extends TestCase
           ],
             $qcLimitValue->getLimit()
         );
+        $this->assertEquals(
+            'This certificate is authorised for transactions up to 5,000,000 units of currency HUF',
+            $qcLimitValue->getDescription()
+        );
     }
 
     public function testQCPDS()
