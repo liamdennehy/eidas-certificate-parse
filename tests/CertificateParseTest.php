@@ -102,6 +102,17 @@ class CertificateParseTest extends TestCase
             'http://uw.ocsp.quovadisglobal.com'
           ],
           'keyPurposes' => [
+            'keyUsage' => [
+              'digitalSignature' => true,
+              'nonRepudiation' => true,
+              'keyEncipherment' => false,
+              'dataEncipherment' => false,
+              'keyAgreement' => false,
+              'keyCertSign' => false,
+              'cRLSign' => false,
+              'encipherOnly' => false,
+              'decipherOnly' => false,
+            ],
             'extendedKeyUsage' => [
               'clientAuth',
               'emailProtection',
