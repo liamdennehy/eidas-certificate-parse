@@ -168,7 +168,7 @@ class KeyUsage implements ExtensionInterface
 
     public function getAttributes()
     {
-      return
+        return
       [
         'keyPurposes' =>
         [

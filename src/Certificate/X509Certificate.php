@@ -454,10 +454,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
             $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
             $this->attributes["fingerprint"] = $this->getIdentifier();
-            if (!empty($this->getSubjectKeyIdentifier())) {
-                $this->attributes["skiHex"] = bin2hex($this->getSubjectKeyIdentifier());
-                $this->attributes["skiBase64"] = base64_encode($this->getSubjectKeyIdentifier());
-            }
             $this->attributes["subjectExpanded"] = $this->getSubjectExpanded();
             $this->attributes["issuerExpanded"] = $this->getIssuerExpanded();
             if (!empty($this->issuers)) {
