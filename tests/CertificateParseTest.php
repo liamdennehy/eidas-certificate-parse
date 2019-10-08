@@ -108,6 +108,12 @@ class CertificateParseTest extends TestCase
               'a Qualified Signature/Seal Creation Device (QSCD) according to '.
               'the Regulation (EU) No 910/2014'
           ],
+          'PKIDisclosureStatements' => [
+            [
+              'url' => 'https://www.quovadisglobal.com/repository',
+              'language' => 'en'
+            ]
+          ],
           'keyPurposes' => [
             'keyUsage' => [
               'digitalSignature' => true,

@@ -117,6 +117,6 @@ class QCPDS extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        return [];
+        return ['PKIDisclosureStatements' => $this->pdsLocations];
     }
 }
