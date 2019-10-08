@@ -4,6 +4,7 @@ namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\QCStatements\QCStatementException;
 use ASN1\Type\UnspecifiedType;
 
@@ -81,7 +82,7 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
         return false;
     }
 
-    public function setCertificate()
+    public function setCertificate(X509Certificate $cert)
     {
         null;
     }

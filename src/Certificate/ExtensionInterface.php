@@ -2,6 +2,8 @@
 
 namespace eIDASCertificate\Certificate;
 
+use eIDASCertificate\Certificate\X509Certificate;
+
 /**
  *
  */
@@ -13,6 +15,6 @@ namespace eIDASCertificate\Certificate;
      public function getURI();
      public function getBinary();
      public function getIsCritical();
-     // public function setCertificate();
+     public function setCertificate(X509Certificate $cert);
      public function getAttributes();
  }

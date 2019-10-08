@@ -3,6 +3,7 @@
 namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
+use eIDASCertificate\Certificate\X509Certificate;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -55,7 +56,7 @@ class QCUnknown extends QCStatement implements QCStatementInterface
         return false;
     }
 
-    public function setCertificate()
+    public function setCertificate(X509Certificate $cert)
     {
         null;
     }

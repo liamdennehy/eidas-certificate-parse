@@ -4,6 +4,7 @@ namespace eIDASCertificate\Extensions;
 
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\QCStatements\QCStatement;
 use eIDASCertificate\QCStatements\QCStatementException;
@@ -122,7 +123,7 @@ class QCStatements implements ExtensionInterface
         return $this->isCritical;
     }
 
-    public function setCertificate()
+    public function setCertificate(X509Certificate $cert)
     {
         null;
     }

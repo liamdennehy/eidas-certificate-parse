@@ -3,7 +3,8 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
-use eIDASCertificate\CertificateException;
+use eIDASCertificate\Certificate\CertificateException;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
 use ASN1\Type\UnspecifiedType;
@@ -104,7 +105,7 @@ class AuthorityInformationAccess implements ExtensionInterface
         return $this->isCritical;
     }
 
-    public function setCertificate()
+    public function setCertificate(X509Certificate $cert)
     {
         null;
     }

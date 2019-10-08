@@ -478,6 +478,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             }
             $extensionAttributes = [];
             foreach ($this->extensions as $extension) {
+                $extension->setCertificate($this);
                 switch ($extension->getType()) {
                 case 'unknown':
                   if (!array_key_exists('unRecognizedExtensions', $extensionAttributes)) {

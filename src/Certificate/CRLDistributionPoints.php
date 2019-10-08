@@ -4,6 +4,7 @@ namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\Certificate\ExtensionException;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
 use ASN1\Type\UnspecifiedType;
@@ -85,7 +86,7 @@ class CRLDistributionPoints implements ExtensionInterface
         return $this->isCritical;
     }
 
-    public function setCertificate()
+    public function setCertificate(X509Certificate $cert)
     {
         null;
     }

@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Finding;
 use eIDASCertificate\OID;
 use ASN1\Type\UnspecifiedType;
@@ -92,7 +93,7 @@ class UnknownExtension implements ExtensionInterface
         return $this->isCritical;
     }
 
-    public function setCertificate()
+    public function setCertificate(X509Certificate $cert)
     {
         null;
     }
