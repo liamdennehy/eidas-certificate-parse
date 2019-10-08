@@ -472,9 +472,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 if (!empty($this->getIssuerURIs())) {
                     $this->attributes["caIssuers"] = $this->getIssuerURIs();
                 }
-                if (!empty($this->getCDPs())) {
-                    $this->attributes["crlDistributionPoints"] = $this->getCDPs();
-                }
+                // if (!empty($this->getCDPs())) {
+                //     $this->attributes["crlDistributionPoints"] = $this->getCDPs();
+                // }
                 if (!empty($this->getOCSPURIs())) {
                     $this->attributes["ocsp"] = $this->getOCSPURIs();
                 }
