@@ -102,6 +102,12 @@ class CertificateParseTest extends TestCase
           'ocsp' => [
             'http://uw.ocsp.quovadisglobal.com'
           ],
+          'keySecurity' => [
+            'SSCD' =>
+              'The private key related to the certified public key resides in '.
+              'a Qualified Signature/Seal Creation Device (QSCD) according to '.
+              'the Regulation (EU) No 910/2014'
+          ],
           'keyPurposes' => [
             'keyUsage' => [
               'digitalSignature' => true,

@@ -30,6 +30,19 @@ class QCStatementsTest extends TestCase
     const QCComplianceeIDASDescription =
       'The certificate is an EU qualified certificate that is issued '.
       'according to Annex I, III or IV of the Regulation (EU) No 910/2014.';
+    const QCSSCDBaseDescription =
+      'The private key related to the certified public key resides in a '.
+      'Qualified Signature/Seal Creation Device (QSCD) according to the '.
+      'Regulation (EU) No 910/2014 or a secure signature creation '.
+      'device as defined in the Directive 1999/93/EC';
+    const QCSSCDESDDescription =
+      'The private key related to the certified public key resides '.
+      'in a secure signature creation '.
+      'device as defined in the Directive 1999/93/EC';
+    const QCSSCDeIDASDescription =
+      'The private key related to the certified public key resides in a '.
+      'Qualified Signature/Seal Creation Device (QSCD) according to the '.
+      'Regulation (EU) No 910/2014';
 
     public function setUp()
     {
@@ -187,10 +200,20 @@ class QCStatementsTest extends TestCase
     public function testQCSSCD()
     {
         $binary = base64_decode('MAgGBgQAjkYBBA==');
-        $qcRetentionPeriod = new QCSSCD($binary);
+        $qcSSCD = new QCSSCD($binary);
         $this->assertEquals(
-            'a5363edca9bcb7002ff5b7eda9c5a85f0c7c60158bd9c6c0144b38267e74ef8f',
-            hash('sha256', $qcRetentionPeriod->getDescription())
+            self::QCSSCDBaseDescription,
+            $qcSSCD->getDescription()
+        );
+        $qcSSCD->setCertificate($this->jmcrt);
+        $this->assertEquals(
+            self::QCSSCDESDDescription,
+            $qcSSCD->getDescription()
+        );
+        $qcSSCD->setCertificate($this->eucrt);
+        $this->assertEquals(
+            self::QCSSCDeIDASDescription,
+            $qcSSCD->getDescription()
         );
     }
 
