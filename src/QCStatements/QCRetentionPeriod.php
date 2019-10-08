@@ -81,6 +81,6 @@ class QCRetentionPeriod extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        return [];
+        return ['subjectDataRetention' => $this->retentionPeriod.' year(s)'];
     }
 }
