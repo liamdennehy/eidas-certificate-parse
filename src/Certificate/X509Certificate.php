@@ -469,15 +469,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 $this->attributes["tspService"] = $this->tspServiceAttributes;
             }
             if ($this->hasExtensions()) {
-                if (!empty($this->getIssuerURIs())) {
-                    $this->attributes["caIssuers"] = $this->getIssuerURIs();
-                }
-                // if (!empty($this->getCDPs())) {
-                //     $this->attributes["crlDistributionPoints"] = $this->getCDPs();
-                // }
-                if (!empty($this->getOCSPURIs())) {
-                    $this->attributes["ocsp"] = $this->getOCSPURIs();
-                }
                 foreach ($this->extensions as $name => $extension) {
                     switch ($extension->getType()) {
                       case 'preCertPoison':
@@ -508,11 +499,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             }
             $extensionAttributes = [];
             foreach ($this->extensions as $extension) {
-                if (method_exists($extension, 'getAttributes')) {
-                    $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
-                }
-                $this->attributes = array_merge($extensionAttributes, $this->attributes);
+                $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
             }
+            $this->attributes = array_merge($extensionAttributes, $this->attributes);
         }
 
         return $this->attributes;
