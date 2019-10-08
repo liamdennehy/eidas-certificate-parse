@@ -33,6 +33,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $findings = [];
     private $tspServiceAttributes;
     private $subjectName;
+    private $notBefore;
+    private $notAfter;
 
     public function __construct($candidate)
     {
@@ -170,8 +172,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     public function getDates()
     {
         return [
-          $this->notBefore,
-          $this->notAfter
+          'notBefore' => $this->notBefore,
+          'notAfter' => $this->notAfter
         ];
     }
 
