@@ -4,6 +4,7 @@ namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\QCStatements\QCStatementException;
 use ASN1\Type\UnspecifiedType;
 
@@ -57,7 +58,15 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        $description = "Currency Limit";
+        $basisValue = (string)($this->amount * (10 ** $this->exponent));
+        $basisValue = strrev(chunk_split(strrev($basisValue), 3, ','));
+        if (substr($basisValue, 0, 1) == ',') {
+            $basisValue = substr($basisValue, 1, strlen($basisValue)-1);
+        }
+        $description =
+          'This certificate is authorised for transactions up to '.
+          $basisValue .
+          ' units of currency '.$this->currency;
         return $description;
     }
 
@@ -79,5 +88,17 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
     public function getIsCritical()
     {
         return false;
+    }
+
+    public function setCertificate(X509Certificate $cert)
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return [
+          'transactionValueLimit' => $this->getDescription
+        ];
     }
 }

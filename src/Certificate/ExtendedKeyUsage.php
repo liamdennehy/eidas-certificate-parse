@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
 use ASN1\Type\UnspecifiedType;
@@ -29,16 +30,21 @@ class ExtendedKeyUsage implements ExtensionInterface
         foreach ($ekus->elements() as $eku) {
             $ekuOID = $eku->asObjectIdentifier()->oid();
             $ekuName = OID::getName($ekuOID);
+            $ekuURI = OID::getURI($ekuOID);
             if ($ekuName == 'unknown') {
                 $this->findings[] = new Finding(
                     self::type,
-                    'error',
+                    'critical',
                     "Unrecognised ExtendedKeyUsage: ".
                   base64_encode($extensionDER)
                 );
                 $this->ekus['unknown'] = true;
             } else {
-                $this->ekus[$ekuName] = true;
+                $this->ekus[] = [
+                  'name' => $ekuName,
+                  'oid' => $ekuOID,
+                  'url' => $ekuURI
+                ];
             }
         }
         $this->binary = $extensionDER;
@@ -65,11 +71,12 @@ class ExtendedKeyUsage implements ExtensionInterface
 
     public function forPurpose($purpose)
     {
-        if (array_key_exists($purpose, $this->ekus)) {
-            return $this->ekus[$purpose];
-        } else {
-            return false;
+        foreach ($this->ekus as $eku) {
+            if ($eku['name'] == $purpose) {
+                return true;
+            }
         }
+        return false;
     }
 
     public function getDescription()
@@ -85,5 +92,21 @@ class ExtendedKeyUsage implements ExtensionInterface
     public function getIsCritical()
     {
         return $this->isCritical;
+    }
+
+    public function setCertificate(X509Certificate $cert)
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return
+        [
+          'keyPurposes' =>
+          [
+            'extendedKeyUsage' => $this->ekus
+          ]
+        ];
     }
 }

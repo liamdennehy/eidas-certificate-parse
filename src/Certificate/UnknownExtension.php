@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Finding;
 use eIDASCertificate\OID;
 use ASN1\Type\UnspecifiedType;
@@ -90,5 +91,21 @@ class UnknownExtension implements ExtensionInterface
     public function getIsCritical()
     {
         return $this->isCritical;
+    }
+
+    public function setCertificate(X509Certificate $cert)
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return [
+        'unRecognizedExtensions' =>
+          [[
+            'oid' => $this->oid,
+            'value' => base64_encode($this->binary)
+          ]]
+      ];
     }
 }

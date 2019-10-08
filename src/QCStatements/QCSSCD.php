@@ -3,6 +3,7 @@
 namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
+use eIDASCertificate\Certificate\X509Certificate;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -11,6 +12,11 @@ use ASN1\Type\UnspecifiedType;
 class QCSSCD extends QCStatement implements QCStatementInterface
 {
     private $binary;
+    private $description =
+      'The private key related to the certified public key resides '.
+      'in a Qualified Signature/Seal Creation Device (QSCD) according to '.
+      'the Regulation (EU) No 910/2014 or a secure signature creation '.
+      'device as defined in the Directive 1999/93/EC';
 
     const type = 'QCSSCD';
     const oid = '0.4.0.1862.1.4';
@@ -28,10 +34,7 @@ class QCSSCD extends QCStatement implements QCStatementInterface
 
     public function getDescription()
     {
-        return "The private key related to the certified public key resides ".
-        "in a Qualified Signature/Seal Creation Device (QSCD) according to ".
-        "the Regulation (EU) No 910/2014 [i.8] or a secure signature creation ".
-        "device as defined in the Directive 1999/93/EC [i.3]";
+        return $this->description;
     }
 
     public function getURI()
@@ -52,5 +55,26 @@ class QCSSCD extends QCStatement implements QCStatementInterface
     public function getIsCritical()
     {
         return false;
+    }
+
+    public function setCertificate(X509Certificate $cert)
+    {
+        $notBefore = (int)$cert->getDates()['notBefore']->format('U');
+        if ($notBefore >= 1467324000) {
+            $this->description =
+              'The private key related to the certified public key resides '.
+              'in a Qualified Signature/Seal Creation Device (QSCD) according to '.
+              'the Regulation (EU) No 910/2014';
+        } else {
+            $this->description =
+              'The private key related to the certified public key resides '.
+              'in a secure signature creation '.
+              'device as defined in the Directive 1999/93/EC';
+        }
+    }
+
+    public function getAttributes()
+    {
+        return ['keySecurity' => ['SSCD' => $this->getDescription()]];
     }
 }

@@ -4,6 +4,7 @@ namespace eIDASCertificate\QCStatements;
 
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
+use eIDASCertificate\Certificate\X509Certificate;
 use ASN1\Type\UnspecifiedType;
 
 /**
@@ -16,6 +17,7 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     const uri = 'https://www.etsi.org/deliver/etsi_en/319400_319499/31941201/01.01.01_60/en_31941201v010101p.pdf#chapter-5.1';
 
     private $semanticsType;
+    private $subjectDN;
     private $findings = [];
 
     public function __construct($qcStatementDER, $isCritical = false)
@@ -100,5 +102,15 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     public function getIsCritical()
     {
         return false;
+    }
+
+    public function setCertificate(X509Certificate $cert)
+    {
+        $this->subject = $cert->getSubjectExpanded();
+    }
+
+    public function getAttributes()
+    {
+        return ['subjectFormat' => $this->getDescription()];
     }
 }

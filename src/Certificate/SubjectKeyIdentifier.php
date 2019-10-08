@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\CertificateException;
 use ASN1\Type\UnspecifiedType;
 
@@ -48,7 +49,7 @@ class SubjectKeyIdentifier implements ExtensionInterface
 
     public function getDescription()
     {
-        return "This is a SubjectKeyIDentifier extension";
+        return "This is a SubjectKeyIdentifier extension";
     }
 
     public function getFindings()
@@ -59,5 +60,19 @@ class SubjectKeyIdentifier implements ExtensionInterface
     public function getIsCritical()
     {
         return $this->isCritical;
+    }
+
+    public function setCertificate(X509Certificate $cert)
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return
+          [
+            "skiHex" => bin2hex($this->keyIdentifier),
+            "skiBase64" => base64_encode($this->keyIdentifier),
+          ];
     }
 }

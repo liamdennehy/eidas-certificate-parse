@@ -19,8 +19,32 @@ class QCStatementsTest extends TestCase
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const eucrtfile = 'European-Commission.crt';
     const mocrtfile = 'Maarten Joris Ottoy.crt';
+    const QCComplianceBaseDescription =
+      'The certificate is an EU qualified certificate that is issued '.
+      'according to Directive 1999/93/EC or the Annex I, III or IV of the '.
+      'Regulation (EU) No 910/2014 whichever is in force at the time of '.
+      'issuance.';
+    const QCComplianceESDDescription =
+      'The certificate is an EU qualified certificate that is issued '.
+      'according to Directive 1999/93/EC';
+    const QCComplianceeIDASDescription =
+      'The certificate is an EU qualified certificate that is issued '.
+      'according to Annex I, III or IV of the Regulation (EU) No 910/2014.';
+    const QCSSCDBaseDescription =
+      'The private key related to the certified public key resides in a '.
+      'Qualified Signature/Seal Creation Device (QSCD) according to the '.
+      'Regulation (EU) No 910/2014 or a secure signature creation '.
+      'device as defined in the Directive 1999/93/EC';
+    const QCSSCDESDDescription =
+      'The private key related to the certified public key resides '.
+      'in a secure signature creation '.
+      'device as defined in the Directive 1999/93/EC';
+    const QCSSCDeIDASDescription =
+      'The private key related to the certified public key resides in a '.
+      'Qualified Signature/Seal Creation Device (QSCD) according to the '.
+      'Regulation (EU) No 910/2014';
 
-    public function getTestCerts()
+    public function setUp()
     {
         $this->jmcrt = new X509Certificate(
             file_get_contents(
@@ -47,6 +71,20 @@ class QCStatementsTest extends TestCase
             '99b818e96263d013819f99c0ec5c4b426c0dbbf8389309b86a02e641208adb95',
             hash('sha256', $qcCompliance->getDescription())
         );
+        $this->assertEquals(
+            self::QCComplianceBaseDescription,
+            $qcCompliance->getDescription()
+        );
+        $qcCompliance->setCertificate($this->jmcrt);
+        $this->assertEquals(
+            self::QCComplianceESDDescription,
+            $qcCompliance->getDescription()
+        );
+        $qcCompliance->setCertificate($this->eucrt);
+        $this->assertEquals(
+            self::QCComplianceeIDASDescription,
+            $qcCompliance->getDescription()
+        );
     }
 
     public function testQCLimitValue()
@@ -60,6 +98,10 @@ class QCStatementsTest extends TestCase
             'exponent' => '6'
           ],
             $qcLimitValue->getLimit()
+        );
+        $this->assertEquals(
+            'This certificate is authorised for transactions up to 5,000,000 units of currency HUF',
+            $qcLimitValue->getDescription()
         );
     }
 
@@ -105,12 +147,12 @@ class QCStatementsTest extends TestCase
 
     public function testQPSD2()
     {
-        $qcBinary = base64_decode(
+        $binary = base64_decode(
             'MHkGBgQAgZgnAjBvMDkwEQYHBACBmCcBAgwGUFNQX1BJMBEGBwQAgZgnAQMMBlBT'.
             'UF9BSTARBgcEAIGYJwEEDAZQU1BfSUMMJ0Zpbm5pc2ggRmluYW5jaWFsIFN1cGVy'.
             'dmlzb3J5IEF1dGhvcml0eQwJRkktRklORlNB'
         );
-        $qcPSD2Statement = new QCPSD2($qcBinary);
+        $qcPSD2Statement = new QCPSD2($binary);
         $this->assertEquals(
             'QCPSD2',
             $qcPSD2Statement->getType()
@@ -127,11 +169,11 @@ class QCStatementsTest extends TestCase
             ],
             $qcPSD2Statement->getAuthorisations()
         );
-        $qcBinary = base64_decode(
+        $binary = base64_decode(
             'MEgGBgQAgZgnAjA+MCYwEQYHBACBmCcBAQwGUFNQX0FTMBEGBwQAgZgnAQIMBlBTU'.
-        'F9QSQwNQmFuayBvZiBTcGFpbgwFRVMtQkU='
+            'F9QSQwNQmFuayBvZiBTcGFpbgwFRVMtQkU='
         );
-        $qcPSD2Statement = new QCPSD2($qcBinary);
+        $qcPSD2Statement = new QCPSD2($binary);
         $this->assertEquals(
             [
               'roles' => [
@@ -153,15 +195,34 @@ class QCStatementsTest extends TestCase
             10,
             $qcRetentionPeriod->getRetentionPeriodYears()
         );
+        $this->assertEquals(
+            'Information about the subject of this certificate will be retained '.
+            'by the CA for 10 years after the certificate expiry date',
+            $qcRetentionPeriod->getDescription()
+        );
+        $this->assertEquals(
+            ['subjectDataRetention' => '10 year(s)'],
+            $qcRetentionPeriod->getAttributes()
+        );
     }
 
     public function testQCSSCD()
     {
         $binary = base64_decode('MAgGBgQAjkYBBA==');
-        $qcRetentionPeriod = new QCSSCD($binary);
+        $qcSSCD = new QCSSCD($binary);
         $this->assertEquals(
-            'a5363edca9bcb7002ff5b7eda9c5a85f0c7c60158bd9c6c0144b38267e74ef8f',
-            hash('sha256', $qcRetentionPeriod->getDescription())
+            self::QCSSCDBaseDescription,
+            $qcSSCD->getDescription()
+        );
+        $qcSSCD->setCertificate($this->jmcrt);
+        $this->assertEquals(
+            self::QCSSCDESDDescription,
+            $qcSSCD->getDescription()
+        );
+        $qcSSCD->setCertificate($this->eucrt);
+        $this->assertEquals(
+            self::QCSSCDeIDASDescription,
+            $qcSSCD->getDescription()
         );
     }
 
@@ -188,6 +249,15 @@ class QCStatementsTest extends TestCase
         $this->assertEquals(
             'esign',
             $qcType->getQCType()
+        );
+        $this->assertEquals(
+            ['QCType' => [
+              'type' => 'esign',
+              'description' =>
+                'Certificate for Electronic Signatures (QSigC) according to '.
+                'Regulation (EU) No 910/2014 Article 28'
+              ]],
+            $qcType->getAttributes()
         );
     }
 

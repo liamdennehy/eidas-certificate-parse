@@ -4,6 +4,7 @@ namespace eIDASCertificate\Extensions;
 
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Certificate\ExtensionInterface;
 use eIDASCertificate\QCStatements\QCStatement;
 use eIDASCertificate\QCStatements\QCStatementException;
@@ -52,11 +53,11 @@ class QCStatements implements ExtensionInterface
                     $this->qcStatements[$qcStatement->getType()] = $qcStatement;
                     if (substr($qcStatement->getType(), 0, 8) == 'unknown-') {
                         $this->findings[] = new Finding(
-                          'qcStatements',
-                          'warning',
-                          "Unrecognised qcStatement: " .
+                            'qcStatements',
+                            'warning',
+                            "Unrecognised qcStatement: " .
                           base64_encode($qcStatementDER)
-                      );
+                        );
                     }
                 }
             }
@@ -120,5 +121,22 @@ class QCStatements implements ExtensionInterface
     public function getIsCritical()
     {
         return $this->isCritical;
+    }
+
+    public function setCertificate(X509Certificate $cert)
+    {
+        foreach ($this->qcStatements as $name => $qcStatement) {
+            $qcStatement->setCertificate($cert);
+        };
+    }
+
+    public function getAttributes()
+    {
+        // TODO: Properly align QCType variations according to ETSI EN 319 412-5 Chapter 4.2
+        $attrs = [];
+        foreach ($this->qcStatements as $name => $qcStatement) {
+            $attrs = array_merge($attrs, $qcStatement->getAttributes());
+        }
+        return $attrs;
     }
 }

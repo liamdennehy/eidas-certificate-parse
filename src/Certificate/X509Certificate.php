@@ -33,6 +33,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $findings = [];
     private $tspServiceAttributes;
     private $subjectName;
+    private $notBefore;
+    private $notAfter;
 
     public function __construct($candidate)
     {
@@ -170,8 +172,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     public function getDates()
     {
         return [
-          $this->notBefore,
-          $this->notAfter
+          'notBefore' => $this->notBefore,
+          'notAfter' => $this->notAfter
         ];
     }
 
@@ -444,7 +446,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getAttributes()
     {
-        if (! array_key_exists('Subject', $this->attributes)) {
+        if (! array_key_exists('subjectDN', $this->attributes)) {
             $this->attributes["subjectDN"] = $this->getSubjectDN();
             $issuerDN = [];
             foreach ($this->x509->getIssuerDN(true) as $key => $value) {
@@ -454,14 +456,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
             $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
             $this->attributes["fingerprint"] = $this->getIdentifier();
-            if (!empty($this->getSubjectKeyIdentifier())) {
-                $this->attributes["skiHex"] = bin2hex($this->getSubjectKeyIdentifier());
-                $this->attributes["skiBase64"] = base64_encode($this->getSubjectKeyIdentifier());
-            }
-            if (!empty($this->getAuthorityKeyIdentifier())) {
-                $this->attributes["akiHex"] = bin2hex($this->getAuthorityKeyIdentifier());
-                $this->attributes["akiBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
-            }
             $this->attributes["subjectExpanded"] = $this->getSubjectExpanded();
             $this->attributes["issuerExpanded"] = $this->getIssuerExpanded();
             if (!empty($this->issuers)) {
@@ -471,32 +465,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             };
             if (!empty($this->tspServiceAttributes)) {
                 $this->attributes["tspService"] = $this->tspServiceAttributes;
-            }
-            if ($this->hasExtensions()) {
-                if (!empty($this->getIssuerURIs())) {
-                    $this->attributes["caIssuers"] = $this->getIssuerURIs();
-                }
-                if (!empty($this->getCDPs())) {
-                    $this->attributes["crlDistributionPoints"] = $this->getCDPs();
-                }
-                if (!empty($this->getOCSPURIs())) {
-                    $this->attributes["ocsp"] = $this->getOCSPURIs();
-                }
-                foreach ($this->extensions as $name => $extension) {
-                    switch ($extension->getType()) {
-                      case 'preCertPoison':
-                        $this->attributes["isPrecert"] = true;
-                        break;
-
-                      case 'unknown':
-                        $this->attributes["unRecognizedExtensions"][] =
-                        [
-                          'oid' => $extension->getOID(),
-                          'value' => base64_encode($extension->getBinary())
-                        ];
-                        break;
-                    }
-                }
             }
             if (!empty($this->findings)) {
                 $findings = [];
@@ -510,11 +478,58 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 }
                 $this->attributes['findings'] = $findings;
             }
+            $extensionAttributes = [];
+            foreach ($this->extensions as $extension) {
+                $extension->setCertificate($this);
+                switch ($extension->getType()) {
+                case 'keyUsage':
+                case 'extKeyUsage':
+                  if (!array_key_exists('keyPurposes', $extensionAttributes)) {
+                      $extensionAttributes['keyPurposes'] = [];
+                  }
+                  $extensionAttributes['keyPurposes'] = array_merge(
+                      $extensionAttributes['keyPurposes'],
+                      $extension->getAttributes()['keyPurposes']
+                  );
+                  break;
+                case 'unknown':
+                  if (!array_key_exists('unRecognizedExtensions', $extensionAttributes)) {
+                      $extensionAttributes['unRecognizedExtensions'] = [];
+                  }
+                  $extensionAttributes['unRecognizedExtensions'] = array_merge(
+                      $extensionAttributes['unRecognizedExtensions'],
+                      $extension->getAttributes()['unRecognizedExtensions']
+                  );
+                  break;
+
+                default:
+                  $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
+                  break;
+              }
+            }
+            $this->attributes = array_merge($this->attributes, $extensionAttributes);
         }
 
         return $this->attributes;
     }
 
+    public function getExtensionAttributes()
+    {
+        $attributes = [];
+        if ($this->hasExtensions()) {
+            foreach ($this->extensions as $extensionName => $extension) {
+                // code...
+                $this->attributes['extensions'][$extensionName] = $extension->getDescription();
+            }
+            if ($this->hasQCStatements()) {
+                // var_dump(array_keys($this->extensions['qcStatements']));
+                foreach ($this->getQCStatements() as $qcStatementName => $qcStatement) {
+                    // code...
+                    $this->attributes['qcStatements'][$qcStatementName] = $qcStatement->getDescription();
+                }
+            }
+        }
+    }
     public function withIssuer($candidate)
     {
         if (is_object($candidate) && is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {

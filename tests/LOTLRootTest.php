@@ -214,6 +214,12 @@ class LOTLRootTest extends TestCase
                 // It seems that some ScheOperatorNames can differ between
                 // LOTL and country TL
                 $verifiedTLs[] = $schemeOperatorName;
+            } catch (ParseException $e) {
+                if ($e->getMessage() == 'No input XML string found for new TrustedList') {
+                    throw new ParseException("Empty XML: ".$title, 1);
+                } else {
+                    throw $e;
+                }
             } catch (SignatureException $e) {
                 $unVerifiedTLs[] = $title;
             }

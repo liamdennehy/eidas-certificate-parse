@@ -92,6 +92,7 @@ class CertificateParseTest extends TestCase
           'akiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           'subjectExpanded' => $this->eucrtSubject,
           'issuerExpanded' => $this->eucrtIssuerSubject,
+          'subjectFormat' => 'The values in the Subject DN are interpreted according to the rules of a Legal Person',
           'caIssuers' => [
             'http://trust.quovadisglobal.com/qvbecag2.crt'
           ],
@@ -100,6 +101,54 @@ class CertificateParseTest extends TestCase
           ],
           'ocsp' => [
             'http://uw.ocsp.quovadisglobal.com'
+          ],
+          'keySecurity' => [
+            'SSCD' =>
+              'The private key related to the certified public key resides in '.
+              'a Qualified Signature/Seal Creation Device (QSCD) according to '.
+              'the Regulation (EU) No 910/2014'
+          ],
+          'PKIDisclosureStatements' => [
+            [
+              'url' => 'https://www.quovadisglobal.com/repository',
+              'language' => 'en'
+            ]
+          ],
+          'QCType' => [
+            'type' => 'eseal',
+            'description' =>
+              'Certificate for Electronic Signatures (QSealC) according to '.
+              'Regulation (EU) No 910/2014 Article 38'
+          ],
+          'keyPurposes' => [
+            'keyUsage' => [
+              'digitalSignature' => true,
+              'nonRepudiation' => true,
+              'keyEncipherment' => false,
+              'dataEncipherment' => false,
+              'keyAgreement' => false,
+              'keyCertSign' => false,
+              'cRLSign' => false,
+              'encipherOnly' => false,
+              'decipherOnly' => false,
+            ],
+            'extendedKeyUsage' => [
+              [
+                'name' => 'clientAuth',
+                'oid' => '1.3.6.1.5.5.7.3.2',
+                'url' => 'https://tools.ietf.org/html/rfc5280#section-4.2.1.12'
+              ],
+              [
+                'name' => 'emailProtection',
+                'oid' => '1.3.6.1.5.5.7.3.4',
+                'url' => 'https://tools.ietf.org/html/rfc5280#section-4.2.1.12'
+              ],
+              [
+                'name' => 'MS_DOCUMENT_SIGNING',
+                'oid' => '1.3.6.1.4.1.311.10.3.12',
+                'url' => 'https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography'
+              ],
+            ]
           ],
           'unRecognizedExtensions' => [
             'oid' => '1.2.840.113583.1.1.9.2',
@@ -180,6 +229,7 @@ class CertificateParseTest extends TestCase
           'skiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           'akiHex' => '6c26bd605529294e663207a0ff638b835a4b34c6',
           'akiBase64' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
+          'isCA' => true,
           'subjectExpanded' => $this->eucrtIssuerSubject,
           'issuerExpanded' => $this->euIssuercrtIssuerAttributes,
           'tspService' => $this->eucrtIssuerTSPService,
@@ -191,6 +241,19 @@ class CertificateParseTest extends TestCase
           ],
           'ocsp' => [
             'http://ocsp.quovadisglobal.com'
+          ],
+          'keyPurposes' => [
+            'keyUsage' => [
+              'digitalSignature' => false,
+              'nonRepudiation' => false,
+              'keyEncipherment' => false,
+              'dataEncipherment' => false,
+              'keyAgreement' => false,
+              'keyCertSign' => true,
+              'cRLSign' => true,
+              'encipherOnly' => false,
+              'decipherOnly' => false,
+            ]
           ],
           'unRecognizedExtensions' => [
             [

@@ -3,6 +3,7 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Finding;
 
 /**
@@ -57,5 +58,15 @@ class PreCertPoison implements ExtensionInterface
     public function getIsCritical()
     {
         return $this->isCritical;
+    }
+
+    public function setCertificate(X509Certificate $cert)
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return ['isPrecert' => true];
     }
 }
