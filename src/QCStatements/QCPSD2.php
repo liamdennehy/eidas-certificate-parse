@@ -20,6 +20,7 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
 
     const type = 'QCPSD2';
     const oid = '0.4.0.19495.2';
+    const uri = 'https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-5.1';
 
     public function __construct($qcStatementDER, $isCritical = false)
     {
@@ -127,7 +128,7 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
 
     public function getURI()
     {
-        return "https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-5.1";
+        return self::uri;
     }
 
     public function getBinary()
@@ -152,6 +153,6 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        return [];
+        return ['PSD2' => $this->getAuthorisations()];
     }
 }

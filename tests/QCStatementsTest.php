@@ -147,12 +147,12 @@ class QCStatementsTest extends TestCase
 
     public function testQPSD2()
     {
-        $qcBinary = base64_decode(
+        $binary = base64_decode(
             'MHkGBgQAgZgnAjBvMDkwEQYHBACBmCcBAgwGUFNQX1BJMBEGBwQAgZgnAQMMBlBT'.
             'UF9BSTARBgcEAIGYJwEEDAZQU1BfSUMMJ0Zpbm5pc2ggRmluYW5jaWFsIFN1cGVy'.
             'dmlzb3J5IEF1dGhvcml0eQwJRkktRklORlNB'
         );
-        $qcPSD2Statement = new QCPSD2($qcBinary);
+        $qcPSD2Statement = new QCPSD2($binary);
         $this->assertEquals(
             'QCPSD2',
             $qcPSD2Statement->getType()
@@ -169,11 +169,11 @@ class QCStatementsTest extends TestCase
             ],
             $qcPSD2Statement->getAuthorisations()
         );
-        $qcBinary = base64_decode(
+        $binary = base64_decode(
             'MEgGBgQAgZgnAjA+MCYwEQYHBACBmCcBAQwGUFNQX0FTMBEGBwQAgZgnAQIMBlBTU'.
-        'F9QSQwNQmFuayBvZiBTcGFpbgwFRVMtQkU='
+            'F9QSQwNQmFuayBvZiBTcGFpbgwFRVMtQkU='
         );
-        $qcPSD2Statement = new QCPSD2($qcBinary);
+        $qcPSD2Statement = new QCPSD2($binary);
         $this->assertEquals(
             [
               'roles' => [
