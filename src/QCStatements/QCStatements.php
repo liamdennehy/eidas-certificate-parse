@@ -125,11 +125,18 @@ class QCStatements implements ExtensionInterface
 
     public function setCertificate(X509Certificate $cert)
     {
-        null;
+        foreach ($this->qcStatements as $name => $qcStatement) {
+          $qcStatement->setCertificate($cert);
+        };
+
     }
 
     public function getAttributes()
     {
-        return [];
+        $attrs = [];
+        foreach ($this->qcStatements as $name => $qcStatement) {
+          $attrs = array_merge($attrs,$qcStatement->getAttributes());
+        }
+        return $attrs;
     }
 }
