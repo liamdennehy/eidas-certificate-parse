@@ -507,7 +507,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                   break;
               }
             }
-            $this->attributes = array_merge($extensionAttributes, $this->attributes);
+            $this->attributes = array_merge($this->attributes, $extensionAttributes);
         }
 
         return $this->attributes;
