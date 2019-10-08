@@ -85,4 +85,18 @@ class AuthorityKeyIdentifier implements ExtensionInterface
     {
         return $this->isCritical;
     }
+
+    public function setCertificate()
+    {
+        null;
+    }
+
+    public function getAttributes()
+    {
+        return
+      [
+        "akiHex" => bin2hex($this->keyIdentifier),
+        "akiBase64" => base64_encode($this->keyIdentifier),
+      ];
+    }
 }

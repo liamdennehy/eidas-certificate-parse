@@ -444,7 +444,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getAttributes()
     {
-        if (! array_key_exists('Subject', $this->attributes)) {
+        if (! array_key_exists('subjectDN', $this->attributes)) {
             $this->attributes["subjectDN"] = $this->getSubjectDN();
             $issuerDN = [];
             foreach ($this->x509->getIssuerDN(true) as $key => $value) {
@@ -457,10 +457,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             if (!empty($this->getSubjectKeyIdentifier())) {
                 $this->attributes["skiHex"] = bin2hex($this->getSubjectKeyIdentifier());
                 $this->attributes["skiBase64"] = base64_encode($this->getSubjectKeyIdentifier());
-            }
-            if (!empty($this->getAuthorityKeyIdentifier())) {
-                $this->attributes["akiHex"] = bin2hex($this->getAuthorityKeyIdentifier());
-                $this->attributes["akiBase64"] = base64_encode($this->getAuthorityKeyIdentifier());
             }
             $this->attributes["subjectExpanded"] = $this->getSubjectExpanded();
             $this->attributes["issuerExpanded"] = $this->getIssuerExpanded();
@@ -510,11 +506,35 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 }
                 $this->attributes['findings'] = $findings;
             }
+            $extensionAttributes = [];
+            foreach ($this->extensions as $extension) {
+                if (method_exists($extension, 'getAttributes')) {
+                    $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
+                }
+                $this->attributes = array_merge($extensionAttributes, $this->attributes);
+            }
         }
 
         return $this->attributes;
     }
 
+    public function getExtensionAttributes()
+    {
+        $attributes = [];
+        if ($this->hasExtensions()) {
+            foreach ($this->extensions as $extensionName => $extension) {
+                // code...
+                $this->attributes['extensions'][$extensionName] = $extension->getDescription();
+            }
+            if ($this->hasQCStatements()) {
+                // var_dump(array_keys($this->extensions['qcStatements']));
+                foreach ($this->getQCStatements() as $qcStatementName => $qcStatement) {
+                    // code...
+                    $this->attributes['qcStatements'][$qcStatementName] = $qcStatement->getDescription();
+                }
+            }
+        }
+    }
     public function withIssuer($candidate)
     {
         if (is_object($candidate) && is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {

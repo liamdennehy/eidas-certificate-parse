@@ -59,4 +59,12 @@ class Extensions implements ParseInterface
     {
         return $this->findings;
     }
+
+    public function getDescriptions()
+    {
+        $descriptions = [];
+        foreach ($$this->extensions as $name => $extension) {
+            $descriptions[$name] = $extension->getDescription();
+        }
+    }
 }
