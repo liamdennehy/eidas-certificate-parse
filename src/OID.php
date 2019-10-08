@@ -339,4 +339,24 @@ class OID
             break;
         }
     }
+
+    public static function getURI($oid)
+    {
+        switch ($oid) {
+          case self::TSLSigning:
+            return 'https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2';
+            break;
+          case self::MS_DOCUMENT_SIGNING:
+            return 'https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography';
+            break;
+
+          default:
+            if (substr($oid, 0, 15) == '1.3.6.1.5.5.7.3') {
+                return 'https://tools.ietf.org/html/rfc5280#section-4.2.1.12';
+            } else {
+                return null;
+            }
+            break;
+        }
+    }
 }
