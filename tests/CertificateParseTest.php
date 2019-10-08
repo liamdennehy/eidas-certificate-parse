@@ -200,6 +200,19 @@ class CertificateParseTest extends TestCase
           'ocsp' => [
             'http://ocsp.quovadisglobal.com'
           ],
+          'keyPurposes' => [
+            'keyUsage' => [
+              'digitalSignature' => false,
+              'nonRepudiation' => false,
+              'keyEncipherment' => false,
+              'dataEncipherment' => false,
+              'keyAgreement' => false,
+              'keyCertSign' => true,
+              'cRLSign' => true,
+              'encipherOnly' => false,
+              'decipherOnly' => false,
+            ]
+          ],
           'unRecognizedExtensions' => [
             [
               'oid' => '2.5.29.32',
