@@ -99,6 +99,12 @@ class UnknownExtension implements ExtensionInterface
 
     public function getAttributes()
     {
-        return [];
+        return [
+        'unRecognizedExtensions' =>
+          [[
+            'oid' => $this->oid,
+            'value' => base64_encode($this->binary)
+          ]]
+      ];
     }
 }

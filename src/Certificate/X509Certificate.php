@@ -464,19 +464,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             if (!empty($this->tspServiceAttributes)) {
                 $this->attributes["tspService"] = $this->tspServiceAttributes;
             }
-            if ($this->hasExtensions()) {
-                foreach ($this->extensions as $name => $extension) {
-                    switch ($extension->getType()) {
-                      case 'unknown':
-                        $this->attributes["unRecognizedExtensions"][] =
-                        [
-                          'oid' => $extension->getOID(),
-                          'value' => base64_encode($extension->getBinary())
-                        ];
-                        break;
-                    }
-                }
-            }
             if (!empty($this->findings)) {
                 $findings = [];
                 foreach ($this->findings as $findingObject) {
@@ -491,7 +478,21 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             }
             $extensionAttributes = [];
             foreach ($this->extensions as $extension) {
-                $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
+                switch ($extension->getType()) {
+                case 'unknown':
+                  if (!array_key_exists('unRecognizedExtensions', $extensionAttributes)) {
+                      $extensionAttributes['unRecognizedExtensions'] = [];
+                  }
+                  $extensionAttributes['unRecognizedExtensions'] = array_merge(
+                      $extensionAttributes['unRecognizedExtensions'],
+                      $extension->getAttributes()['unRecognizedExtensions']
+                  );
+                  break;
+
+                default:
+                  $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
+                  break;
+              }
             }
             $this->attributes = array_merge($extensionAttributes, $this->attributes);
         }
