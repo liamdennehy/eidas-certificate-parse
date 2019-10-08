@@ -114,9 +114,21 @@ class CertificateParseTest extends TestCase
               'decipherOnly' => false,
             ],
             'extendedKeyUsage' => [
-              'clientAuth',
-              'emailProtection',
-              'MS_DOCUMENT_SIGNING'
+              [
+                'name' => 'clientAuth',
+                'oid' => '1.3.6.1.5.5.7.3.2',
+                'url' => 'https://tools.ietf.org/html/rfc5280#section-4.2.1.12'
+              ],
+              [
+                'name' => 'emailProtection',
+                'oid' => '1.3.6.1.5.5.7.3.4',
+                'url' => 'https://tools.ietf.org/html/rfc5280#section-4.2.1.12'
+              ],
+              [
+                'name' => 'MS_DOCUMENT_SIGNING',
+                'oid' => '1.3.6.1.4.1.311.10.3.12',
+                'url' => 'https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography'
+              ],
             ]
           ],
           'unRecognizedExtensions' => [

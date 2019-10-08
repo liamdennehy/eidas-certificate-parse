@@ -30,16 +30,21 @@ class ExtendedKeyUsage implements ExtensionInterface
         foreach ($ekus->elements() as $eku) {
             $ekuOID = $eku->asObjectIdentifier()->oid();
             $ekuName = OID::getName($ekuOID);
+            $ekuURI = OID::getURI($ekuOID);
             if ($ekuName == 'unknown') {
                 $this->findings[] = new Finding(
                     self::type,
-                    'error',
+                    'critical',
                     "Unrecognised ExtendedKeyUsage: ".
                   base64_encode($extensionDER)
                 );
                 $this->ekus['unknown'] = true;
             } else {
-                $this->ekus[$ekuName] = true;
+                $this->ekus[] = [
+                  'name' => $ekuName,
+                  'oid' => $ekuOID,
+                  'url' => $ekuURI
+                ];
             }
         }
         $this->binary = $extensionDER;
@@ -99,7 +104,7 @@ class ExtendedKeyUsage implements ExtensionInterface
         [
           'keyPurposes' =>
           [
-            'extendedKeyUsage' => array_keys($this->ekus)
+            'extendedKeyUsage' => $this->ekus
           ]
         ];
     }
