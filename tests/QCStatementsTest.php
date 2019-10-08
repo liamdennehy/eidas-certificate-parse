@@ -196,13 +196,13 @@ class QCStatementsTest extends TestCase
             $qcRetentionPeriod->getRetentionPeriodYears()
         );
         $this->assertEquals(
-          'Information about the subject of this certificate will be retained '.
-          'by the CA for 10 years after the certificate expiry date',
-          $qcRetentionPeriod->getDescription()
+            'Information about the subject of this certificate will be retained '.
+            'by the CA for 10 years after the certificate expiry date',
+            $qcRetentionPeriod->getDescription()
         );
         $this->assertEquals(
-          ['subjectDataRetention' => '10 year(s)'],
-          $qcRetentionPeriod->getAttributes()
+            ['subjectDataRetention' => '10 year(s)'],
+            $qcRetentionPeriod->getAttributes()
         );
     }
 
@@ -259,7 +259,6 @@ class QCStatementsTest extends TestCase
               ]],
             $qcType->getAttributes()
         );
-
     }
 
     public function testQCStatementsParse()
