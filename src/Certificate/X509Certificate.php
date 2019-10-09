@@ -450,7 +450,12 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             $this->attributes["subjectDN"] = $this->getSubjectDN();
             $issuerDN = [];
             foreach ($this->x509->getIssuerDN(true) as $key => $value) {
-                $issuerDN[] = $key.'='.$value;
+                if (!is_array($value)) {
+                    $value = [$value];
+                }
+                foreach ($value as $entry) {
+                    $issuerDN[] = $key.'='.$entry;
+                }
             }
             $this->attributes["issuerDN"] = '/'.implode('/', $issuerDN);
             $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
