@@ -73,6 +73,10 @@ class QCCompliance extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        return [];
+        return [
+          'qualification' => [
+            'qualified' => $this->description
+            ]
+          ];
     }
 }

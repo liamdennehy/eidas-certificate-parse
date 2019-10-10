@@ -135,7 +135,20 @@ class QCStatements implements ExtensionInterface
         // TODO: Properly align QCType variations according to ETSI EN 319 412-5 Chapter 4.2
         $attrs = [];
         foreach ($this->qcStatements as $name => $qcStatement) {
-            $attrs = array_merge($attrs, $qcStatement->getAttributes());
+            $qcStatementAttributes = $qcStatement->getAttributes();
+            foreach (array_keys($qcStatementAttributes) as $key) {
+                if (!array_key_exists($key, $attrs)) {
+                    $attrs[$key] = [];
+                }
+                if (is_array($qcStatementAttributes[$key])) {
+                    $attrs[$key] = array_merge(
+                  $attrs[$key],
+                  $qcStatementAttributes[$key]
+              );
+                } else {
+                    $attrs[$key] = $qcStatementAttributes[$key];
+                }
+            }
         }
         return $attrs;
     }
