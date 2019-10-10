@@ -251,9 +251,9 @@ class QCStatementsTest extends TestCase
             $qcType->getQCType()
         );
         $this->assertEquals(
-            ['QCType' => [
+            ['qualification' => [
               'type' => 'esign',
-              'description' =>
+              'purpose' =>
                 'Certificate for Electronic Signatures (QSigC) according to '.
                 'Regulation (EU) No 910/2014 Article 28'
               ]],

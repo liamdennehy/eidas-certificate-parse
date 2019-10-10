@@ -114,8 +114,12 @@ class AuthorityInformationAccess implements ExtensionInterface
     {
         return
           [
-            "ocsp" => $this->ocsp,
-            "caIssuers" => $this->caIssuers,
+            'issuer' => [
+              "uris" => $this->caIssuers
+            ],
+            'statusCheckURIs' => [
+              "ocsp" => $this->ocsp
+            ],
           ];
     }
 }
