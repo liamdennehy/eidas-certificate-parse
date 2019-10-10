@@ -95,7 +95,9 @@ class CRLDistributionPoints implements ExtensionInterface
     {
         return
           [
-            "crlDistributionPoints" => $this->cdpEntries
+            'statusCheckURIs' => [
+              'crl' => $this->cdpEntries
+            ]
           ];
     }
 }

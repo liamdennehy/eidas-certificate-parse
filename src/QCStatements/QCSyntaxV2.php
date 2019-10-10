@@ -111,6 +111,10 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        return ['subjectFormat' => $this->getDescription()];
+        return [
+          'subject' => [
+            'syntax' => $this->getDescription()
+            ]
+          ];
     }
 }

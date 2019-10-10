@@ -81,8 +81,18 @@ class CertificateParseTest extends TestCase
         ];
         $this->eucrtAttributes =
         [
-          'subjectDN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
-          'issuerDN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
+          'subject' => [
+            'DN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
+            'expandedDN' => $this->eucrtSubject,
+            'syntax' => 'The values in the Subject DN are interpreted according to the rules of a Legal Person',
+          ],
+          'issuer' => [
+            'DN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
+            'expandedDN' => $this->eucrtIssuerSubject,
+            'uris' => [
+              'http://trust.quovadisglobal.com/qvbecag2.crt'
+            ],
+          ],
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
           'notBefore' => 1520438443,
           'notAfter' => 1615133400,
@@ -90,17 +100,13 @@ class CertificateParseTest extends TestCase
           'skiBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
           'akiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
           'akiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
-          'subjectExpanded' => $this->eucrtSubject,
-          'issuerExpanded' => $this->eucrtIssuerSubject,
-          'subjectFormat' => 'The values in the Subject DN are interpreted according to the rules of a Legal Person',
-          'caIssuers' => [
-            'http://trust.quovadisglobal.com/qvbecag2.crt'
-          ],
-          'crlDistributionPoints' => [
-            'http://crl.quovadisglobal.com/qvbecag2.crl'
-          ],
-          'ocsp' => [
-            'http://uw.ocsp.quovadisglobal.com'
+          'statusCheckURIs' => [
+            'crl' => [
+              'http://crl.quovadisglobal.com/qvbecag2.crl'
+            ],
+            'ocsp' => [
+              'http://uw.ocsp.quovadisglobal.com'
+            ]
           ],
           'keySecurity' => [
             'SSCD' =>
@@ -114,9 +120,10 @@ class CertificateParseTest extends TestCase
               'language' => 'en'
             ]
           ],
-          'QCType' => [
+          'qualification' => [
             'type' => 'eseal',
-            'description' =>
+            'qualified' => 'The certificate is an EU qualified certificate that is issued according to Annex I, III or IV of the Regulation (EU) No 910/2014.',
+            'purpose' =>
               'Certificate for Electronic Signatures (QSealC) according to '.
               'Regulation (EU) No 910/2014 Article 38'
           ],
@@ -220,8 +227,17 @@ class CertificateParseTest extends TestCase
 
         $this->euIssuercrtAttributes =
         [
-          'subjectDN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
-          'issuerDN' => '/C=BM/O=QuoVadis Limited/CN=QuoVadis Enterprise Trust CA 1 G3',
+          'subject' => [
+            'DN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
+            'expandedDN' => $this->eucrtIssuerSubject,
+          ],
+          'issuer' => [
+            'DN' => '/C=BM/O=QuoVadis Limited/CN=QuoVadis Enterprise Trust CA 1 G3',
+            'expandedDN' => $this->euIssuercrtIssuerAttributes,
+            'uris' => [
+              'http://trust.quovadisglobal.com/qventca1g3.crt'
+            ],
+          ],
           'notBefore' => 1465820525,
           'notAfter' => 1781353325,
           'fingerprint' => 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c',
@@ -230,17 +246,14 @@ class CertificateParseTest extends TestCase
           'akiHex' => '6c26bd605529294e663207a0ff638b835a4b34c6',
           'akiBase64' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
           'isCA' => true,
-          'subjectExpanded' => $this->eucrtIssuerSubject,
-          'issuerExpanded' => $this->euIssuercrtIssuerAttributes,
           'tspService' => $this->eucrtIssuerTSPService,
-          'caIssuers' => [
-            'http://trust.quovadisglobal.com/qventca1g3.crt'
-          ],
-          'crlDistributionPoints' => [
-            'http://crl.quovadisglobal.com/qventca1g3.crl'
-          ],
-          'ocsp' => [
-            'http://ocsp.quovadisglobal.com'
+          'statusCheckURIs' => [
+            'crl' => [
+              'http://crl.quovadisglobal.com/qventca1g3.crl'
+            ],
+            'ocsp' => [
+              'http://ocsp.quovadisglobal.com'
+            ],
           ],
           'keyPurposes' => [
             'keyUsage' => [
@@ -538,27 +551,31 @@ class CertificateParseTest extends TestCase
         $eucrtRefAttributes = $this->eucrtAttributes;
         $eucrtRefAttributes['issuerCerts'][0] = $this->euIssuercrtAttributes;
         $eucrtAttributes = $eucrt->getAttributes();
-        unset($eucrtAttributes['issuerCerts'][0]['tspService']['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
-        unset($eucrtAttributes['issuerCerts'][0]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
+        // $this->assertEquals(
+        //   [],
+        //   array_keys($eucrtAttributes['issuer']['certificates'][0])
+        // );
+        unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
+        unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
+        $this->assertArrayHasKey(
+            'certificates',
+            $eucrtAttributes['issuer']
+        );
         $this->assertEquals(
             1,
-            sizeof($eucrtAttributes['issuerCerts'])
-        );
-        $this->assertArrayHasKey(
-            'issuerCerts',
-            $eucrtAttributes
+            sizeof($eucrtAttributes['issuer']['certificates'])
         );
         $this->assertEquals(
             $this->euIssuercrtAttributes,
-            $eucrtAttributes['issuerCerts'][0]
+            $eucrtAttributes['issuer']['certificates'][0]
         );
         $this->assertArrayHasKey(
             'tspService',
-            $eucrtAttributes['issuerCerts'][0]
+            $eucrtAttributes['issuer']['certificates'][0]
         );
         $this->assertEquals(
             TSPServicesTest::getTSPServiceAttributes(),
-            $eucrtAttributes['issuerCerts'][0]['tspService']
+            $eucrtAttributes['issuer']['certificates'][0]['tspService']
         );
     }
 }

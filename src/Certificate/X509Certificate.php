@@ -446,8 +446,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getAttributes()
     {
-        if (! array_key_exists('subjectDN', $this->attributes)) {
-            $this->attributes["subjectDN"] = $this->getSubjectDN();
+        if (! array_key_exists('subject', $this->attributes)) {
+            $this->attributes['subject']['DN'] = $this->getSubjectDN();
             $issuerDN = [];
             foreach ($this->x509->getIssuerDN(true) as $key => $value) {
                 if (!is_array($value)) {
@@ -457,15 +457,15 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                     $issuerDN[] = $key.'='.$entry;
                 }
             }
-            $this->attributes["issuerDN"] = '/'.implode('/', $issuerDN);
+            $this->attributes['issuer']['DN'] = '/'.implode('/', $issuerDN);
             $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
             $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
             $this->attributes["fingerprint"] = $this->getIdentifier();
-            $this->attributes["subjectExpanded"] = $this->getSubjectExpanded();
-            $this->attributes["issuerExpanded"] = $this->getIssuerExpanded();
+            $this->attributes['subject']['expandedDN'] = $this->getSubjectExpanded();
+            $this->attributes['issuer']['expandedDN'] = $this->getIssuerExpanded();
             if (!empty($this->issuers)) {
                 foreach ($this->issuers as $id => $issuer) {
-                    $this->attributes["issuerCerts"][] = $issuer->getAttributes();
+                    $this->attributes['issuer']['certificates'][] = $issuer->getAttributes();
                 }
             };
             if (!empty($this->tspServiceAttributes)) {
@@ -483,36 +483,51 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 }
                 $this->attributes['findings'] = $findings;
             }
-            $extensionAttributes = [];
             foreach ($this->extensions as $extension) {
                 $extension->setCertificate($this);
-                switch ($extension->getType()) {
-                case 'keyUsage':
-                case 'extKeyUsage':
-                  if (!array_key_exists('keyPurposes', $extensionAttributes)) {
-                      $extensionAttributes['keyPurposes'] = [];
-                  }
-                  $extensionAttributes['keyPurposes'] = array_merge(
-                      $extensionAttributes['keyPurposes'],
-                      $extension->getAttributes()['keyPurposes']
-                  );
-                  break;
-                case 'unknown':
-                  if (!array_key_exists('unRecognizedExtensions', $extensionAttributes)) {
-                      $extensionAttributes['unRecognizedExtensions'] = [];
-                  }
-                  $extensionAttributes['unRecognizedExtensions'] = array_merge(
-                      $extensionAttributes['unRecognizedExtensions'],
-                      $extension->getAttributes()['unRecognizedExtensions']
-                  );
-                  break;
-
-                default:
-                  $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
-                  break;
-              }
+                $extensionAttributes = $extension->getAttributes();
+                foreach (array_keys($extensionAttributes) as $key) {
+                    if (!array_key_exists($key, $this->attributes)) {
+                        $this->attributes[$key] = [];
+                    }
+                    if (is_array($extensionAttributes[$key])) {
+                        $this->attributes[$key] = array_merge(
+                        $this->attributes[$key],
+                        $extensionAttributes[$key]
+                    );
+                    } else {
+                        $this->attributes[$key] = $extensionAttributes[$key];
+                    }
+                }
             }
-            $this->attributes = array_merge($this->attributes, $extensionAttributes);
+
+            // switch ($extension->getType()) {
+                // case 'keyUsage':
+                // case 'extKeyUsage':
+                  // if (!array_key_exists('keyPurposes', $extensionAttributes)) {
+              //         $extensionAttributes['keyPurposes'] = [];
+              //     }
+              //     $extensionAttributes['keyPurposes'] = array_merge(
+              //         $extensionAttributes['keyPurposes'],
+              //         $extension->getAttributes()['keyPurposes']
+              //     );
+              //     break;
+              //   case 'unknown':
+              //     if (!array_key_exists('unRecognizedExtensions', $extensionAttributes)) {
+              //         $extensionAttributes['unRecognizedExtensions'] = [];
+              //     }
+              //     $extensionAttributes['unRecognizedExtensions'] = array_merge(
+              //         $extensionAttributes['unRecognizedExtensions'],
+              //         $extension->getAttributes()['unRecognizedExtensions']
+              //     );
+              //     break;
+              //
+              //   default:
+              //     $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
+              //     break;
+            //   }
+            // }
+            // $this->attributes = array_merge($this->attributes, $extensionAttributes);
         }
 
         return $this->attributes;

@@ -129,9 +129,11 @@ class QCType extends QCStatement implements QCStatementInterface
     public function getAttributes()
     {
         // TODO: QCType Sanity checks?
-        return ['QCType' => [
-          'type' => $this->qcType,
-          'description' => $this->getDescription()
-          ]];
+        return [
+          'qualification' => [
+            'type' => $this->qcType,
+            'purpose' => $this->getDescription()
+            ]
+          ];
     }
 }
