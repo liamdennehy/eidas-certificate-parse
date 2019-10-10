@@ -446,8 +446,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getAttributes()
     {
-        if (! array_key_exists('subjectDN', $this->attributes)) {
-            $this->attributes["subjectDN"] = $this->getSubjectDN();
+        if (! array_key_exists('subject', $this->attributes)) {
+            $this->attributes['subject']['DN'] = $this->getSubjectDN();
             $issuerDN = [];
             foreach ($this->x509->getIssuerDN(true) as $key => $value) {
                 if (!is_array($value)) {
@@ -457,12 +457,12 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                     $issuerDN[] = $key.'='.$entry;
                 }
             }
-            $this->attributes["issuerDN"] = '/'.implode('/', $issuerDN);
+            $this->attributes['issuer']['DN'] = '/'.implode('/', $issuerDN);
             $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
             $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
             $this->attributes["fingerprint"] = $this->getIdentifier();
-            $this->attributes["subjectExpanded"] = $this->getSubjectExpanded();
-            $this->attributes["issuerExpanded"] = $this->getIssuerExpanded();
+            $this->attributes['subject']['expandedDN'] = $this->getSubjectExpanded();
+            $this->attributes['issuer']['expandedDN'] = $this->getIssuerExpanded();
             if (!empty($this->issuers)) {
                 foreach ($this->issuers as $id => $issuer) {
                     $this->attributes["issuerCerts"][] = $issuer->getAttributes();
