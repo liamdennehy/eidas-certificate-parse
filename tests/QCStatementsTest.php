@@ -242,21 +242,34 @@ class QCStatementsTest extends TestCase
         $qcType = new QCType($binary);
         $this->assertEquals(
             'eseal',
+            $qcType->getQCPurpose()
+        );
+        $this->assertEquals(
+            'QSealC',
             $qcType->getQCType()
         );
         $binary = base64_decode('MBMGBgQAjkYBBjAJBgcEAI5GAQYB');
         $qcType = new QCType($binary);
         $this->assertEquals(
             'esign',
+            $qcType->getQCPurpose()
+        );
+        $this->assertEquals(
+            'QSigC',
             $qcType->getQCType()
         );
         $this->assertEquals(
-            ['qualification' => [
-              'type' => 'esign',
+            [
+              'qualification' => [
+              'type' => 'QSigC',
               'purpose' =>
                 'Certificate for Electronic Signatures (QSigC) according to '.
                 'Regulation (EU) No 910/2014 Article 28'
-              ]],
+              ],
+              'keyPurposes' => [
+                'qualified' => 'esign'
+              ]
+            ],
             $qcType->getAttributes()
         );
     }
@@ -282,6 +295,10 @@ class QCStatementsTest extends TestCase
         );
         $this->assertEquals(
             'eseal',
+            $qcStatements->getQCPurpose()
+        );
+        $this->assertEquals(
+            'QSealC',
             $qcStatements->getQCType()
         );
 
