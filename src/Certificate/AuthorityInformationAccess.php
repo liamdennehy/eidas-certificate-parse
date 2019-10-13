@@ -65,12 +65,12 @@ class AuthorityInformationAccess implements ExtensionInterface
         $this->binary = $extensionDER;
     }
 
-    public function getCAIssuers()
+    public function getIssuerURIs()
     {
         return $this->caIssuers;
     }
 
-    public function getOCSP()
+    public function getOCSPURIs()
     {
         return $this->ocsp;
     }

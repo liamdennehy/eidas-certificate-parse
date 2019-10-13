@@ -172,7 +172,7 @@ class ExtensionTest extends TestCase
               'http://qtlsca2018-ca2.e-szigno.hu/qtlsca2018.crt',
               'http://qtlsca2018-ca3.e-szigno.hu/qtlsca2018.crt'
             ],
-            $aia->getCAIssuers()
+            $aia->getIssuerURIs()
         );
         $this->assertEquals(
             [
@@ -180,7 +180,7 @@ class ExtensionTest extends TestCase
               'http://qtlsca2018-ocsp2.e-szigno.hu',
               'http://qtlsca2018-ocsp3.e-szigno.hu'
             ],
-            $aia->getOCSP()
+            $aia->getOCSPURIs()
         );
         // This is broken for some reason... Expect no error.
         $binary = base64_decode(

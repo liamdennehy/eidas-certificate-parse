@@ -70,9 +70,10 @@ class SubjectKeyIdentifier implements ExtensionInterface
     public function getAttributes()
     {
         return
-          [
-            "skiHex" => bin2hex($this->keyIdentifier),
-            "skiBase64" => base64_encode($this->keyIdentifier),
-          ];
+        [
+          'subject' => [
+            'ski' => base64_encode($this->keyIdentifier),
+          ]
+        ];
     }
 }

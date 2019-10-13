@@ -95,8 +95,9 @@ class AuthorityKeyIdentifier implements ExtensionInterface
     {
         return
           [
-            "akiHex" => bin2hex($this->keyIdentifier),
-            "akiBase64" => base64_encode($this->keyIdentifier),
+            'issuer' => [
+              'aki' => base64_encode($this->keyIdentifier),
+            ]
           ];
     }
 }

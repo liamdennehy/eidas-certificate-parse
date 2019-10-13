@@ -15,6 +15,7 @@ class Extensions implements ParseInterface
 {
     private $extensions = [];
     private $findings = [];
+    private $binary;
 
     public function __construct($extensionsDER)
     {
@@ -43,6 +44,7 @@ class Extensions implements ParseInterface
             }
         }
         // TODO: Minimum set https://tools.ietf.org/html/rfc5280#section-4.2
+        $this->binary = $extensionsDER;
     }
 
     public function setKeyUsage($keyUsageString)
@@ -66,5 +68,78 @@ class Extensions implements ParseInterface
         foreach ($$this->extensions as $name => $extension) {
             $descriptions[$name] = $extension->getDescription();
         }
+    }
+
+    public function getBinary()
+    {
+        return $this->binary;
+    }
+
+    public function getSKI()
+    {
+        if (array_key_exists('subjectKeyIdentifier', $this->extensions)) {
+            return $this->extensions['subjectKeyIdentifier']->getKeyId();
+        } else {
+            return false;
+        }
+    }
+
+    public function getAKI()
+    {
+        if (array_key_exists('authorityKeyIdentifier', $this->extensions)) {
+            return $this->extensions['authorityKeyIdentifier']->getKeyId();
+        } else {
+            return false;
+        }
+    }
+
+    public function getCDPs()
+    {
+        if (array_key_exists('crlDistributionPoints', $this->extensions)) {
+            return $this->extensions['crlDistributionPoints']->getCDPs();
+        } else {
+            return false;
+        }
+    }
+
+    public function isCA()
+    {
+        if (array_key_exists('basicConstraints', $this->extensions)) {
+            return $this->extensions['basicConstraints']->isCA();
+        } else {
+            return false;
+        }
+    }
+
+    public function getPathLength()
+    {
+        if (array_key_exists('basicConstraints', $this->extensions)) {
+            return $this->extensions['basicConstraints']->getPathLength();
+        } else {
+            return false;
+        }
+    }
+
+    public function getIssuerURIs()
+    {
+        if (array_key_exists('authorityInfoAccess', $this->extensions)) {
+            return $this->extensions['authorityInfoAccess']->getIssuerURIs();
+        } else {
+            return false;
+        }
+    }
+
+    public function getOCSPURIs()
+    {
+        if (array_key_exists('authorityInfoAccess', $this->extensions)) {
+            return $this->extensions['authorityInfoAccess']->getOCSPURIs();
+        } else {
+            return false;
+        }
+    }
+
+    public function hasQCStatements()
+    {
+        return array_key_exists('qcStatements', $this->extensions);
     }
 }

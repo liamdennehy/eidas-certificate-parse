@@ -14,6 +14,7 @@ use ASN1\Type\UnspecifiedType;
 class QCType extends QCStatement implements QCStatementInterface
 {
     private $qcType;
+    private $qcPurpose;
     private $findings = [];
 
     const type = 'QCQualifiedType';
@@ -62,12 +63,15 @@ class QCType extends QCStatement implements QCStatementInterface
                 $qcTypeName = OID::getName($qcTypeOID);
                 switch ($qcTypeName) {
                 case 'esign':
+                  $this->qcType = 'QSigC';
                   $this->description = self::qSigCDescription;
                   break;
                 case 'eseal':
+                  $this->qcType = 'QSealC';
                   $this->description = self::qSealCDescription;
                   break;
                 case 'web':
+                  $this->qcType = 'QWAC';
                   $this->description = self::qWACDescription;
                   break;
 
@@ -79,7 +83,7 @@ class QCType extends QCStatement implements QCStatementInterface
                   );
                   break;
               }
-                $this->qcType = $qcTypeName;
+                $this->qcPurpose = $qcTypeName;
             }
             break;
         }
@@ -94,6 +98,11 @@ class QCType extends QCStatement implements QCStatementInterface
     public function getQCType()
     {
         return $this->qcType;
+    }
+
+    public function getQCPurpose()
+    {
+        return $this->qcPurpose;
     }
 
     public function getDescription()
@@ -129,11 +138,15 @@ class QCType extends QCStatement implements QCStatementInterface
     public function getAttributes()
     {
         // TODO: QCType Sanity checks?
-        return [
+        return
+        [
           'qualification' => [
             'type' => $this->qcType,
             'purpose' => $this->getDescription()
-            ]
-          ];
+          ],
+          'keyPurposes' => [
+            'qualified' => $this->qcPurpose
+          ]
+        ];
     }
 }
