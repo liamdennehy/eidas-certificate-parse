@@ -21,7 +21,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     private $crtResource;
     private $crtBinary;
     private $parsed;
-    private $extensions = [];
+    private $extensions;
     private $keyUsage;
     private $crl;
     private $serialNumber;
@@ -66,11 +66,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
             ;
             if ($tbsCertificate->has(7)) {
                 $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
-                $extensions = new Extensions(
+                $this->extensions = new Extensions(
                     $extensionsDER
                 );
-                $this->findings = $extensions->getFindings();
-                $this->extensions = $extensions->getExtensions();
+                $this->findings = array_merge($this->findings, $this->extensions->getFindings());
+                // $this->extensions = $extensions->getExtensions();
             }
             $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
             $subjectPublicKeyInfoTypeOID =
@@ -216,13 +216,13 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function hasExtensions()
     {
-        return (! empty($this->extensions));
+        return (! empty($this->extensions->getExtensions()));
     }
 
     public function hasQCStatements()
     {
         if ($this->hasExtensions()) {
-            return array_key_exists('qcStatements', $this->extensions);
+            return array_key_exists('qcStatements', $this->getExtensions());
         }
     }
 
@@ -246,18 +246,18 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     protected function getExtensions()
     {
-        return $this->extensions;
+        return $this->extensions->getExtensions();
     }
 
     public function getExtensionNames()
     {
-        return array_keys($this->extensions);
+        return array_keys($this->getExtensions());
     }
 
     public function getAuthorityKeyIdentifier()
     {
-        if (! empty($this->extensions) && array_key_exists('authorityKeyIdentifier', $this->extensions)) {
-            return $this->extensions['authorityKeyIdentifier']->getKeyId();
+        if (! empty($this->getExtensions()) && array_key_exists('authorityKeyIdentifier', $this->getExtensions())) {
+            return $this->getExtensions()['authorityKeyIdentifier']->getKeyId();
         } else {
             return false;
         }
@@ -265,8 +265,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getSubjectKeyIdentifier()
     {
-        if (! empty($this->extensions) && array_key_exists('subjectKeyIdentifier', $this->extensions)) {
-            return $this->extensions['subjectKeyIdentifier']->getKeyId();
+        if (! empty($this->getExtensions()) && array_key_exists('subjectKeyIdentifier', $this->getExtensions())) {
+            return $this->getExtensions()['subjectKeyIdentifier']->getKeyId();
         } else {
             return false;
         }
@@ -274,8 +274,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function getCDPs()
     {
-        if (! empty($this->extensions) && array_key_exists('crlDistributionPoints', $this->extensions)) {
-            return $this->extensions['crlDistributionPoints']->getCDPs();
+        if (! empty($this->getExtensions()) && array_key_exists('crlDistributionPoints', $this->getExtensions())) {
+            return $this->getExtensions()['crlDistributionPoints']->getCDPs();
         } else {
             return [];
         }
@@ -283,8 +283,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function forPurpose($name)
     {
-        if (! empty($this->extensions) && array_key_exists('extendedKeyUsage', $this->extensions)) {
-            if ($this->extensions['crlDistributionPoints']->forPurpose($purpose)) {
+        if (! empty($this->getExtensions()) && array_key_exists('extendedKeyUsage', $this->getExtensions())) {
+            if ($this->getExtensions()['crlDistributionPoints']->forPurpose($purpose)) {
                 return true;
             }
         }
@@ -483,7 +483,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                 }
                 $this->attributes['findings'] = $findings;
             }
-            foreach ($this->extensions as $extension) {
+            foreach ($this->getExtensions() as $extension) {
                 $extension->setCertificate($this);
                 $extensionAttributes = $extension->getAttributes();
                 foreach (array_keys($extensionAttributes) as $key) {
@@ -492,9 +492,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                     }
                     if (is_array($extensionAttributes[$key])) {
                         $this->attributes[$key] = array_merge(
-                        $this->attributes[$key],
-                        $extensionAttributes[$key]
-                    );
+                            $this->attributes[$key],
+                            $extensionAttributes[$key]
+                        );
                     } else {
                         $this->attributes[$key] = $extensionAttributes[$key];
                     }
@@ -537,7 +537,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     {
         $attributes = [];
         if ($this->hasExtensions()) {
-            foreach ($this->extensions as $extensionName => $extension) {
+            foreach ($this->getExtensions() as $extensionName => $extension) {
                 // code...
                 $this->attributes['extensions'][$extensionName] = $extension->getDescription();
             }
@@ -592,8 +592,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
 
     public function isCA()
     {
-        if (array_key_exists('basicConstraints', $this->extensions)) {
-            if ($this->extensions['basicConstraints']->isCA() === true) {
+        if (array_key_exists('basicConstraints', $this->getExtensions())) {
+            if ($this->getExtensions()['basicConstraints']->isCA() === true) {
                 return true;
             }
         }
@@ -604,19 +604,19 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     {
         if (
           ! $this->isCA() ||
-          ! array_key_exists('basicConstraints', $this->extensions)
+          ! array_key_exists('basicConstraints', $this->getExtensions())
         ) {
             return false;
         } else {
-            return $this->extensions['basicConstraints']->getPathLength();
+            return $this->getExtensions()['basicConstraints']->getPathLength();
         }
     }
 
     public function getIssuerURIs()
     {
         $uris = [];
-        if (array_key_exists('authorityInfoAccess', $this->extensions)) {
-            $uris = $this->extensions['authorityInfoAccess']->getCAIssuers();
+        if (array_key_exists('authorityInfoAccess', $this->getExtensions())) {
+            $uris = $this->getExtensions()['authorityInfoAccess']->getCAIssuers();
         }
         return $uris;
     }
@@ -624,8 +624,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     public function getOCSPURIs()
     {
         $uris = [];
-        if (array_key_exists('authorityInfoAccess', $this->extensions)) {
-            $uris = $this->extensions['authorityInfoAccess']->getOCSP();
+        if (array_key_exists('authorityInfoAccess', $this->getExtensions())) {
+            $uris = $this->getExtensions()['authorityInfoAccess']->getOCSP();
         }
         return $uris;
     }
@@ -642,5 +642,10 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
     public function getFindings()
     {
         return $this->findings;
+    }
+
+    public function getExtensionsBinary()
+    {
+        return $this->extensions->getBinary();
     }
 }
