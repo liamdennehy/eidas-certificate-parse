@@ -590,6 +590,7 @@ class TrustedList implements AttributeInterface
         $tslAttributes['schemeTerritory'] = $this->getSchemeTerritory();
         $tslAttributes['schemeOperatorName'] = $this->getSchemeOperatorName();
         $tslAttributes['tslSequenceNumber'] = $this->getSequenceNumber();
+        $tslAttributes['sourceURI'] = $this->getTSLLocation();
         if (!empty($this->getSignedByHash())) {
             $tslAttributes['tslSignedByHash'] = $this->getSignedByHash();
         }

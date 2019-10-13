@@ -20,7 +20,8 @@ class LOTLRootTest extends TestCase
       'schemeTerritory' => 'EU',
       'schemeOperatorName' => 'European Commission',
       'tslSequenceNumber' => 250,
-      'tslSignedByHash' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
+      'tslSignedByHash' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
+      'sourceURI' => 'https://ec.europa.eu/tools/lotl/eu-lotl.xml'
     ];
     const lotlSigningCertPath =
       '/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';
