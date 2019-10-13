@@ -85,6 +85,7 @@ class CertificateParseTest extends TestCase
             'DN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
             'expandedDN' => $this->eucrtSubject,
             'syntax' => 'The values in the Subject DN are interpreted according to the rules of a Legal Person',
+            'ski' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
           ],
           'issuer' => [
             'DN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
@@ -92,14 +93,11 @@ class CertificateParseTest extends TestCase
             'uris' => [
               'http://trust.quovadisglobal.com/qvbecag2.crt'
             ],
+            'aki' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           ],
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
           'notBefore' => 1520438443,
           'notAfter' => 1615133400,
-          'skiHex' => 'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
-          'skiBase64' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
-          'akiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
-          'akiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           'statusCheckURIs' => [
             'crl' => [
               'http://crl.quovadisglobal.com/qvbecag2.crl'
@@ -230,6 +228,7 @@ class CertificateParseTest extends TestCase
           'subject' => [
             'DN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
             'expandedDN' => $this->eucrtIssuerSubject,
+            'ski' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
           ],
           'issuer' => [
             'DN' => '/C=BM/O=QuoVadis Limited/CN=QuoVadis Enterprise Trust CA 1 G3',
@@ -237,14 +236,11 @@ class CertificateParseTest extends TestCase
             'uris' => [
               'http://trust.quovadisglobal.com/qventca1g3.crt'
             ],
+            'aki' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
           ],
           'notBefore' => 1465820525,
           'notAfter' => 1781353325,
           'fingerprint' => 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c',
-          'skiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
-          'skiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
-          'akiHex' => '6c26bd605529294e663207a0ff638b835a4b34c6',
-          'akiBase64' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
           'isCA' => true,
           'tspService' => $this->eucrtIssuerTSPService,
           'statusCheckURIs' => [
