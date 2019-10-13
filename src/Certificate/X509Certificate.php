@@ -70,7 +70,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                     $extensionsDER
                 );
                 $this->findings = array_merge($this->findings, $this->extensions->getFindings());
-                // $this->extensions = $extensions->getExtensions();
             }
             $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
             $subjectPublicKeyInfoTypeOID =
@@ -187,7 +186,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
         if (empty($dateTime)) {
             $dateTime = new \DateTime; // now
         };
-        // $dates = $this->getDates();
         return (
           $this->isStartedAt($dateTime) &&
           $this->isNotFinishedAt($dateTime)
@@ -492,34 +490,6 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
                     }
                 }
             }
-
-            // switch ($extension->getType()) {
-                // case 'keyUsage':
-                // case 'extKeyUsage':
-                  // if (!array_key_exists('keyPurposes', $extensionAttributes)) {
-              //         $extensionAttributes['keyPurposes'] = [];
-              //     }
-              //     $extensionAttributes['keyPurposes'] = array_merge(
-              //         $extensionAttributes['keyPurposes'],
-              //         $extension->getAttributes()['keyPurposes']
-              //     );
-              //     break;
-              //   case 'unknown':
-              //     if (!array_key_exists('unRecognizedExtensions', $extensionAttributes)) {
-              //         $extensionAttributes['unRecognizedExtensions'] = [];
-              //     }
-              //     $extensionAttributes['unRecognizedExtensions'] = array_merge(
-              //         $extensionAttributes['unRecognizedExtensions'],
-              //         $extension->getAttributes()['unRecognizedExtensions']
-              //     );
-              //     break;
-              //
-              //   default:
-              //     $extensionAttributes = array_merge($extensionAttributes, $extension->getAttributes());
-              //     break;
-            //   }
-            // }
-            // $this->attributes = array_merge($this->attributes, $extensionAttributes);
         }
 
         return $this->attributes;
