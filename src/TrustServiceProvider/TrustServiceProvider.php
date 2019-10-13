@@ -21,7 +21,7 @@ class TrustServiceProvider
     {
         $this->name = (string)$tsp->TSPInformation->TSPName->xpath("*[@xml:lang='en']")[0];
         if (! empty($trustedList)) {
-            $this->parentTSLAttributes = $trustedList->getTrustedListAtrributes();
+            $this->parentTSLAttributes = $trustedList->getAttributes();
         }
         foreach ($tsp->TSPServices->TSPService as $tspService) {
             $newTSPService = new TSPService($tspService, $this);

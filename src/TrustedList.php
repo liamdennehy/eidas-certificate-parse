@@ -584,7 +584,7 @@ class TrustedList
         return $this->xml;
     }
 
-    public function getTrustedListAtrributes()
+    public function getAttributes()
     {
         $tslAttributes['schemeTerritory'] = $this->getSchemeTerritory();
         $tslAttributes['schemeOperatorName'] = $this->getSchemeOperatorName();
@@ -604,7 +604,7 @@ class TrustedList
 
     public function setParentTrustedList(TrustedList $parentTSL)
     {
-        $this->parentTSLAttributes = $parentTSL->getTrustedListAtrributes();
+        $this->parentTSLAttributes = $parentTSL->getAttributes();
     }
 
 

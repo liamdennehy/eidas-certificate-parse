@@ -233,7 +233,7 @@ class LOTLRootTest extends TestCase
             sizeof($lotl->getTrustedLists(true))
         );
         $lotlRefAttributes = self::getLOTLAttributes();
-        $lotlTestAttributes = $lotl->getTrustedListAtrributes();
+        $lotlTestAttributes = $lotl->getAttributes();
         $this->assertArrayHasKey(
             'tslSignatureVerifiedAt',
             $lotlTestAttributes

@@ -159,7 +159,7 @@ class TLTest extends TestCase
         $now = (new DateTime('now'))->format('U');
         $testTL = $lotl->getTrustedLists()[self::testTLName];
         $testTLRefAttributes = self::getTestTLAttributes();
-        $testTLTestAttributes = $testTL->getTrustedListAtrributes();
+        $testTLTestAttributes = $testTL->getAttributes();
         $this->assertArrayHasKey(
             'tslSignatureVerifiedAt',
             $testTLTestAttributes['parentTSL']
