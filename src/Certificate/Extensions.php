@@ -15,6 +15,7 @@ class Extensions implements ParseInterface
 {
     private $extensions = [];
     private $findings = [];
+    private $binary;
 
     public function __construct($extensionsDER)
     {
@@ -43,6 +44,7 @@ class Extensions implements ParseInterface
             }
         }
         // TODO: Minimum set https://tools.ietf.org/html/rfc5280#section-4.2
+        $this->binary = $extensionsDER;
     }
 
     public function setKeyUsage($keyUsageString)
@@ -66,5 +68,10 @@ class Extensions implements ParseInterface
         foreach ($$this->extensions as $name => $extension) {
             $descriptions[$name] = $extension->getDescription();
         }
+    }
+
+    public function getBinary()
+    {
+        return $this->binary;
     }
 }
