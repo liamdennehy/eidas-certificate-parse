@@ -76,8 +76,8 @@ class QCStatements implements ExtensionInterface
 
     public function getPDSLocations()
     {
-        if (array_key_exists('QCPDS', $this->getStatements())) {
-            return $this->getStatements()['QCPDS']->getLocations();
+        if (array_key_exists('QCPDS', $this->qcStatements)) {
+            return $this->qcStatements['QCPDS']->getLocations();
         } else {
             return false;
         }
@@ -86,8 +86,17 @@ class QCStatements implements ExtensionInterface
     // TODO: Combine Qualified status and type
     public function getQCType()
     {
-        if (array_key_exists('QCQualifiedType', $this->getStatements())) {
-            return $this->getStatements()['QCQualifiedType']->getQCType();
+        if (array_key_exists('QCQualifiedType', $this->qcStatements)) {
+            return $this->qcStatements['QCQualifiedType']->getQCType();
+        } else {
+            return false;
+        }
+    }
+
+    public function getQCPurpose()
+    {
+        if (array_key_exists('QCQualifiedType', $this->qcStatements)) {
+            return $this->qcStatements['QCQualifiedType']->getQCPurpose();
         } else {
             return false;
         }
@@ -142,9 +151,9 @@ class QCStatements implements ExtensionInterface
                 }
                 if (is_array($qcStatementAttributes[$key])) {
                     $attrs[$key] = array_merge(
-                  $attrs[$key],
-                  $qcStatementAttributes[$key]
-              );
+                        $attrs[$key],
+                        $qcStatementAttributes[$key]
+                    );
                 } else {
                     $attrs[$key] = $qcStatementAttributes[$key];
                 }

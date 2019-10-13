@@ -119,7 +119,7 @@ class CertificateParseTest extends TestCase
             ]
           ],
           'qualification' => [
-            'type' => 'eseal',
+            'type' => 'QSealC',
             'qualified' => 'The certificate is an EU qualified certificate that is issued according to Annex I, III or IV of the Regulation (EU) No 910/2014.',
             'purpose' =>
               'Certificate for Electronic Signatures (QSealC) according to '.
@@ -153,7 +153,8 @@ class CertificateParseTest extends TestCase
                 'oid' => '1.3.6.1.4.1.311.10.3.12',
                 'url' => 'https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography'
               ],
-            ]
+            ],
+            'qualified' => 'eseal'
           ],
           'unRecognizedExtensions' => [
             'oid' => '1.2.840.113583.1.1.9.2',
