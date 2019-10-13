@@ -6,6 +6,7 @@ use eIDASCertificate\CertificateException;
 use eIDASCertificate\ParseException;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\OID;
+use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\Finding;
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\TSPService\TSPServiceException;
@@ -15,7 +16,7 @@ use phpseclib\File\X509;
 /**
  *
  */
-class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface
+class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, AttributeInterface
 {
     private $x509;
     private $crtResource;

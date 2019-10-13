@@ -79,7 +79,7 @@ class TSPTest extends TestCase
         $testTSP = $lotl->getTSPs(true)[self::testTSPName];
 
         $testTSPRefAttributes = self::getTSPAttributes();
-        $testTSPTestAttributes = $testTSP->getTSPAttributes();
+        $testTSPTestAttributes = $testTSP->getAttributes();
         $this->assertArrayHasKey(
             'tslSignatureVerifiedAt',
             $testTSPTestAttributes['trustedList']

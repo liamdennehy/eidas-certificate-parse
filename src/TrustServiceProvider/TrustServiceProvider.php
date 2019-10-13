@@ -2,10 +2,12 @@
 
 namespace eIDASCertificate;
 
+use eIDASCertificate\AttributeInterface;
+
 /**
  * [Trust Service Provider]
  */
-class TrustServiceProvider
+class TrustServiceProvider implements AttributeInterface
 {
     private $name;
     private $services = [];
@@ -48,7 +50,7 @@ class TrustServiceProvider
         return $this->services;
     }
 
-    public function getTSPAttributes()
+    public function getAttributes()
     {
         if (empty($this->attributes)) {
             $this->attributes['name'] = $this->getName();

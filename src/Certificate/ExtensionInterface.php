@@ -3,11 +3,12 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\X509Certificate;
+use eIDASCertificate\AttributeInterface;
 
 /**
  *
  */
- interface ExtensionInterface extends ParseInterface
+ interface ExtensionInterface extends ParseInterface, AttributeInterface
  {
      public function __construct($extensionDER, $isCritical);
      public function getType();

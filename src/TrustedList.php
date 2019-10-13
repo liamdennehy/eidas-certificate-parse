@@ -5,12 +5,13 @@ namespace eIDASCertificate;
 use SimpleXMLElement;
 use eIDASCertificate\Signature\XMLSig;
 use eIDASCertificate\Certificate\X509Certificate;
+use eIDASCertificate\AttributeInterface;
 use DateTime;
 
 /**
  *
  */
-class TrustedList
+class TrustedList implements AttributeInterface
 {
     const ListOfTrustedListsXMLPath =
       'https://ec.europa.eu/tools/lotl/eu-lotl.xml';
@@ -281,7 +282,7 @@ class TrustedList
         $tsps = $this->getTSPs($includeChildren);
         foreach ($tsps as $tspName => $tsp) {
             foreach ($tsp->getTSPServices() as $tspService) {
-                $tspServices[$tspService->getName()] = $tspService->getTSPServiceAttributes();
+                $tspServices[$tspService->getName()] = $tspService->getAttributes();
             }
         }
         return $tspServices;
