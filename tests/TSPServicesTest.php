@@ -85,15 +85,23 @@ class TSPServicesTest extends TestCase
         $refAttributes = self::getTSPServiceAttributes();
         $testAttributes = $tspServices[self::testTSPServiceName];
         $this->assertArrayHasKey(
-            'tslSignatureVerifiedAt',
+            'signature',
             $testAttributes['trustServiceProvider']['trustedList']
         );
         $this->assertArrayHasKey(
-            'tslSignatureVerifiedAt',
+            'verifiedAt',
+            $testAttributes['trustServiceProvider']['trustedList']['signature']
+        );
+        $this->assertArrayHasKey(
+            'signature',
             $testAttributes['trustServiceProvider']['trustedList']['parentTSL']
         );
-        unset($testAttributes['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
-        unset($testAttributes['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
+        $this->assertArrayHasKey(
+            'verifiedAt',
+            $testAttributes['trustServiceProvider']['trustedList']['parentTSL']['signature']
+        );
+        unset($testAttributes['trustServiceProvider']['trustedList']['signature']['verifiedAt']);
+        unset($testAttributes['trustServiceProvider']['trustedList']['parentTSL']['signature']['verifiedAt']);
         $this->assertEquals(
             $refAttributes,
             $testAttributes
