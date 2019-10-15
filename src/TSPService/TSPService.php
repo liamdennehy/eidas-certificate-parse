@@ -53,6 +53,9 @@ class TSPService implements AttributeInterface
                     $this->siExtensions[] = $newSIExtension;
                 } catch (SafeException $e) {
                     // continue;
+                } catch (ParseException $e) {
+                  // TODO: Handle ParseExctention e.g. IE
+                  // print $e->getMessage();
                 }
             }
         };
