@@ -520,6 +520,9 @@ class TrustedList implements AttributeInterface
      */
     public function getTSLLocation()
     {
+        if (empty($this->tlPointer)) {
+            $this->processTLPointers();
+        }
         return $this->tlPointer->getTSLLocation();
     }
 
