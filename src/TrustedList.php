@@ -5,12 +5,13 @@ namespace eIDASCertificate;
 use SimpleXMLElement;
 use eIDASCertificate\Signature\XMLSig;
 use eIDASCertificate\Certificate\X509Certificate;
+use eIDASCertificate\AttributeInterface;
 use DateTime;
 
 /**
  *
  */
-class TrustedList
+class TrustedList implements AttributeInterface
 {
     const ListOfTrustedListsXMLPath =
       'https://ec.europa.eu/tools/lotl/eu-lotl.xml';
@@ -281,7 +282,7 @@ class TrustedList
         $tsps = $this->getTSPs($includeChildren);
         foreach ($tsps as $tspName => $tsp) {
             foreach ($tsp->getTSPServices() as $tspService) {
-                $tspServices[$tspService->getName()] = $tspService->getTSPServiceAttributes();
+                $tspServices[$tspService->getName()] = $tspService->getAttributes();
             }
         }
         return $tspServices;
@@ -380,11 +381,12 @@ class TrustedList
     public function getNextUpdate()
     {
         if (! $this->nextUpdate) {
-            $this->nextUpdate = strtotime(
+            $nextUpdate = strtotime(
                 (string)$this->tl->xpath(
                     './tsl:SchemeInformation/tsl:NextUpdate/tsl:dateTime'
                 )[0]
             );
+            $this->nextUpdate = (new DateTime)->setTimestamp($nextUpdate);
         };
         return $this->nextUpdate;
     }
@@ -519,6 +521,9 @@ class TrustedList
      */
     public function getTSLLocation()
     {
+        if (empty($this->tlPointer)) {
+            $this->processTLPointers();
+        }
         return $this->tlPointer->getTSLLocation();
     }
 
@@ -584,11 +589,14 @@ class TrustedList
         return $this->xml;
     }
 
-    public function getTrustedListAtrributes()
+    public function getAttributes()
     {
         $tslAttributes['schemeTerritory'] = $this->getSchemeTerritory();
         $tslAttributes['schemeOperatorName'] = $this->getSchemeOperatorName();
         $tslAttributes['tslSequenceNumber'] = $this->getSequenceNumber();
+        $tslAttributes['issued'] = $this->getListIssueDateTime()->format('U');
+        $tslAttributes['nextUpdate'] = $this->getNextUpdate()->format('U');
+        $tslAttributes['sourceURI'] = $this->getTSLLocation();
         if (!empty($this->getSignedByHash())) {
             $tslAttributes['tslSignedByHash'] = $this->getSignedByHash();
         }
@@ -604,7 +612,7 @@ class TrustedList
 
     public function setParentTrustedList(TrustedList $parentTSL)
     {
-        $this->parentTSLAttributes = $parentTSL->getTrustedListAtrributes();
+        $this->parentTSLAttributes = $parentTSL->getAttributes();
     }
 
 

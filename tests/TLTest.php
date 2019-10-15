@@ -23,6 +23,9 @@ class TLTest extends TestCase
         'schemeOperatorName' => 'FPS Economy, SMEs, Self-employed and Energy - Quality and Safety',
         'tslSequenceNumber' => 44,
         'tslSignedByHash' => 'cfde6ceda889bd628bde8ed18092b06392d23cf2',
+        'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml',
+        'issued' => '1567641600',
+        'nextUpdate' => '1583107200'
     ];
 
     private $tlolxml;
@@ -159,7 +162,7 @@ class TLTest extends TestCase
         $now = (new DateTime('now'))->format('U');
         $testTL = $lotl->getTrustedLists()[self::testTLName];
         $testTLRefAttributes = self::getTestTLAttributes();
-        $testTLTestAttributes = $testTL->getTrustedListAtrributes();
+        $testTLTestAttributes = $testTL->getAttributes();
         $this->assertArrayHasKey(
             'tslSignatureVerifiedAt',
             $testTLTestAttributes['parentTSL']

@@ -2,10 +2,12 @@
 
 namespace eIDASCertificate;
 
+use eIDASCertificate\AttributeInterface;
+
 /**
  * [Trust Service Provider]
  */
-class TrustServiceProvider
+class TrustServiceProvider implements AttributeInterface
 {
     private $name;
     private $services = [];
@@ -21,7 +23,7 @@ class TrustServiceProvider
     {
         $this->name = (string)$tsp->TSPInformation->TSPName->xpath("*[@xml:lang='en']")[0];
         if (! empty($trustedList)) {
-            $this->parentTSLAttributes = $trustedList->getTrustedListAtrributes();
+            $this->parentTSLAttributes = $trustedList->getAttributes();
         }
         foreach ($tsp->TSPServices->TSPService as $tspService) {
             $newTSPService = new TSPService($tspService, $this);
@@ -48,7 +50,7 @@ class TrustServiceProvider
         return $this->services;
     }
 
-    public function getTSPAttributes()
+    public function getAttributes()
     {
         if (empty($this->attributes)) {
             $this->attributes['name'] = $this->getName();

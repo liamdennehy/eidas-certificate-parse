@@ -11,7 +11,7 @@ use eIDASCertificate\DigitalIdentity\ServiceDigitalIdentity;
 /**
  *
  */
-class TSPService
+class TSPService implements AttributeInterface
 {
     private $name;
     private $serviceType;
@@ -58,7 +58,7 @@ class TSPService
         };
         $this->tspAttributes = [];
         if (! empty($tsp)) {
-            $this->tspAttributes = $tsp->getTSPAttributes();
+            $this->tspAttributes = $tsp->getAttributes();
         }
     }
 
@@ -155,7 +155,7 @@ class TSPService
         return $this->serviceType->getIsQualified();
     }
 
-    public function getTSPServiceAttributes()
+    public function getAttributes()
     {
         if (!array_key_exists('name', $this->attributes)) {
             $this->attributes['name'] = $this->getName();
