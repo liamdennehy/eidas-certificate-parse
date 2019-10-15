@@ -381,11 +381,12 @@ class TrustedList implements AttributeInterface
     public function getNextUpdate()
     {
         if (! $this->nextUpdate) {
-            $this->nextUpdate = strtotime(
+            $nextUpdate = strtotime(
                 (string)$this->tl->xpath(
                     './tsl:SchemeInformation/tsl:NextUpdate/tsl:dateTime'
                 )[0]
             );
+            $this->nextUpdate = (new DateTime)->setTimestamp($nextUpdate);
         };
         return $this->nextUpdate;
     }
@@ -593,6 +594,8 @@ class TrustedList implements AttributeInterface
         $tslAttributes['schemeTerritory'] = $this->getSchemeTerritory();
         $tslAttributes['schemeOperatorName'] = $this->getSchemeOperatorName();
         $tslAttributes['tslSequenceNumber'] = $this->getSequenceNumber();
+        $tslAttributes['issued'] = $this->getListIssueDateTime()->format('U');
+        $tslAttributes['nextUpdate'] = $this->getNextUpdate()->format('U');
         $tslAttributes['sourceURI'] = $this->getTSLLocation();
         if (!empty($this->getSignedByHash())) {
             $tslAttributes['tslSignedByHash'] = $this->getSignedByHash();

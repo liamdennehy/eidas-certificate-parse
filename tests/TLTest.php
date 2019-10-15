@@ -23,7 +23,9 @@ class TLTest extends TestCase
         'schemeOperatorName' => 'FPS Economy, SMEs, Self-employed and Energy - Quality and Safety',
         'tslSequenceNumber' => 44,
         'tslSignedByHash' => 'cfde6ceda889bd628bde8ed18092b06392d23cf2',
-        'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml'
+        'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml',
+        'issued' => '1567641600',
+        'nextUpdate' => '1583107200'
     ];
 
     private $tlolxml;
