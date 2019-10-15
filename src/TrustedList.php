@@ -598,7 +598,10 @@ class TrustedList implements AttributeInterface
         $tslAttributes['nextUpdate'] = $this->getNextUpdate()->format('U');
         $tslAttributes['sourceURI'] = $this->getTSLLocation();
         $tslAttributes['fileHash'] = hash('sha256', $this->xml);
-        if (!empty($this->getSignedByHash())) {
+
+        if (!empty($this->getSignedBy())) {
+            $tslAttributes['signature']['signerThumbprint'] = $this->getSignedBy()->getIdentifier();
+        } elseif (!empty($this->getSignedByHash())) {
             $tslAttributes['signature']['signerThumbprint'] = $this->getSignedByHash();
         }
         if (!empty($this->verifiedAt)) {
