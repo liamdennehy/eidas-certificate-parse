@@ -554,8 +554,8 @@ class CertificateParseTest extends TestCase
         //   [],
         //   array_keys($eucrtAttributes['issuer']['certificates'][0])
         // );
-        unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['tslSignatureVerifiedAt']);
-        unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
+        unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['signature']['verifiedAt']);
+        unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['signature']['verifiedAt']);
         $this->assertArrayHasKey(
             'certificates',
             $eucrtAttributes['issuer']
