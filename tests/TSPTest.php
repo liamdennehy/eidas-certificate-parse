@@ -81,15 +81,23 @@ class TSPTest extends TestCase
         $testTSPRefAttributes = self::getTSPAttributes();
         $testTSPTestAttributes = $testTSP->getAttributes();
         $this->assertArrayHasKey(
-            'tslSignatureVerifiedAt',
+            'signature',
             $testTSPTestAttributes['trustedList']
         );
         $this->assertArrayHasKey(
-            'tslSignatureVerifiedAt',
+            'verifiedAt',
+            $testTSPTestAttributes['trustedList']['signature']
+        );
+        $this->assertArrayHasKey(
+            'signature',
             $testTSPTestAttributes['trustedList']['parentTSL']
         );
-        unset($testTSPTestAttributes['trustedList']['tslSignatureVerifiedAt']);
-        unset($testTSPTestAttributes['trustedList']['parentTSL']['tslSignatureVerifiedAt']);
+        $this->assertArrayHasKey(
+            'verifiedAt',
+            $testTSPTestAttributes['trustedList']['parentTSL']['signature']
+        );
+        unset($testTSPTestAttributes['trustedList']['signature']['verifiedAt']);
+        unset($testTSPTestAttributes['trustedList']['parentTSL']['signature']['verifiedAt']);
 
         $this->assertEquals(
             $testTSPRefAttributes,

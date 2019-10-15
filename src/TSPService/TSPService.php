@@ -54,7 +54,7 @@ class TSPService implements AttributeInterface
                 } catch (SafeException $e) {
                     // continue;
                 } catch (ParseException $e) {
-                  // TODO: Handle ParseExctention e.g. IE
+                    // TODO: Handle ParseExctention e.g. IE
                   // print $e->getMessage();
                 }
             }

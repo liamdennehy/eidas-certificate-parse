@@ -21,11 +21,14 @@ class TLTest extends TestCase
     const testTLAttributes = [
         'schemeTerritory' => 'BE',
         'schemeOperatorName' => 'FPS Economy, SMEs, Self-employed and Energy - Quality and Safety',
-        'tslSequenceNumber' => 44,
-        'tslSignedByHash' => 'cfde6ceda889bd628bde8ed18092b06392d23cf2',
+        'sequenceNumber' => 44,
         'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml',
         'issued' => '1567641600',
-        'nextUpdate' => '1583107200'
+        'nextUpdate' => '1583107200',
+        'fileHash' => '48d9f7ec51ed0be4f1b52ef5fbdcb0b69a62a766291b2bcb46b332b7a0cdc475',
+        'signature' => [
+          'signerThumbprint' => 'cfde6ceda889bd628bde8ed18092b06392d23cf2'
+        ]
     ];
 
     private $tlolxml;
@@ -164,23 +167,31 @@ class TLTest extends TestCase
         $testTLRefAttributes = self::getTestTLAttributes();
         $testTLTestAttributes = $testTL->getAttributes();
         $this->assertArrayHasKey(
-            'tslSignatureVerifiedAt',
+            'signature',
             $testTLTestAttributes['parentTSL']
         );
         $this->assertArrayHasKey(
-            'tslSignatureVerifiedAt',
+            'verifiedAt',
+            $testTLTestAttributes['parentTSL']['signature']
+        );
+        $this->assertArrayHasKey(
+            'signature',
             $testTLTestAttributes
+        );
+        $this->assertArrayHasKey(
+            'verifiedAt',
+            $testTLTestAttributes['signature']
         );
         $this->assertGreaterThan(
             $now - 10,
-            $testTLTestAttributes['tslSignatureVerifiedAt']
+            $testTLTestAttributes['signature']['verifiedAt']
         );
         $this->assertLessThanOrEqual(
             $now,
-            $testTLTestAttributes['tslSignatureVerifiedAt']
+            $testTLTestAttributes['signature']['verifiedAt']
         );
-        unset($testTLTestAttributes['tslSignatureVerifiedAt']);
-        unset($testTLTestAttributes['parentTSL']['tslSignatureVerifiedAt']);
+        unset($testTLTestAttributes['signature']['verifiedAt']);
+        unset($testTLTestAttributes['parentTSL']['signature']['verifiedAt']);
         $this->assertEquals(
             $testTLRefAttributes,
             $testTLTestAttributes
