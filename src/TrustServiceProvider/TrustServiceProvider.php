@@ -29,7 +29,7 @@ class TrustServiceProvider implements AttributeInterface
             $newTSPService = new TSPService($tspService, $this);
             $this->services[$newTSPService->getName()] = $newTSPService;
         };
-        sort($this->services);
+        ksort($this->services);
     }
 
     /**
