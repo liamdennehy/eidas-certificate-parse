@@ -20,7 +20,35 @@ class TLTest extends TestCase
     const testTLXMLFileName = 'tl-61c0487109be27255c19cff26d8f56bea621e7f381a7b4cbe7fb4750bd477bf9.xml';
     const testTLAttributes = [
         'schemeTerritory' => 'BE',
-        'schemeOperatorName' => 'FPS Economy, SMEs, Self-employed and Energy - Quality and Safety',
+        'schemeOperator' => [
+          'name' => 'FPS Economy, SMEs, Self-employed and Energy - Quality and Safety',
+          'postalAddresses' => [
+            'en' => [
+              'StreetAddress' => 'NG III - Koning Albert II-laan 16',
+              'Locality' => 'Brussels',
+              'PostalCode' => '1000',
+              'StateOrProvince' => 'Brussels',
+              'CountryName' => 'BE'
+            ],
+            'nl' => [
+              'StreetAddress' => 'NG III - Koning Albert II-laan 16',
+              'Locality' => 'Brussel',
+              'PostalCode' => '1000',
+              'StateOrProvince' => 'Brussel',
+              'CountryName' => 'BE'
+            ],
+          ],
+          'electronicAddresses' => [
+            [
+              'lang' => 'en',
+              'uri' => 'http://economie.fgov.be'
+            ],
+            [
+              'lang' => 'en',
+              'uri' => 'mailto:be.sign@economie.fgov.be'
+            ],
+          ]
+        ],
         'sequenceNumber' => 44,
         'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml',
         'issued' => '1567641600',

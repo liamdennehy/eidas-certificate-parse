@@ -10,6 +10,7 @@ use eIDASCertificate\AttributeInterface;
 class TrustServiceProvider implements AttributeInterface
 {
     private $name;
+    private $address;
     private $services = [];
     private $serviceHistory;
     private $parentTSLAtrributes;
@@ -29,6 +30,7 @@ class TrustServiceProvider implements AttributeInterface
             $newTSPService = new TSPService($tspService, $this);
             $this->services[$newTSPService->getName()] = $newTSPService;
         };
+        $this->address = new Address($tsp->TSPInformation->TSPAddress);
         ksort($this->services);
     }
 
