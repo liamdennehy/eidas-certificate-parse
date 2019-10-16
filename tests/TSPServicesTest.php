@@ -17,7 +17,7 @@ class TSPServicesTest extends TestCase
 {
     const lotlXMLFileName = 'eu-lotl.xml';
     const TSPServiceCertHash = 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c';
-    const testTSPServiceName = 'QuoVadis BE PKI Certification Authority G2';
+    const testTSPServiceName = 'itsme Sign Issuing CA G1';
     const testTSPServiceCertFile = 'qvbecag2.crt';
     private $lotlxml;
     private $lotl;
@@ -58,6 +58,7 @@ class TSPServicesTest extends TestCase
           'skiHex' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
           'subjectName' => 'CN=QuoVadis Belgium Issuing CA G2, O=QuoVadis Trustlink BVBA, OID.2.5.4.97=NTRBE-0537698318, C=BE',
           'serviceHistory' => [
+<<<<<<< Updated upstream
             [
               'statusStartingTime' => 1518048000,
               'status' =>'granted'
@@ -70,6 +71,14 @@ class TSPServicesTest extends TestCase
               'statusStartingTime' => 1465776000,
               'status' =>'undersupervision'
             ],
+=======
+            [1518048000, 'granted'],
+            [1467324000, 'granted'],
+            [1465776000, 'undersupervision']
+          ],
+          'qualifierURIs' => [
+            [],[]
+>>>>>>> Stashed changes
           ]
         ];
         $attributes['trustServiceProvider'] =  TSPTest::getTSPAttributes();
@@ -87,6 +96,7 @@ class TSPServicesTest extends TestCase
         $this->lotl->addTrustedListXML(TLTest::testTLName, file_get_contents($testTLFilePath));
         $testTL = $lotl->getTrustedLists()[TLTest::testTLName];
         $tspServices = $lotl->getTSPServices(true);
+        // var_dump(array_keys($testTL->getTSPs())); exit;
         $this->assertEquals(
             3,
             sizeof($testTL->getTSPs()[TSPTest::testTSPName]->getTSPServices())
