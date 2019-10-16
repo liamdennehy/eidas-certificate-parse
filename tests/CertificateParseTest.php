@@ -224,7 +224,7 @@ class CertificateParseTest extends TestCase
         ];
 
         $this->eucrtIssuerTSPService =
-          TSPServicesTest::getTSPServiceAttributes();
+          TSPServicesTest::getEUTSPServiceAttributes();
 
         $this->euIssuercrtAttributes =
         [
@@ -545,17 +545,13 @@ class CertificateParseTest extends TestCase
         $lotl->verifyTSL($signingCert);
         $testTLXML = file_get_contents($dataDir.TLTest::testTLXMLFileName);
         $lotl->addTrustedListXML(TLTest::testTLName, $testTLXML);
-        $issuerTSPService = ($lotl->getTSPServices(true)[TSPServicesTest::testTSPServiceName]);
+        $issuerTSPService = ($lotl->getTSPServices(true)[TSPServicesTest::EUTSPServiceName]);
         $euissuercrt->setTSPService($issuerTSPService);
         $eucrt = $this->eucrt;
         $eucrt->withIssuer($euissuercrt);
         $eucrtRefAttributes = $this->eucrtAttributes;
         $eucrtRefAttributes['issuerCerts'][0] = $this->euIssuercrtAttributes;
         $eucrtAttributes = $eucrt->getAttributes();
-        // $this->assertEquals(
-        //   [],
-        //   array_keys($eucrtAttributes['issuer']['certificates'][0])
-        // );
         unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['signature']['verifiedAt']);
         unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['signature']['verifiedAt']);
         $this->assertArrayHasKey(
@@ -575,7 +571,7 @@ class CertificateParseTest extends TestCase
             $eucrtAttributes['issuer']['certificates'][0]
         );
         $this->assertEquals(
-            TSPServicesTest::getTSPServiceAttributes(),
+            TSPServicesTest::getEUTSPServiceAttributes(),
             $eucrtAttributes['issuer']['certificates'][0]['tspService']
         );
     }
