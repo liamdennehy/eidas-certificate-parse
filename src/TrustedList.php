@@ -20,6 +20,7 @@ class TrustedList implements AttributeInterface
 
     private $schemeOperatorName;
     private $schemeTerritory;
+    private $address;
     private $TSLFormat;
     private $versionID;
     private $sequenceNumber;
@@ -339,6 +340,13 @@ class TrustedList implements AttributeInterface
         return $this->schemeOperatorName;
     }
 
+    public function getAddresses()
+    {
+        if (empty($this->address)) {
+            $this->address = new Address($this->tl->SchemeInformation->SchemeOperatorAddress);
+        };
+        return $this->address;
+    }
     /**
      * [isTLOL description]
      * @return boolean [description]

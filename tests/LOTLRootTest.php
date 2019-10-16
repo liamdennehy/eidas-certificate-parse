@@ -88,6 +88,7 @@ class LOTLRootTest extends TestCase
                 strlen($lotlCert->getSubjectDN())
             );
         }
+        $this->lotl->getAddresses();
     }
 
     // public function testVerifyLOTLSelfSignedFails()
