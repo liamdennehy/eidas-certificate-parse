@@ -12,15 +12,20 @@ class Address
     public function __construct($addressesCollection)
     {
         foreach ($addressesCollection->children() as $type => $addressTypeCollection) {
-          switch ($type) {
+            // var_dump($addressTypeCollection->asXML());
+            switch ($type) {
             case 'PostalAddresses':
-            // var_dump($addressTypeCollection->attributes());
+              // var_dump($addressTypeCollection->xpath('*[@xml:lang]/@xml:lang'));
               foreach ($addressTypeCollection as $postalAddress) {
-                // $postalAddress = [];
-                foreach ($postalAddress as $key => $value) {
-                  $thispostalAddress[$key] = (string)$value;
-                }
-                // var_dump($thispostalAddress);
+                  $lang = (string)$postalAddress->attributes('xml', true)['lang'];
+                  if (array_key_exists($lang, $this->postalAddresses)) {
+                      throw new ParseException("Multiple PostalAddresses in Language '$lang'", 1);
+                  }
+                  $thispostalAddress = [];
+                  foreach ($postalAddress as $key => $value) {
+                      $thispostalAddress[$key] = (string)$value;
+                  }
+                  $this->postalAddresses[$lang] = $thispostalAddress;
               }
               break;
 
@@ -30,6 +35,6 @@ class Address
               break;
           }
         }
+        // var_dump($this->postalAddresses);
     }
-
 }
