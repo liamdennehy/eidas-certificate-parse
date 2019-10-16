@@ -18,7 +18,39 @@ class LOTLRootTest extends TestCase
     const lotlXMLFileName = 'eu-lotl.xml';
     const lotlAttributes = [
       'schemeTerritory' => 'EU',
-      'schemeOperatorName' => 'European Commission',
+      'schemeOperator' => [
+        'name' => 'European Commission',
+        'postalAddresses' => [
+          'en' => [
+            'StreetAddress' => 'Rue de la Loi/Wetstraat 200',
+            'Locality' => 'Brussels',
+            'PostalCode' => '1049',
+            'CountryName' => 'BE'
+          ],
+          'fr' => [
+            'StreetAddress' => 'Rue de la Loi 200',
+            'Locality' => 'Bruxelles',
+            'PostalCode' => '1049',
+            'CountryName' => 'BE'
+          ],
+          'nl' => [
+            'StreetAddress' => 'Wetstraat 200',
+            'Locality' => 'Brussel',
+            'PostalCode' => '1049',
+            'CountryName' => 'BE'
+          ],
+        ],
+        'electronicAddresses' => [
+          [
+            'lang' => 'en',
+            'uri' => 'mailto:EC-TL-Service@ec.europa.eu'
+          ],
+          [
+            'lang' => 'en',
+            'uri' => 'https://ec.europa.eu/digital-agenda/en/eu-trusted-lists-certification-service-providers'
+          ],
+        ]
+      ],
       'sequenceNumber' => 250,
       'sourceURI' => 'https://ec.europa.eu/tools/lotl/eu-lotl.xml',
       'issued' => '1570186800',
@@ -88,7 +120,6 @@ class LOTLRootTest extends TestCase
                 strlen($lotlCert->getSubjectDN())
             );
         }
-        $this->lotl->getAddresses();
     }
 
     // public function testVerifyLOTLSelfSignedFails()
