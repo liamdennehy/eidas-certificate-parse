@@ -448,8 +448,14 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
                     $issuerDN[] = $key.'='.$entry;
                 }
             }
-            $this->attributes['issuer']['DN'] = '/'.implode('/', $issuerDN);
+            $dnOneLine = '/'.implode('/', $issuerDN);
+            $this->attributes['issuer']['DN'] = $dnOneLine;
             $this->attributes['issuer']['serialNumber'] = $this->serialNumber;
+            if ($this->getSubjectDN() == $dnOneLine) {
+                $this->attributes['issuer']['isSelf'] = true;
+            } else {
+                $this->attributes['issuer']['isSelf'] = false;
+            }
             $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
             $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
             $this->attributes["fingerprint"] = $this->getIdentifier();
