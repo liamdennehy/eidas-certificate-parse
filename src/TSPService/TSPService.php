@@ -160,6 +160,18 @@ class TSPService implements AttributeInterface
         }
         return $uris;
     }
+
+    public function getKeyUsage()
+    {
+        $keyUsage = [];
+        if (!empty($this->siExtensions)) {
+            foreach ($this->siExtensions as $siExtension) {
+                $keyUsage = array_merge($keyUsage, $siExtension->getKeyUsage());
+            }
+        }
+        return $keyUsage;
+    }
+
     public function getAttributes()
     {
         if (!array_key_exists('name', $this->attributes)) {
@@ -194,7 +206,11 @@ class TSPService implements AttributeInterface
             }
             $qualifierURIs = $this->getQualifierURIs();
             if (!empty($qualifierURIs)) {
-                $this->attributes['qualifierURIs'] = $this->getQualifierURIs();
+                $this->attributes['qualifierURIs'] = $qualifierURIs;
+            }
+            $keyUsage = $this->getKeyUsage();
+            if (!empty($keyUsage)) {
+                $this->attributes['keyUsage'] = $keyUsage ;
             }
         }
         return $this->attributes;

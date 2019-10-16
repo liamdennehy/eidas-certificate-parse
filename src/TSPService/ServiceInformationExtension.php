@@ -83,4 +83,13 @@ class ServiceInformationExtension
             return [];
         }
     }
+
+    public function getKeyUsage()
+    {
+        if (!empty($this->qualifications)) {
+            return $this->qualifications->getKeyUsage();
+        } else {
+            return [];
+        }
+    }
 }

@@ -9,6 +9,7 @@ class CriteriaList
 {
     private $description;
     private $criteriaList;
+    private $keyUsage = [];
 
     /**
      * [__construct description]
@@ -49,6 +50,16 @@ class CriteriaList
             case 'CriteriaList':
               $this->criteriaList = new CriteriaList($criteria);
               break;
+            case 'KeyUsage':
+              foreach ($criteria->children('ns5', true) as $key => $value) {
+                  $keyUsageBitName = (string)$value->attributes()['name'];
+                  if (strtolower((string)$value) == 'true') {
+                      $this->keyUsage[$keyUsageBitName] = true;
+                  } else {
+                      $this->keyUsage[$keyUsageBitName] = false;
+                  }
+              }
+              break;
 
             default:
               throw new \Exception("Unrecognised CriteriaList element '$key'", 1);
@@ -67,9 +78,13 @@ class CriteriaList
         return $this->description;
     }
 
+    public function getKeyUsage()
+    {
+        return $this->keyUsage;
+    }
+
     public function getAttributes()
     {
-        $attrs = [];
-        $attrs['description'] = $this->description;
+        null;
     }
 }

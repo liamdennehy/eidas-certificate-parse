@@ -42,4 +42,13 @@ class Qualifications
     {
         return $this->historyInstances;
     }
+
+    public function getKeyUsage()
+    {
+        if (!empty($this->criteriaList)) {
+            return $this->criteriaList->getKeyUsage();
+        } else {
+            return [];
+        }
+    }
 }
