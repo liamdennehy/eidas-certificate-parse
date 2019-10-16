@@ -94,7 +94,8 @@ class CertificateParseTest extends TestCase
               'http://trust.quovadisglobal.com/qvbecag2.crt'
             ],
             'aki' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
-            'serialNumber' => '510758012567249096883552881202149149901456017681'
+            'serialNumber' => '510758012567249096883552881202149149901456017681',
+            'isSelf' => false
           ],
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
           'notBefore' => 1520438443,
@@ -239,7 +240,8 @@ class CertificateParseTest extends TestCase
               'http://trust.quovadisglobal.com/qventca1g3.crt'
             ],
             'aki' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
-            'serialNumber' => '370861943658773060475449278572584178262799314517'
+            'serialNumber' => '370861943658773060475449278572584178262799314517',
+            'isSelf' => false
           ],
           'notBefore' => 1465820525,
           'notAfter' => 1781353325,
