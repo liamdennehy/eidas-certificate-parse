@@ -340,7 +340,7 @@ class TrustedList implements AttributeInterface
         return $this->schemeOperatorName;
     }
 
-    public function getAddresses()
+    public function getAddress()
     {
         if (empty($this->address)) {
             $this->address = new Address($this->tl->SchemeInformation->SchemeOperatorAddress);
@@ -600,7 +600,7 @@ class TrustedList implements AttributeInterface
     public function getAttributes()
     {
         $tslAttributes['schemeTerritory'] = $this->getSchemeTerritory();
-        $tslAttributes['schemeOperatorName'] = $this->getSchemeOperatorName();
+        $tslAttributes['schemeOperator']['name'] = $this->getSchemeOperatorName();
         $tslAttributes['sequenceNumber'] = $this->getSequenceNumber();
         $tslAttributes['issued'] = $this->getListIssueDateTime()->format('U');
         $tslAttributes['nextUpdate'] = $this->getNextUpdate()->format('U');
@@ -618,7 +618,15 @@ class TrustedList implements AttributeInterface
         if (! empty($this->getParentTrustedListAtrributes())) {
             $tslAttributes['parentTSL'] = $this->getParentTrustedListAtrributes();
         }
-
+        $address = $this->getAddress();
+        $postalAddresses = $address->getPostalAddresses();
+        if (!empty($address->getPostalAddresses())) {
+            $tslAttributes['schemeOperator']['postalAddresses'] = $postalAddresses;
+        }
+        $electronicAddresses = $address->getElectronicAddresses();
+        if (!empty($address->getElectronicAddresses())) {
+            $tslAttributes['schemeOperator']['electronicAddresses'] = $electronicAddresses;
+        }
         return $tslAttributes;
     }
 
