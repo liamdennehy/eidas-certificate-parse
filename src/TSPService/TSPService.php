@@ -48,15 +48,7 @@ class TSPService implements AttributeInterface
         if (count($serviceInformation->ServiceInformationExtensions)) {
             foreach ($serviceInformation->ServiceInformationExtensions->Extension as $siExtension) {
                 // Apparently https://stackoverflow.com/questions/27742595/php-best-way-to-stop-constructor
-                try {
-                    $newSIExtension = new ServiceInformationExtension($siExtension);
-                    $this->siExtensions[] = $newSIExtension;
-                } catch (SafeException $e) {
-                    // continue;
-                } catch (ParseException $e) {
-                    // TODO: Handle ParseExctention e.g. IE
-                  // print $e->getMessage();
-                }
+                $this->siExtensions[] = new ServiceInformationExtension($siExtension);
             }
         };
         $this->tspAttributes = [];
@@ -158,6 +150,16 @@ class TSPService implements AttributeInterface
         return $this->serviceType->getIsQualified();
     }
 
+    public function getQualifierURIs()
+    {
+        $uris = [];
+        if (!empty($this->siExtensions)) {
+            foreach ($this->siExtensions as $siExtension) {
+                $uris = array_merge($uris, $siExtension->getQualifierURIs());
+            }
+        }
+        return $uris;
+    }
     public function getAttributes()
     {
         if (!array_key_exists('name', $this->attributes)) {
@@ -170,9 +172,9 @@ class TSPService implements AttributeInterface
             $this->attributes['status'] = $this->getStatus();
             $this->attributes['isActive'] = $this->getIsActive();
             $this->attributes['statusStartingTime'] = $this->getDate();
-            $this->attributes['certificates'] = [];
+            $this->attributes['x509Certificates'] = [];
             foreach ($this->getX509Certificates() as $certificate) {
-                $this->attributes['certificates'][] = [
+                $this->attributes['x509Certificates'][] = [
                   'id' => $certificate->getIdentifier(),
                   'PEM' => $certificate->toPEM()
                 ];
@@ -181,14 +183,18 @@ class TSPService implements AttributeInterface
             $this->attributes['skiHex'] = bin2hex($this->getX509SKI());
             $this->attributes['subjectName'] = $this->getX509SubjectName();
             $this->attributes['serviceHistory'][] = [
-                $this->getDate(),
-                $this->getStatus()
+                'statusStartingTime' => $this->getDate(),
+                'status' => $this->getStatus()
             ];
             foreach ($this->serviceHistory->getInstances() as $serviceStatus) {
                 $this->attributes['serviceHistory'][] = [
-                    $serviceStatus->getStartingTime(),
-                    $serviceStatus->getStatus()
+                  'statusStartingTime' => $serviceStatus->getStartingTime(),
+                  'status' => $serviceStatus->getStatus()
                 ];
+            }
+            $qualifierURIs = $this->getQualifierURIs();
+            if (!empty($qualifierURIs)) {
+                $this->attributes['qualifierURIs'] = $this->getQualifierURIs();
             }
         }
         return $this->attributes;
