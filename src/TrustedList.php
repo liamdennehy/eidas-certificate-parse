@@ -343,8 +343,11 @@ class TrustedList implements AttributeInterface
     public function getAddress()
     {
         if (empty($this->address)) {
-            $this->address = new Address($this->tl->SchemeInformation->SchemeOperatorAddress);
-        };
+            $schemeOperatorAddress = $this->tl->xpath(
+              "./tsl:SchemeInformation/tsl:SchemeOperatorAddress"
+          )[0];
+            $this->address = new Address($schemeOperatorAddress);
+        }
         return $this->address;
     }
     /**
