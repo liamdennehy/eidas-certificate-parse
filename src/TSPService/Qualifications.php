@@ -8,6 +8,7 @@ namespace eIDASCertificate\TSPService;
 class Qualifications
 {
     private $qualifierURIs = [];
+    private $criteriaList;
 
     /**
      * [__construct description]
@@ -24,9 +25,11 @@ class Qualifications
                     $this->qualifierURIs[] = (string)$qualifier->attributes()['uri'];
                 }
             }
-            foreach ($qualificationElement->xpath('ns5:CriteriaList') as $criteriaList) {
-                // code...
+            $criteriaList = $qualificationElement->xpath('ns5:CriteriaList');
+            if (sizeof($criteriaList) > 1) {
+                throw new \Exception("Multiple CriteriaLists in TSPService Qualifications", 1);
             }
+            $this->criteriaList = new CriteriaList($criteriaList[0]);
         }
     }
 
