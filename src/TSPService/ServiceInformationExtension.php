@@ -78,9 +78,9 @@ class ServiceInformationExtension
     public function getQualifierURIs()
     {
         if (!empty($this->qualifications)) {
-          return $this->qualifications->getQualifierURIs();
+            return $this->qualifications->getQualifierURIs();
         } else {
-          return [];
+            return [];
         }
     }
 }

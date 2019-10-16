@@ -154,9 +154,9 @@ class TSPService implements AttributeInterface
     {
         $uris = [];
         if (!empty($this->siExtensions)) {
-          foreach ($this->siExtensions as $siExtension) {
-            $uris = array_merge($uris,$siExtension->getQualifierURIs());
-          }
+            foreach ($this->siExtensions as $siExtension) {
+                $uris = array_merge($uris, $siExtension->getQualifierURIs());
+            }
         }
         return $uris;
     }
@@ -192,7 +192,10 @@ class TSPService implements AttributeInterface
                   'status' => $serviceStatus->getStatus()
                 ];
             }
-            $this->attributes['qualifierURIs'] = $this->getQualifierURIs();
+            $qualifierURIs = $this->getQualifierURIs();
+            if (!empty($qualifierURIs)) {
+                $this->attributes['qualifierURIs'] = $this->getQualifierURIs();
+            }
         }
         return $this->attributes;
     }
