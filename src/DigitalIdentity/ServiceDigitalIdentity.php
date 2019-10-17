@@ -2,6 +2,8 @@
 
 namespace eIDASCertificate\DigitalIdentity;
 
+use eIDASCertificate\ParseException;
+
 /**
  *
  */
@@ -47,7 +49,7 @@ class ServiceDigitalIdentity
                 break;
 
               default:
-                throw new \Exception("Unhandled SDI: ".$newDigitalId->getType(), 1);
+                throw new ParseException("Unhandled SDI: ".$newDigitalId->getType(), 1);
                 break;
             }
         };

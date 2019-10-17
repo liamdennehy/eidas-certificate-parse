@@ -56,7 +56,11 @@ class ServiceInformationExtension
               $this->uri = $uri;
               break;
             default:
-              throw new ParseException("Unknown Service Information Extension Identifier '$uri'", 1);
+              if ($this->isCritical) {
+                  throw new ParseException("Unknown Critical Service Information Extension Identifier '$uri'", 1);
+              } else {
+                  return null;
+              }
               break;
           };
         }

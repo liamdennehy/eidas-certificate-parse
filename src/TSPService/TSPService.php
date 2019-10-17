@@ -48,7 +48,10 @@ class TSPService implements AttributeInterface
         if (count($serviceInformation->ServiceInformationExtensions)) {
             foreach ($serviceInformation->ServiceInformationExtensions->Extension as $siExtension) {
                 // Apparently https://stackoverflow.com/questions/27742595/php-best-way-to-stop-constructor
-                $this->siExtensions[] = new ServiceInformationExtension($siExtension);
+                $newSIExtension = new ServiceInformationExtension($siExtension);
+                if (!empty($newSIExtension)) {
+                    $this->siExtensions[] = $newSIExtension;
+                }
             }
         };
         $this->tspAttributes = [];
@@ -196,12 +199,14 @@ class TSPService implements AttributeInterface
             $this->attributes['subjectName'] = $this->getX509SubjectName();
             $this->attributes['serviceHistory'][] = [
                 'statusStartingTime' => $this->getDate(),
-                'status' => $this->getStatus()
+                'status' => $this->getStatus(),
+                'serviceType' => $this->getType()
             ];
-            foreach ($this->serviceHistory->getInstances() as $serviceStatus) {
+            foreach ($this->serviceHistory->getInstances() as $historyInstance) {
                 $this->attributes['serviceHistory'][] = [
-                  'statusStartingTime' => $serviceStatus->getStartingTime(),
-                  'status' => $serviceStatus->getStatus()
+                  'statusStartingTime' => $historyInstance->getStartingTime(),
+                  'status' => $historyInstance->getStatus(),
+                  'serviceType' => $historyInstance->getServiceType()
                 ];
             }
             $qualifierURIs = $this->getQualifierURIs();
