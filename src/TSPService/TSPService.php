@@ -199,12 +199,14 @@ class TSPService implements AttributeInterface
             $this->attributes['subjectName'] = $this->getX509SubjectName();
             $this->attributes['serviceHistory'][] = [
                 'statusStartingTime' => $this->getDate(),
-                'status' => $this->getStatus()
+                'status' => $this->getStatus(),
+                'serviceType' => $this->getType()
             ];
-            foreach ($this->serviceHistory->getInstances() as $serviceStatus) {
+            foreach ($this->serviceHistory->getInstances() as $historyInstance) {
                 $this->attributes['serviceHistory'][] = [
-                  'statusStartingTime' => $serviceStatus->getStartingTime(),
-                  'status' => $serviceStatus->getStatus()
+                  'statusStartingTime' => $historyInstance->getStartingTime(),
+                  'status' => $historyInstance->getStatus(),
+                  'serviceType' => $historyInstance->getServiceType()
                 ];
             }
             $qualifierURIs = $this->getQualifierURIs();
