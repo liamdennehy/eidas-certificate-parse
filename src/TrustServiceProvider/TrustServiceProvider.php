@@ -3,6 +3,7 @@
 namespace eIDASCertificate;
 
 use eIDASCertificate\AttributeInterface;
+use eIDASCertificate\ParseException;
 
 /**
  * [Trust Service Provider]
@@ -27,7 +28,13 @@ class TrustServiceProvider implements AttributeInterface
             $this->parentTSLAttributes = $trustedList->getAttributes();
         }
         foreach ($tsp->TSPServices->TSPService as $tspService) {
-            $newTSPService = new TSPService($tspService, $this);
+            try {
+                $newTSPService = new TSPService($tspService, $this);
+            } catch (ParseException $e) {
+                // Critical info not understood, do not process TSPService
+                print 'Critical error parsing TSPService: '.
+                    $e->getMessage();
+            }
             $this->services[$newTSPService->getName()] = $newTSPService;
         };
         $this->address = new Address($tsp->TSPInformation->TSPAddress);
