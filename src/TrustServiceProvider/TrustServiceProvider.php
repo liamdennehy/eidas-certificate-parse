@@ -11,6 +11,7 @@ class TrustServiceProvider implements AttributeInterface
 {
     private $name;
     private $address;
+    private $informationURI;
     private $services = [];
     private $serviceHistory;
     private $parentTSLAtrributes;
@@ -26,11 +27,12 @@ class TrustServiceProvider implements AttributeInterface
         if (! empty($trustedList)) {
             $this->parentTSLAttributes = $trustedList->getAttributes();
         }
+        $this->address = new Address($tsp->TSPInformation->TSPAddress);
+        $this->informationURI = new InformationURI($tsp->TSPInformation->TSPInformationURI);
         foreach ($tsp->TSPServices->TSPService as $tspService) {
             $newTSPService = new TSPService($tspService, $this);
             $this->services[$newTSPService->getName()] = $newTSPService;
         };
-        $this->address = new Address($tsp->TSPInformation->TSPAddress);
         ksort($this->services);
     }
 
@@ -59,7 +61,13 @@ class TrustServiceProvider implements AttributeInterface
             if (! empty($this->parentTSLAttributes)) {
                 $this->attributes['trustedList'] = $this->parentTSLAttributes;
             }
+            $this->attributes['informationURIs'] = $this->getInformationURIs();
         }
         return $this->attributes;
+    }
+
+    public function getInformationURIs()
+    {
+        return $this->informationURI->getInformationURIs();
     }
 }

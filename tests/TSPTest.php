@@ -37,8 +37,20 @@ class TSPTest extends TestCase
 
     public static function getTSPAttributes()
     {
-        $tspAttributes['name'] = self::testTSPName;
-        $tspAttributes['trustedList'] = TLTest::getTestTLAttributes();
+        $tspAttributes = [
+          'name' => self::testTSPName,
+          'trustedList' => TLTest::getTestTLAttributes(),
+          'informationURIs' => [
+            [
+              'lang' => 'en',
+              'uri' => 'https://www.quovadisglobal.be/Repository.aspx?sc_lang=en-GB'
+            ],
+            [
+              'lang' => 'fr',
+              'uri' => 'https://www.quovadisglobal.be/Repository.aspx?sc_lang=fr-FR'
+            ]
+          ]
+        ];
         return $tspAttributes;
     }
 
