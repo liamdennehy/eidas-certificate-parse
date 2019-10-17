@@ -67,7 +67,20 @@ class CriteriaList
                   }
               }
               break;
+            case 'otherCriteriaList':
+              foreach ($criteria->children('ns4', true) as $criterionName => $otherCriterion) {
+                  switch ($criterionName) {
+                  case 'CertSubjectDNAttribute':
+                    null;
+                    break;
 
+                  default:
+                    throw new ParseException("Unrecognised otherCriteriaList element '$criterionName'", 1);
+                    break;
+                }
+              }
+
+              break;
             default:
               throw new ParseException("Unrecognised CriteriaList element '$key'", 1);
               break;
