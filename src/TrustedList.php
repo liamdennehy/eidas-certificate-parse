@@ -344,12 +344,23 @@ class TrustedList implements AttributeInterface
     {
         if (empty($this->address)) {
             $schemeOperatorAddress = $this->tl->xpath(
-              "./tsl:SchemeInformation/tsl:SchemeOperatorAddress"
-          )[0];
+                "./tsl:SchemeInformation/tsl:SchemeOperatorAddress"
+            )[0];
             $this->address = new Address($schemeOperatorAddress);
         }
         return $this->address;
     }
+    public function getInformationURIs()
+    {
+        if (empty($this->informationURI)) {
+            $informationURI = $this->tl->xpath(
+                "./tsl:SchemeInformation/tsl:SchemeInformationURI"
+            )[0];
+            $this->informationURI = new InformationURI($informationURI);
+        }
+        return $this->informationURI->getInformationURIs();
+    }
+
     /**
      * [isTLOL description]
      * @return boolean [description]
@@ -630,6 +641,7 @@ class TrustedList implements AttributeInterface
         if (!empty($address->getElectronicAddresses())) {
             $tslAttributes['schemeOperator']['electronicAddresses'] = $electronicAddresses;
         }
+        $tslAttributes['informationURIs'] = $this->getInformationURIs();
         return $tslAttributes;
     }
 

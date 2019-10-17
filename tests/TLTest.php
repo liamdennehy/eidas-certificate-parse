@@ -50,6 +50,9 @@ class TLTest extends TestCase
           ]
         ],
         'sequenceNumber' => 44,
+        'informationURIs' => [
+          ['lang' => 'en', 'uri' => 'https://tsl.belgium.be/']
+        ],
         'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml',
         'issued' => '1567641600',
         'nextUpdate' => '1583107200',
