@@ -63,7 +63,8 @@ class TSPServicesTest extends TestCase
           'serviceHistory' => [
             [
               'statusStartingTime' => 1552003200,
-              'status' =>'granted'
+              'status' =>'granted',
+              'serviceType' => 'CA/QC'
             ],
           ],
           'qualifierURIs' => [
