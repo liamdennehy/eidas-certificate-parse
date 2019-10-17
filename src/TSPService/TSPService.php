@@ -48,7 +48,10 @@ class TSPService implements AttributeInterface
         if (count($serviceInformation->ServiceInformationExtensions)) {
             foreach ($serviceInformation->ServiceInformationExtensions->Extension as $siExtension) {
                 // Apparently https://stackoverflow.com/questions/27742595/php-best-way-to-stop-constructor
-                $this->siExtensions[] = new ServiceInformationExtension($siExtension);
+                $newSIExtension = new ServiceInformationExtension($siExtension);
+                if (!empty($newSIExtension)) {
+                    $this->siExtensions[] = $newSIExtension;
+                }
             }
         };
         $this->tspAttributes = [];
