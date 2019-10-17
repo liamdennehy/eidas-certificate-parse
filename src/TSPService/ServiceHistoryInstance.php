@@ -12,7 +12,7 @@ class ServiceHistoryInstance
     private $serviceType;
     private $serviceStatus;
     private $startingTime;
-    private $serviceName;
+    // private $serviceName;
     private $digitalIdentity;
 
     /**
@@ -41,5 +41,10 @@ class ServiceHistoryInstance
     public function getStartingTime()
     {
         return $this->startingTime;
+    }
+
+    public function getServiceType()
+    {
+        return $this->serviceType->getType();
     }
 }
