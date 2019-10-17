@@ -2,6 +2,8 @@
 
 namespace eIDASCertificate\TSPService;
 
+use eIDASCertificate\ParseException;
+
 /**
  *
  */
@@ -26,7 +28,7 @@ class CriteriaList
               foreach ($criteria->children('ns5', true) as $key => $policy) {
                   $policyInfo = [];
                   if ($key != 'PolicyIdentifier') {
-                      throw new \Exception("Unrecognised PolicyIdentifier element '$key'", 1);
+                      throw new ParseException("Unrecognised PolicyIdentifier element '$key'", 1);
                   }
                   foreach ($policy->children('ns3', true) as $key => $value) {
                       switch ($key) {
@@ -36,9 +38,14 @@ class CriteriaList
                       case 'Identifier':
                         $policyInfo['identifier'] = (string)$value;
                         break;
+                      case 'DocumentationReferences':
+                        foreach ($value->children('ns3', true) as $documentationReference) {
+                            $policyInfo['docRefs'][] = (string)$documentationReference;
+                        }
+                        break;
 
                       default:
-                        throw new \Exception("Unrecognised PolicyIdentifier element '$key'", 1);
+                        throw new ParseException("Unrecognised PolicyIdentifier element '$key'", 1);
                         break;
                     }
                   }
@@ -62,7 +69,7 @@ class CriteriaList
               break;
 
             default:
-              throw new \Exception("Unrecognised CriteriaList element '$key'", 1);
+              throw new ParseException("Unrecognised CriteriaList element '$key'", 1);
               break;
           }
         }
