@@ -11,11 +11,13 @@ class Names
 
     public function __construct($names)
     {
-        foreach ($names->children() as $name) {
-            $this->names[] = [
-            'lang' => (string)$name->attributes('xml', true),
-            'name' => (string)$name
-          ];
+        if (!empty($names)) {
+            foreach ($names->children() as $name) {
+                $this->names[] = [
+              'lang' => (string)$name->attributes('xml', true),
+              'name' => (string)$name
+            ];
+            }
         }
     }
 
