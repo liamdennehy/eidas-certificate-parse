@@ -39,6 +39,9 @@ class TSPTest extends TestCase
     {
         $tspAttributes = [
           'name' => self::testTSPName,
+          'names' => [
+            ['lang' => 'en', 'name' => 'QuoVadis Trustlink BVBA'],
+          ],
           'trustedList' => TLTest::getTestTLAttributes(),
           'informationURIs' => [
             [
