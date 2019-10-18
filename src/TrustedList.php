@@ -44,6 +44,7 @@ class TrustedList implements AttributeInterface
     private $tlPointer;
     private $tolerateFailedTLs = false;
     private $parentTSLAttributes;
+    private $names;
 
     /**
      * [__construct description]
@@ -310,6 +311,18 @@ class TrustedList implements AttributeInterface
     public function getName()
     {
         return $this->getSchemeTerritory() . ": " . $this->getSchemeOperatorName();
+    }
+
+    public function getNames()
+    {
+        if (empty($this->names)) {
+            $this->names = new Names(
+              $this->tl->xpath(
+                './tsl:SchemeInformation/tsl:SchemeOperatorName'
+            )[0]
+          );
+        }
+        return $this->names->getNames();
     }
 
     /**
@@ -615,6 +628,7 @@ class TrustedList implements AttributeInterface
     {
         $tslAttributes['schemeTerritory'] = $this->getSchemeTerritory();
         $tslAttributes['schemeOperator']['name'] = $this->getSchemeOperatorName();
+        $tslAttributes['schemeOperator']['names'] = $this->getNames();
         $tslAttributes['sequenceNumber'] = $this->getSequenceNumber();
         $tslAttributes['issued'] = $this->getListIssueDateTime()->format('U');
         $tslAttributes['nextUpdate'] = $this->getNextUpdate()->format('U');

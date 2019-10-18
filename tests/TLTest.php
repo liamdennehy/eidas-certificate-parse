@@ -22,6 +22,24 @@ class TLTest extends TestCase
         'schemeTerritory' => 'BE',
         'schemeOperator' => [
           'name' => 'FPS Economy, SMEs, Self-employed and Energy - Quality and Safety',
+          'names' => [
+            [
+              'lang' => 'en',
+              'name' => 'FPS Economy, SMEs, Self-employed and Energy - Quality and Safety'
+            ],
+            [
+              'lang' => 'nl',
+              'name' => 'FOD Economie, KMO, Middenstand en Energie - Kwaliteit en Veiligheid'
+            ],
+            [
+              'lang' => 'fr',
+              'name' => 'SPF Economie, PME, Classes moyennes et Energie - Qualité et Sécurité'
+            ],
+            [
+              'lang' => 'de',
+              'name' => 'FÖD Wirtschaft, KMU, Mittelstand und Energie - Qualität und Sicherheit'
+            ],
+          ],
           'postalAddresses' => [
             'en' => [
               'StreetAddress' => 'NG III - Koning Albert II-laan 16',
