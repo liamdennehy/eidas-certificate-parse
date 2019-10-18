@@ -11,7 +11,10 @@ use eIDASCertificate\ParseException;
 class TrustServiceProvider implements AttributeInterface
 {
     private $name;
+    private $names;
+    private $tradeNames;
     private $address;
+    private $informationURI;
     private $services = [];
     private $serviceHistory;
     private $parentTSLAtrributes;
@@ -27,6 +30,10 @@ class TrustServiceProvider implements AttributeInterface
         if (! empty($trustedList)) {
             $this->parentTSLAttributes = $trustedList->getAttributes();
         }
+        $this->address = new Address($tsp->TSPInformation->TSPAddress);
+        $this->informationURI = new InformationURI($tsp->TSPInformation->TSPInformationURI);
+        $this->names = new Names($tsp->TSPInformation->TSPName);
+        $this->tradeNames = new Names($tsp->TSPInformation->TSPTradeName);
         foreach ($tsp->TSPServices->TSPService as $tspService) {
             try {
                 $newTSPService = new TSPService($tspService, $this);
@@ -37,7 +44,6 @@ class TrustServiceProvider implements AttributeInterface
             }
             $this->services[$newTSPService->getName()] = $newTSPService;
         };
-        $this->address = new Address($tsp->TSPInformation->TSPAddress);
         ksort($this->services);
     }
 
@@ -48,6 +54,16 @@ class TrustServiceProvider implements AttributeInterface
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getNames()
+    {
+        return $this->names->getNames();
+    }
+
+    public function getTradeNames()
+    {
+        return $this->tradeNames->getNames();
     }
 
     /**
@@ -63,10 +79,21 @@ class TrustServiceProvider implements AttributeInterface
     {
         if (empty($this->attributes)) {
             $this->attributes['name'] = $this->getName();
+            $this->attributes['names'] = $this->getNames();
+            $tradeNames = $this->getTradeNames();
+            if (!empty($tradeNames)) {
+                $this->attributes['tradeNames'] = $this->getTradeNames();
+            }
             if (! empty($this->parentTSLAttributes)) {
                 $this->attributes['trustedList'] = $this->parentTSLAttributes;
             }
+            $this->attributes['informationURIs'] = $this->getInformationURIs();
         }
         return $this->attributes;
+    }
+
+    public function getInformationURIs()
+    {
+        return $this->informationURI->getInformationURIs();
     }
 }

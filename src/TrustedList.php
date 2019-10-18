@@ -44,6 +44,7 @@ class TrustedList implements AttributeInterface
     private $tlPointer;
     private $tolerateFailedTLs = false;
     private $parentTSLAttributes;
+    private $names;
 
     /**
      * [__construct description]
@@ -312,6 +313,18 @@ class TrustedList implements AttributeInterface
         return $this->getSchemeTerritory() . ": " . $this->getSchemeOperatorName();
     }
 
+    public function getNames()
+    {
+        if (empty($this->names)) {
+            $this->names = new Names(
+              $this->tl->xpath(
+                './tsl:SchemeInformation/tsl:SchemeOperatorName'
+            )[0]
+          );
+        }
+        return $this->names->getNames();
+    }
+
     /**
      * [getSchemeTerritory description]
      * @return string [description]
@@ -344,12 +357,23 @@ class TrustedList implements AttributeInterface
     {
         if (empty($this->address)) {
             $schemeOperatorAddress = $this->tl->xpath(
-              "./tsl:SchemeInformation/tsl:SchemeOperatorAddress"
-          )[0];
+                "./tsl:SchemeInformation/tsl:SchemeOperatorAddress"
+            )[0];
             $this->address = new Address($schemeOperatorAddress);
         }
         return $this->address;
     }
+    public function getInformationURIs()
+    {
+        if (empty($this->informationURI)) {
+            $informationURI = $this->tl->xpath(
+                "./tsl:SchemeInformation/tsl:SchemeInformationURI"
+            )[0];
+            $this->informationURI = new InformationURI($informationURI);
+        }
+        return $this->informationURI->getInformationURIs();
+    }
+
     /**
      * [isTLOL description]
      * @return boolean [description]
@@ -604,6 +628,7 @@ class TrustedList implements AttributeInterface
     {
         $tslAttributes['schemeTerritory'] = $this->getSchemeTerritory();
         $tslAttributes['schemeOperator']['name'] = $this->getSchemeOperatorName();
+        $tslAttributes['schemeOperator']['names'] = $this->getNames();
         $tslAttributes['sequenceNumber'] = $this->getSequenceNumber();
         $tslAttributes['issued'] = $this->getListIssueDateTime()->format('U');
         $tslAttributes['nextUpdate'] = $this->getNextUpdate()->format('U');
@@ -630,6 +655,7 @@ class TrustedList implements AttributeInterface
         if (!empty($address->getElectronicAddresses())) {
             $tslAttributes['schemeOperator']['electronicAddresses'] = $electronicAddresses;
         }
+        $tslAttributes['informationURIs'] = $this->getInformationURIs();
         return $tslAttributes;
     }
 
