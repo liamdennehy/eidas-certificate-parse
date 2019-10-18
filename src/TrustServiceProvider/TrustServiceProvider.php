@@ -10,6 +10,8 @@ use eIDASCertificate\AttributeInterface;
 class TrustServiceProvider implements AttributeInterface
 {
     private $name;
+    private $names;
+    private $tradeNames;
     private $address;
     private $informationURI;
     private $services = [];
@@ -30,6 +32,7 @@ class TrustServiceProvider implements AttributeInterface
         $this->address = new Address($tsp->TSPInformation->TSPAddress);
         $this->informationURI = new InformationURI($tsp->TSPInformation->TSPInformationURI);
         $this->names = new Names($tsp->TSPInformation->TSPName);
+        $this->tradeNames = new Names($tsp->TSPInformation->TSPTradeName);
         foreach ($tsp->TSPServices->TSPService as $tspService) {
             $newTSPService = new TSPService($tspService, $this);
             $this->services[$newTSPService->getName()] = $newTSPService;
@@ -48,9 +51,12 @@ class TrustServiceProvider implements AttributeInterface
 
     public function getNames()
     {
-        if (empty($this->names)) {
-        }
         return $this->names->getNames();
+    }
+
+    public function getTradeNames()
+    {
+        return $this->tradeNames->getNames();
     }
 
     /**
@@ -67,6 +73,10 @@ class TrustServiceProvider implements AttributeInterface
         if (empty($this->attributes)) {
             $this->attributes['name'] = $this->getName();
             $this->attributes['names'] = $this->getNames();
+            $tradeNames = $this->getTradeNames();
+            if (!empty($tradeNames)) {
+                $this->attributes['tradeNames'] = $this->getTradeNames();
+            }
             if (! empty($this->parentTSLAttributes)) {
                 $this->attributes['trustedList'] = $this->parentTSLAttributes;
             }

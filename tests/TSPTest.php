@@ -42,6 +42,10 @@ class TSPTest extends TestCase
           'names' => [
             ['lang' => 'en', 'name' => 'QuoVadis Trustlink BVBA'],
           ],
+          'tradeNames' => [
+            ['lang' => 'en', 'name' => 'VATBE-0537698318'],
+            ['lang' => 'en', 'name' => 'QuoVadis'],
+          ],
           'trustedList' => TLTest::getTestTLAttributes(),
           'informationURIs' => [
             [
