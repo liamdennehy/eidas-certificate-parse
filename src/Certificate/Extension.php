@@ -48,6 +48,9 @@ abstract class Extension
           case 'authorityKeyIdentifier':
             return new AuthorityKeyIdentifier($extnValue, $isCritical);
             break;
+          case 'subjectAltName':
+            return new SubjectAltName($extnValue, $isCritical);
+            break;
           case 'extKeyUsage':
             // TODO: Implement EKU
             return new ExtendedKeyUsage($extnValue, $isCritical);
