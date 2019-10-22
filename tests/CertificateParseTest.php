@@ -384,7 +384,7 @@ class CertificateParseTest extends TestCase
         // $crtParsed = $this->mocrt->getParsed();
         $this->assertEquals(
             '/C=BE/L=BE/O=European Commission/OU=0949.383.342'.
-            '/CN=Maarten Joris Ottoy/SN=Ottoy/givenName=Maarten Joris'.
+            '/CN=Maarten Joris Ottoy/SN=Ottoy/GN=Maarten Joris'.
             '/serialNumber=10304444110080837592'.
             '/emailAddress=maarten.ottoy@ec.europa.eu'.
             '/title=Professional Person',
@@ -423,7 +423,7 @@ class CertificateParseTest extends TestCase
         );
         // $crtParsed = $this->jmcrt->getParsed();
         $this->assertEquals(
-            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/givenName=Jean-Marc/serialNumber=67022330340',
+            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/GN=Jean-Marc/serialNumber=67022330340',
             $this->jmcrt->getSubjectDN()
         );
         $this->assertTrue($this->jmcrt->hasExtensions()) ;
@@ -457,7 +457,7 @@ class CertificateParseTest extends TestCase
         $this->assertTrue($this->jmcrt->isCurrentAt($this->testTime));
         $this->assertFalse($this->jmcrt->isCA());
         $this->assertEquals(
-            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/givenName=Jean-Marc/serialNumber=67022330340',
+            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/GN=Jean-Marc/serialNumber=67022330340',
             $this->jmcrt->getSubjectDN()
         );
         $this->assertEquals(
