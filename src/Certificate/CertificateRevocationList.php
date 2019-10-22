@@ -4,6 +4,7 @@ namespace eIDASCertificate\Certificate;
 
 use ASN1\Type\UnspecifiedType;
 use eIDASCertificate\Certificate\CRLException;
+use eIDASCertificate\Certificate\DistinguishedName;
 use eIDASCertificate\OID;
 
 /**
@@ -13,6 +14,7 @@ class CertificateRevocationList implements RFC5280ProfileInterface
 {
     private $binary;
     private $revokedCertificates;
+    private $issuer;
     private $thisUpdate;
     private $nextUpdate;
     private $tbsCertList;
@@ -34,6 +36,7 @@ class CertificateRevocationList implements RFC5280ProfileInterface
         if ($version != 1) {
             throw new CRLException("Only v2 CRLs are supported", 1);
         }
+        $this->issuer = new DistinguishedName($this->tbsCertList->at(2));
         $this->thisUpdate = $this->tbsCertList->at(3)->asUTCTime()->dateTime();
         $this->nextUpdate = $this->tbsCertList->at(4)->asUTCTime()->dateTime();
         $this->binary = $crlDER;
