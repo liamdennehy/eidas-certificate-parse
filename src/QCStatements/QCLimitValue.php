@@ -98,7 +98,7 @@ class QCLimitValue extends QCStatement implements QCStatementInterface
     public function getAttributes()
     {
         return [
-          'transactionValueLimit' => $this->getDescription
+          'transactionValueLimit' => $this->getDescription()
         ];
     }
 }
