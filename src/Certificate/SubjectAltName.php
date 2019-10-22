@@ -19,6 +19,7 @@ class SubjectAltName implements ExtensionInterface
     private $dnsNames = [];
     private $URIs = [];
     private $rfc822Names = [];
+    private $scUPNs = [];
     private $otherNames = [];
     private $sanString = '';
     private $findings = [];
@@ -37,17 +38,25 @@ class SubjectAltName implements ExtensionInterface
               $other = $value->implicit(16)->asSequence();
               $oid = $other->at(0)->asObjectIdentifier()->oid();
               $name = OID::getName($oid);
-              $this->otherNames[] = [
-                'oid' => $oid,
-                'name' => $name,
-                'value' => base64_encode($other->at(1)->toDER())
-              ];
-              $this->findings[] = new Finding(
-                  self::type,
-                  'warning',
-                  "Unrecognised subjectAltName extension: ".
-                base64_encode($extensionDER)
-              );
+              switch ($name) {
+                case 'msSmartCardUPN':
+                  $this->scUPNs[] = $other->at(1)->implicit(12)->string();
+                  break;
+
+                default:
+                  $this->otherNames[] = [
+                    'oid' => $oid,
+                    'name' => $name,
+                    'value' => base64_encode($other->at(1)->toDER())
+                  ];
+                  $this->findings[] = new Finding(
+                      self::type,
+                      'warning',
+                      "Unrecognised subjectAltName extension: ".
+                    base64_encode($extensionDER)
+                  );
+                  break;
+              }
 
               break;
             case 1:
@@ -109,6 +118,11 @@ class SubjectAltName implements ExtensionInterface
         return $this->URIs;
     }
 
+    public function getSmartCardUPNs()
+    {
+        return $this->scUPNs;
+    }
+
     public function getFindings()
     {
         return $this->findings;
@@ -135,6 +149,9 @@ class SubjectAltName implements ExtensionInterface
         }
         if (!empty($this->URIs)) {
             $attr['URI'] = $this->URIs;
+        }
+        if (!empty($this->scUPNs)) {
+            $attr['SmartCardUPN'] = $this->scUPNs;
         }
         if (!empty($this->otherNames)) {
             $attr['other'] = $this->otherNames;
