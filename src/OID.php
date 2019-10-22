@@ -315,6 +315,9 @@ class OID
           case 'organizationalUnitName':
             return 'OU';
             break;
+          case 'stateOrProvinceName':
+            return 'ST';
+            break;
           case 'organizationName':
             return 'O';
             break;
