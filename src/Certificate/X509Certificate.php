@@ -319,7 +319,13 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
     {
         $dn = "";
         foreach ($this->getSubjectExpanded() as $dnPart) {
-            $dn .= '/'.$dnPart['shortName'].'='.$dnPart['value'];
+            if (!is_array($dnPart['value'])) {
+                $dn .= '/'.$dnPart['shortName'].'='.$dnPart['value'];
+            } else {
+                foreach ($dnPart['value'] as $value) {
+                    $dn .= '/'.$dnPart['shortName'].'='.$value;
+                }
+            }
         }
         return $dn;
     }
@@ -328,7 +334,13 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
     {
         $dn = "";
         foreach ($this->getIssuerExpanded() as $dnPart) {
-            $dn .= '/'.$dnPart['shortName'].'='.$dnPart['value'];
+            if (!is_array($dnPart['value'])) {
+                $dn .= '/'.$dnPart['shortName'].'='.$dnPart['value'];
+            } else {
+                foreach ($dnPart['value'] as $value) {
+                    $dn .= '/'.$dnPart['shortName'].'='.$value;
+                }
+            }
         }
         return $dn;
     }
