@@ -39,18 +39,10 @@ class AuthorityInformationAccess implements ExtensionInterface
                   // Truly weird content!
                   break;
               }
-              $caIssuer = $accessDescription->at(1)->asTagged()->expectExplicit(6)->toDER();
-              if ($caIssuer[0] == chr(0x86)) {
-                  $caIssuer[0] = chr(22);
-              }
-              $this->caIssuers[] = UnspecifiedType::fromDER($caIssuer)->asIA5String()->string();
+              $this->caIssuers[] = $accessDescription->at(1)->implicit(22)->asIA5String()->string();
               break;
             case 'ocsp':
-              $ocsp = $accessDescription->at(1)->asTagged()->expectExplicit(6)->toDER();
-              if ($ocsp[0] == chr(0x86)) {
-                  $ocsp[0] = chr(22);
-              }
-              $this->ocsp[] = UnspecifiedType::fromDER($ocsp)->asIA5String()->string();
+              $this->ocsp[] = $accessDescription->at(1)->implicit(22)->asIA5String()->string();
               break;
             default:
               $this->findings[] = new Finding(

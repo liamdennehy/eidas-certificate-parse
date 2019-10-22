@@ -4,11 +4,12 @@ namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\CertificateException;
 use eIDASCertificate\ParseException;
-use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
-use eIDASCertificate\OID;
 use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\Finding;
+use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements;
+use eIDASCertificate\Certificate\DistinguishedName;
+use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\TSPService\TSPServiceException;
 use ASN1\Type\UnspecifiedType;
 use phpseclib\File\X509;
@@ -90,8 +91,8 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
 
                 break;
             }
-            $this->issuer = $tbsCertificate->at(3)->asSequence()->toDER();
-            $this->subject = $tbsCertificate->at(5)->asSequence()->toDER();
+            $this->issuer = new DistinguishedName($tbsCertificate->at(3));
+            $this->subject = new DistinguishedName($tbsCertificate->at(5));
         } else {
             return null;
             throw new CertificateException("Only X.509 v3 certificates are supported: ".base64_encode($this->crtBinary), 1);
@@ -317,117 +318,22 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
 
     public function getSubjectDN()
     {
-        $dn = "";
-        foreach ($this->getSubjectExpanded() as $dnPart) {
-            $dn .= '/'.$dnPart['shortName'].'='.$dnPart['value'];
-        }
-        return $dn;
+        return $this->subject->getDN();
     }
 
     public function getIssuerDN()
     {
-        $dn = "";
-        foreach ($this->getIssuerExpanded() as $dnPart) {
-            $dn .= '/'.$dnPart['shortName'].'='.$dnPart['value'];
-        }
-        return $dn;
+        return $this->issuer->getDN();
     }
 
     public function getSubjectExpanded()
     {
-        if (empty($this->subjectExpanded)) {
-            $subjectDN = UnspecifiedType::fromDER($this->subject)->asSequence();
-            foreach ($subjectDN as $DNPart) {
-                $this->subjectExpanded[] = self::getDNPartExpanded($DNPart);
-            }
-        }
-        return $this->subjectExpanded;
+        return $this->subject->getExpanded();
     }
 
     public function getIssuerExpanded()
     {
-        if (empty($this->issuerExpanded)) {
-            $issuerDN = UnspecifiedType::fromDER($this->issuer)->asSequence();
-            foreach ($issuerDN as $DNPart) {
-                $this->issuerExpanded[] = self::getDNPartExpanded($DNPart);
-            }
-        }
-        return $this->issuerExpanded;
-    }
-
-    public function getDNPartExpanded($dnPart)
-    {
-        $dnElement = $dnPart->asSet()->at(0)->asSequence();
-        $oid = $dnElement->at(0)->asObjectIdentifier()->oid();
-        $oidName = OID::getName($oid);
-        $dnPartExpanded['name'] = $oidName;
-        $dnPartExpanded['shortName'] = OID::getShortName($oidName);
-        $dnPartExpanded['oid'] = $oid;
-        $identifier = $dnElement->at(1)->tag();
-        switch ($identifier) {
-          case 12:
-            $dnPartExpanded['value'] = $dnElement->at(1)->asUTF8String()->string();
-            break;
-          case 19:
-            $dnPartExpanded['value'] = $dnElement->at(1)->asPrintableString()->string();
-            break;
-          case 20:
-            $dnPartExpanded['value'] = $dnElement->at(1)->asT61String()->string();
-            break;
-          case 22:
-            $dnPartExpanded['value'] = $dnElement->at(1)->asIA5String()->string();
-            break;
-          case 16:
-            $elements = [];
-            foreach ($dnElement->at(1)->asSequence()->elements() as $element) {
-                $elementTag = $element->tag();
-                switch ($elementTag) {
-                case 12:
-                  $elements[] = $element->asUTF8String()->string();
-                  break;
-                case 19:
-                  $elements[] = $element->asPrintableString()->string();
-                  break;
-                case 20:
-                  $elements[] = $element->asT61String()->string();
-                  break;
-                case 22:
-                  $elements[] = $element->asIA5String()->string();
-                  break;
-
-                default:
-                  throw new ParseException(
-                      "Unknown DN component element type ".
-                    $elementTag.
-                    ": ".
-                    base64_encode($element->toDER()),
-                      1
-                  );
-                  break;
-              }
-            }
-            $dnPartExpanded['value'] = $elements;
-            break;
-
-          default:
-            throw new ParseException(
-                "Unknown DN component type ".
-                $identifier.
-                ": ".
-                base64_encode($dnElement->toDER()),
-                1
-            );
-
-            break;
-        }
-        if ($oidName == 'unknown') {
-            throw new ParseException(
-                "Unknown OID $oid in DN: ".
-                base64_encode($dnElement->toDER()),
-                1
-            );
-        }
-        return $dnPartExpanded;
+        return $this->issuer->getExpanded();
     }
 
     public function getType()
@@ -438,20 +344,12 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
     public function getAttributes()
     {
         if (! array_key_exists('subject', $this->attributes)) {
-            $this->attributes['subject']['DN'] = $this->getSubjectDN();
-            $issuerDN = [];
-            foreach ($this->x509->getIssuerDN(true) as $key => $value) {
-                if (!is_array($value)) {
-                    $value = [$value];
-                }
-                foreach ($value as $entry) {
-                    $issuerDN[] = $key.'='.$entry;
-                }
-            }
-            $dnOneLine = '/'.implode('/', $issuerDN);
-            $this->attributes['issuer']['DN'] = $dnOneLine;
+            $subjectDN = $this->getSubjectDN();
+            $this->attributes['subject']['DN'] = $subjectDN;
+            $issuerDN = $this->issuer->getDN();
+            $this->attributes['issuer']['DN'] = $issuerDN;
             $this->attributes['issuer']['serialNumber'] = $this->serialNumber;
-            if ($this->getSubjectDN() == $dnOneLine) {
+            if ($subjectDN == $issuerDN) {
                 $this->attributes['issuer']['isSelf'] = true;
             } else {
                 $this->attributes['issuer']['isSelf'] = false;

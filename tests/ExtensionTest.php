@@ -13,6 +13,7 @@ use eIDASCertificate\Certificate\CRLDistributionPoints;
 use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
 use eIDASCertificate\Certificate\PreCertPoison;
+use eIDASCertificate\Certificate\SubjectAltName;
 
 class ExtensionTest extends TestCase
 {
@@ -55,7 +56,7 @@ class ExtensionTest extends TestCase
               'unknown-2.5.29.32',
               'subjectKeyIdentifier',
               'authorityKeyIdentifier',
-              'unknown-2.5.29.17',
+              'subjectAltName',
               'crlDistributionPoints',
               'authorityInfoAccess',
               'qcStatements'
@@ -235,7 +236,6 @@ class ExtensionTest extends TestCase
         );
     }
 
-
     public function testExtendedKeyUsage()
     {
         $this->assertTrue(true);
@@ -271,6 +271,77 @@ class ExtensionTest extends TestCase
             true,
             false
           ]
+        );
+    }
+
+    public function testSANs()
+    {
+        $extensionDER = base64_decode(
+            'MEyBFXJhZG9taXIuc2ltZWtAbXZjci5jeqAYBgorBgEEAYG4SAQGoAoMCDEwNDU2NjcwoBkGCSsGAQQB3BkCAaAMDAoxODk1MTQwODA4'
+        );
+        $SAN = new SubjectAltName($extensionDER);
+        $this->assertEquals(
+            [
+            'subject' => [
+              'altNames' => [
+                'email' => ['radomir.simek@mvcr.cz'],
+                'other' => [
+                  [
+                    'oid' => '1.3.6.1.4.1.23624.4.6',
+                    'name' => 'unknown',
+                    'value' => 'oAoMCDEwNDU2Njcw'
+                  ],
+                  [
+                    'oid' => '1.3.6.1.4.1.11801.2.1',
+                    'name' => 'unknown',
+                    'value' => 'oAwMCjE4OTUxNDA4MDg='
+                  ],
+                ]
+              ]
+            ]
+          ],
+            $SAN->getAttributes()
+        );
+        $finding = $SAN->getFindings()[0]->getFinding();
+        $this->assertEquals(
+            [
+              'severity' => 'warning',
+              'component' => 'subjectAltName',
+              'message' => 'Unrecognised subjectAltName extension: MEyBFXJhZG9taXIuc2ltZWtAbXZjci5jeqAYBgorBgEEAYG4SAQGoAoMCDEwNDU2NjcwoBkGCSsGAQQB3BkCAaAMDAoxODk1MTQwODA4'
+            ],
+            [
+              'severity' => $finding['severity'],
+              'component' => $finding['component'],
+              'message' => $finding['message'],
+            ]
+        );
+        $extensionDER = base64_decode(
+            'MB+CHXBzZDJodWIucXdhYy5jbGllbnQuYXBpLmtoLmh1'
+        );
+        $SAN = new SubjectAltName($extensionDER);
+        $this->assertEquals(
+            [
+            'subject' => [
+              'altNames' => [
+                'DNS' => ['psd2hub.qwac.client.api.kh.hu'],
+              ]
+            ]
+          ],
+            $SAN->getAttributes()
+        );
+        $extensionDER = base64_decode(
+            'MBqGGGh0dHBzOi8vd3d3LnRyYWZpY29tLmZpLw=='
+        );
+        $SAN = new SubjectAltName($extensionDER);
+        $this->assertEquals(
+            [
+            'subject' => [
+              'altNames' => [
+                'URI' => ['https://www.traficom.fi/'],
+              ]
+            ]
+          ],
+            $SAN->getAttributes()
         );
     }
 }
