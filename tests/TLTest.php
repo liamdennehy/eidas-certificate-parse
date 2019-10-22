@@ -41,14 +41,16 @@ class TLTest extends TestCase
             ],
           ],
           'postalAddresses' => [
-            'en' => [
+            [
+              'lang' => 'en',
               'StreetAddress' => 'NG III - Koning Albert II-laan 16',
               'Locality' => 'Brussels',
               'PostalCode' => '1000',
               'StateOrProvince' => 'Brussels',
               'CountryName' => 'BE'
             ],
-            'nl' => [
+            [
+              'lang' => 'nl',
               'StreetAddress' => 'NG III - Koning Albert II-laan 16',
               'Locality' => 'Brussel',
               'PostalCode' => '1000',

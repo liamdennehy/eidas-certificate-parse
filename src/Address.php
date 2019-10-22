@@ -20,11 +20,11 @@ class Address
                   if (array_key_exists($lang, $this->postalAddresses)) {
                       throw new ParseException("Multiple PostalAddresses in Language '$lang'", 1);
                   }
-                  $thispostalAddress = [];
+                  $thispostalAddress = ['lang' => $lang];
                   foreach ($postalAddress as $key => $value) {
                       $thispostalAddress[$key] = (string)$value;
                   }
-                  $this->postalAddresses[$lang] = $thispostalAddress;
+                  $this->postalAddresses[] = $thispostalAddress;
               }
               break;
 
