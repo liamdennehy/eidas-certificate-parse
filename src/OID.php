@@ -324,6 +324,9 @@ class OID
           case 'commonName':
             return 'CN';
             break;
+          case 'givenName':
+            return 'GN';
+            break;
           case 'organizationIdentifier':
             return '2.5.4.97';
             break;
