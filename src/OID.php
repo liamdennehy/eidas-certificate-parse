@@ -81,9 +81,11 @@ class OID
     // https://www.itu.int/rec/dologin.asp?lang=e&id=T-REC-X.520-201210-S!Cor3!PDF-E&type=items
     const identrusOCSP            = '1.2.840.114021.4.1';
     // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
-    const nameDistinguisher        = '0.2.262.1.10.7.20';
+    const nameDistinguisher       = '0.2.262.1.10.7.20';
     // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
-    const domainComponent          = '0.9.2342.19200300.100.1.25';
+    const domainComponent         = '0.9.2342.19200300.100.1.25';
+    // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
+    const msSmartCardUPN          = '1.3.6.1.4.1.311.20.2.3';
 
     public static function getName($oidString)
     {
@@ -297,6 +299,9 @@ class OID
             break;
           case self::domainComponent:
             $oidName = 'domainComponent';
+            break;
+          case self::msSmartCardUPN:
+            $oidName = 'msSmartCardUPN';
             break;
           default:
             $oidName = 'unknown';
