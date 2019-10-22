@@ -46,21 +46,24 @@ class LOTLRootTest extends TestCase
           ['lang' => 'hr', 'name' => 'Europska komisija'],
         ],
         'postalAddresses' => [
-          'en' => [
-            'StreetAddress' => 'Rue de la Loi/Wetstraat 200',
-            'Locality' => 'Brussels',
-            'PostalCode' => '1049',
-            'CountryName' => 'BE'
-          ],
-          'fr' => [
+          [
+            'lang' => 'fr',
             'StreetAddress' => 'Rue de la Loi 200',
             'Locality' => 'Bruxelles',
             'PostalCode' => '1049',
             'CountryName' => 'BE'
           ],
-          'nl' => [
+          [
+            'lang' => 'nl',
             'StreetAddress' => 'Wetstraat 200',
             'Locality' => 'Brussel',
+            'PostalCode' => '1049',
+            'CountryName' => 'BE'
+          ],
+          [
+            'lang' => 'en',
+            'StreetAddress' => 'Rue de la Loi/Wetstraat 200',
+            'Locality' => 'Brussels',
             'PostalCode' => '1049',
             'CountryName' => 'BE'
           ],
