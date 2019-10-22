@@ -221,7 +221,7 @@ class LOTLRootTest extends TestCase
 
         $lotlSignedByDN = $lotl->getSignedBy()->getSubjectDN();
         $this->assertEquals(
-            '/C=BE/CN=Patrick Kremer (Signature)/SN=Kremer/givenName=Patrick Jean/serialNumber=72020329970',
+            '/C=BE/CN=Patrick Kremer (Signature)/SN=Kremer/GN=Patrick Jean/serialNumber=72020329970',
             $lotlSignedByDN
         );
     }
