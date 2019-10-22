@@ -200,7 +200,7 @@ class OID
             $oidName = 'subjectKeyIdentifier';
             break;
           case self::SubjectAltName:
-            $oidName = 'SubjectAltName';
+            $oidName = 'subjectAltName';
             break;
           case self::ServerAuth:
             $oidName = 'serverAuth';
