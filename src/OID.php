@@ -62,6 +62,8 @@ class OID
     const ipsecTunnel             = '1.3.6.1.5.5.7.3.6';
     const ipsecUser               = '1.3.6.1.5.5.7.3.7';
     const EuQCompliance           = '0.4.0.19422.1.1';
+    const extended_validation     = '2.23.140.1.1';
+    // https://cabforum.org/object-registry/
     const commonName              = '2.5.4.3';
     const surname                 = '2.5.4.4';
     const serialNumber            = '2.5.4.5';
@@ -165,6 +167,9 @@ class OID
             break;
           case self::BasicConstraints:
             $oidName = 'basicConstraints';
+            break;
+          case self::extended_validation:
+            $oidName = 'extended_validation';
             break;
           case self::KeyUsage:
             $oidName = 'keyUsage';
