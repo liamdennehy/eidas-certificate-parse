@@ -301,6 +301,31 @@ class ExtensionTest extends TestCase
             ],
             $CPs->getFindings()[0]->getFinding()
         );
+        $extensionDER = base64_decode(
+            'MHYwCQYHBACL7EABBDAJBgcEAIGYJwMBMA4GDCsGAQQBvlgAAmQBAjBFBgorBgEEAb5YAYNCMDcwNQYIKwYBBQUHAgEWKWh0dHBzOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAcGBWeBDAEB'
+        );
+        $CPs = new CertificatePolicies($extensionDER);
+        $this->assertEquals(
+            [
+            'issuer' => [
+              'policies' => [
+                [
+                  'oid' => '0.4.0.19495.3.1',
+                  'name' => 'qcpWebPSD2',
+                  'description' => 'PSD2 qualified website authentication certificate',
+                  'url' => 'https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-6.1',
+                ],
+                [
+                  'oid' => '2.23.140.1.1',
+                  'name' => 'extended_validation',
+                  'description' => 'Certificate issued in compliance with the Extended Validation Guidelines',
+                  'url' => 'https://cabforum.org/object-registry/',
+                ]
+              ]
+            ]
+          ],
+            $CPs->getAttributes()
+        );
     }
 
     public function testSANs()

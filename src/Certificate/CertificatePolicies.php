@@ -54,13 +54,17 @@ class CertificatePolicies implements ExtensionInterface
                     $oid = $certPolicy->at(0)->asObjectIdentifier()->oid();
                     $oidName = OID::getName($oid);
                     $this->findings[] = new Finding(
-                      self::type,
-                      $findingLevel,
-                      "Unrecognised certificatePolicy OID $oid ($oidName): ".
+                        self::type,
+                        $findingLevel,
+                        "Unrecognised certificatePolicy OID $oid ($oidName): ".
                     base64_encode($certPolicy->toDER())
-                  );
+                    );
                 }
             }
+            // if (!empty($policy) && $policy->getAttributes()['name'] == 'extended_validation') {
+            //   var_dump(base64_encode($extensionDER));
+            //   // code...
+            // }
         }
     }
 
