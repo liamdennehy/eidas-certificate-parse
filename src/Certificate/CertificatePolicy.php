@@ -30,6 +30,11 @@ class CertificatePolicy
                 'Certificate issued in compliance with the Extended Validation Guidelines';
               $this->url = 'https://cabforum.org/object-registry/';
               break;
+            case 'organization_validation':
+              $this->description =
+                'Compliant with Baseline Requirements – Organization identity asserted';
+              $this->url = 'https://cabforum.org/object-registry/';
+              break;
             default:
                 throw new ParseException("Unrecognised", 1);
                 break;
@@ -41,6 +46,7 @@ class CertificatePolicy
     {
         return [
             'oid' => $this->oid,
+            'name' => $this->name,
             'description' => $this->description,
             'url' => $this->url
         ];
