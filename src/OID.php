@@ -56,6 +56,8 @@ class OID
     const OCSPSigning             = '1.3.6.1.5.5.7.3.9';
     const TSLSigning              = '0.4.0.2231.3.0';
     // https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2
+    const EVCP                    = '0.4.0.2042.1.4';
+    // https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2
     const MS_DOCUMENT_SIGNING     = '1.3.6.1.4.1.311.10.3.12';
     // https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography
     const ipsecEndSystem          = '1.3.6.1.5.5.7.3.5';
@@ -247,6 +249,9 @@ class OID
             break;
           case self::TSLSigning:
             $oidName = 'tslSigning';
+            break;
+          case self::EVCP:
+            $oidName = 'EVCP';
             break;
           case self::MS_DOCUMENT_SIGNING:
             $oidName = 'MS_DOCUMENT_SIGNING';

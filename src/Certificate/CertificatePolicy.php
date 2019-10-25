@@ -30,6 +30,12 @@ class CertificatePolicy
                 $this->url = 'https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-6.1';
                 $this->vendor = self::vendor_ETSI;
                 break;
+            case 'EVCP':
+              $this->description =
+                'Consistent with EV Certificates Guidelines issued by the CAB Forum';
+              $this->url = 'https://www.etsi.org/deliver/etsi_ts/102000_102099/102042/02.04.01_60/ts_102042v020401p.pdf#chapter-5.2';
+              $this->vendor = self::vendor_ETSI;
+              break;
             case 'extended_validation':
               $this->description =
                 'Certificate issued in compliance with the Extended Validation Guidelines';

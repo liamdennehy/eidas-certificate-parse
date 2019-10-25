@@ -329,6 +329,26 @@ class ExtensionTest extends TestCase
             $CPs->getAttributes()
         );
         $extensionDER = base64_decode(
+            'MIGYMIGABgsrBgEEAeZ5CgEDCjBxMC8GCCsGAQUFBwIBFiNodHRwOi8vd3d3LmZpcm1hcHJvZmVzaW9uYWwuY29tL2NwczA+BggrBgEFBQcCAjAyDDBFc3RlIGVzIHVuIENlcnRpZmljYWRvIGRlIFNlcnZpZG9yIFdlYiBwYXJhIFBTRDIwCQYHBACL7EABBDAIBgYEAI96AQQ='
+        );
+        $CPs = new CertificatePolicies($extensionDER);
+        $this->assertEquals(
+            [
+            'issuer' => [
+              'policies' => [
+                [
+                  'oid' => '0.4.0.2042.1.4',
+                  'name' => 'EVCP',
+                  'description' => 'Consistent with EV Certificates Guidelines issued by the CAB Forum',
+                  'url' => 'https://www.etsi.org/deliver/etsi_ts/102000_102099/102042/02.04.01_60/ts_102042v020401p.pdf#chapter-5.2',
+                  'vendor' => 'ETSI'
+                ],
+              ]
+            ]
+          ],
+            $CPs->getAttributes()
+        );
+        $extensionDER = base64_decode(
             'MHYwCQYHBACL7EABBDAJBgcEAIGYJwMBMA4GDCsGAQQBvlgAAmQBAjBFBgorBgEEAb5YAYNCMDcwNQYIKwYBBQUHAgEWKWh0dHBzOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAcGBWeBDAEB'
         );
         $CPs = new CertificatePolicies($extensionDER);
