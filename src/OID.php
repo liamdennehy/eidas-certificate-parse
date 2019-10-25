@@ -29,6 +29,7 @@ class OID
     const PSP_AI                  = '0.4.0.19495.1.3';
     const PSP_IC                  = '0.4.0.19495.1.4';
     const PSD2                    = '0.4.0.19495.2';
+    const qcpWebPSD2              = '0.4.0.19495.3.1';
     const crlReason               = '2.5.29.21';
     const crlInvalidityDate       = '2.5.29.24';
     const JurisdictionL           = '1.3.6.1.4.1.311.60.2.1.1';
@@ -158,6 +159,9 @@ class OID
             break;
           case self::PSD2:
             $oidName = 'PSD2';
+            break;
+          case self::qcpWebPSD2:
+            $oidName = 'qcpWebPSD2';
             break;
           case self::BasicConstraints:
             $oidName = 'basicConstraints';
