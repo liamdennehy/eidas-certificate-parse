@@ -285,7 +285,7 @@ class ExtensionTest extends TestCase
             [
               'severity' => 'warning',
               'component' => 'certificatePolicies',
-              'message' => 'Unrecognised certificatePolicies OID 1.3.6.1.4.1.8024.1.400 (unknown): MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
+              'message' => 'Unrecognised certificatePolicy OID 1.3.6.1.4.1.8024.1.400 (unknown): MEQGCisGAQQBvlgBgxAwNjA0BggrBgEFBQcCARYoaHR0cDovL3d3dy5xdW92YWRpc2dsb2JhbC5jb20vcmVwb3NpdG9yeQ=='
             ],
             $CPs->getFindings()[0]->getFinding()
         );

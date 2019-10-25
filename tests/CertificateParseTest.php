@@ -178,8 +178,8 @@ class CertificateParseTest extends TestCase
                 'Unhandled extension \'1.2.840.113583.1.1.9.2\': MAMCAQE='
               ],
               'certificatePolicies' => [
-                'Unrecognised certificatePolicies OID 1.3.6.1.4.1.8024.1.400 (unknown): MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM=',
-                'Unrecognised certificatePolicies OID 0.4.0.194112.1.3 (unknown): MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
+                'Unrecognised certificatePolicy OID 1.3.6.1.4.1.8024.1.400 (unknown): MEQGCisGAQQBvlgBgxAwNjA0BggrBgEFBQcCARYoaHR0cDovL3d3dy5xdW92YWRpc2dsb2JhbC5jb20vcmVwb3NpdG9yeQ==',
+                'Unrecognised certificatePolicy OID 0.4.0.194112.1.3 (unknown): MAkGBwQAi+xAAQM='
               ]
             ]
           ]
@@ -254,7 +254,7 @@ class CertificateParseTest extends TestCase
           'findings' => [
             'warning' => [
               'certificatePolicies' => [
-                'Unrecognised certificatePolicies OID 2.5.29.32.0 (unknown): MAgwBgYEVR0gAA=='
+                'Unrecognised certificatePolicy OID 2.5.29.32.0 (unknown): MAYGBFUdIAA='
               ]
             ]
           ],

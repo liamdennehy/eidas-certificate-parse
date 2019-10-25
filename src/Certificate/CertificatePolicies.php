@@ -48,12 +48,20 @@ class CertificatePolicies implements ExtensionInterface
         foreach ($seq->elements() as $certPolicy) {
             $oid = $certPolicy->at(0)->asObjectIdentifier()->oid();
             $oidName = OID::getName($oid);
-            $this->findings[] = new Finding(
-                self::type,
-                $findingLevel,
-                "Unrecognised certificatePolicies OID $oid ($oidName): ".
-                base64_encode($extensionDER)
-            );
+            switch ($oidName) {
+              case 'none':
+                // code...
+                break;
+
+              default:
+                $this->findings[] = new Finding(
+                    self::type,
+                    $findingLevel,
+                    "Unrecognised certificatePolicy OID $oid ($oidName): ".
+                  base64_encode($certPolicy->toDER())
+                );
+                break;
+            }
         }
     }
 
