@@ -61,10 +61,6 @@ class CertificatePolicies implements ExtensionInterface
                     );
                 }
             }
-            // if (!empty($policy) && $policy->getAttributes()['name'] == 'extended_validation') {
-            //   var_dump(base64_encode($extensionDER));
-            //   // code...
-            // }
         }
     }
 

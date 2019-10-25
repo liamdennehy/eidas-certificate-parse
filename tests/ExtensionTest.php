@@ -302,6 +302,33 @@ class ExtensionTest extends TestCase
             $CPs->getFindings()[0]->getFinding()
         );
         $extensionDER = base64_decode(
+            'MIIBUDCCATcGDysGAQQBgagYAgEBgSoCCTCCASIwJgYIKwYBBQUHAgEWGmh0dHA6Ly9jcC5lLXN6aWduby5odS9xY3BzMEQGCCsGAQUFBwICMDgMNlF1YWxpZmllZCBQU0QyIGNlcnRpZmljYXRlIGZvciB3ZWJzaXRlIGF1dGhlbnRpY2F0aW9uLjA0BggrBgEFBQcCAjAoDCZPcmdhbml6YXRpb25hbCB2YWxpZGF0aW9uIGNlcnRpZmljYXRlLjBFBggrBgEFBQcCAjA5DDdNaW7FkXPDrXRldHQgUFNEMiB3ZWJvbGRhbC1oaXRlbGVzw610xZEgdGFuw7pzw610dsOhbnkuMDUGCCsGAQUFBwICMCkMJ1N6ZXJ2ZXpldC1lbGxlbsWRcnrDtnR0IHRhbsO6c8OtdHbDoW55LjAJBgcEAIGYJwMBMAgGBmeBDAECAg=='
+        );
+        $CPs = new CertificatePolicies($extensionDER);
+        $this->assertEquals(
+            [
+            'issuer' => [
+              'policies' => [
+                [
+                  'oid' => '0.4.0.19495.3.1',
+                  'name' => 'qcpWebPSD2',
+                  'description' => 'PSD2 qualified website authentication certificate',
+                  'url' => 'https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-6.1',
+                  'vendor' => 'ETSI'
+                ],
+                [
+                  'oid' => '2.23.140.1.2.2',
+                  'name' => 'organization_validation',
+                  'description' => 'Compliant with Baseline Requirements – Organization identity asserted',
+                  'url' => 'https://cabforum.org/object-registry/',
+                  'vendor' => 'CA/Browser Forum'
+                ]
+              ]
+            ]
+          ],
+            $CPs->getAttributes()
+        );
+        $extensionDER = base64_decode(
             'MHYwCQYHBACL7EABBDAJBgcEAIGYJwMBMA4GDCsGAQQBvlgAAmQBAjBFBgorBgEEAb5YAYNCMDcwNQYIKwYBBQUHAgEWKWh0dHBzOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAcGBWeBDAEB'
         );
         $CPs = new CertificatePolicies($extensionDER);
@@ -314,12 +341,14 @@ class ExtensionTest extends TestCase
                   'name' => 'qcpWebPSD2',
                   'description' => 'PSD2 qualified website authentication certificate',
                   'url' => 'https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-6.1',
+                  'vendor' => 'ETSI'
                 ],
                 [
                   'oid' => '2.23.140.1.1',
                   'name' => 'extended_validation',
                   'description' => 'Certificate issued in compliance with the Extended Validation Guidelines',
                   'url' => 'https://cabforum.org/object-registry/',
+                  'vendor' => 'CA/Browser Forum'
                 ]
               ]
             ]
