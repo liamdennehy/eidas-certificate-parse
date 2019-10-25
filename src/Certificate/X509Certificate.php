@@ -373,9 +373,9 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
                     $finding = $findingObject->getFinding();
                     $severity = $finding['severity'];
                     $component = $finding['component'];
-                    $findings[$severity][$component][] = [
+                    $findings[$severity][$component][] =
                         $finding['message']
-                    ];
+                    ;
                 }
                 $this->attributes['findings'] = $findings;
             }

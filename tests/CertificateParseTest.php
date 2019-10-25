@@ -157,23 +157,9 @@ class CertificateParseTest extends TestCase
                 'url' => 'https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography'
               ],
             ],
-            'qualified' => 'eseal'
+            'qualified' => 'eseal',
           ],
           'unRecognizedExtensions' => [
-            'oid' => '1.2.840.113583.1.1.9.2',
-            'value' => 'MAMCAQE='
-          ],
-          'unRecognizedExtensions' => [
-            'oid' => '1.2.840.113583.1.1.9.1',
-            'value' => 'MCQCAQGGH2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU='
-          ],
-          'unRecognizedExtensions' => [
-            [
-              'oid' => '2.5.29.32',
-              'value' =>
-                'MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3'.
-                'ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
-            ],
             [
               'oid' => '1.2.840.113583.1.1.9.2',
               'value' => 'MAMCAQE='
@@ -187,18 +173,13 @@ class CertificateParseTest extends TestCase
           'findings' => [
             'warning' => [
               'extensions' => [
-                [
-                  'Unhandled extension \'1.2.840.113583.1.1.9.1\': MCQCAQGGH'.
-                  '2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU='
-                ],
-                [
-                  'Unhandled extension \'1.2.840.113583.1.1.9.2\': MAMCAQE='
-                ],
-                [
-                  'Unhandled extension \'certificatePolicies\' (2.5.29.32): MFEwRAYKKwYBBAG+WAGDED'.
-                  'A2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmN'.
-                  'vbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
-                ]
+                'Unhandled extension \'1.2.840.113583.1.1.9.1\': MCQCAQGGH'.
+                  '2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU=',
+                'Unhandled extension \'1.2.840.113583.1.1.9.2\': MAMCAQE='
+              ],
+              'certificatePolicies' => [
+                'Unrecognised certificatePolicies OID 1.3.6.1.4.1.8024.1.400 (unknown): MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM=',
+                'Unrecognised certificatePolicies OID 0.4.0.194112.1.3 (unknown): MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
               ]
             ]
           ]
@@ -270,18 +251,10 @@ class CertificateParseTest extends TestCase
               'decipherOnly' => false,
             ]
           ],
-          'unRecognizedExtensions' => [
-            [
-              'oid' => '2.5.29.32',
-              'value' => 'MAgwBgYEVR0gAA=='
-            ]
-          ],
           'findings' => [
             'warning' => [
-              'extensions' => [
-                [
-                  'Unhandled extension \'certificatePolicies\' (2.5.29.32): MAgwBgYEVR0gAA=='
-                ]
+              'certificatePolicies' => [
+                'Unrecognised certificatePolicies OID 2.5.29.32.0 (unknown): MAgwBgYEVR0gAA=='
               ]
             ]
           ],
@@ -360,7 +333,7 @@ class CertificateParseTest extends TestCase
               'authorityInfoAccess',
               'subjectKeyIdentifier',
               'authorityKeyIdentifier',
-              'unknown-2.5.29.32',
+              'certificatePolicies',
               'crlDistributionPoints',
               'keyUsage',
               'extKeyUsage',

@@ -7,6 +7,7 @@ use eIDASCertificate\Certificate\Extension;
 use eIDASCertificate\Certificate\Extensions;
 use eIDASCertificate\Certificate\AuthorityInformationAccess;
 use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
+use eIDASCertificate\Certificate\CertificatePolicies;
 use eIDASCertificate\Certificate\SubjectKeyIdentifier;
 use eIDASCertificate\Certificate\BasicConstraints;
 use eIDASCertificate\Certificate\CRLDistributionPoints;
@@ -53,7 +54,7 @@ class ExtensionTest extends TestCase
               'keyUsage',
               'preCertPoison',
               'extKeyUsage',
-              'unknown-2.5.29.32',
+              'certificatePolicies',
               'subjectKeyIdentifier',
               'authorityKeyIdentifier',
               'subjectAltName',
@@ -271,6 +272,34 @@ class ExtensionTest extends TestCase
             true,
             false
           ]
+        );
+    }
+
+    public function testCertificatePolicies()
+    {
+        $extensionDER = base64_decode(
+            'MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
+        );
+        $CPs = new CertificatePolicies($extensionDER);
+        $this->assertEquals(
+            [
+              'severity' => 'warning',
+              'component' => 'certificatePolicies',
+              'message' => 'Unrecognised certificatePolicies OID 1.3.6.1.4.1.8024.1.400 (unknown): MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
+            ],
+            $CPs->getFindings()[0]->getFinding()
+        );
+        $extensionDER = base64_decode(
+            'MIIBCzCCAQcGB2A4CgEBAgEwgfswLAYIKwYBBQUHAgEWIGh0dHA6Ly9yZXBvc2l0b3J5LmVpZC5iZWxnaXVtLmJlMIHKBggrBgEFBQcCAjCBvRqBukdlYnJ1aWsgb25kZXJ3b3JwZW4gYWFuIGFhbnNwcmFrZWxpamtoZWlkc2JlcGVya2luZ2VuLCB6aWUgQ1BTIC0gVXNhZ2Ugc291bWlzIMOgIGRlcyBsaW1pdGF0aW9ucyBkZSByZXNwb25zYWJpbGl0w6ksIHZvaXIgQ1BTIC0gVmVyd2VuZHVuZyB1bnRlcmxpZWd0IEhhZnR1bmdzYmVzY2hyw6Rua3VuZ2VuLCBnZW3DpHNzIENQUw=='
+        );
+        $CPs = new CertificatePolicies($extensionDER);
+        $this->assertEquals(
+            [
+              'severity' => 'warning',
+              'component' => 'certificatePolicies',
+              'message' => 'Malformed certificatePolicies extension \'Not a valid VisibleString string.\': MIIBCzCCAQcGB2A4CgEBAgEwgfswLAYIKwYBBQUHAgEWIGh0dHA6Ly9yZXBvc2l0b3J5LmVpZC5iZWxnaXVtLmJlMIHKBggrBgEFBQcCAjCBvRqBukdlYnJ1aWsgb25kZXJ3b3JwZW4gYWFuIGFhbnNwcmFrZWxpamtoZWlkc2JlcGVya2luZ2VuLCB6aWUgQ1BTIC0gVXNhZ2Ugc291bWlzIMOgIGRlcyBsaW1pdGF0aW9ucyBkZSByZXNwb25zYWJpbGl0w6ksIHZvaXIgQ1BTIC0gVmVyd2VuZHVuZyB1bnRlcmxpZWd0IEhhZnR1bmdzYmVzY2hyw6Rua3VuZ2VuLCBnZW3DpHNzIENQUw=='
+            ],
+            $CPs->getFindings()[0]->getFinding()
         );
     }
 

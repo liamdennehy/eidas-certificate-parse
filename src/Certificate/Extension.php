@@ -51,6 +51,9 @@ abstract class Extension
           case 'subjectAltName':
             return new SubjectAltName($extnValue, $isCritical);
             break;
+          case 'certificatePolicies':
+            return new CertificatePolicies($extnValue, $isCritical);
+            break;
           case 'extKeyUsage':
             // TODO: Implement EKU
             return new ExtendedKeyUsage($extnValue, $isCritical);
