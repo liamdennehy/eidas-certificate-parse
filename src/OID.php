@@ -29,6 +29,7 @@ class OID
     const PSP_AI                  = '0.4.0.19495.1.3';
     const PSP_IC                  = '0.4.0.19495.1.4';
     const PSD2                    = '0.4.0.19495.2';
+    const qcpWebPSD2              = '0.4.0.19495.3.1';
     const crlReason               = '2.5.29.21';
     const crlInvalidityDate       = '2.5.29.24';
     const JurisdictionL           = '1.3.6.1.4.1.311.60.2.1.1';
@@ -55,12 +56,18 @@ class OID
     const OCSPSigning             = '1.3.6.1.5.5.7.3.9';
     const TSLSigning              = '0.4.0.2231.3.0';
     // https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2
+    const EVCP                    = '0.4.0.2042.1.4';
+    // https://www.etsi.org/deliver/etsi_ts/102200_102299/102231/03.01.02_60/ts_102231v030102p.pdf$chapter-6.2
     const MS_DOCUMENT_SIGNING     = '1.3.6.1.4.1.311.10.3.12';
     // https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography
     const ipsecEndSystem          = '1.3.6.1.5.5.7.3.5';
     const ipsecTunnel             = '1.3.6.1.5.5.7.3.6';
     const ipsecUser               = '1.3.6.1.5.5.7.3.7';
     const EuQCompliance           = '0.4.0.19422.1.1';
+    const extended_validation     = '2.23.140.1.1';
+    // https://cabforum.org/object-registry/
+    const organization_validation = '2.23.140.1.2.2';
+    // https://cabforum.org/object-registry/
     const commonName              = '2.5.4.3';
     const surname                 = '2.5.4.4';
     const serialNumber            = '2.5.4.5';
@@ -159,8 +166,17 @@ class OID
           case self::PSD2:
             $oidName = 'PSD2';
             break;
+          case self::qcpWebPSD2:
+            $oidName = 'qcpWebPSD2';
+            break;
           case self::BasicConstraints:
             $oidName = 'basicConstraints';
+            break;
+          case self::extended_validation:
+            $oidName = 'extended_validation';
+            break;
+          case self::organization_validation:
+            $oidName = 'organization_validation';
             break;
           case self::KeyUsage:
             $oidName = 'keyUsage';
@@ -233,6 +249,9 @@ class OID
             break;
           case self::TSLSigning:
             $oidName = 'tslSigning';
+            break;
+          case self::EVCP:
+            $oidName = 'EVCP';
             break;
           case self::MS_DOCUMENT_SIGNING:
             $oidName = 'MS_DOCUMENT_SIGNING';

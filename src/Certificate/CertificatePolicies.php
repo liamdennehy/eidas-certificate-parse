@@ -46,14 +46,21 @@ class CertificatePolicies implements ExtensionInterface
         }
 
         foreach ($seq->elements() as $certPolicy) {
-            $oid = $certPolicy->at(0)->asObjectIdentifier()->oid();
-            $oidName = OID::getName($oid);
-            $this->findings[] = new Finding(
-                self::type,
-                $findingLevel,
-                "Unrecognised certificatePolicies OID $oid ($oidName): ".
-                base64_encode($extensionDER)
-            );
+            try {
+                $policy = new CertificatePolicy($certPolicy);
+                $this->policies[] = $policy;
+            } catch (ParseException $e) {
+                if ($e->getMessage() == 'Unrecognised') {
+                    $oid = $certPolicy->at(0)->asObjectIdentifier()->oid();
+                    $oidName = OID::getName($oid);
+                    $this->findings[] = new Finding(
+                        self::type,
+                        $findingLevel,
+                        "Unrecognised certificatePolicy OID $oid ($oidName): ".
+                    base64_encode($certPolicy->toDER())
+                    );
+                }
+            }
         }
     }
 
@@ -95,8 +102,11 @@ class CertificatePolicies implements ExtensionInterface
     public function getAttributes()
     {
         if (!empty($this->policies)) {
+            foreach ($this->policies as $policy) {
+                $policies[] = $policy->getAttributes();
+            }
             return [
-              'issuer' => ['policies' => $this->policies]
+              'issuer' => ['policies' => $policies]
             ];
         } else {
             return [];
