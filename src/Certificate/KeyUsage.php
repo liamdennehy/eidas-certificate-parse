@@ -171,7 +171,7 @@ class KeyUsage implements ExtensionInterface
     {
         return
       [
-        'keyPurposes' =>
+        'publicKey' =>
         [
           'keyUsage' => $this->keyUsageBits
         ]

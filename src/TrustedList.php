@@ -317,10 +317,10 @@ class TrustedList implements AttributeInterface
     {
         if (empty($this->names)) {
             $this->names = new Names(
-              $this->tl->xpath(
-                './tsl:SchemeInformation/tsl:SchemeOperatorName'
-            )[0]
-          );
+                $this->tl->xpath(
+                    './tsl:SchemeInformation/tsl:SchemeOperatorName'
+                )[0]
+            );
         }
         return $this->names->getNames();
     }

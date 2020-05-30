@@ -33,9 +33,14 @@ class QCStatements implements ExtensionInterface
             $qcStatementElement = $qcStatementElement->asSequence();
             $qcStatementDER = $qcStatementElement->toDER();
             $qcStatement = QCStatement::fromBinary($qcStatementDER);
+            if (is_a($qcStatement, 'eIDASCertificate\Finding')) {
+                $this->findings = array_merge([$qcStatement], $this->findings);
+                continue;
+            }
             if (! empty($qcStatement)) {
+                $findings = $qcStatement->getFindings();
                 if (!empty($findings)) {
-                    $this->findings = array_merge($qcStatement->getFindings(), $this->findings);
+                    $this->findings = array_merge($findings, $this->findings);
                 }
                 $qcStatementName = $qcStatement->getType();
                 if (array_key_exists($qcStatementName, $this->qcStatements)) {
