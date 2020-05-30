@@ -37,7 +37,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
     private $subjectName;
     private $notBefore;
     private $notAfter;
-
+    private $signature;
     public function __construct($candidate)
     {
         $this->x509 = new X509();
@@ -47,57 +47,60 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
         $tbsCertificate = $crtASN1->at(0)->asSequence();
         $signatureAlgorithm = $crtASN1->at(1)->asSequence();
         $signatureValue = $crtASN1->at(2)->asBitString()->string();
-        switch ($tbsCertificate->at(0)->typeClass()) {
-          case 0:
-            $crtVersion = $tbsCertificate->at(0)->asInteger()->intNumber();
+        $idx = 0;
+        if ($tbsCertificate->hasTagged(0)) {
+            $crtVersion = $tbsCertificate->getTagged(0)->asExplicit()->asInteger()->intNumber();
+            $idx++;
+            // } else {
+        //   $version = 1;
+        //   throw new CertificateException("Only X.509 v3 certificates are supported: ".base64_encode($this->crtBinary), 1);
+        //   return null;
+        //
+        }
+        $this->serialNumber = $tbsCertificate->at($idx++)->asInteger()->number();
+        $this->signature = $tbsCertificate->at($idx++)->asSequence();
+        $this->issuer = new DistinguishedName($tbsCertificate->at($idx++));
+        $dates = $tbsCertificate->at($idx++)->asSequence();
+        $this->notBefore = self::WrangleDate($dates->at(0));
+        $this->notAfter = self::WrangleDate($dates->at(1));
+        $this->subject = new DistinguishedName($tbsCertificate->at($idx++));
+        $subjectPublicKeyInfo = $tbsCertificate->at($idx++)->asSequence();
+        $subjectPublicKeyInfoTypeOID =
+          $subjectPublicKeyInfo->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
+        $subjectPublicKeyInfoTypeName = OID::getName($subjectPublicKeyInfoTypeOID);
+        switch ($subjectPublicKeyInfoTypeName) {
+          case 'rsaEncryption':
+          case 'ecPublicKey':
+          case 'RSASSA-PSS':
+            $this->publicKey = $subjectPublicKeyInfo->toDER();
             break;
-          case 2:
-            $crtVersion = $tbsCertificate->at(0)->asTagged()->explicit()->number();
-            break;
-
           default:
-            throw new CertificateException("Trying to get version tag as ".$tbsCertificate->at(0)->typeClass() . " " . base64_encode($tbsCertificate->toDER()), 1);
+            throw new CertificateException(
+                "Unrecognised Public Key Type OID $subjectPublicKeyInfoTypeOID ($subjectPublicKeyInfoTypeName)",
+                1
+            );
 
             break;
         }
-
-        if ($crtVersion == 2) {
-            $dates = $tbsCertificate->at(4)->asSequence();
-            $this->notBefore = self::WrangleDate($dates->at(0));
-            $this->notAfter = self::WrangleDate($dates->at(1));
-            ;
-            if ($tbsCertificate->has(7)) {
-                $extensionsDER = $tbsCertificate->at(7)->asTagged()->explicit()->toDER();
-                $this->extensions = new Extensions(
-                    $extensionsDER
-                );
-                $this->findings = array_merge($this->findings, $this->extensions->getFindings());
-            }
-            $subjectPublicKeyInfo = $tbsCertificate->at(6)->asSequence();
-            $subjectPublicKeyInfoTypeOID =
-              $subjectPublicKeyInfo->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
-            $subjectPublicKeyInfoTypeName = OID::getName($subjectPublicKeyInfoTypeOID);
-            switch ($subjectPublicKeyInfoTypeName) {
-              case 'rsaEncryption':
-              case 'ecPublicKey':
-              case 'RSASSA-PSS':
-                $this->publicKey = $tbsCertificate->at(6)->toDER();
-                break;
-              default:
-                throw new CertificateException(
-                    "Unrecognised Public Key Type OID $subjectPublicKeyInfoTypeOID ($subjectPublicKeyInfoTypeName)",
-                    1
-                );
-
-                break;
-            }
-            $this->issuer = new DistinguishedName($tbsCertificate->at(3));
-            $this->subject = new DistinguishedName($tbsCertificate->at(5));
-        } else {
-            return null;
-            throw new CertificateException("Only X.509 v3 certificates are supported: ".base64_encode($this->crtBinary), 1);
+        if ($tbsCertificate->hasTagged(1)) {
+            throw new CertificateException(
+                "Cannot understand issuerUniqueID (".base64_encode($tbsCertificate->getTagged(1)).")",
+                1
+            );
         }
-        $this->serialNumber = $tbsCertificate->at(1)->asInteger()->number();
+        if ($tbsCertificate->hasTagged(2)) {
+            throw new CertificateException(
+                "Cannot understand subjectUniqueID (".base64_encode($tbsCertificate->getTagged(2)).")",
+                1
+            );
+        }
+        if ($tbsCertificate->hasTagged(3)) {
+            $extensionsDER = $tbsCertificate->getTagged(3)->asExplicit()->asSequence()->toDER();
+            $this->extensions = new Extensions(
+                $extensionsDER
+            );
+            $this->findings = array_merge($this->findings, $this->extensions->getFindings());
+        }
     }
 
     public static function emit($candidate)
@@ -216,7 +219,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
 
     public function hasExtensions()
     {
-        return (! empty($this->extensions->getExtensions()));
+        return (! empty($this->extensions));
     }
 
     public function hasQCStatements()
@@ -378,20 +381,22 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
             }
             $this->attributes['publicKey']['key'] =
             $this->getPublicKey();
-            foreach ($this->getExtensions() as $extension) {
-                $extension->setCertificate($this);
-                $extensionAttributes = $extension->getAttributes();
-                foreach (array_keys($extensionAttributes) as $key) {
-                    if (!array_key_exists($key, $this->attributes)) {
-                        $this->attributes[$key] = [];
-                    }
-                    if (is_array($extensionAttributes[$key])) {
-                        $this->attributes[$key] = array_merge(
-                            $this->attributes[$key],
-                            $extensionAttributes[$key]
-                        );
-                    } else {
-                        $this->attributes[$key] = $extensionAttributes[$key];
+            if ($this->hasExtensions()) {
+                foreach ($this->getExtensions() as $extension) {
+                    $extension->setCertificate($this);
+                    $extensionAttributes = $extension->getAttributes();
+                    foreach (array_keys($extensionAttributes) as $key) {
+                        if (!array_key_exists($key, $this->attributes)) {
+                            $this->attributes[$key] = [];
+                        }
+                        if (is_array($extensionAttributes[$key])) {
+                            $this->attributes[$key] = array_merge(
+                                $this->attributes[$key],
+                                $extensionAttributes[$key]
+                            );
+                        } else {
+                            $this->attributes[$key] = $extensionAttributes[$key];
+                        }
                     }
                 }
             }
