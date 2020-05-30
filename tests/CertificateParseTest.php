@@ -291,6 +291,70 @@ class CertificateParseTest extends TestCase
             ]
           ],
         ];
+        $this->v1crtSubject = [
+          [
+            'oid' => '2.5.4.6',
+            'name' => 'countryName',
+            'shortName' => 'C',
+            'value' => 'US'
+          ],
+          [
+            'oid' => '2.5.4.10',
+            'name' => 'organizationName',
+            'shortName' => 'O',
+            'value' => 'VeriSign, Inc.'
+          ],
+          [
+            'oid' => '2.5.4.11',
+            'name' => 'organizationalUnitName',
+            'shortName' => 'OU',
+            'value' => 'VeriSign Trust Network'
+          ],
+          [
+            'oid' => '2.5.4.11',
+            'name' => 'organizationalUnitName',
+            'shortName' => 'OU',
+            'value' => '(c) 1999 VeriSign, Inc. - For authorized use only'
+          ],
+          [
+            'name' => 'commonName',
+            'shortName' => 'CN',
+            'oid' => '2.5.4.3',
+            'value' => 'VeriSign Class 3 Public Primary Certification Authority - G3'
+          ]
+        ];
+        $this->v1CertPublickey =
+          'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy7qcUvx4Hxoebxs3c734yWu'.
+          'UEjBP8DZH9dCRCvUXyKVhwRZATfuKYZDldiDBEQZ9qyxupvURQY76La0qYVmkZyZM0O'.
+          'i8UltwIARY0XrJpGm8gxdkrQWLvNBYzo2M9evwQkkLnZcnZzJu4a6TFRxwvCBNLxjek'.
+          'ojobIVXERrpfuMmEVSiRZZVg8owiejc2KPtKoA/f3llVz4VIGYIL5WTv6pHL6hGl/AS'.
+          '4v7CCitR5nbmt0a34g2mzKjDTFlVieboU1wc6p3wYhYLp8lfDPDewnbOr/dq8vpBpqI'.
+          'zFMnlemPTnmI31YVlng7mUyR0G14dElNbxyzng0k7Fa6KaLlXlwIDAQAB';
+        $this->v1crtAttributes =
+        [
+          'subject' => [
+            'DN' => '/C=US/O=VeriSign, Inc.'.
+              '/OU=VeriSign Trust Network'.
+              '/OU=(c) 1999 VeriSign, Inc. - For authorized use only'.
+              '/CN=VeriSign Class 3 Public Primary Certification Authority - G3',
+            'expandedDN' => $this->v1crtSubject,
+          ],
+          'issuer' => [
+            'DN' => '/C=US/O=VeriSign, Inc.'.
+              '/OU=VeriSign Trust Network'.
+              '/OU=(c) 1999 VeriSign, Inc. - For authorized use only'.
+              '/CN=VeriSign Class 3 Public Primary Certification Authority - G3',
+            'expandedDN' => $this->v1crtSubject,
+            'isSelf' => true,
+            'serialNumber' => '206684696279472310254277870180966723415'
+          ],
+          'fingerprint' => 'eb04cf5eb1f39afa762f2bb120f296cba520c1b97db1589565b81cb9a17b7244',
+          'notBefore' => 938736000,
+          'notAfter' => 2099865599,
+          'publicKey' => [
+            'key' => $this->v1CertPublickey
+          ],
+        ];
     }
 
     public function getTestCerts()
@@ -318,12 +382,28 @@ class CertificateParseTest extends TestCase
 
     public function testV1Parse()
     {
-        $crtFile = file_get_contents('/etc/pki/certs/c0ff1f52.0');
-        $crtBinary = base64_decode('MIIEGjCCAwICEQCbfgZJoz5iudXukEhxKe9XMA0GCSqGSIb3DQEBBQUAMIHKMQswCQYDVQQGEwJVUzEXMBUGA1UEChMOVmVyaVNpZ24sIEluYy4xHzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxOjA4BgNVBAsTMShjKSAxOTk5IFZlcmlTaWduLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkxRTBDBgNVBAMTPFZlcmlTaWduIENsYXNzIDMgUHVibGljIFByaW1hcnkgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgLSBHMzAeFw05OTEwMDEwMDAwMDBaFw0zNjA3MTYyMzU5NTlaMIHKMQswCQYDVQQGEwJVUzEXMBUGA1UEChMOVmVyaVNpZ24sIEluYy4xHzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxOjA4BgNVBAsTMShjKSAxOTk5IFZlcmlTaWduLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkxRTBDBgNVBAMTPFZlcmlTaWduIENsYXNzIDMgUHVibGljIFByaW1hcnkgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgLSBHMzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMu6nFL8eB8aHm8bN3O9+MlrlBIwT/A2R/XQkQr1F8ilYcEWQE37imGQ5XYgwREGfassbqb1EUGO+i2tKmFZpGcmTNDovFJbcCAEWNF6yaRpvIMXZK0Fi7zQWM6NjPXr8EJJC52XJ2cybuGukxUccLwgTS8Y3pKI6GyFVxEa6X7jJhFUokWWVYPKMIno3Nij7SqAP395ZVc+FSBmCC+Vk7+qRy+oRpfwEuL+wgorUeZ25rdGt+INpsyow0xZVYnm6FNcHOqd8GIWC6fJXwzw3sJ2zq/3avL6QaaiMxTJ5Xpj055iN9WFZZ4O5lMkdBteHRJTW8cs54NJOxWuimi5V5cCAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAERSWwauSCPc/L8my/uRan2Te2yFPhpk0djZX3dAVL8WtfxUfN2JzPtTnX84XA9s1+ivbrmAJXx5fj267Cz3qWhMeDGBvtcC1IyIuBwvLqXTLR7sdwdela8wv0kL9Sd2nic9TutoAWii/gt/4uhMdUIaC/Y4wjylGsB49Ndo4YhYYSq3mtlFs3q9i6wHQHiT+eo8SGhJouPtmmRQURVyu565pF4ErWjfJXir0xuKhXFSbplQAz/DxwceYMBo7Nhbbo27q/a2ywtrvAkcTisDxszGtTxzhT5yvDwyd93gN2PQ1VoDat20Xj50egWTh/sVFuq1ruQp6Tk9LhO5L8X3dEQ==');
-        $crtASN1 = UnspecifiedType::fromDER($crtBinary)->asSequence();
-        $tbsCertificate = $crtASN1->at(0)->asSequence();
-        // var_dump($tbsCertificate);
-      // $crt = new X509Certificate($crtFile);
+        $crtFile = file_get_contents(__DIR__.'/certs/v1.crt');
+        $v1Cert = new X509Certificate($crtFile);
+
+        $this->assertEquals(
+            '/C=US/O=VeriSign, Inc.'.
+            '/OU=VeriSign Trust Network'.
+            '/OU=(c) 1999 VeriSign, Inc. - For authorized use only'.
+            '/CN=VeriSign Class 3 Public Primary Certification Authority - G3',
+            $v1Cert->getSubjectDN()
+        );
+        $this->assertEquals(
+            '/C=US/O=VeriSign, Inc.'.
+            '/OU=VeriSign Trust Network'.
+            '/OU=(c) 1999 VeriSign, Inc. - For authorized use only'.
+            '/CN=VeriSign Class 3 Public Primary Certification Authority - G3',
+            $v1Cert->getIssuerDN()
+        );
+        $this->assertFalse($v1Cert->hasExtensions());
+        $this->assertEquals(
+            $this->v1crtAttributes,
+            $v1Cert->getAttributes()
+        );
     }
 
     public function testX509Parse()
