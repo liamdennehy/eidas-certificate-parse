@@ -103,7 +103,7 @@ class ExtendedKeyUsage implements ExtensionInterface
     {
         return
         [
-          'keyPurposes' =>
+          'publicKey' =>
           [
             'extendedKeyUsage' => $this->ekus
           ]

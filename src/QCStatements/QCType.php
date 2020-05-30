@@ -15,6 +15,7 @@ class QCType extends QCStatement implements QCStatementInterface
 {
     private $qcType;
     private $qcPurpose;
+    private $description;
     private $findings = [];
 
     const type = 'QCQualifiedType';
@@ -24,10 +25,10 @@ class QCType extends QCStatement implements QCStatementInterface
       'Certificate for Electronic Signatures (QSigC) according to '.
       'Regulation (EU) No 910/2014 Article 28';
     const qSealCDescription =
-      'Certificate for Electronic Signatures (QSealC) according to '.
+      'Certificate for Electronic Seals (QSealC) according to '.
       'Regulation (EU) No 910/2014 Article 38';
     const qWACDescription =
-      'Certificate for Electronic Signatures (QWAC) according to '.
+      'Certificate for Website Authentication (QWAC) according to '.
       'Regulation (EU) No 910/2014 Article 45';
 
 
@@ -137,14 +138,16 @@ class QCType extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        // TODO: QCType Sanity checks?
+        if (! empty($this->findings)) {
+            return null;
+        }
         return
         [
           'qualification' => [
             'type' => $this->qcType,
             'purpose' => $this->getDescription()
           ],
-          'keyPurposes' => [
+          'publicKey' => [
             'qualified' => $this->qcPurpose
           ]
         ];

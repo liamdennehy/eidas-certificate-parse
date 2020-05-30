@@ -308,6 +308,15 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
 
     public function getPublicKey()
     {
+        return(base64_encode($this->publicKey));
+    }
+
+    public function getPublicKeyPEM()
+    {
+        return
+            "-----BEGIN PUBLIC KEY-----\n".
+            chunk_split($this->getPublicKey(), 64, "\n").
+            '-----END PUBLIC KEY-----';
         return $this->publicKey;
     }
 
@@ -346,9 +355,16 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
         if (! array_key_exists('subject', $this->attributes)) {
             $subjectDN = $this->getSubjectDN();
             $this->attributes['subject']['DN'] = $subjectDN;
+            $this->attributes['subject']['expandedDN'] = $this->getSubjectExpanded();
             $issuerDN = $this->issuer->getDN();
-            $this->attributes['issuer']['DN'] = $issuerDN;
             $this->attributes['issuer']['serialNumber'] = $this->serialNumber;
+            $this->attributes['issuer']['DN'] = $issuerDN;
+            $this->attributes['issuer']['expandedDN'] = $this->getIssuerExpanded();
+            if (!empty($this->issuers)) {
+                foreach ($this->issuers as $id => $issuer) {
+                    $this->attributes['issuer']['certificates'][] = $issuer->getAttributes();
+                }
+            };
             if ($subjectDN == $issuerDN) {
                 $this->attributes['issuer']['isSelf'] = true;
             } else {
@@ -357,28 +373,11 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
             $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
             $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
             $this->attributes["fingerprint"] = $this->getIdentifier();
-            $this->attributes['subject']['expandedDN'] = $this->getSubjectExpanded();
-            $this->attributes['issuer']['expandedDN'] = $this->getIssuerExpanded();
-            if (!empty($this->issuers)) {
-                foreach ($this->issuers as $id => $issuer) {
-                    $this->attributes['issuer']['certificates'][] = $issuer->getAttributes();
-                }
-            };
             if (!empty($this->tspServiceAttributes)) {
                 $this->attributes["tspService"] = $this->tspServiceAttributes;
             }
-            if (!empty($this->findings)) {
-                $findings = [];
-                foreach ($this->findings as $findingObject) {
-                    $finding = $findingObject->getFinding();
-                    $severity = $finding['severity'];
-                    $component = $finding['component'];
-                    $findings[$severity][$component][] =
-                        $finding['message']
-                    ;
-                }
-                $this->attributes['findings'] = $findings;
-            }
+            $this->attributes['publicKey']['key'] =
+            $this->getPublicKey();
             foreach ($this->getExtensions() as $extension) {
                 $extension->setCertificate($this);
                 $extensionAttributes = $extension->getAttributes();
@@ -395,6 +394,18 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
                         $this->attributes[$key] = $extensionAttributes[$key];
                     }
                 }
+            }
+            if (!empty($this->findings)) {
+                $findings = [];
+                foreach ($this->findings as $findingObject) {
+                    $finding = $findingObject->getFinding();
+                    $severity = $finding['severity'];
+                    $component = $finding['component'];
+                    $findings[$severity][$component][] =
+                        $finding['message']
+                    ;
+                }
+                $this->attributes['findings'] = $findings;
             }
         }
 

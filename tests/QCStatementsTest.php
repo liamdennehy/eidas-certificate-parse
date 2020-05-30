@@ -5,6 +5,7 @@ namespace eIDASCertificate\tests;
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Extensions\QCStatements;
+use eIDASCertificate\QCStatements\QCStatement;
 use eIDASCertificate\QCStatements\QCCompliance;
 use eIDASCertificate\QCStatements\QCLimitValue;
 use eIDASCertificate\QCStatements\QCRetentionPeriod;
@@ -248,6 +249,17 @@ class QCStatementsTest extends TestCase
             'QSealC',
             $qcType->getQCType()
         );
+        $this->assertEquals(
+            [
+            'qualification' => [
+                'type' => 'QSealC',
+                'purpose' => 'Certificate for Electronic Seals (QSealC) '.
+                'according to Regulation (EU) No 910/2014 Article 38'
+            ],
+            'publicKey' => ['qualified' => 'eseal']
+          ],
+            $qcType->getAttributes()
+        );
         $binary = base64_decode('MBMGBgQAjkYBBjAJBgcEAI5GAQYB');
         $qcType = new QCType($binary);
         $this->assertEquals(
@@ -266,14 +278,81 @@ class QCStatementsTest extends TestCase
                 'Certificate for Electronic Signatures (QSigC) according to '.
                 'Regulation (EU) No 910/2014 Article 28'
               ],
-              'keyPurposes' => [
+              'publicKey' => [
                 'qualified' => 'esign'
               ]
             ],
             $qcType->getAttributes()
         );
+        $binary = base64_decode('MBMGBgQAjkYBBjAJBgcEAI5GAQYD');
+        $qcType = new QCType($binary);
+        $this->assertEquals(
+            'web',
+            $qcType->getQCPurpose()
+        );
+        $this->assertEquals(
+            'QWAC',
+            $qcType->getQCType()
+        );
+        $this->assertEquals(
+            [
+              'qualification' => [
+              'type' => 'QWAC',
+              'purpose' =>
+                'Certificate for Website Authentication (QWAC) according to '.
+                'Regulation (EU) No 910/2014 Article 45'
+              ],
+              'publicKey' => [
+                'qualified' => 'web'
+              ]
+            ],
+            $qcType->getAttributes()
+        );
+        $binary = base64_decode('MBwGBgQAjkYBBjASBgcEAI5GAQYCBgcEAI5GAQYD');
+        $qcType = new QCType($binary);
+        $this->assertEquals(
+            [
+              'severity' => 'error',
+              'component' => 'QCQualifiedType',
+              'message' => 'Multiple QCType statements not permitted: '.
+                'MBwGBgQAjkYBBjASBgcEAI5GAQYCBgcEAI5GAQYD'
+          ],
+            $qcType->getFindings()[0]->getFinding()
+        );
+        $this->assertEquals(
+            null,
+            $qcType->getAttributes()
+        );
+
+        $binary = base64_decode('MAgGBgQAjkYBBg==');
+        $qcType = new QCType($binary);
+        $this->assertEquals(
+            [
+                'severity' => 'error',
+                'component' => 'QCQualifiedType',
+                'message' => 'No entries in QCType Statement: MAgGBgQAjkYBBg=='
+            ],
+            $qcType->getFindings()[0]->getFinding()
+        );
     }
 
+    public function testNoStatements()
+    {
+        $binary = base64_decode('MAA=');
+        $qcStatement = QCStatement::fromBinary($binary);
+        $this->assertEquals(
+            'eIDASCertificate\Finding',
+            get_class($qcStatement)
+        );
+        $this->assertEquals(
+            [
+                'severity' => 'error',
+                'component' => 'qcStatement',
+                'message' => 'QCStatement has no statement: MAA='
+            ],
+            $qcStatement->getFinding()
+        );
+    }
     public function testQCStatementsParse()
     {
         $der=base64_decode(
@@ -281,7 +360,6 @@ class QCStatementsTest extends TestCase
             'QAjkYBBjAJBgcEAI5GAQYCMDsGBgQAjkYBBTAxMC8WKWh0dHBzOi8vd3d3LnF1b3Zh'.
             'ZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5EwJlbg=='
         );
-        // $this->getTestCerts();
         $qcStatements = new QCStatements($der);
         $this->assertEquals(
             [

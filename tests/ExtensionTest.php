@@ -244,7 +244,7 @@ class ExtensionTest extends TestCase
         $eku = new ExtendedKeyUsage($binary);
         $this->assertEquals(
             [
-            'keyPurposes' => [
+            'publicKey' => [
               'extendedKeyUsage' => [
                 [
                   'name' => 'serverAuth',

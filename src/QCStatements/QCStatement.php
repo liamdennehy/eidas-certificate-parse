@@ -5,6 +5,7 @@ namespace eIDASCertificate\QCStatements;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements\QCStatementException;
 use ASN1\Type\UnspecifiedType;
+use eIDASCertificate\Finding;
 
 /**
  *
@@ -16,6 +17,14 @@ abstract class QCStatement
     public static function fromBinary($qcStatementDER)
     {
         $qcStatement = UnspecifiedType::fromDER($qcStatementDER)->asSequence();
+        if ($qcStatement->count() == 0) {
+            return new Finding(
+                'qcStatement',
+                'error',
+                "QCStatement has no statement: " .
+            base64_encode($qcStatementDER)
+            );
+        }
         $qcStatementOID = $qcStatement->at(0)->asObjectIdentifier()->oid();
         $qcStatementName = OID::getName($qcStatementOID);
         switch ($qcStatementName) {

@@ -75,6 +75,6 @@ class QCSSCD extends QCStatement implements QCStatementInterface
 
     public function getAttributes()
     {
-        return ['keySecurity' => ['SSCD' => $this->getDescription()]];
+        return ['privateKey' => ['SSCD' => $this->getDescription()]];
     }
 }

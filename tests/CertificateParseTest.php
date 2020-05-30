@@ -17,6 +17,36 @@ class CertificateParseTest extends TestCase
     const euissuercrtfile = 'qvbecag2.crt';
     const euIssuercertId = 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c';
     const lotlSignerHash = 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474';
+    const eucrtPublicKeyPEM =
+        "-----BEGIN PUBLIC KEY-----\n".
+        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6OaxkP4aEj/JK+Aw13o5\n".
+        "OrMh45ZDMLMMNbUtLnPHvSFH4s4tqojFA+m/xyGJk4mAwQemabOOy+wNzjYG+xfo\n".
+        "KjPgYbjDzRG10wle9pSpjqm++jzNcCSqwcH9CBBJbe51NQiAtPLnylHA7xoVjvu6\n".
+        "8axzfGkhk9BfRgx5uK7Ip6mVeWbHBM7Acps7e/Rs2KwinuhTibGDFBZ3G6rg63q1\n".
+        "hinnBvqa5z6xXIsf/lcZrJd14vO4JawfKHrQqHItW1l+0RMUXCllVhKSWIwdzYOU\n".
+        "xv9jkS4hxC0evNLcPjGfJP4sHTG8ZotppNrILEv3VuMv93gfkb1RwKGyqil19m7i\n".
+        "ewIDAQAB\n".
+        "-----END PUBLIC KEY-----";
+    const eucrtPublicKey =
+        'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6OaxkP4aEj'.
+        '/JK+Aw13o5OrMh45ZDMLMMNbUtLnPHvSFH4s4tqojFA+m/xyGJk4mAwQemabOOy'.
+        '+wNzjYG+xfoKjPgYbjDzRG10wle9pSpjqm++jzNcCSqwcH9CBBJbe51NQiAtPLn'.
+        'ylHA7xoVjvu68axzfGkhk9BfRgx5uK7Ip6mVeWbHBM7Acps7e/Rs2KwinuhTibG'.
+        'DFBZ3G6rg63q1hinnBvqa5z6xXIsf/lcZrJd14vO4JawfKHrQqHItW1l+0RMUXC'.
+        'llVhKSWIwdzYOUxv9jkS4hxC0evNLcPjGfJP4sHTG8ZotppNrILEv3VuMv93gfk'.
+        'b1RwKGyqil19m7iewIDAQAB';
+    const euIssuercertPublicKey =
+        'MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAmLsm3G2sWV/LTr0gC5iOXSSL'.
+        'DXGEdSFvK7dsEU4wgvy3kv2sL1bpx4g9UjmoQuUiLVfvuIWOSmcunFA9CoTf+vK4uTxq'.
+        'vYjOVdd6dAjUx4D+xgGGdQdONKFNv+V6PPZ7KziNO/QfJWZhw31sRv/3vybbZdVFcaEo'.
+        'GhisYw6GpJ+nQfzyTuvwnjyFdNsS5qA4YgNXrmHcH91PMrM3pesCa0iAhB24snUAJjyg'.
+        'gJWXLR3rUm7QXgOulkfQtFEPwvq66kmVt6To45h8CvmCcwqDLPp/H1N2oMuTfEnxqDFw'.
+        'UP4pRHcCzUt9CWNdk8wUyyUWnWd5/YMFI2rMK5tdycfuwzxvLJn4LOUEqn0hvxtV4w1Q'.
+        '15MV7ipM1AiPpaWXE1WU7BNFcKO2aPWygQnkJOEKW7fgAq0QG0FdqqGb12v1c06EQvRi'.
+        '5D5SJQNq15A5cpqy8XdaeXkANP/IlAMI1cnsPMBSIySuQ00zQVqHiIv+q3kls3oz7PV1'.
+        'aglrZ3pJXp9BZGPdcZjhJh5JkVaF8zQ6qrLPa+YO8/ud2Bklt6I0E4EY/637VhcPYTlf'.
+        'xmvZIPfHjM8HWdjBg2c/i+sd5CsIfeeUOWlUZV3jZbtgQijhe3meejHpbYzggZKM0jUU'.
+        '8/p6vsvzBKRhqj2bgABByUcFaLHHLTBX3BKrSpS+hjgan7kCAwEAAQ==';
 
     public function setUp()
     {
@@ -109,7 +139,7 @@ class CertificateParseTest extends TestCase
               'http://uw.ocsp.quovadisglobal.com'
             ]
           ],
-          'keySecurity' => [
+          'privateKey' => [
             'SSCD' =>
               'The private key related to the certified public key resides in '.
               'a Qualified Signature/Seal Creation Device (QSCD) according to '.
@@ -125,10 +155,10 @@ class CertificateParseTest extends TestCase
             'type' => 'QSealC',
             'qualified' => 'The certificate is an EU qualified certificate that is issued according to Annex I, III or IV of the Regulation (EU) No 910/2014.',
             'purpose' =>
-              'Certificate for Electronic Signatures (QSealC) according to '.
+              'Certificate for Electronic Seals (QSealC) according to '.
               'Regulation (EU) No 910/2014 Article 38'
           ],
-          'keyPurposes' => [
+          'publicKey' => [
             'keyUsage' => [
               'digitalSignature' => true,
               'nonRepudiation' => true,
@@ -158,6 +188,7 @@ class CertificateParseTest extends TestCase
               ],
             ],
             'qualified' => 'eseal',
+            'key' => self::eucrtPublicKey
           ],
           'unRecognizedExtensions' => [
             [
@@ -238,7 +269,7 @@ class CertificateParseTest extends TestCase
               'http://ocsp.quovadisglobal.com'
             ],
           ],
-          'keyPurposes' => [
+          'publicKey' => [
             'keyUsage' => [
               'digitalSignature' => false,
               'nonRepudiation' => false,
@@ -249,7 +280,8 @@ class CertificateParseTest extends TestCase
               'cRLSign' => true,
               'encipherOnly' => false,
               'decipherOnly' => false,
-            ]
+            ],
+            'key' => self::euIssuercertPublicKey
           ],
           'findings' => [
             'warning' => [
@@ -260,6 +292,7 @@ class CertificateParseTest extends TestCase
           ],
         ];
     }
+
     public function getTestCerts()
     {
         $this->jmcrt = new X509Certificate(
@@ -281,6 +314,16 @@ class CertificateParseTest extends TestCase
             file_get_contents(
                 __DIR__ . "/certs/" . self::euissuercrtfile
             );
+    }
+
+    public function testV1Parse()
+    {
+        $crtFile = file_get_contents('/etc/pki/certs/c0ff1f52.0');
+        $crtBinary = base64_decode('MIIEGjCCAwICEQCbfgZJoz5iudXukEhxKe9XMA0GCSqGSIb3DQEBBQUAMIHKMQswCQYDVQQGEwJVUzEXMBUGA1UEChMOVmVyaVNpZ24sIEluYy4xHzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxOjA4BgNVBAsTMShjKSAxOTk5IFZlcmlTaWduLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkxRTBDBgNVBAMTPFZlcmlTaWduIENsYXNzIDMgUHVibGljIFByaW1hcnkgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgLSBHMzAeFw05OTEwMDEwMDAwMDBaFw0zNjA3MTYyMzU5NTlaMIHKMQswCQYDVQQGEwJVUzEXMBUGA1UEChMOVmVyaVNpZ24sIEluYy4xHzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxOjA4BgNVBAsTMShjKSAxOTk5IFZlcmlTaWduLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkxRTBDBgNVBAMTPFZlcmlTaWduIENsYXNzIDMgUHVibGljIFByaW1hcnkgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgLSBHMzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMu6nFL8eB8aHm8bN3O9+MlrlBIwT/A2R/XQkQr1F8ilYcEWQE37imGQ5XYgwREGfassbqb1EUGO+i2tKmFZpGcmTNDovFJbcCAEWNF6yaRpvIMXZK0Fi7zQWM6NjPXr8EJJC52XJ2cybuGukxUccLwgTS8Y3pKI6GyFVxEa6X7jJhFUokWWVYPKMIno3Nij7SqAP395ZVc+FSBmCC+Vk7+qRy+oRpfwEuL+wgorUeZ25rdGt+INpsyow0xZVYnm6FNcHOqd8GIWC6fJXwzw3sJ2zq/3avL6QaaiMxTJ5Xpj055iN9WFZZ4O5lMkdBteHRJTW8cs54NJOxWuimi5V5cCAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAERSWwauSCPc/L8my/uRan2Te2yFPhpk0djZX3dAVL8WtfxUfN2JzPtTnX84XA9s1+ivbrmAJXx5fj267Cz3qWhMeDGBvtcC1IyIuBwvLqXTLR7sdwdela8wv0kL9Sd2nic9TutoAWii/gt/4uhMdUIaC/Y4wjylGsB49Ndo4YhYYSq3mtlFs3q9i6wHQHiT+eo8SGhJouPtmmRQURVyu565pF4ErWjfJXir0xuKhXFSbplQAz/DxwceYMBo7Nhbbo27q/a2ywtrvAkcTisDxszGtTxzhT5yvDwyd93gN2PQ1VoDat20Xj50egWTh/sVFuq1ruQp6Tk9LhO5L8X3dEQ==');
+        $crtASN1 = UnspecifiedType::fromDER($crtBinary)->asSequence();
+        $tbsCertificate = $crtASN1->at(0)->asSequence();
+        // var_dump($tbsCertificate);
+      // $crt = new X509Certificate($crtFile);
     }
 
     public function testX509Parse()
@@ -312,19 +355,11 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             [
               '87c9bc3197127a73bb7ec03d4551b401259551ab',
-              'e811fc46be23b48f3ef7b1d778df0997b8ec4524',
               'e811fc46be23b48f3ef7b1d778df0997b8ec4524'
             ],
             [
               bin2hex($this->eucrt->getAuthorityKeyIdentifier()),
-              bin2hex($this->eucrt->getSubjectKeyIdentifier()),
-              hash(
-                  'sha1',
-                  UnspecifiedType::fromDER(
-                      $this->eucrt->getPublicKey()
-                  )->asSequence()
-                ->at(1)->asBitString()->string()
-              )
+              bin2hex($this->eucrt->getSubjectKeyIdentifier())
             ]
         );
         $this->assertTrue($this->eucrt->hasExtensions());
@@ -363,21 +398,6 @@ class CertificateParseTest extends TestCase
             '/title=Professional Person',
             $this->mocrt->getSubjectDN()
         );
-        // $this->assertEquals(
-        //     [
-        //       ['C' => 'BE'],
-        //       'L' => 'BE',
-        //       'O' => 'European Commission',
-        //       'OU' => '0949.383.342',
-        //       'CN' => 'Maarten Joris Ottoy',
-        //       'SN' => 'Ottoy',
-        //       'GN' => 'Maarten Joris',
-        //       'serialNumber' => '10304444110080837592',
-        //       'emailAddress' => 'maarten.ottoy@ec.europa.eu',
-        //       'title' => 'Professional Person'
-        //     ],
-        //     $this->mocrt->getSubjectExpanded()
-        // );
         $this->assertEquals(
             [
               '638fc28b03b1ab8ed85347961d99a87df6aca875',
@@ -393,6 +413,10 @@ class CertificateParseTest extends TestCase
               'http://crl.quovadisglobal.com/qvbecag2.crl'
             ],
             $this->eucrt->getCDPs()
+        );
+        $this->assertEquals(
+            self::eucrtPublicKeyPEM,
+            $this->eucrt->getPublicKeyPEM()
         );
         // $crtParsed = $this->jmcrt->getParsed();
         $this->assertEquals(
