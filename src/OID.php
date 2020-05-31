@@ -93,16 +93,18 @@ class OID
     const domainComponent         = '0.9.2342.19200300.100.1.25';
     // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
     const msSmartCardUPN          = '1.3.6.1.4.1.311.20.2.3';
-    // https://tools.ietf.org/html/rfc3279
+    // https://tools.ietf.org/html/rfc3279#section-3
     const sha1                    = '1.3.14.3.2.26';
-    // https://tools.ietf.org/html/rfc3279
+    // https://tools.ietf.org/html/rfc3279#section-3
     const sha1WithRSAEncryption   = '1.2.840.113549.1.1.5';
-    // https://tools.ietf.org/html/rfc4055
+    // https://tools.ietf.org/html/rfc4055#section-5
     const sha256WithRSAEncryption = '1.2.840.113549.1.1.11';
-    // https://tools.ietf.org/html/rfc4055
+    // https://tools.ietf.org/html/rfc4055#section-5
     const sha384WithRSAEncryption = '1.2.840.113549.1.1.12';
-    // https://tools.ietf.org/html/rfc4055
+    // https://tools.ietf.org/html/rfc4055#section-5
     const sha512WithRSAEncryption = '1.2.840.113549.1.1.13';
+    // https://tools.ietf.org/html/rfc6960#section-4.4.1
+    const ocspNonce               = '1.3.6.1.5.5.7.48.1.2';
 
     public static function getName($oidString)
     {
@@ -347,6 +349,9 @@ class OID
           case self::sha512WithRSAEncryption:
             $oidName = 'sha512WithRSAEncryption';
             break;
+          case self::ocspNonce:
+            $oidName = 'ocspNonce';
+            break;
           default:
             $oidName = 'unknown';
             break;
@@ -422,7 +427,9 @@ class OID
           case 'sha-1':
             return '1.3.14.3.2.26';
             break;
-
+          case 'ocspNonce':
+            return '1.3.6.1.5.5.7.48.1.2';
+            break;
           default:
             return 'unknown';
             break;
