@@ -3,6 +3,9 @@
 namespace eIDASCertificate\OCSP;
 
 use ASN1\Type\UnspecifiedType;
+use ASN1\Type\Constructed\Sequence;
+use ASN1\Type\Primitive\OctetString;
+use ASN1\Type\Primitive\Integer;
 use eIDASCertificate\ASN1Interface;
 use eIDASCertificate\AlgorithmIdentifier;
 
@@ -33,16 +36,27 @@ class CertID implements ASN1Interface
     public static function fromDER($der)
     {
         $obj = UnspecifiedType::fromDER($der)->asSequence();
+        // var_dump($obj);
         $signatureAlgorithm = AlgorithmIdentifier::fromDER($obj->at(0)->toDER());
-        $issuerNameHash = $obj->at(1)->asString()->string();
-        $issuerKeyHash = $obj->at(2)->asString()->string();
+        $issuerNameHash = $obj->at(1)->asOctetString()->string();
+        $issuerKeyHash = $obj->at(2)->asOctetString()->string();
         $serialNumber = $obj->at(3)->asInteger()->number();
         return new CertID($signatureAlgorithm, $issuerNameHash, $issuerKeyHash, $serialNumber);
     }
 
+    public function getASN1()
+    {
+        return (new Sequence(
+            $this->algorithmIdentifier->getASN1(),
+            new OctetString($this->issuerNameHash),
+            new OctetString($this->issuerKeyHash),
+            new Integer($this->serialNumber),
+        ));
+    }
+
     public function getBinary()
     {
-        return $this->binary;
+        return $this->getASN1()->toDER();
     }
 
     public function getAlgorithmName()
