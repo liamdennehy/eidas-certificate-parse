@@ -11,9 +11,13 @@ class AlgorithmIdentifier implements ASN1Interface
     private $binary;
     private $algorithmName;
     private $algorithmOID;
+    private $parameters;
 
-    public function __construct($id)
+    public function __construct($id, $parameters = null)
     {
+        if (! is_null($parameters)) {
+            throw new ParseException("Cannot handle Algorithm Parameters", 1);
+        }
         if (strpos($id, ".")) {
             $this->algorithmName = OID::getName($id);
             if ($this->algorithmName == 'unknown') {
@@ -31,7 +35,16 @@ class AlgorithmIdentifier implements ASN1Interface
     public static function fromDER($der)
     {
         $obj = UnspecifiedType::fromDER($der)->asSequence();
-        $aid = new AlgorithmIdentifier($obj->at(0)->asObjectIdentifier()->oid());
+        $parameters = null;
+        if ($obj->has(1)) {
+            if ($obj->at(1)->typeClass() !== 0) {
+                throw new ParseException("Cannot handle Algorithm Parameters '".base64_encode($der)."'", 1);
+            };
+        }
+        $aid = new AlgorithmIdentifier(
+            $obj->at(0)->asObjectIdentifier()->oid(),
+            $parameters
+        );
         return $aid;
     }
 
