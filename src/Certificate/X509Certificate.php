@@ -531,4 +531,9 @@ class X509Certificate implements
     {
         return $this->signatureAlgorithmIdentifier->getParameters();
     }
+
+    public function getASN1()
+    {
+        throw new \Exception("getASN1 not implemented", 1);
+    }
 }

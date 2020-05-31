@@ -5,9 +5,11 @@ namespace eIDASCertificate\OCSP;
 use ASN1\Type\UnspecifiedType;
 use ASN1\Type\Constructed\Sequence;
 use eIDASCertificate\Certificate\Extensions;
+use eIDASCertificate\OCSP\TBSRequest;
 use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\ParseInterface;
 use eIDASCertificate\ASN1Interface;
+use eIDASCertificate\ParseException;
 
 class OCSPRequest implements
     AttributeInterface,
@@ -21,9 +23,6 @@ class OCSPRequest implements
 
     // TODO: Actually implement OCSP Request creation
     // public function __construct($crtSubject, $withNonce = false)
-    public function __construct()
-    {
-    }
 
     /**
      * [fromDER description]
@@ -34,49 +33,10 @@ class OCSPRequest implements
     {
         $top = [];
         $OCSPRequest = UnspecifiedType::fromDER($der)->asSequence();
-        $tbsRequest = $OCSPRequest->at(0)->asSequence();
-        $tbsRequestDER = $tbsRequest->toDER();
-        $tbsRequestidx = 0;
-        if ($tbsRequest->hasTagged(0)) {
-            // TODO: Throw error as unsupported, would only be present if not "1"
-            $version = $tbsRequest->getTagged(0)->asExplicit()->asInteger()->intNumber();
-            $tbsRequestidx++;
-        } else {
-            $version = 1;
+        $tbsRequest = TBSRequest::fromDER($OCSPRequest->at(0)->asSequence()->toDER());
+        if ($OCSPRequest->hasTagged(0)) {
+            throw new ParseException("Cannot support signed Requests", 1);
         }
-        if ($tbsRequest->hasTagged(1)) {
-            // TODO: Throw error as unsupported
-            $requestorName = $tbsRequest->getTagged(1)->asGeneralName()->string();
-            $tbsRequestidx++;
-        }
-        $requestList = $tbsRequest->at($tbsRequestidx)->asSequence();
-        if ($requestList->count() > 1) {
-            throw new \Exception("Too many requests in OCSPRequest object", 1);
-        }
-        foreach ($requestList->elements() as $request) {
-            $request = Request::fromDER($request->toDER());
-            $requests[] = $request;
-        }
-        if ($tbsRequest->hasTagged(2)) {
-            $extensionsDER = $tbsRequest->getTagged(2)->asExplicit()->asSequence()->toDER();
-            $extensions = new Extensions(
-                $extensionsDER
-            );
-            // $findings = array_merge($findings, $this->extensions->getFindings());
-
-            // $extensions = $tbsRequest->getTagged(2)->asExplicit()->asSequence();
-        }
-        $parsed['b64'] = [
-      'OCSPRequest' => base64_encode($OCSPRequest->toDER()),
-      'tbsRequest' => base64_encode($tbsRequestDER),
-      'extensions' => base64_encode($extensions->getBinary()),
-      'requestList' => base64_encode($requestList->toDER()),
-    ];
-        foreach ($requests as $value) {
-            $parsed['b64']['requests'][] = base64_encode($value->getBinary());
-        }
-        $parsed['requestHash'] = hash('sha256', $der);
-        return $parsed;
     }
 
     public function getAttributes()
@@ -84,7 +44,7 @@ class OCSPRequest implements
         if (empty($this->attributes)) {
             $this->attributes['version'] = $this->version;
             foreach ($this->requests as $request) {
-              $this->attributes['requests'][] = base64_encode($request->getBinary);
+                $this->attributes['requests'][] = base64_encode($request->getBinary);
             }
         }
         return $this->attributes;
@@ -92,7 +52,14 @@ class OCSPRequest implements
 
     public function getBinary()
     {
-        return (new Sequence(new Sequence))->toDER();
+        return $this->getASN1()->toDER();
+    }
+
+
+
+    public function getASN1()
+    {
+        return (new Sequence(new Sequence));
     }
 
     public function getFindings()
