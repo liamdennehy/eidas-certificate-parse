@@ -404,6 +404,15 @@ class CertificateParseTest extends TestCase
             $this->v1crtAttributes,
             $v1Cert->getAttributes()
         );
+        $this->assertTrue(
+            $v1Cert->isCurrentAt($this->testTime)
+        );
+        $this->assertFalse(
+            $v1Cert->isCurrentAt(new \DateTime('1998-12-12 12:00 UTC'))
+        );
+        $this->assertFalse(
+            $v1Cert->isCurrentAt(new \DateTime('2036-08-01 12:00 UTC'))
+        );
     }
 
     public function testX509Parse()
