@@ -93,6 +93,16 @@ class OID
     const domainComponent         = '0.9.2342.19200300.100.1.25';
     // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
     const msSmartCardUPN          = '1.3.6.1.4.1.311.20.2.3';
+    // https://tools.ietf.org/html/rfc3279
+    const sha1                    = '1.3.14.3.2.26';
+    // https://tools.ietf.org/html/rfc3279
+    const sha1WithRSAEncryption   = '1.2.840.113549.1.1.5';
+    // https://tools.ietf.org/html/rfc4055
+    const sha256WithRSAEncryption = '1.2.840.113549.1.1.11';
+    // https://tools.ietf.org/html/rfc4055
+    const sha384WithRSAEncryption = '1.2.840.113549.1.1.12';
+    // https://tools.ietf.org/html/rfc4055
+    const sha512WithRSAEncryption = '1.2.840.113549.1.1.13';
 
     public static function getName($oidString)
     {
@@ -322,6 +332,21 @@ class OID
           case self::msSmartCardUPN:
             $oidName = 'msSmartCardUPN';
             break;
+          case self::sha1:
+            $oidName = 'sha-1';
+            break;
+          case self::sha1WithRSAEncryption:
+            $oidName = 'sha1WithRSAEncryption';
+            break;
+          case self::sha256WithRSAEncryption:
+            $oidName = 'sha256WithRSAEncryption';
+            break;
+          case self::sha384WithRSAEncryption:
+            $oidName = 'sha384WithRSAEncryption';
+            break;
+          case self::sha512WithRSAEncryption:
+            $oidName = 'sha512WithRSAEncryption';
+            break;
           default:
             $oidName = 'unknown';
             break;
@@ -386,6 +411,20 @@ class OID
             } else {
                 return null;
             }
+            break;
+        }
+    }
+
+    public static function getOID($name)
+    {
+        switch ($name) {
+          case 'sha1':
+          case 'sha-1':
+            return '1.3.14.3.2.26';
+            break;
+
+          default:
+            return 'unknown';
             break;
         }
     }

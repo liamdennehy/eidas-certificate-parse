@@ -3,6 +3,7 @@
 namespace eIDASCertificate;
 
 use eIDASCertificate\OID;
+use eIDASCertificate\ParseException;
 use ASN1\Type\UnspecifiedType;
 
 class AlgorithmIdentifier implements ASN1Interface

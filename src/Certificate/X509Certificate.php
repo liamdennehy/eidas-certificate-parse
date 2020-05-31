@@ -9,6 +9,7 @@ use eIDASCertificate\Finding;
 use eIDASCertificate\OID;
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\ASN1Interface;
+use eIDASCertificate\AlgorithmIdentifier;
 use eIDASCertificate\Certificate\DistinguishedName;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\TSPService\TSPServiceException;
@@ -43,12 +44,13 @@ class X509Certificate implements
     private $notBefore;
     private $notAfter;
     private $signature;
+    private $signatureAlgrothimIdentifier;
     public function __construct($candidate)
     {
         $this->crtBinary = X509Certificate::emit($candidate);
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
-        $signatureAlgorithm = $crtASN1->at(1)->asSequence();
+        $this->signatureAlgorithmIdentifier = AlgorithmIdentifier::fromDER($crtASN1->at(1)->asSequence()->toDER());
         $signatureValue = $crtASN1->at(2)->asBitString()->string();
         $idx = 0;
         if ($tbsCertificate->hasTagged(0)) {
@@ -513,5 +515,10 @@ class X509Certificate implements
     public function getExtensionsBinary()
     {
         return $this->extensions->getBinary();
+    }
+
+    public function getSignatureAlgorithmName()
+    {
+        return $this->signatureAlgorithmIdentifier->getalgorithmName();
     }
 }

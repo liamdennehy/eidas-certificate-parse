@@ -413,6 +413,10 @@ class CertificateParseTest extends TestCase
         $this->assertFalse(
             $v1Cert->isCurrentAt(new \DateTime('2036-08-01 12:00 UTC'))
         );
+        $this->assertEquals(
+            'sha1WithRSAEncryption',
+            $v1Cert->getSignatureAlgorithmName()
+        );
     }
 
     public function testX509Parse()
@@ -559,6 +563,10 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             0,
             $cacrt1->getPathLength()
+        );
+        $this->assertEquals(
+            'sha1WithRSAEncryption',
+            $this->jmcrt->getSignatureAlgorithmName()
         );
     }
 
