@@ -8,6 +8,7 @@ use eIDASCertificate\ASN1Interface;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\ObjectIdentifier;
 use ASN1\Type\Primitive\OctetString;
+use eIDASCertificate\Certificate\X509Certificate;
 
 class OCSPNonce implements ExtensionInterface, ASN1Interface
 {
@@ -60,7 +61,7 @@ class OCSPNonce implements ExtensionInterface, ASN1Interface
         return $this->isCritical;
     }
 
-    public function setCertificate($cert)
+    public function setCertificate(X509Certificate $cert)
     {
         // Not useful for ocspNonce
     }
