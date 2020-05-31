@@ -57,23 +57,27 @@ class AlgorithmIdentifier implements ASN1Interface
         return $aid;
     }
 
-    public function getBinary()
+    public function getASN1()
     {
         $oid = new ObjectIdentifier($this->algorithmOID);
         if (empty($this->parameters && $this->parametersIncluded)) {
             if ($this->parametersIncluded) {
-                return (new Sequence($oid, new NullType))->toDER();
+                return (new Sequence($oid, new NullType));
             } else {
-                return (new Sequence($oid))->toDER();
+                return (new Sequence($oid));
             }
         } else {
             foreach ($this->parameters as $parameterDER) {
                 $parameters[] = UnspecifiedType::fromDER($parameterDER)->asTagged();
             }
-            return (new Sequence($oid, new Sequence(...$parameters)))->toDER();
+            return (new Sequence($oid, new Sequence(...$parameters)));
         }
     }
 
+    public function getBinary($value='')
+    {
+        return $this->getASN1()->toDER();
+    }
     public function getAlgorithmName()
     {
         return $this->algorithmName;
