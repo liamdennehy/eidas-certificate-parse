@@ -40,9 +40,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
     private $signature;
     public function __construct($candidate)
     {
-        $this->x509 = new X509();
         $this->crtBinary = X509Certificate::emit($candidate);
-        $this->crtResource = $this->x509->loadX509($this->crtBinary);
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
         $signatureAlgorithm = $crtASN1->at(1)->asSequence();
