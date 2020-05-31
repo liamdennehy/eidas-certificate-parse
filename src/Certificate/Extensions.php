@@ -6,12 +6,14 @@ use eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
+use eIDASCertificate\ParseInterface;
+use eIDASCertificate\ASN1Interface;
 use ASN1\Type\UnspecifiedType;
 
 /**
  *
  */
-class Extensions implements ParseInterface
+class Extensions implements ParseInterface, ASN1Interface
 {
     private $extensions = [];
     private $findings = [];

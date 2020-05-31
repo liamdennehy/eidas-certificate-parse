@@ -4,6 +4,7 @@ namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\AttributeInterface;
+use eIDASCertificate\ParseInterface;
 
 /**
  *
