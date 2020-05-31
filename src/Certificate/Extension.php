@@ -5,6 +5,7 @@ namespace eIDASCertificate\Certificate;
 use eIDASCertificate\Certificate\ExtensionException;
 use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
 use eIDASCertificate\Certificate\UnknownExtension;
+use eIDASCertificate\OCSP\OCSPNonce;
 use eIDASCertificate\Extensions\QCStatements;
 use eIDASCertificate\OID;
 use ASN1\Type\UnspecifiedType;
@@ -17,14 +18,14 @@ abstract class Extension
     public static function fromBinary($extensionDER)
     {
         $extension = UnspecifiedType::fromDER($extensionDER)->asSequence();
-        $extensionOid = $extension->at(0)->asObjectIdentifier()->oid();
-        if ($extension->at(1)->isType(1)) {
-            $isCritical = $extension->at(1)->asBoolean()->value();
-            $extnValue = $extension->at(2)->asOctetString()->string();
+        $idx = 0;
+        $extensionOid = $extension->at($idx++)->asObjectIdentifier()->oid();
+        if ($extension->at($idx)->isType(1)) {
+            $isCritical = $extension->at($idx++)->asBoolean()->value();
         } else {
             $isCritical = false;
-            $extnValue = $extension->at(1)->asOctetString()->string();
         }
+        $extnValue = $extension->at($idx++)->asOctetString()->string();
         $extensionName = OID::getName($extensionOid);
         // print "$extensionOid ($extensionName): " . base64_encode($extnValue) .PHP_EOL;
         switch ($extensionName) {
@@ -64,6 +65,9 @@ abstract class Extension
             break;
           case 'qcStatements':
             return new QCStatements($extnValue, $isCritical);
+            break;
+          case 'ocspNonce':
+            return new OCSPNonce($extnValue, $isCritical);
             break;
           // case 'certificatePolicies':
             // TODO: Implement certificatePolicies QCStatement
