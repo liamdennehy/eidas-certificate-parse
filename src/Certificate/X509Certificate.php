@@ -517,8 +517,18 @@ class X509Certificate implements
         return $this->extensions->getBinary();
     }
 
+    public function getSignatureAlgorithmIdentifier()
+    {
+        return $this->signatureAlgorithmIdentifier;
+    }
+
     public function getSignatureAlgorithmName()
     {
         return $this->signatureAlgorithmIdentifier->getalgorithmName();
+    }
+
+    public function getSignatureAlgorithmParameters()
+    {
+        return $this->signatureAlgorithmIdentifier->getParameters();
     }
 }
