@@ -51,7 +51,7 @@ class CertID implements ASN1Interface
             new OctetString($this->issuerNameHash),
             new OctetString($this->issuerKeyHash),
             new Integer($this->serialNumber),
-        ));
+        );
     }
 
     public function getBinary()
