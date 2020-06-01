@@ -125,7 +125,7 @@ class CertificateParseTest extends TestCase
               'http://trust.quovadisglobal.com/qvbecag2.crt'
             ],
             'aki' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
-            'serialNumber' => '510758012567249096883552881202149149901456017681',
+            'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
             'isSelf' => false
           ],
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
@@ -253,7 +253,7 @@ class CertificateParseTest extends TestCase
               'http://trust.quovadisglobal.com/qventca1g3.crt'
             ],
             'aki' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
-            'serialNumber' => '370861943658773060475449278572584178262799314517',
+            'serialNumber' => '40f6065343c04cb671e9c8250e90ebd58dd86e55',
             'isSelf' => false
           ],
           'notBefore' => 1465820525,
@@ -346,7 +346,7 @@ class CertificateParseTest extends TestCase
               '/CN=VeriSign Class 3 Public Primary Certification Authority - G3',
             'expandedDN' => $this->v1crtSubject,
             'isSelf' => true,
-            'serialNumber' => '206684696279472310254277870180966723415'
+            'serialNumber' => '9b7e0649a33e62b9d5ee90487129ef57'
           ],
           'fingerprint' => 'eb04cf5eb1f39afa762f2bb120f296cba520c1b97db1589565b81cb9a17b7244',
           'notBefore' => 938736000,

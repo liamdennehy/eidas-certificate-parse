@@ -62,7 +62,7 @@ class X509Certificate implements
         //   return null;
         //
         }
-        $this->serialNumber = $tbsCertificate->at($idx++)->asInteger()->number();
+        $this->serialNumber = gmp_strval($tbsCertificate->at($idx++)->asInteger()->number(), 16);
         $this->signature = $tbsCertificate->at($idx++)->asSequence();
         $this->issuer = new DistinguishedName($tbsCertificate->at($idx++));
         $dates = $tbsCertificate->at($idx++)->asSequence();
