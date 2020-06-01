@@ -47,12 +47,19 @@ class CertID implements ASN1Interface, AttributeInterface
 
     public function getASN1()
     {
-        return (new Sequence(
-            $this->algorithmIdentifier->getASN1(),
-            new OctetString($this->issuerNameHash),
-            new OctetString($this->issuerKeyHash),
-            new Integer(gmp_strval(gmp_init($this->getSerialNumber(), 16), 10)),
-        ));
+        return (
+          new Sequence(
+              $this->algorithmIdentifier->getASN1(),
+              new OctetString($this->issuerNameHash),
+              new OctetString($this->issuerKeyHash),
+              new Integer(
+                  gmp_strval(
+                    gmp_init($this->getSerialNumber(), 16),
+                    10
+                )
+              ),
+          )
+        );
     }
 
     public function getBinary()
@@ -92,11 +99,12 @@ class CertID implements ASN1Interface, AttributeInterface
 
     public function getAttributes()
     {
-        $attr = [];
-        $attr['serialNumber'] = $this->getSerialNumber();
-        $attr['algorithmName'] = $this->getAlgorithmName();
-        $attr['issuerKeyHash'] = bin2hex($this->getIssuerKeyHash());
-        $attr['issuerNameHash'] = bin2hex($this->getIssuerNameHash());
+        $attr = [
+          'serialNumber' => $this->getSerialNumber(),
+          'algorithmName' => $this->getAlgorithmName(),
+          'issuerKeyHash' => bin2hex($this->getIssuerKeyHash()),
+          'issuerNameHash' => bin2hex($this->getIssuerNameHash())
+        ];
         return $attr;
     }
 }
