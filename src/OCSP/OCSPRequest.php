@@ -4,7 +4,7 @@ namespace eIDASCertificate\OCSP;
 
 use ASN1\Type\UnspecifiedType;
 use ASN1\Type\Constructed\Sequence;
-use eIDASCertificate\Certificate\Extensions;
+use eIDASCertificate\Extensions;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OCSP\TBSRequest;
 use eIDASCertificate\AttributeInterface;
@@ -89,9 +89,21 @@ class OCSPRequest implements
         );
     }
 
-    public static function fromCertificate($certificate)
+    public static function fromCertificate($subject, $issuer, $algo = 'sha256', $nonce = 'none')
     {
-        $cert = new X509Certificate($certificate);
+        $subject = new X509Certificate($subject);
+        $issuer = new X509Certificate($issuer);
+        $issuerNameHash = $subject->getIssuerNameHash();
+        $issuerKeyHash = $issuer->getSubjectPublicKeyHash();
+        $hashAlgorithm = new AlgorithmIdentifier($algo);
+        $serialNumber = $subject->getSerialNumber();
+        return new OCSPRequest(
+            $hashAlgorithm,
+            $issuerNameHash,
+            $issuerKeyHash,
+            $serialNumber,
+            $nonce
+        );
     }
 
     public function getAttributes()
