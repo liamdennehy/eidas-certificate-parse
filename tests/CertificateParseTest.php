@@ -610,6 +610,16 @@ class CertificateParseTest extends TestCase
         );
     }
 
+    public function testGetPublicKey($value='')
+    {
+        $issuer = new X509Certificate(
+            file_get_contents(__DIR__.'/certs/qvbecag2.crt')
+        );
+        $this->assertEquals(
+            '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+            bin2hex($issuer->getSubjectPublicKeyHash()),
+        );
+    }
     public function testIssuerValidate()
     {
         $this->getTestCerts();
