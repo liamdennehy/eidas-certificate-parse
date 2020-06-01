@@ -43,6 +43,7 @@ class OCSPNonce implements ExtensionInterface, ASN1Interface
 
     public function getNonce()
     {
+        // var_dump($this->nonce);
         return $this->nonce;
     }
 
@@ -69,16 +70,17 @@ class OCSPNonce implements ExtensionInterface, ASN1Interface
     {
         return
           [
-            'nonce' => $this->nonce,
+            'nonce' => $this->getNonce(),
           ];
     }
 
     public function getASN1()
     {
-        // $os = new OctetString((new OctetString($this->nonce))->toDER());
         return new Sequence(
             new ObjectIdentifier(self::oid),
-            new OctetString((new OctetString($this->nonce))->toDER())
+            new OctetString(
+                (new OctetString($this->nonce))->toDER()
+            )
         );
     }
 
