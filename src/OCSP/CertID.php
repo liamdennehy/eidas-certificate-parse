@@ -54,10 +54,10 @@ class CertID implements ASN1Interface, AttributeInterface
               new OctetString($this->issuerKeyHash),
               new Integer(
                   gmp_strval(
-                    gmp_init($this->getSerialNumber(), 16),
-                    10
-                )
-              ),
+                      gmp_init($this->getSerialNumber(), 16),
+                      10
+                  )
+              )
           )
         );
     }

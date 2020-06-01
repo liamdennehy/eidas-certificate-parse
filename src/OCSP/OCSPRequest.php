@@ -24,7 +24,6 @@ class OCSPRequest implements
     private $tbsRequest;
     private $nonce;
 
-    // TODO: Actually implement OCSP Request creation
     public function __construct(
         $signatureAlgorithm,
         $issuerNameHash,

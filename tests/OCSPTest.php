@@ -227,7 +227,7 @@ class OCSPTest extends TestCase
 
     public function testOCSPRequestFromDER()
     {
-        $der = file_get_contents('tests/ocsp/request-sha256');
+        $der = file_get_contents(__DIR__ .'/ocsp/request-sha256');
         $request = OCSPRequest::fromDER($der);
         $this->assertEquals(
             'cc51fed1358bcab2f2f345797a295d8d',
