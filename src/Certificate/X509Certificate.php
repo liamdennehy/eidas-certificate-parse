@@ -557,4 +557,17 @@ class X509Certificate implements
     {
         throw new \Exception("getASN1 not implemented", 1);
     }
+
+    public function getSubjectPublicKeyHash($algo = 'sha256')
+    {
+        return hash(
+            $algo,
+            UnspecifiedType::fromDER($this->publicKey)
+                ->asSequence()
+                ->at(1)
+                ->asBitString()
+                ->string(),
+            true
+        );
+    }
 }
