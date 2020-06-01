@@ -572,6 +572,11 @@ class CertificateParseTest extends TestCase
             [],
             $this->jmcrt->getSignatureAlgorithmParameters()
         );
+
+        $this->assertEquals(
+            '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
+            bin2hex($this->eucrt->getIssuerNameHash())
+        );
     }
 
     public function testX509Atrributes()
@@ -672,27 +677,6 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             TSPServicesTest::getEUTSPServiceAttributes(),
             $eucrtAttributes['issuer']['certificates'][0]['tspService']
-        );
-    }
-
-    public function testParseDN()
-    {
-        $dnDER = base64_decode(
-            'MIIBHzELMAkGA1UEBhMCUEwxFDASBgNVBAgMC21hem93aWVja2llMREwDwYDVQQHDA'.
-            'hXYXJzemF3YTEjMCEGA1UECwwaQml1cm8gT3R3YXJ0ZWogQmFua293b8WbY2kxPTA7'.
-            'BgNVBBAwNAwMUHXFgmF3c2thIDE1DA8wMC05NzUgV2Fyc3phd2EMC21hem93aWVja2'.
-            'llDAZQb2xza2ExHjAcBgNVBGEMFVBTRFBMLVBGU0EtNTI1MDAwNzczODFEMEIGA1UE'.
-            'Cgw7UG93c3plY2huYSBLYXNhIE9zemN6xJlkbm/Fm2NpIEJhbmsgUG9sc2tpIFNww7'.
-            'PFgmthIEFrY3lqbmExHTAbBgNVBAMMFHNhbmRib3guYXBpLnBrb2JwLnBs'
-        );
-        $dn = new DistinguishedName(UnspecifiedType::fromDER($dnDER));
-        $this->assertEquals(
-            '/C=PL/ST=mazowieckie/L=Warszawa/OU=Biuro Otwartej '.
-            'Bankowości/postalAddress=Puławska 15/postalAddress=00-975 '.
-            'Warszawa/postalAddress=mazowieckie/postalAddress=Polska'.
-            '/2.5.4.97=PSDPL-PFSA-5250007738/O=Powszechna Kasa Oszczędności '.
-            'Bank Polski Spółka Akcyjna/CN=sandbox.api.pkobp.pl',
-            $dn->getDN()
         );
     }
 }
