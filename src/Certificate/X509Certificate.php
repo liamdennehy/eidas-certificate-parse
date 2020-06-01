@@ -310,7 +310,7 @@ class X509Certificate implements
         }
     }
 
-    public function getSerial()
+    public function getSerialNumber()
     {
         return $this->serialNumber;
     }

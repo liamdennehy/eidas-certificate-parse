@@ -588,6 +588,15 @@ class CertificateParseTest extends TestCase
         );
     }
 
+    public function testSerialNumber()
+    {
+        $this->getTestCerts();
+        $this->assertEquals(
+            '59772e700669b7669fb012c5cdd13c3a281a0911',
+            $this->eucrt->getSerialNumber()
+        );
+    }
+
     public function testDistinguishedNames()
     {
         $this->getTestCerts();
