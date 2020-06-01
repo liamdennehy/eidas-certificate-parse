@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate\Certificate;
+namespace eIDASCertificate;
 
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\AttributeInterface;

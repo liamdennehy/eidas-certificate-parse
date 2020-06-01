@@ -2,7 +2,7 @@
 
 namespace eIDASCertificate\QCStatements;
 
-use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\ExtensionInterface;
 
 /**
  *

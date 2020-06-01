@@ -2,8 +2,8 @@
 
 namespace eIDASCertificate\Certificate;
 
-use eIDASCertificate\Certificate\ExtensionInterface;
-use eIDASCertificate\Certificate\ExtensionException;
+use eIDASCertificate\ExtensionInterface;
+use eIDASCertificate\ExtensionException;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OID;
 use ASN1\Type\UnspecifiedType;

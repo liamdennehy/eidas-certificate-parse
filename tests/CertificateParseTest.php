@@ -3,7 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
-use eIDASCertificate\Certificate\DistinguishedName;
+use eIDASCertificate\DistinguishedName;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\TrustedList;
 use ASN1\Type\UnspecifiedType;

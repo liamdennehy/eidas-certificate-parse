@@ -5,7 +5,7 @@ namespace eIDASCertificate\OCSP;
 use ASN1\Type\UnspecifiedType;
 use eIDASCertificate\ASN1Interface;
 use eIDASCertificate\AttributeInterface;
-use eIDASCertificate\Certificate\Extensions;
+use eIDASCertificate\Extensions;
 use ASN1\Type\Constructed\Sequence;
 
 class Request implements ASN1Interface, AttributeInterface

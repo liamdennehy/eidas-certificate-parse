@@ -1,10 +1,19 @@
 <?php
 
-namespace eIDASCertificate\Certificate;
+namespace eIDASCertificate;
 
-use eIDASCertificate\Certificate\ExtensionException;
+use eIDASCertificate\ExtensionException;
+use eIDASCertificate\Certificate\AuthorityInformationAccess;
 use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
-use eIDASCertificate\Certificate\UnknownExtension;
+use eIDASCertificate\Certificate\BasicConstraints;
+use eIDASCertificate\Certificate\CertificatePolicies;
+use eIDASCertificate\Certificate\CRLDistributionPoints;
+use eIDASCertificate\Certificate\ExtendedKeyUsage;
+use eIDASCertificate\Certificate\KeyUsage;
+use eIDASCertificate\Certificate\PreCertPoison;
+use eIDASCertificate\Certificate\SubjectAltName;
+use eIDASCertificate\Certificate\SubjectKeyIdentifier;
+use eIDASCertificate\UnknownExtension;
 use eIDASCertificate\OCSP\OCSPNonce;
 use eIDASCertificate\Extensions\QCStatements;
 use eIDASCertificate\OID;

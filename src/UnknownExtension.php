@@ -1,8 +1,8 @@
 <?php
 
-namespace eIDASCertificate\Certificate;
+namespace eIDASCertificate;
 
-use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\ExtensionInterface;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Finding;
 use eIDASCertificate\OID;

@@ -1,6 +1,6 @@
 <?php
 
-namespace eIDASCertificate\Certificate;
+namespace eIDASCertificate;
 
 use eIDASCertificate\OID;
 use ASN1\Type\UnspecifiedType;
