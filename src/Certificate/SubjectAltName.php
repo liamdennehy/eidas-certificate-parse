@@ -2,8 +2,8 @@
 
 namespace eIDASCertificate\Certificate;
 
-use eIDASCertificate\Certificate\ExtensionInterface;
-use eIDASCertificate\CertificateException;
+use eIDASCertificate\ExtensionInterface;
+use eIDASCertificate\Certificate\CertificateException;
 use eIDASCertificate\ParseException;
 use eIDASCertificate\Finding;
 use eIDASCertificate\Certificate\X509Certificate;

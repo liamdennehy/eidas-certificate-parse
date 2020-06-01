@@ -5,7 +5,7 @@ namespace eIDASCertificate\Extensions;
 use eIDASCertificate\OID;
 use eIDASCertificate\Finding;
 use eIDASCertificate\Certificate\X509Certificate;
-use eIDASCertificate\Certificate\ExtensionInterface;
+use eIDASCertificate\ExtensionInterface;
 use eIDASCertificate\QCStatements\QCStatement;
 use eIDASCertificate\QCStatements\QCStatementException;
 use ASN1\Type\UnspecifiedType;

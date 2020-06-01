@@ -7,8 +7,11 @@ use eIDASCertificate\ParseException;
 use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\Finding;
 use eIDASCertificate\OID;
+use eIDASCertificate\Extensions;
 use eIDASCertificate\QCStatements;
-use eIDASCertificate\Certificate\DistinguishedName;
+use eIDASCertificate\ASN1Interface;
+use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\DistinguishedName;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\TSPService\TSPServiceException;
 use ASN1\Type\UnspecifiedType;
@@ -17,7 +20,11 @@ use phpseclib\File\X509;
 /**
  *
  */
-class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, AttributeInterface
+class X509Certificate implements
+    DigitalIdInterface,
+    RFC5280ProfileInterface,
+    AttributeInterface,
+    ASN1Interface
 {
     private $x509;
     private $crtResource;
@@ -38,14 +45,13 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
     private $notBefore;
     private $notAfter;
     private $signature;
+    private $signatureAlgrothimIdentifier;
     public function __construct($candidate)
     {
-        $this->x509 = new X509();
         $this->crtBinary = X509Certificate::emit($candidate);
-        $this->crtResource = $this->x509->loadX509($this->crtBinary);
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
-        $signatureAlgorithm = $crtASN1->at(1)->asSequence();
+        $this->signatureAlgorithmIdentifier = AlgorithmIdentifier::fromDER($crtASN1->at(1)->asSequence()->toDER());
         $signatureValue = $crtASN1->at(2)->asBitString()->string();
         $idx = 0;
         if ($tbsCertificate->hasTagged(0)) {
@@ -57,7 +63,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
         //   return null;
         //
         }
-        $this->serialNumber = $tbsCertificate->at($idx++)->asInteger()->number();
+        $this->serialNumber = gmp_strval($tbsCertificate->at($idx++)->asInteger()->number(), 16);
         $this->signature = $tbsCertificate->at($idx++)->asSequence();
         $this->issuer = new DistinguishedName($tbsCertificate->at($idx++));
         $dates = $tbsCertificate->at($idx++)->asSequence();
@@ -304,7 +310,7 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
         }
     }
 
-    public function getSerial()
+    public function getSerialNumber()
     {
         return $this->serialNumber;
     }
@@ -328,14 +334,34 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
         return self::base64ToPEM(base64_encode($this->crtBinary));
     }
 
+    public function getSubjectASN1()
+    {
+        return $this->subject->getASN1();
+    }
+
     public function getSubjectDN()
     {
         return $this->subject->getDN();
     }
 
+    public function getIssuerASN1()
+    {
+        return $this->issuer->getASN1();
+    }
+
     public function getIssuerDN()
     {
         return $this->issuer->getDN();
+    }
+
+    public function getSubjectNameHash($algo = 'sha256')
+    {
+        return $this->subject->getHash($algo);
+    }
+
+    public function getIssuerNameHash($algo = 'sha256')
+    {
+        return $this->issuer->getHash($algo);
     }
 
     public function getSubjectExpanded()
@@ -510,5 +536,38 @@ class X509Certificate implements DigitalIdInterface, RFC5280ProfileInterface, At
     public function getExtensionsBinary()
     {
         return $this->extensions->getBinary();
+    }
+
+    public function getSignatureAlgorithmIdentifier()
+    {
+        return $this->signatureAlgorithmIdentifier;
+    }
+
+    public function getSignatureAlgorithmName()
+    {
+        return $this->signatureAlgorithmIdentifier->getalgorithmName();
+    }
+
+    public function getSignatureAlgorithmParameters()
+    {
+        return $this->signatureAlgorithmIdentifier->getParameters();
+    }
+
+    public function getASN1()
+    {
+        throw new \Exception("getASN1 not implemented", 1);
+    }
+
+    public function getSubjectPublicKeyHash($algo = 'sha256')
+    {
+        return hash(
+            $algo,
+            UnspecifiedType::fromDER($this->publicKey)
+                ->asSequence()
+                ->at(1)
+                ->asBitString()
+                ->string(),
+            true
+        );
     }
 }

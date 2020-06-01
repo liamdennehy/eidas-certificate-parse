@@ -69,16 +69,16 @@ class TLTest extends TestCase
             ],
           ]
         ],
-        'sequenceNumber' => 44,
+        'sequenceNumber' => 46,
         'informationURIs' => [
           ['lang' => 'en', 'uri' => 'https://tsl.belgium.be/']
         ],
         'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml',
-        'issued' => '1567641600',
-        'nextUpdate' => '1583107200',
-        'fileHash' => '48d9f7ec51ed0be4f1b52ef5fbdcb0b69a62a766291b2bcb46b332b7a0cdc475',
+        'issued' => '1584576000',
+        'nextUpdate' => '1600214400',
+        'fileHash' => 'cde361b795c40e958ff876554b1316d41b9bf05f2aa6b97fd98c8c86639099bc',
         'signature' => [
-          'signerThumbprint' => 'cfde6ceda889bd628bde8ed18092b06392d23cf2'
+          'signerThumbprint' => '69296fb9038c6156d4f169fd6b7a6214813448bb'
         ]
     ];
 

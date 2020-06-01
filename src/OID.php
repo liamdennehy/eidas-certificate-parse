@@ -12,6 +12,7 @@ class OID
     const PKIX_QCSYNTAX_V2        = '1.3.6.1.5.5.7.11.2';
     const ecPublicKey             = '1.2.840.10045.2.1';
     const rsaEncryption           = '1.2.840.113549.1.1.1';
+    // https://tools.ietf.org/html/rfc8017#appendix-A.2.3
     const RSASSA_PSS              = '1.2.840.113549.1.1.10';
     const emailAddress            = '1.2.840.113549.1.9.1';
     const QcCompliance            = '0.4.0.1862.1.1';
@@ -93,6 +94,20 @@ class OID
     const domainComponent         = '0.9.2342.19200300.100.1.25';
     // https://docs.oracle.com/cd/E19957-01/816-6292-10/com/iplanet/trustbase/initiator/dsms/CSCEngine.html
     const msSmartCardUPN          = '1.3.6.1.4.1.311.20.2.3';
+    // https://tools.ietf.org/html/rfc3279#section-3
+    const sha1                    = '1.3.14.3.2.26';
+    // https://tools.ietf.org/html/rfc3560.html#appendix-A
+    const sha256                  = '2.16.840.1.101.3.4.2.1';
+    // https://tools.ietf.org/html/rfc3279#section-3
+    const sha1WithRSAEncryption   = '1.2.840.113549.1.1.5';
+    // https://tools.ietf.org/html/rfc4055#section-5
+    const sha256WithRSAEncryption = '1.2.840.113549.1.1.11';
+    // https://tools.ietf.org/html/rfc4055#section-5
+    const sha384WithRSAEncryption = '1.2.840.113549.1.1.12';
+    // https://tools.ietf.org/html/rfc4055#section-5
+    const sha512WithRSAEncryption = '1.2.840.113549.1.1.13';
+    // https://tools.ietf.org/html/rfc6960#section-4.4.1
+    const ocspNonce               = '1.3.6.1.5.5.7.48.1.2';
 
     public static function getName($oidString)
     {
@@ -322,6 +337,27 @@ class OID
           case self::msSmartCardUPN:
             $oidName = 'msSmartCardUPN';
             break;
+          case self::sha1:
+            $oidName = 'sha-1';
+            break;
+          case self::sha256:
+            $oidName = 'sha-256';
+            break;
+          case self::sha1WithRSAEncryption:
+            $oidName = 'sha1WithRSAEncryption';
+            break;
+          case self::sha256WithRSAEncryption:
+            $oidName = 'sha256WithRSAEncryption';
+            break;
+          case self::sha384WithRSAEncryption:
+            $oidName = 'sha384WithRSAEncryption';
+            break;
+          case self::sha512WithRSAEncryption:
+            $oidName = 'sha512WithRSAEncryption';
+            break;
+          case self::ocspNonce:
+            $oidName = 'ocspNonce';
+            break;
           default:
             $oidName = 'unknown';
             break;
@@ -386,6 +422,30 @@ class OID
             } else {
                 return null;
             }
+            break;
+        }
+    }
+
+    public static function getOID($name)
+    {
+        switch ($name) {
+          case 'sha1':
+          case 'sha-1':
+            return '1.3.14.3.2.26';
+            break;
+          case 'sha256':
+          case 'sha-256':
+            return '2.16.840.1.101.3.4.2.1';
+            break;
+          case 'ocspNonce':
+            return '1.3.6.1.5.5.7.48.1.2';
+            break;
+          case 'RSASSA-PSS':
+          case 'RSASSA_PSS':
+            return '1.2.840.113549.1.1.10';
+            break;
+          default:
+            return 'unknown';
             break;
         }
     }

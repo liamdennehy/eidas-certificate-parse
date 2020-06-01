@@ -3,8 +3,8 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
-use eIDASCertificate\Certificate\Extension;
-use eIDASCertificate\Certificate\Extensions;
+use eIDASCertificate\Extension;
+use eIDASCertificate\Extensions;
 use eIDASCertificate\Certificate\AuthorityInformationAccess;
 use eIDASCertificate\Certificate\AuthorityKeyIdentifier;
 use eIDASCertificate\Certificate\CertificatePolicies;

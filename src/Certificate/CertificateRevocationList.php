@@ -4,7 +4,7 @@ namespace eIDASCertificate\Certificate;
 
 use ASN1\Type\UnspecifiedType;
 use eIDASCertificate\Certificate\CRLException;
-use eIDASCertificate\Certificate\DistinguishedName;
+use eIDASCertificate\DistinguishedName;
 use eIDASCertificate\OID;
 
 /**

@@ -1,14 +1,15 @@
 <?php
 
-namespace eIDASCertificate\Certificate;
+namespace eIDASCertificate;
 
 use eIDASCertificate\OID;
+use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\UnspecifiedType;
 
 /**
  *
  */
-class DistinguishedName
+class DistinguishedName implements ASN1Interface
 {
     private $binary;
 
@@ -113,5 +114,20 @@ class DistinguishedName
             );
         }
         return $dnPartExpanded;
+    }
+
+    public function getHash($algo = 'sha256')
+    {
+        return hex2bin(hash($algo, $this->getASN1()->at(0)->toDER()));
+    }
+
+    public function getBinary()
+    {
+        return $this->getASN1()->toDER();
+    }
+
+    public function getASN1()
+    {
+        return new Sequence($this->sequence);
     }
 }

@@ -3,7 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
-use eIDASCertificate\Certificate\DistinguishedName;
+use eIDASCertificate\DistinguishedName;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\TrustedList;
 use ASN1\Type\UnspecifiedType;
@@ -125,7 +125,7 @@ class CertificateParseTest extends TestCase
               'http://trust.quovadisglobal.com/qvbecag2.crt'
             ],
             'aki' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
-            'serialNumber' => '510758012567249096883552881202149149901456017681',
+            'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
             'isSelf' => false
           ],
           'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
@@ -253,7 +253,7 @@ class CertificateParseTest extends TestCase
               'http://trust.quovadisglobal.com/qventca1g3.crt'
             ],
             'aki' => 'bCa9YFUpKU5mMgeg/2OLg1pLNMY=',
-            'serialNumber' => '370861943658773060475449278572584178262799314517',
+            'serialNumber' => '40f6065343c04cb671e9c8250e90ebd58dd86e55',
             'isSelf' => false
           ],
           'notBefore' => 1465820525,
@@ -346,7 +346,7 @@ class CertificateParseTest extends TestCase
               '/CN=VeriSign Class 3 Public Primary Certification Authority - G3',
             'expandedDN' => $this->v1crtSubject,
             'isSelf' => true,
-            'serialNumber' => '206684696279472310254277870180966723415'
+            'serialNumber' => '9b7e0649a33e62b9d5ee90487129ef57'
           ],
           'fingerprint' => 'eb04cf5eb1f39afa762f2bb120f296cba520c1b97db1589565b81cb9a17b7244',
           'notBefore' => 938736000,
@@ -403,6 +403,19 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             $this->v1crtAttributes,
             $v1Cert->getAttributes()
+        );
+        $this->assertTrue(
+            $v1Cert->isCurrentAt($this->testTime)
+        );
+        $this->assertFalse(
+            $v1Cert->isCurrentAt(new \DateTime('1998-12-12 12:00 UTC'))
+        );
+        $this->assertFalse(
+            $v1Cert->isCurrentAt(new \DateTime('2036-08-01 12:00 UTC'))
+        );
+        $this->assertEquals(
+            'sha1WithRSAEncryption',
+            $v1Cert->getSignatureAlgorithmName()
         );
     }
 
@@ -551,6 +564,19 @@ class CertificateParseTest extends TestCase
             0,
             $cacrt1->getPathLength()
         );
+        $this->assertEquals(
+            'sha1WithRSAEncryption',
+            $this->jmcrt->getSignatureAlgorithmName()
+        );
+        $this->assertEquals(
+            [],
+            $this->jmcrt->getSignatureAlgorithmParameters()
+        );
+
+        $this->assertEquals(
+            '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
+            bin2hex($this->eucrt->getIssuerNameHash())
+        );
     }
 
     public function testX509Atrributes()
@@ -559,6 +585,15 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             $this->eucrtAttributes,
             $this->eucrt->getAttributes()
+        );
+    }
+
+    public function testSerialNumber()
+    {
+        $this->getTestCerts();
+        $this->assertEquals(
+            '59772e700669b7669fb012c5cdd13c3a281a0911',
+            $this->eucrt->getSerialNumber()
         );
     }
 
@@ -575,6 +610,16 @@ class CertificateParseTest extends TestCase
         );
     }
 
+    public function testGetPublicKey($value='')
+    {
+        $issuer = new X509Certificate(
+            file_get_contents(__DIR__.'/certs/qvbecag2.crt')
+        );
+        $this->assertEquals(
+            '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+            bin2hex($issuer->getSubjectPublicKeyHash())
+        );
+    }
     public function testIssuerValidate()
     {
         $this->getTestCerts();
@@ -651,27 +696,6 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             TSPServicesTest::getEUTSPServiceAttributes(),
             $eucrtAttributes['issuer']['certificates'][0]['tspService']
-        );
-    }
-
-    public function testParseDN()
-    {
-        $dnDER = base64_decode(
-            'MIIBHzELMAkGA1UEBhMCUEwxFDASBgNVBAgMC21hem93aWVja2llMREwDwYDVQQHDA'.
-            'hXYXJzemF3YTEjMCEGA1UECwwaQml1cm8gT3R3YXJ0ZWogQmFua293b8WbY2kxPTA7'.
-            'BgNVBBAwNAwMUHXFgmF3c2thIDE1DA8wMC05NzUgV2Fyc3phd2EMC21hem93aWVja2'.
-            'llDAZQb2xza2ExHjAcBgNVBGEMFVBTRFBMLVBGU0EtNTI1MDAwNzczODFEMEIGA1UE'.
-            'Cgw7UG93c3plY2huYSBLYXNhIE9zemN6xJlkbm/Fm2NpIEJhbmsgUG9sc2tpIFNww7'.
-            'PFgmthIEFrY3lqbmExHTAbBgNVBAMMFHNhbmRib3guYXBpLnBrb2JwLnBs'
-        );
-        $dn = new DistinguishedName(UnspecifiedType::fromDER($dnDER));
-        $this->assertEquals(
-            '/C=PL/ST=mazowieckie/L=Warszawa/OU=Biuro Otwartej '.
-            'Bankowości/postalAddress=Puławska 15/postalAddress=00-975 '.
-            'Warszawa/postalAddress=mazowieckie/postalAddress=Polska'.
-            '/2.5.4.97=PSDPL-PFSA-5250007738/O=Powszechna Kasa Oszczędności '.
-            'Bank Polski Spółka Akcyjna/CN=sandbox.api.pkobp.pl',
-            $dn->getDN()
         );
     }
 }
