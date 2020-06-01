@@ -334,14 +334,34 @@ class X509Certificate implements
         return self::base64ToPEM(base64_encode($this->crtBinary));
     }
 
+    public function getSubjectASN1()
+    {
+        return $this->subject->getASN1();
+    }
+
     public function getSubjectDN()
     {
         return $this->subject->getDN();
     }
 
+    public function getIssuerASN1()
+    {
+        return $this->issuer->getASN1();
+    }
+
     public function getIssuerDN()
     {
         return $this->issuer->getDN();
+    }
+
+    public function getSubjectNameHash($algo = 'sha256')
+    {
+        return $this->subject->getHash($algo);
+    }
+
+    public function getIssuerNameHash($algo = 'sha256')
+    {
+        return $this->issuer->getHash($algo);
     }
 
     public function getSubjectExpanded()
