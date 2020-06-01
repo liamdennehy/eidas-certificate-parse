@@ -113,7 +113,7 @@ class AlgorithmTest extends TestCase
         );
         $this->assertEquals(
             '1.2.840.113549.1.1.10',
-            $algo->getAlgorithmOID(),
+            $algo->getAlgorithmOID()
         );
         $this->assertEquals(
             $parameters,
