@@ -49,7 +49,7 @@ class OCSPRequest implements
             $signatureAlgorithm,
             $issuerNameHash,
             $issuerKeyHash,
-            $serialNumber,
+            $serialNumber
         );
         $requestlist[] = new Request($certId);
         if (is_null($nonce)) {
