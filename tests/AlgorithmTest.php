@@ -109,7 +109,7 @@ class AlgorithmTest extends TestCase
         );
         $this->assertEquals(
             'RSASSA-PSS',
-            $algo->getAlgorithmName(),
+            $algo->getAlgorithmName()
         );
         $this->assertEquals(
             '1.2.840.113549.1.1.10',
