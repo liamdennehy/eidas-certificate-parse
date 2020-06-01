@@ -4,19 +4,20 @@ namespace eIDASCertificate\OCSP;
 
 use ASN1\Type\UnspecifiedType;
 use eIDASCertificate\ASN1Interface;
+use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\Certificate\Extensions;
 use ASN1\Type\Constructed\Sequence;
 
-class Request implements ASN1Interface
+class Request implements ASN1Interface, AttributeInterface
 {
     private $binary;
     private $certId;
-    private $extensions;
+    private $extensions = [];
 
     /**
      * [__construct description]
      * @param CertID $certId     [description]
-     * @param [type] $extensions [description]
+     * @param Extensions $extensions [description]
      */
     public function __construct(CertID $certId, Extensions $extensions = null)
     {
@@ -36,9 +37,49 @@ class Request implements ASN1Interface
         return new Sequence($this->certId->getASN1());
     }
 
-
     public function getBinary()
     {
         return $this->getASN1()->toDER();
+    }
+
+    public function getExtensions()
+    {
+        return $this->extensions;
+    }
+
+    public function getNonce()
+    {
+        if (is_array($this->extensions) && array_key_exists('ocspNonce', $this->extensions)) {
+            return $this->extensions['ocspNonce']->getNonce();
+        }
+    }
+
+    public function getHashAlgorithm()
+    {
+        return $this->certId->getHashAlgorithm();
+    }
+
+    public function getSerialNumber()
+    {
+        return $this->certId->getSerialNumber();
+    }
+
+    public function getIssuerKeyHash()
+    {
+        return $this->certId->getIssuerKeyHash();
+    }
+
+    public function getIssuerNameHash()
+    {
+        return $this->certId->getIssuerNameHash();
+    }
+
+    public function getAttributes()
+    {
+        $attr = $this->certId->getAttributes();
+        if (! empty($this->getNonce())) {
+            $attr['nonce'] = $this->getNonce();
+        }
+        return $attr;
     }
 }
