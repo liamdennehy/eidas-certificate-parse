@@ -12,6 +12,7 @@ class OID
     const PKIX_QCSYNTAX_V2        = '1.3.6.1.5.5.7.11.2';
     const ecPublicKey             = '1.2.840.10045.2.1';
     const rsaEncryption           = '1.2.840.113549.1.1.1';
+    // https://tools.ietf.org/html/rfc8017#appendix-A.2.3
     const RSASSA_PSS              = '1.2.840.113549.1.1.10';
     const emailAddress            = '1.2.840.113549.1.9.1';
     const QcCompliance            = '0.4.0.1862.1.1';
@@ -438,6 +439,10 @@ class OID
             break;
           case 'ocspNonce':
             return '1.3.6.1.5.5.7.48.1.2';
+            break;
+          case 'RSASSA-PSS':
+          case 'RSASSA_PSS':
+            return '1.2.840.113549.1.1.10';
             break;
           default:
             return 'unknown';

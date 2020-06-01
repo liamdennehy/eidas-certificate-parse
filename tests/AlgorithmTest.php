@@ -108,6 +108,14 @@ class AlgorithmTest extends TestCase
             base64_decode($b64)
         );
         $this->assertEquals(
+            'RSASSA-PSS',
+            $algo->getAlgorithmName(),
+        );
+        $this->assertEquals(
+            '1.2.840.113549.1.1.10',
+            $algo->getAlgorithmOID(),
+        );
+        $this->assertEquals(
             $parameters,
             $algo->getParameters()
         );
