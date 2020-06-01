@@ -95,6 +95,8 @@ class OID
     const msSmartCardUPN          = '1.3.6.1.4.1.311.20.2.3';
     // https://tools.ietf.org/html/rfc3279#section-3
     const sha1                    = '1.3.14.3.2.26';
+    // https://tools.ietf.org/html/rfc3560.html#appendix-A
+    const sha256                  = '2.16.840.1.101.3.4.2.1';
     // https://tools.ietf.org/html/rfc3279#section-3
     const sha1WithRSAEncryption   = '1.2.840.113549.1.1.5';
     // https://tools.ietf.org/html/rfc4055#section-5
@@ -337,6 +339,9 @@ class OID
           case self::sha1:
             $oidName = 'sha-1';
             break;
+          case self::sha256:
+            $oidName = 'sha-256';
+            break;
           case self::sha1WithRSAEncryption:
             $oidName = 'sha1WithRSAEncryption';
             break;
@@ -426,6 +431,10 @@ class OID
           case 'sha1':
           case 'sha-1':
             return '1.3.14.3.2.26';
+            break;
+          case 'sha256':
+          case 'sha-256':
+            return '2.16.840.1.101.3.4.2.1';
             break;
           case 'ocspNonce':
             return '1.3.6.1.5.5.7.48.1.2';
