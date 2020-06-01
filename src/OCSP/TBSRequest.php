@@ -4,19 +4,24 @@ namespace eIDASCertificate\OCSP;
 
 use ASN1\Type\UnspecifiedType;
 use eIDASCertificate\ASN1Interface;
+use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\Certificate\Extensions;
 use eIDASCertificate\ParseException;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Tagged\ExplicitlyTaggedType;
 
-class TBSRequest implements ASN1Interface
+class TBSRequest implements ASN1Interface, AttributeInterface
 {
-    private $version = 1;
+    private $version;
     private $requestList = [];
     private $nonce;
 
-    public function __construct($requestList, $nonce = null)
+    public function __construct($requestList, $nonce = null, $version = 1)
     {
+        if ($version !== 1) {
+            throw new \Exception("Only version 1 OCSP Requests are supported", 1);
+        }
+        $this->version = $version;
         $this->requestList = $requestList;
         if (! empty($nonce)) {
             $this->nonce = $nonce;
@@ -73,20 +78,49 @@ class TBSRequest implements ASN1Interface
     public function getASN1()
     {
         foreach ($this->requestList as $request) {
-            $requests[] = UnspecifiedType::fromDER($request->getBinary())->asSequence();
+            $requests[] = $request->getASN1();
         }
-        return new Sequence(
-            new Sequence(...$requests),
-            new ExplicitlyTaggedType(
-                2,
-                new Sequence(
-                  (OCSPNonce::fromValue($this->nonce))->getASN1()
-              )
-            )
-        );
+        if (is_null($this->nonce)) {
+            return new Sequence(
+                new Sequence(...$requests)
+            );
+        } else {
+            return new Sequence(
+                new Sequence(...$requests),
+                new ExplicitlyTaggedType(
+                    2,
+                    new Sequence(
+                        (OCSPNonce::fromValue($this->nonce))->getASN1()
+                    )
+                )
+            );
+        }
     }
+
     public function getBinary()
     {
         return $this->getASN1()->toDER();
+    }
+
+    public function getRequests()
+    {
+        return $this->requestList;
+    }
+
+    public function getNonce()
+    {
+        return $this->nonce;
+    }
+
+    public function getAttributes()
+    {
+        $attr['version'] = $this->version;
+        foreach ($this->requestList as $request) {
+            $attr['requests'][] = $request->getAttributes();
+        }
+        if (! empty($this->nonce)) {
+            $attr['nonce'] = bin2hex($this->nonce);
+        }
+        return $attr;
     }
 }
