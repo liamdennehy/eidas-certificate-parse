@@ -39,13 +39,13 @@ class AlgorithmIdentifier implements ASN1Interface
                 if ($this->algorithmName == 'unknown') {
                     throw new ParseException("Unknown algorithm OID '$id'", 1);
                 }
-                $this->algorithmOID = $id;
+                $this->algorithmOID = OID::getOID($this->algorithmName);
             } else {
                 $this->algorithmOID = OID::getOID($id);
                 if ($this->algorithmOID == 'unknown') {
                     throw new ParseException("Unknown algorithm name '$id'", 1);
                 }
-                $this->algorithmName = $id;
+                $this->algorithmName = OID::getName($this->algorithmOID);
             }
         }
     }
