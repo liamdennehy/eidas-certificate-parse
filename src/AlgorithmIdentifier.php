@@ -24,21 +24,32 @@ class AlgorithmIdentifier implements ASN1Interface
                 $this->parameters[] = $parameter;
             }
         }
+
         $this->parametersIncluded = $parametersIncluded;
-        if (strpos($id, ".")) {
-            $this->algorithmName = OID::getName($id);
-            if ($this->algorithmName == 'unknown') {
-                throw new ParseException("Unknown algorithm OID '$id'", 1);
+        if (is_object($id)) {
+            if (get_class($id) == 'eIDASCertificate\AlgorithmIdentifier') {
+                $this->algorithmName = $id->getAlgorithmName();
+                $this->algorithmOID = $id->getAlgorithmOID();
+                $this->parameters = $id->getParameters();
+                return;
             }
-            $this->algorithmOID = $id;
-        } else {
-            $this->algorithmOID = OID::getOID($id);
-            if ($this->algorithmOID == 'unknown') {
-                throw new ParseException("Unknown algorithm name '$id'", 1);
+        } elseif (is_string($id)) {
+            if (strpos($id, ".")) {
+                $this->algorithmName = OID::getName($id);
+                if ($this->algorithmName == 'unknown') {
+                    throw new ParseException("Unknown algorithm OID '$id'", 1);
+                }
+                $this->algorithmOID = $id;
+            } else {
+                $this->algorithmOID = OID::getOID($id);
+                if ($this->algorithmOID == 'unknown') {
+                    throw new ParseException("Unknown algorithm name '$id'", 1);
+                }
+                $this->algorithmName = $id;
             }
-            $this->algorithmName = $id;
         }
     }
+
     public static function fromDER($der)
     {
         $obj = UnspecifiedType::fromDER($der)->asSequence();
