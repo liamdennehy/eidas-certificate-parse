@@ -617,7 +617,7 @@ class CertificateParseTest extends TestCase
         );
         $this->assertEquals(
             '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-            bin2hex($issuer->getSubjectPublicKeyHash()),
+            bin2hex($issuer->getSubjectPublicKeyHash())
         );
     }
     public function testIssuerValidate()
