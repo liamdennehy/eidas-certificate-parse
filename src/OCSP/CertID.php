@@ -8,8 +8,9 @@ use ASN1\Type\Primitive\OctetString;
 use ASN1\Type\Primitive\Integer;
 use eIDASCertificate\ASN1Interface;
 use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\AttributeInterface;
 
-class CertID implements ASN1Interface
+class CertID implements ASN1Interface, AttributeInterface
 {
     private $binary;
     private $algorithmIdentifier;
@@ -30,7 +31,7 @@ class CertID implements ASN1Interface
         }
         $this->issuerNameHash = $issuerNameHash;
         $this->issuerKeyHash = $issuerKeyHash;
-        $this->serialNumber = $serialNumber;
+        $this->serialNumber = hex2bin($serialNumber);
     }
 
     public static function fromDER($der)
@@ -40,7 +41,7 @@ class CertID implements ASN1Interface
         $signatureAlgorithm = AlgorithmIdentifier::fromDER($obj->at(0)->toDER());
         $issuerNameHash = $obj->at(1)->asOctetString()->string();
         $issuerKeyHash = $obj->at(2)->asOctetString()->string();
-        $serialNumber = $obj->at(3)->asInteger()->number();
+        $serialNumber = gmp_strval($obj->at(3)->asInteger()->number(), 16);
         return new CertID($signatureAlgorithm, $issuerNameHash, $issuerKeyHash, $serialNumber);
     }
 
@@ -50,13 +51,18 @@ class CertID implements ASN1Interface
             $this->algorithmIdentifier->getASN1(),
             new OctetString($this->issuerNameHash),
             new OctetString($this->issuerKeyHash),
-            new Integer($this->serialNumber),
-        );
+            new Integer(gmp_strval(gmp_init($this->getSerialNumber(), 16), 10)),
+        ));
     }
 
     public function getBinary()
     {
         return $this->getASN1()->toDER();
+    }
+
+    public function getHashAlgorithm()
+    {
+        return $this->algorithmIdentifier;
     }
 
     public function getAlgorithmName()
@@ -81,6 +87,16 @@ class CertID implements ASN1Interface
 
     public function getSerialNumber()
     {
-        return $this->serialNumber;
+        return bin2hex($this->serialNumber);
+    }
+
+    public function getAttributes()
+    {
+        $attr = [];
+        $attr['serialNumber'] = $this->getSerialNumber();
+        $attr['algorithmName'] = $this->getAlgorithmName();
+        $attr['issuerKeyHash'] = bin2hex($this->getIssuerKeyHash());
+        $attr['issuerNameHash'] = bin2hex($this->getIssuerNameHash());
+        return $attr;
     }
 }
