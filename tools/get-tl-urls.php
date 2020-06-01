@@ -10,11 +10,11 @@ $lotlURL = 'https://ec.europa.eu/tools/lotl/eu-lotl.xml';
 
 $lotl = new TrustedList(file_get_contents($lotlURL));
 foreach ($lotl->getTLPointerPaths() as $tlName => $tlPointer) {
-  $tls[] = [
+    $tls[] = [
     'name' => $tlName,
     'url' => $tlPointer['location'],
-    'filename' => 'tl-' . hash('sha256',$tlName) . 'xml'
+    'filename' => 'tl-' . hash('sha256', $tlName) . 'xml'
   ];
 }
-print json_encode($tls,JSON_PRETTY_PRINT);
+print json_encode($tls, JSON_PRETTY_PRINT);
 exit;
