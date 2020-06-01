@@ -8,7 +8,7 @@ use eIDASCertificate\OCSP\CertID;
 use eIDASCertificate\OCSP\Request;
 use eIDASCertificate\OCSP\TBSRequest;
 use eIDASCertificate\OCSP\OCSPNonce;
-use eIDASCertificate\Certificate\Extension;
+use eIDASCertificate\Extension;
 use eIDASCertificate\AlgorithmIdentifier;
 use eIDASCertificate\tests\Helper;
 use ASN1\Type\UnspecifiedType;
@@ -18,7 +18,7 @@ class OCSPTest extends TestCase
     private $requestDER;
 
     const eucrtfile = 'European-Commission.crt';
-
+    const qvcrtfile = 'qvbecag2.crt';
     public function setUp()
     {
         $this->requestDER = base64_decode(
@@ -262,17 +262,39 @@ class OCSPTest extends TestCase
         );
     }
 
-    // TODO: Implement generation of OCSP Request given a certificate
-    // public function testOCSPRequestFromCertificate()
-    // {
-    //     $eucrtPEM = file_get_contents(
-    //         __DIR__ . "/certs/" . self::eucrtfile
-    //     );
-    //
-    //     $req = OCSPRequest::fromCertificate($eucrtPEM);
-    //     $this->assertEquals(
-    //         'MAIwAA==',
-    //         base64_encode($req->getBinary())
-    //     );
-    // }
+    public function testOCSPRequestFromCertificate()
+    {
+        $eucrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::eucrtfile
+        );
+
+        $req = OCSPRequest::fromCertificate(
+            file_get_contents(__DIR__ . '/certs/' . self::eucrtfile),
+            file_get_contents(__DIR__ . '/certs/' . self::qvcrtfile),
+            'sha256',
+            hex2bin('cc51fed1358bcab2f2f345797a295d8d')
+        );
+        $this->assertEquals(
+            [
+                'version' => 1,
+                'requests' => [
+                  [
+                    'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+                    'algorithmName' => 'sha-256',
+                    'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+                    'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
+                  ],
+                ],
+                'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
+            ],
+            $req->getAttributes()
+        );
+        $this->assertEquals(
+            'MIGXMIGUMG0wazBpMA0GCWCGSAFlAwQCAQUABCB/KwGdqlHNK/1S9NxmOTkp7WNyE'.
+            'D4Tcco8H7DBRjt/7QQgnlBu5uQdtrB/A454ZktDW/rdCzpj+yddYR4WH7puojACFF'.
+            'l3LnAGabdmn7ASxc3RPDooGgkRoiMwITAfBgkrBgEFBQcwAQIEEgQQzFH+0TWLyrL'.
+            'y80V5eildjQ==',
+            base64_encode($req->getBinary())
+        );
+    }
 }
