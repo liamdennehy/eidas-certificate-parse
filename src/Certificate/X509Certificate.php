@@ -33,6 +33,7 @@ class X509Certificate implements
     private $extensions;
     private $keyUsage;
     private $crl;
+    private $x509Version;
     private $serialNumber;
     private $publicKey;
     private $issuers = [];
@@ -55,8 +56,10 @@ class X509Certificate implements
         $signatureValue = $crtASN1->at(2)->asBitString()->string();
         $idx = 0;
         if ($tbsCertificate->hasTagged(0)) {
-            $crtVersion = $tbsCertificate->getTagged(0)->asExplicit()->asInteger()->intNumber();
+            $this->x509Version = $tbsCertificate->getTagged(0)->asExplicit()->asInteger()->intNumber() + 1;
             $idx++;
+        } else {
+            $this->x509Version = 1;
         }
         $this->serialNumber = gmp_strval($tbsCertificate->at($idx++)->asInteger()->number(), 16);
         $this->signature = $tbsCertificate->at($idx++)->asSequence();
@@ -96,9 +99,8 @@ class X509Certificate implements
             );
         }
         if ($tbsCertificate->hasTagged(3)) {
-            $extensionsDER = $tbsCertificate->getTagged(3)->asExplicit()->asSequence()->toDER();
             $this->extensions = new Extensions(
-                $extensionsDER
+                $tbsCertificate->getTagged(3)->asExplicit()->asSequence()
             );
             $this->findings = array_merge($this->findings, $this->extensions->getFindings());
         }
@@ -377,6 +379,7 @@ class X509Certificate implements
     public function getAttributes()
     {
         if (! array_key_exists('subject', $this->attributes)) {
+            $this->attributes['x509Version'] = $this->x509Version;
             $subjectDN = $this->getSubjectDN();
             $this->attributes['subject']['DN'] = $subjectDN;
             $this->attributes['subject']['expandedDN'] = $this->getSubjectExpanded();

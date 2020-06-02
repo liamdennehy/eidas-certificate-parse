@@ -19,10 +19,12 @@ class Extensions implements ParseInterface, ASN1Interface
     private $findings = [];
     private $binary;
 
-    public function __construct($extensionsDER)
+    public function __construct($extensionsSequence)
     {
+        if (is_string($extensionsSequence)) {
+            throw new \Exception("Extension as Sequence Please!", 1);
+        }
         $this->extensions = [];
-        $extensionsSequence = UnspecifiedType::fromDER($extensionsDER)->asSequence();
         foreach ($extensionsSequence->elements() as $extension) {
             $extension = $extension->asSequence();
             $v3Extension = Extension::fromSequence($extension);
@@ -46,7 +48,12 @@ class Extensions implements ParseInterface, ASN1Interface
             }
         }
         // TODO: Minimum set https://tools.ietf.org/html/rfc5280#section-4.2
-        $this->binary = $extensionsDER;
+        $this->binary = $extensionsSequence->toDER();
+    }
+
+    public static function fromDER($der)
+    {
+        return new Extensions(UnspecifiedType::fromDER($der)->asSequence());
     }
 
     public function setKeyUsage($keyUsageString)

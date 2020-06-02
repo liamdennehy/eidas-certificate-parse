@@ -15,6 +15,7 @@ use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
 use eIDASCertificate\Certificate\PreCertPoison;
 use eIDASCertificate\Certificate\SubjectAltName;
+use ASN1\Type\UnspecifiedType;
 
 class ExtensionTest extends TestCase
 {
@@ -48,7 +49,13 @@ class ExtensionTest extends TestCase
             "AQYwCQYHBACORgEGAzBTBgYEAIGYJwIwSTAmMBEGBwQAgZgnAQIMBlBTUF9QSTARBgc".
             "EAIGYJwEDDAZQU1BfQUkMF0NlbnRyYWwgQmFuayBvZiBIdW5nYXJ5DAZIVS1DQkg="
         );
-        $extensions = new Extensions($extensionsDER);
+        $extensions = new Extensions(
+            UnspecifiedType::fromDER($extensionsDER)->asSequence()
+        );
+        $this->assertEquals(
+            base64_encode($extensionsDER),
+            base64_encode($extensions->getBinary())
+        );
         $this->assertEquals(
             [
               'keyUsage',
@@ -74,12 +81,12 @@ class ExtensionTest extends TestCase
         'hMjAxOC1jcmwzLmUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3Js');
         $extnCDPs = new CRLDistributionPoints($binary);
         $this->assertEquals(
-            $extnCDPs->getCDPs(),
             [
               'http://qtlsca2018-crl1.e-szigno.hu/qtlsca2018.crl',
               'http://qtlsca2018-crl2.e-szigno.hu/qtlsca2018.crl',
               'http://qtlsca2018-crl3.e-szigno.hu/qtlsca2018.crl'
-            ]
+            ],
+            $extnCDPs->getCDPs()
         );
     }
 
