@@ -11,7 +11,6 @@ use ASN1\Type\UnspecifiedType;
  */
 class DistinguishedName implements ASN1Interface
 {
-
     const UTF8String      = 12;
     const Sequence        = 16;
     const PrintableString = 19;
