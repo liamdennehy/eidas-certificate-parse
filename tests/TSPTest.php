@@ -20,18 +20,18 @@ class TSPTest extends TestCase
 
     public function setUp()
     {
-        Helper::getHTTP(TLTest::testTLURI, 'tl');
-        $abc = LOTLRootTest::lotlAttributes;
-        $this->datadir = __DIR__ . '/../data';
-        $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
-        if (! file_exists($xmlFilePath)) {
-            $this->lotlXML = DataSource::getHTTP(
-                TrustedList::ListOfTrustedListsXMLPath
-            );
-            file_put_contents($xmlFilePath, $this->lotlXML);
-        } else {
-            $this->lotlXML = file_get_contents($xmlFilePath);
-        }
+        // Helper::getHTTP(TLTest::testTLURI, 'tl');
+        // $abc = LOTLRootTest::lotlAttributes;
+        // $this->datadir = __DIR__ . '/../data';
+        // $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
+        // if (! file_exists($xmlFilePath)) {
+        //     $this->lotlXML = DataSource::getHTTP(
+        //         TrustedList::ListOfTrustedListsXMLPath
+        //     );
+        //     file_put_contents($xmlFilePath, $this->lotlXML);
+        // } else {
+        $this->lotlXML = file_get_contents(__DIR__.'/../data/'.self::lotlXMLFileName);
+        // }
         $this->lotl = new TrustedList($this->lotlXML);
     }
 
@@ -72,11 +72,11 @@ class TSPTest extends TestCase
             0,
             sizeof($lotl->getTSPs(true))
         );
-        $crtFileName = $this->datadir.LOTLRootTest::lotlSigningCertPath;
+        $crtFileName = __DIR__.'/../'.LOTLRootTest::lotlSigningCertPath;
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $lotl->verifyTSL($rightCert);
-        $testTLFileNAme = $this->datadir.'/'.TLTest::testTLXMLFileName;
+        $testTLFileNAme = __DIR__.'/../'.TLTest::testTLXMLFileName;
         $lotl->addTrustedListXML(TLTest::testTLName, file_get_contents($testTLFileNAme));
         $this->assertEquals(
             1,

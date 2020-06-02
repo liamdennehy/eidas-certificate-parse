@@ -8,6 +8,8 @@ class Helper
 {
     public static function getHTTP($URI, $type)
     {
+        throw new \Exception("Don't download", 1);
+
         $datadir = __DIR__ . '/../data/';
         $uriId = hash('sha256', $URI);
         switch ($type) {
