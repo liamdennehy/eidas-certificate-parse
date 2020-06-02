@@ -25,10 +25,14 @@ class Request implements ASN1Interface, AttributeInterface
         $this->extensions = $extensions;
     }
 
-    public static function fromDER($der)
+    public function fromDER($der)
     {
-        $asn1 = UnspecifiedType::fromDER($der)->asSequence();
-        $certId = CertID::fromDER($asn1->at(0)->toDER());
+        return self::fromSequence(UnspecifiedType::fromDER($der)->asSequence());
+    }
+
+    public static function fromSequence($request)
+    {
+        $certId = CertID::fromSequence($request->at(0)->asSequence());
         return new Request($certId);
     }
 

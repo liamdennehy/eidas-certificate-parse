@@ -59,16 +59,15 @@ class OCSPRequest implements
         }
     }
 
-    /**
-     * [fromDER description]
-     * @param  string $der [binary request data]
-     * @return [type]      [description]
-     */
-    public static function fromDER($der)
+    public function fromDER($der)
+    {
+        return self::fromSequence(UnspecifiedType::fromDER($der)->asSequence());
+    }
+
+    public static function fromSequence($OCSPRequest)
     {
         $top = [];
-        $OCSPRequest = UnspecifiedType::fromDER($der)->asSequence();
-        $tbsRequest = TBSRequest::fromDER($OCSPRequest->at(0)->asSequence()->toDER());
+        $tbsRequest = TBSRequest::fromSequence($OCSPRequest->at(0)->asSequence());
         if ($OCSPRequest->hasTagged(0)) {
             throw new ParseException("Cannot support signed Requests", 1);
         }

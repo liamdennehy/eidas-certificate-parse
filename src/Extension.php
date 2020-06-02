@@ -24,9 +24,13 @@ use ASN1\Type\UnspecifiedType;
  */
 abstract class Extension
 {
-    public static function fromBinary($extensionDER)
+    public function fromBinary($extensionDER)
     {
-        $extension = UnspecifiedType::fromDER($extensionDER)->asSequence();
+        return self::fromSequence(UnspecifiedType::fromDER($extensionDER)->asSequence());
+    }
+
+    public static function fromSequence($extension)
+    {
         $idx = 0;
         $extensionOid = $extension->at($idx++)->asObjectIdentifier()->oid();
         if ($extension->at($idx)->isType(1)) {

@@ -25,7 +25,7 @@ class Extensions implements ParseInterface, ASN1Interface
         $extensionsSequence = UnspecifiedType::fromDER($extensionsDER)->asSequence();
         foreach ($extensionsSequence->elements() as $extension) {
             $extension = $extension->asSequence();
-            $v3Extension = Extension::fromBinary($extension->toDER());
+            $v3Extension = Extension::fromSequence($extension);
             if ($v3Extension) {
                 if ($v3Extension->getType() == 'unknown') {
                     $extName = 'unknown-'.$v3Extension->getOID();
