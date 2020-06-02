@@ -8,9 +8,9 @@ install:
   - composer config -g github-oauth.github.com "$GITHUB_API_KEY"
   - cat composer.json
   - composer install
-  - bash -c tools/get-tls.sh
+  # - bash -c tools/get-tls.sh
   - scripts/showtests.sh
 cache:
   directories:
     - $HOME/.composer/cache/files
-    - $HOME/data/tl
+    # - $HOME/data/tl
