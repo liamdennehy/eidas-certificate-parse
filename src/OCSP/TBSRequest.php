@@ -30,7 +30,11 @@ class TBSRequest implements ASN1Interface, AttributeInterface
 
     public static function fromDER($der)
     {
-        $tbsRequest = UnspecifiedType::fromDER($der)->asSequence();
+        return self::fromSequence(UnspecifiedType::fromDER($der)->asSequence());
+    }
+
+    public static function fromSequence($tbsRequest)
+    {
         $idx = 0;
         if ($tbsRequest->hasTagged(0)) {
             if ($version !== 1) {
@@ -53,7 +57,7 @@ class TBSRequest implements ASN1Interface, AttributeInterface
         }
         $requestList = $tbsRequest->at($idx)->asSequence();
         foreach ($requestList->elements() as $request) {
-            $request = Request::fromDER($request->toDER());
+            $request = Request::fromSequence($request->asSequence());
             $requests[] = $request;
         }
         if ($tbsRequest->hasTagged(2)) {

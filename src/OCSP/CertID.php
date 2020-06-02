@@ -36,9 +36,12 @@ class CertID implements ASN1Interface, AttributeInterface
 
     public static function fromDER($der)
     {
-        $obj = UnspecifiedType::fromDER($der)->asSequence();
-        // var_dump($obj);
-        $signatureAlgorithm = AlgorithmIdentifier::fromDER($obj->at(0)->toDER());
+        return self::fromSequence(UnspecifiedType::fromDER($der)->asSequence());
+    }
+
+    public static function fromSequence($obj)
+    {
+        $signatureAlgorithm = AlgorithmIdentifier::fromSequence($obj->at(0)->asSequence());
         $issuerNameHash = $obj->at(1)->asOctetString()->string();
         $issuerKeyHash = $obj->at(2)->asOctetString()->string();
         $serialNumber = gmp_strval($obj->at(3)->asInteger()->number(), 16);

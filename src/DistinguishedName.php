@@ -11,7 +11,7 @@ use ASN1\Type\UnspecifiedType;
  */
 class DistinguishedName implements ASN1Interface
 {
-    private $binary;
+    private $sequence;
 
     public function __construct($dnSequence)
     {

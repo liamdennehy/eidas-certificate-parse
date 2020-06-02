@@ -52,17 +52,21 @@ class AlgorithmIdentifier implements ASN1Interface
 
     public static function fromDER($der)
     {
-        $obj = UnspecifiedType::fromDER($der)->asSequence();
-        if ($obj->has(1) && $obj->at(1)->tag() == 16) {
+        return self::fromSequence(UnspecifiedType::fromDER($der)->asSequence());
+    }
+
+    public static function fromSequence($sequence)
+    {
+        if ($sequence->has(1) && $sequence->at(1)->tag() == 16) {
             $parameters = [];
-            foreach ($obj->at(1)->asSequence()->elements() as $parameter) {
+            foreach ($sequence->at(1)->asSequence()->elements() as $parameter) {
                 $parameters[] = $parameter->toDER();
             }
         } else {
             $parameters = null;
         }
         $aid = new AlgorithmIdentifier(
-            $obj->at(0)->asObjectIdentifier()->oid(),
+            $sequence->at(0)->asObjectIdentifier()->oid(),
             $parameters
         );
         return $aid;

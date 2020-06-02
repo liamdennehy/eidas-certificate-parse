@@ -11,7 +11,6 @@ use eIDASCertificate\SignatureException;
 use eIDASCertificate\CertificateException;
 use eIDASCertificate\TrustedListException;
 use DateTime;
-use eIDASCertificate\tests\Helper;
 
 class LOTLRootTest extends TestCase
 {
@@ -105,19 +104,17 @@ class LOTLRootTest extends TestCase
         ['lang' => 'sv','uri' => 'https://ec.europa.eu/tools/lotl/eu-lotl-legalnotice.html#sv'],
         ['lang' => 'hr','uri' => 'https://ec.europa.eu/tools/lotl/eu-lotl-legalnotice.html#hr'],
       ],
-      'sequenceNumber' => 250,
+      'sequenceNumber' => 266,
       'sourceURI' => 'https://ec.europa.eu/tools/lotl/eu-lotl.xml',
-      'issued' => '1570186800',
-      'nextUpdate' => '1585958400',
-      'fileHash' => '56bbdeb154d25bfc735bda4f958fead0b578712f79037227f87d2ad7bcf7880d',
+      'issued' => '1590487200',
+      'nextUpdate' => '1606348800',
+      'fileHash' => 'b3030a0d729e6bfefc18d4c7d0a3f0bce90528057ebed63e06d140dd2d1100d9',
       'signature' => [
-        'signerThumbprint' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474'
+        'signerThumbprint' => '8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7'
       ]
     ];
     const lotlSigningCertPath =
-      '/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';
-    const lotlHash =
-      '56bbdeb154d25bfc735bda4f958fead0b578712f79037227f87d2ad7bcf7880d';
+      'data/journal/c-276-1/8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7.crt';
     private $lotlxml;
     private $lotl;
     private $datadir;
@@ -148,10 +145,6 @@ class LOTLRootTest extends TestCase
         $this->assertEquals(
             "EUlistofthelists",
             $this->lotl->getTSLType()->getType()
-        );
-        $this->assertEquals(
-            self::lotlHash,
-            $this->lotl->getXMLHash()
         );
         $this->assertInternalType("int", $this->lotl->getVersionID());
         $this->assertInternalType("int", $this->lotl->getSequenceNumber());
@@ -186,7 +179,7 @@ class LOTLRootTest extends TestCase
     public function testVerifyLOTLExplicitSigned()
     {
         $wrongCertHash = '9c1a3b646eaf132398ef319e41c8e7ed725b64d5772580ae125d59c0f6845630';
-        $rightCertHash = 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474';
+        $rightCertHash = '8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7';
         $certpaths = scandir($this->datadir.'/journal/c-276-1');
         while ($certpaths[0] == '.' || $certpaths[0] == '..') {
             array_shift($certpaths);
@@ -205,7 +198,7 @@ class LOTLRootTest extends TestCase
         } catch (SignatureException $e) {
             $this->assertEquals(
                 [
-                'signedBy' => 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
+                'signedBy' => '8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7',
                 'availableCerts' => [
                   '9c1a3b646eaf132398ef319e41c8e7ed725b64d5772580ae125d59c0f6845630'
                 ]
@@ -218,13 +211,16 @@ class LOTLRootTest extends TestCase
         $lotl = new TrustedList($this->lotlXML);
         $this->assertTrue($lotl->verifyTSL($rightCert));
         $this->assertEquals(
-            'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
+            '8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7',
             $lotl->getSignedBy()->getIdentifier()
         );
 
         $lotlSignedByDN = $lotl->getSignedBy()->getSubjectDN();
         $this->assertEquals(
-            '/C=BE/CN=Patrick Kremer (Signature)/SN=Kremer/GN=Patrick Jean/serialNumber=72020329970',
+            '/emailAddress=adrian.croitoru@ec.europa.eu/C=RO/L=BE'.
+            '/O=European Commission/OU=0949.383.342'.
+            '/CN=Constantin-Adrian Croitoru/SN=Croitoru/GN=Constantin-Adrian'.
+            '/serialNumber=10304387540106101740/title=Professional Person',
             $lotlSignedByDN
         );
     }
@@ -283,17 +279,17 @@ class LOTLRootTest extends TestCase
         );
 
         $pointedTLs = [];
-        $crtFileName = $this->datadir.'/journal/c-276-1/d2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474.crt';
+        $crtFileName = $this->datadir.'/journal/c-276-1/8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7.crt';
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $this->assertTrue($lotl->verifyTSL($rightCert));
         $now = (new DateTime('now'))->format('U');
         $this->assertEquals(
-            'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474',
+            '8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7',
             $lotl->getSignedByHash()
         );
         // TODO: Handle bad TL Admins and distributions
-        
+
         // foreach ($lotl->getTLPointerPaths() as $title => $tlPointer) {
         //     $localFile = $this->datadir.'/tl-'.$tlPointer['id'].'.xml';
         //     if (file_exists($localFile)) {

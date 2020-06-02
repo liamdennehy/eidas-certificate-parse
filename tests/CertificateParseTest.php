@@ -16,7 +16,7 @@ class CertificateParseTest extends TestCase
     const eucrtfile = 'European-Commission.crt';
     const euissuercrtfile = 'qvbecag2.crt';
     const euIssuercertId = 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c';
-    const lotlSignerHash = 'd2064fdd70f6982dcc516b86d9d5c56aea939417c624b2e478c0b29de54f8474';
+    const lotlSignerHash = '8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7';
     const eucrtPublicKeyPEM =
         "-----BEGIN PUBLIC KEY-----\n".
         "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6OaxkP4aEj/JK+Aw13o5\n".
@@ -50,7 +50,7 @@ class CertificateParseTest extends TestCase
 
     public function setUp()
     {
-        Helper::getHTTP(TLTest::testTLURI, 'tl');
+        // Helper::getHTTP(TLTest::testTLURI, 'tl');
         $this->testTime = new \DateTime('@1569225604');
         $this->eucrtSubject = [
           [
@@ -659,14 +659,14 @@ class CertificateParseTest extends TestCase
     {
         $this->getTestCerts();
         $dataDir = __DIR__.'/../data/';
-        $signingCertPEM = file_get_contents($dataDir.'/journal/c-276-1/'.self::lotlSignerHash.'.crt');
+        $signingCertPEM = file_get_contents(__DIR__.'/../'.LOTLRootTest::lotlSigningCertPath);
         $signingCert = new X509Certificate($signingCertPEM);
         $lotl = new TrustedList(file_get_contents($dataDir.'/eu-lotl.xml'));
         // $eucrt = new X509Certificate($this->eucrt);
         $euissuercrt = new X509Certificate($this->euissuercrt);
         // $euissuercrt->setTSPService($tspServiceAttributes);)
         $lotl->verifyTSL($signingCert);
-        $testTLXML = file_get_contents($dataDir.TLTest::testTLXMLFileName);
+        $testTLXML = file_get_contents(__DIR__.'/../'.TLTest::testTLXMLFileName);
         $lotl->addTrustedListXML(TLTest::testTLName, $testTLXML);
         $issuerTSPService = ($lotl->getTSPServices(true)[TSPServicesTest::EUTSPServiceName]);
         $euissuercrt->setTSPService($issuerTSPService);

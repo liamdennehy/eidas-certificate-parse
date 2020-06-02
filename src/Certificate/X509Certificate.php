@@ -51,17 +51,12 @@ class X509Certificate implements
         $this->crtBinary = X509Certificate::emit($candidate);
         $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
-        $this->signatureAlgorithmIdentifier = AlgorithmIdentifier::fromDER($crtASN1->at(1)->asSequence()->toDER());
+        $this->signatureAlgorithmIdentifier = AlgorithmIdentifier::fromSequence($crtASN1->at(1)->asSequence());
         $signatureValue = $crtASN1->at(2)->asBitString()->string();
         $idx = 0;
         if ($tbsCertificate->hasTagged(0)) {
             $crtVersion = $tbsCertificate->getTagged(0)->asExplicit()->asInteger()->intNumber();
             $idx++;
-            // } else {
-        //   $version = 1;
-        //   throw new CertificateException("Only X.509 v3 certificates are supported: ".base64_encode($this->crtBinary), 1);
-        //   return null;
-        //
         }
         $this->serialNumber = gmp_strval($tbsCertificate->at($idx++)->asInteger()->number(), 16);
         $this->signature = $tbsCertificate->at($idx++)->asSequence();

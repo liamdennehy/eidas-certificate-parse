@@ -15,10 +15,11 @@ use eIDASCertificate\tests\Helper;
 
 class TSPServicesTest extends TestCase
 {
-    const lotlXMLFileName = 'eu-lotl.xml';
+    const lotlXMLFileName = 'data/eu-lotl.xml';
     const EUTSPServiceCertHash = 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c';
     const EUTSPServiceName = 'QuoVadis BE PKI Certification Authority G2';
-    const EUTSPServiceCertFile = 'qvbecag2.crt';
+    const EUTSPServiceCertFile1 = 'qvbecag2.crt';
+    const EUTSPServiceCertFile2 = 'aa0e83b4ae0036679703d1603bc7e63a080464a033ae4b9f465838adc85c61ed.crt';
     const TSPServiceCertHash = 'f640e5643c40c1f329e100438e28c957691afa8a53e405a326f7afeb70c23bc1';
     const testTSPServiceName = 'itsme Sign Issuing CA G1';
     const testTSPServiceCertFile = 'itsme-Sign-Issuing-G1.crt';
@@ -28,17 +29,7 @@ class TSPServicesTest extends TestCase
 
     public function setUp()
     {
-        Helper::getHTTP(TLTest::testTLURI, 'tl');
-        $this->datadir = __DIR__ . '/../data/';
-        $xmlFilePath = $this->datadir.self::lotlXMLFileName;
-        if (! file_exists($xmlFilePath)) {
-            $this->lotlXML = DataSource::getHTTP(
-                TrustedList::ListOfTrustedListsXMLPath
-            );
-            file_put_contents($xmlFilePath, $this->lotlXML);
-        } else {
-            $this->lotlXML = file_get_contents($xmlFilePath);
-        }
+        $this->lotlXML = file_get_contents(__DIR__.'/../'.self::lotlXMLFileName);
         $this->lotl = new TrustedList($this->lotlXML);
     }
 
@@ -88,7 +79,11 @@ class TSPServicesTest extends TestCase
           'x509Certificates' => [
             [
               'id' => self::EUTSPServiceCertHash,
-              'PEM' => file_get_contents(__DIR__.'/certs/'.self::EUTSPServiceCertFile)
+              'PEM' => file_get_contents(__DIR__.'/certs/'.self::EUTSPServiceCertFile1)
+            ],
+            [
+              'id' => 'aa0e83b4ae0036679703d1603bc7e63a080464a033ae4b9f465838adc85c61ed',
+              'PEM' => file_get_contents(__DIR__.'/certs/'.self::EUTSPServiceCertFile2)
             ]
           ],
           'skiBase64' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
@@ -119,7 +114,7 @@ class TSPServicesTest extends TestCase
     public function testGetTSPServices()
     {
         $lotl = $this->lotl;
-        $crtFileName = $this->datadir.LOTLRootTest::lotlSigningCertPath;
+        $crtFileName = __DIR__.'/../'.LOTLRootTest::lotlSigningCertPath;
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $lotl->verifyTSL($rightCert);

@@ -17,7 +17,7 @@ class TLTest extends TestCase
     const lotlXMLFileName = 'eu-lotl.xml';
     const testTLName = 'BE: FPS Economy, SMEs, Self-employed and Energy - Quality and Safety';
     const testTLURI = 'https://tsl.belgium.be/tsl-be.xml';
-    const testTLXMLFileName = 'tl-61c0487109be27255c19cff26d8f56bea621e7f381a7b4cbe7fb4750bd477bf9.xml';
+    const testTLXMLFileName = 'data/tl-61c0487109be27255c19cff26d8f56bea621e7f381a7b4cbe7fb4750bd477bf9.xml';
     const testTLAttributes = [
         'schemeTerritory' => 'BE',
         'schemeOperator' => [
@@ -69,16 +69,16 @@ class TLTest extends TestCase
             ],
           ]
         ],
-        'sequenceNumber' => 46,
+        'sequenceNumber' => 47,
         'informationURIs' => [
           ['lang' => 'en', 'uri' => 'https://tsl.belgium.be/']
         ],
         'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml',
-        'issued' => '1584576000',
-        'nextUpdate' => '1600214400',
-        'fileHash' => 'cde361b795c40e958ff876554b1316d41b9bf05f2aa6b97fd98c8c86639099bc',
+        'issued' => '1591056000',
+        'nextUpdate' => '1606780800',
+        'fileHash' => 'f797528f5e134d63e2b9e43bd0135ce5a7008db46c5bf721ef5ab0d575fadf62',
         'signature' => [
-          'signerThumbprint' => '69296fb9038c6156d4f169fd6b7a6214813448bb'
+          'signerThumbprint' => 'cfde6ceda889bd628bde8ed18092b06392d23cf2'
         ]
     ];
 
@@ -89,21 +89,11 @@ class TLTest extends TestCase
     private $tl;
     private $tslPointers;
     private $testSchemeTerritories;
+    const lotlFilePath = 'data/eu-lotl.xml';
 
     public function setUp()
     {
-        Helper::getHTTP(self::testTLURI, 'tl');
-        $this->datadir = __DIR__ . '/../data';
-        $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;
-        if (! file_exists($xmlFilePath)) {
-            $this->lotlXML = DataSource::getHTTP(
-                TrustedList::ListOfTrustedListsXMLPath
-            );
-            file_put_contents($xmlFilePath, $this->lotlXML);
-        } else {
-            $this->lotlXML = file_get_contents($xmlFilePath);
-        }
-        $this->lotl = new TrustedList($this->lotlXML);
+        $this->lotl = new TrustedList(file_get_contents(__DIR__.'/../'.self::lotlFilePath));
         if (! $this->testSchemeTerritories) {
             $this->testSchemeTerritories = ['HU','DE','SK'];
         }
@@ -196,22 +186,12 @@ class TLTest extends TestCase
 
     public function testLoadTLs()
     {
-        $crtFileName = $this->datadir.'/'.LOTLRootTest::lotlSigningCertPath;
+        $crtFileName = __DIR__.'/../'.LOTLRootTest::lotlSigningCertPath;
         $crt = file_get_contents($crtFileName);
         $rightCert = new X509Certificate(file_get_contents($crtFileName));
         $lotl = $this->lotl;
         $lotl->verifyTSL($rightCert);
-        $lotlHash = hash('sha256', $this->lotlXML);
-        $this->assertEquals(
-            $lotlHash,
-            hash('sha256', $lotl->getXML())
-        );
-        $this->assertEquals(
-            $lotlHash,
-            $lotl->getXMLHash()
-        );
-
-        $testTLFilePath = $this->datadir.'/'.self::testTLXMLFileName;
+        $testTLFilePath = __DIR__.'/../'.self::testTLXMLFileName;
         $lotl->addTrustedListXML(self::testTLName, file_get_contents($testTLFilePath));
         $now = (new DateTime('now'))->format('U');
         $testTL = $lotl->getTrustedLists()[self::testTLName];
