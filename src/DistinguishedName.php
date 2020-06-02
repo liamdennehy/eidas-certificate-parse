@@ -11,6 +11,12 @@ use ASN1\Type\UnspecifiedType;
  */
 class DistinguishedName implements ASN1Interface
 {
+
+    const UTF8String      = 12;
+    const Sequence        = 16;
+    const PrintableString = 19;
+    const T61String       = 20;
+    const IA5String       = 22;
     private $sequence;
 
     public function __construct($dnSequence)
@@ -52,33 +58,33 @@ class DistinguishedName implements ASN1Interface
         $dnPartExpanded['oid'] = $oid;
         $identifier = $dnElement->at(1)->tag();
         switch ($identifier) {
-        case 12:
+        case self::UTF8String:
           $dnPartExpanded['value'] = $dnElement->at(1)->asUTF8String()->string();
           break;
-        case 19:
+        case self::PrintableString:
           $dnPartExpanded['value'] = $dnElement->at(1)->asPrintableString()->string();
           break;
-        case 20:
+        case self::T61String:
           $dnPartExpanded['value'] = $dnElement->at(1)->asT61String()->string();
           break;
-        case 22:
+        case self::IA5String:
           $dnPartExpanded['value'] = $dnElement->at(1)->asIA5String()->string();
           break;
-        case 16:
+        case self::Sequence:
           $elements = [];
           foreach ($dnElement->at(1)->asSequence()->elements() as $element) {
               $elementTag = $element->tag();
               switch ($elementTag) {
-              case 12:
+              case self::UTF8String:
                 $elements[] = $element->asUTF8String()->string();
                 break;
-              case 19:
+              case self:PrintableString:
                 $elements[] = $element->asPrintableString()->string();
                 break;
-              case 20:
+              case self::T61String:
                 $elements[] = $element->asT61String()->string();
                 break;
-              case 22:
+              case self:IA5String:
                 $elements[] = $element->asIA5String()->string();
                 break;
 
