@@ -34,7 +34,7 @@ class CertID implements ASN1Interface, AttributeInterface
         $this->serialNumber = hex2bin($serialNumber);
     }
 
-    public function fromDER($der)
+    public static function fromDER($der)
     {
         return self::fromSequence(UnspecifiedType::fromDER($der)->asSequence());
     }

@@ -25,7 +25,7 @@ class Request implements ASN1Interface, AttributeInterface
         $this->extensions = $extensions;
     }
 
-    public function fromDER($der)
+    public static function fromDER($der)
     {
         return self::fromSequence(UnspecifiedType::fromDER($der)->asSequence());
     }
