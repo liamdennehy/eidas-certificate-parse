@@ -10,7 +10,6 @@ use eIDASCertificate\OCSP\TBSRequest;
 use eIDASCertificate\OCSP\OCSPNonce;
 use eIDASCertificate\Extension;
 use eIDASCertificate\AlgorithmIdentifier;
-use eIDASCertificate\tests\Helper;
 use ASN1\Type\UnspecifiedType;
 
 class OCSPTest extends TestCase

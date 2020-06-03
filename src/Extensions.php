@@ -82,7 +82,7 @@ class Extensions implements ParseInterface, ASN1Interface
     // TODO: Assemble instead of store
     public function getASN1()
     {
-        return UnspecifiedType::fromDER($this->getBinary());
+        return UnspecifiedType::fromDER($this->getBinary())->asSequence();
     }
 
     public function getBinary()
