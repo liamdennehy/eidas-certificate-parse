@@ -38,7 +38,8 @@ class SingleResponse implements ASN1Interface, AttributeInterface
     {
         $idx = 0;
         $certId = certId::fromSequence($asn1->at($idx++)->asSequence());
-        $certStatus = $asn1->at($idx++)->asTagged(0)->tag();
+        // TODO: CertStatus and RevokedInfo
+        $certStatus = $asn1->at($idx++)->asTagged(0);
         $thisUpdate = $asn1->at($idx++)->asGeneralizedTime()->dateTime();
         if ($asn1->hasTagged(0)) {
             $nextUpdate = $asn1->at($idx++)->asExplicit(0)->asGeneralizedTime()->dateTime();
