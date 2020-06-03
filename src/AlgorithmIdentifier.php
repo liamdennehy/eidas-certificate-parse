@@ -17,7 +17,7 @@ class AlgorithmIdentifier implements ASN1Interface
     private $parametersIncluded;
     private $parameters = [];
 
-    public function __construct($id, $parameters = null, $parametersIncluded = true)
+    public function __construct($id, $parameters = null)
     {
         if (is_array($parameters)) {
             foreach ($parameters as $parameter) {
@@ -25,7 +25,6 @@ class AlgorithmIdentifier implements ASN1Interface
             }
         }
 
-        $this->parametersIncluded = $parametersIncluded;
         if (is_object($id)) {
             if (get_class($id) == 'eIDASCertificate\AlgorithmIdentifier') {
                 $this->algorithmName = $id->getAlgorithmName();
@@ -75,18 +74,17 @@ class AlgorithmIdentifier implements ASN1Interface
     public function getASN1()
     {
         $oid = new ObjectIdentifier($this->algorithmOID);
-        if (empty($this->parameters && $this->parametersIncluded)) {
-            if ($this->parametersIncluded) {
-                return (new Sequence($oid, new NullType));
-            } else {
-                return (new Sequence($oid));
-            }
+        $seq = new Sequence($oid);
+        if (empty($this->parameters)) {
+            $seq = $seq->withAppended(new NullType);
         } else {
+            $parms = [];
             foreach ($this->parameters as $parameterDER) {
-                $parameters[] = UnspecifiedType::fromDER($parameterDER)->asTagged();
+                $parms[] = UnspecifiedType::fromDER($parameterDER)->asTagged();
             }
-            return (new Sequence($oid, new Sequence(...$parameters)));
+            $seq = $seq->withAppended(new Sequence(...$parms));
         }
+        return $seq;
     }
 
     public function getBinary($value='')
