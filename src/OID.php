@@ -444,6 +444,12 @@ class OID
           case 'RSASSA_PSS':
             return '1.2.840.113549.1.1.10';
             break;
+          case 'sha1WithRSAEncryption':
+            return '1.2.840.113549.1.1.5';
+            break;
+          case 'sha256WithRSAEncryption':
+            return '1.2.840.113549.1.1.11';
+            break;
           default:
             return 'unknown';
             break;
