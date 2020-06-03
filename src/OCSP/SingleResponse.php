@@ -97,9 +97,18 @@ class SingleResponse implements ASN1Interface, AttributeInterface
 
     public function getAttributes()
     {
-        return [
-          'certIDs' => $this->certId->getAttributes()
-        ];
+        $attr = array_merge(
+            $this->certId->getAttributes(),
+            $this->certStatus->getAttributes()
+        );
+        $attr['thisUpdate'] = $this->thisUpdate->format('U');
+        if (! empty($this->nextUpdate)) {
+            $attr['nextUpdate'] = $this->nextUpdate->format('U');
+        }
+        if (! empty($this->extensions)) {
+            $attr['extensions'] = $this->extensions->getAttributes();
+        }
+        return $attr;
     }
 
     public function getCertStatus()
