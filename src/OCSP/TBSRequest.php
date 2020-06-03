@@ -80,21 +80,16 @@ class TBSRequest implements ASN1Interface, AttributeInterface
         foreach ($this->requestList as $request) {
             $requests[] = $request->getASN1();
         }
-        if (is_null($this->nonce)) {
-            return new Sequence(
-                new Sequence(...$requests)
-            );
-        } else {
-            return new Sequence(
-                new Sequence(...$requests),
+        $asn1 = new Sequence(new Sequence(...$requests));
+        if (! is_null($this->nonce)) {
+            $asn1 = $asn1->withAppended(
                 new ExplicitlyTaggedType(
-                    2,
-                    new Sequence(
-                        (OCSPNonce::fromValue($this->nonce))->getASN1()
-                    )
-                )
+                2,
+                new Sequence((OCSPNonce::fromValue($this->nonce))->getASN1())
+            )
             );
-        }
+        };
+        return $asn1;
     }
 
     public function getBinary()

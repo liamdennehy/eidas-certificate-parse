@@ -19,5 +19,4 @@ class OCSPResponse
         $response = (UnspecifiedType::fromDER($rb->at(1)->asOctetString()->string()))->asSequence();
         $tbsResponseData = ResponseData::fromSequence($response->at(0)->asSequence());
     }
-
 }

@@ -58,7 +58,6 @@ class OCSPResponseTest extends TestCase
             base64_encode($revokedDER),
             base64_encode($revoked->getBinary())
         );
-
     }
 
     public function testSingleResponseRevoked($value='')
