@@ -19,7 +19,11 @@ class CertStatus implements ASN1Interface, AttributeInterface
     // TODO: Implment $revokedReason, need exemplar
     public function __construct($status, $revokedDateTime = null, $revokedReason = null)
     {
-        $this->status = $status;
+        if (is_string($status)) {
+            $this->status = self::getNumber($status);
+        } else {
+            $this->status = $status;
+        }
         $this->revokedDateTime = $revokedDateTime;
         $this->revokedReason = $revokedReason;
     }
@@ -56,7 +60,9 @@ class CertStatus implements ASN1Interface, AttributeInterface
           return new ImplicitlyTaggedType(0, new NullType());
           break;
         case 1:
-          return new ImplicitlyTaggedType(1, new Sequence(new GeneralizedTime($this->revokedDateTime)));
+          return new ImplicitlyTaggedType(1, new Sequence(
+              new GeneralizedTime($this->revokedDateTime)
+          ));
           break;
         case 2:
           return new ImplicitlyTaggedType(2, new NullType());
@@ -89,11 +95,26 @@ class CertStatus implements ASN1Interface, AttributeInterface
         }
     }
 
+    public static function getNumber($value)
+    {
+        switch (strtolower($value)) {
+          case 'good':
+            return 0;
+            break;
+          case 'revoked':
+            return 1;
+            break;
+          case 'other':
+            return 2;
+            break;
+        }
+    }
+
     public function getAttributes()
     {
         $attr['status'] = $this->getStatus();
         if (! empty($this->revokedDateTime)) {
-            $attr['revokedDateTime'] = $this->revokedDateTime->format('Y-m-d H:i:s');
+            $attr['revokedDateTime'] = $this->revokedDateTime->format('U');
         }
         return $attr;
     }
