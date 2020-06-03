@@ -70,6 +70,20 @@ class AlgorithmTest extends TestCase
             '2.16.840.1.101.3.4.2.1',
             $algo->getAlgorithmOID()
         );
+        $algo = new AlgorithmIdentifier('sha1WithRSAEncryption');
+        $this->assertEquals(
+            '1.2.840.113549.1.1.5',
+            $algo->getAlgorithmOID()
+        );
+        $algo = new AlgorithmIdentifier('sha256WithRSAEncryption');
+        $this->assertEquals(
+            '1.2.840.113549.1.1.11',
+            $algo->getAlgorithmOID()
+        );
+        $this->assertEquals(
+            'MA0GCSqGSIb3DQEBCwUA',
+            base64_encode($algo->getASN1()->toDER())
+        );
         $algo = new AlgorithmIdentifier('2.16.840.1.101.3.4.2.1');
         $this->assertEquals(
             'sha-256',
