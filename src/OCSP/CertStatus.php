@@ -14,11 +14,14 @@ class CertStatus implements ASN1Interface, AttributeInterface
 {
     private $status;
     private $revokedDateTime;
+    private $revokedReason;
 
-    public function __construct($status, $revokedDateTime = null)
+    // TODO: Implment $revokedReason, need exemplar
+    public function __construct($status, $revokedDateTime = null, $revokedReason = null)
     {
         $this->status = $status;
         $this->revokedDateTime = $revokedDateTime;
+        $this->revokedReason = $revokedReason;
     }
 
     public static function fromDER($der)
