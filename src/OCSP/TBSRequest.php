@@ -84,9 +84,9 @@ class TBSRequest implements ASN1Interface, AttributeInterface
         if (! is_null($this->nonce)) {
             $asn1 = $asn1->withAppended(
                 new ExplicitlyTaggedType(
-                2,
-                new Sequence((OCSPNonce::fromValue($this->nonce))->getASN1())
-            )
+                    2,
+                    new Sequence((OCSPNonce::fromValue($this->nonce))->getASN1())
+                )
             );
         };
         return $asn1;
