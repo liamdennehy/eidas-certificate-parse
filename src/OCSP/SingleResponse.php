@@ -4,8 +4,9 @@ namespace eIDASCertificate\OCSP;
 
 use ASN1\Type\UnspecifiedType;
 use eIDASCertificate\ASN1Interface;
-use eIDASCertificate\OCSP\CertID;
 use eIDASCertificate\AttributeInterface;
+use eIDASCertificate\OCSP\CertID;
+use eIDASCertificate\Extensions;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Tagged\ExplicitlyTaggedType;
 use ASN1\Type\Tagged\ImplicitlyTaggedType;
@@ -39,15 +40,19 @@ class SingleResponse implements ASN1Interface, AttributeInterface
         $idx = 0;
         $certId = certId::fromSequence($asn1->at($idx++)->asSequence());
         // TODO: CertStatus and RevokedInfo
-        $certStatus = $asn1->at($idx++)->asTagged(0);
+        $certStatus = CertStatus::fromTagged($asn1->at($idx));
+        // Implicit tag of status conflicts with explciit tags for remaining elements
+        $asn1 = $asn1->withoutElement($idx);
         $thisUpdate = $asn1->at($idx++)->asGeneralizedTime()->dateTime();
         if ($asn1->hasTagged(0)) {
-            $nextUpdate = $asn1->at($idx++)->asExplicit(0)->asGeneralizedTime()->dateTime();
+            $nextUpdate = $asn1->getTagged(0)->asExplicit()->asGeneralizedTime()->dateTime();
+            $idx++;
         } else {
             $nextUpdate = null;
         }
         if ($asn1->hasTagged(1)) {
-            $extensions = new Extensions($asn1->at($idx++)->toDER());
+            $extensions = new Extensions($asn1->getTagged(1)->asExplicit()->toDER());
+            $idx++;
         } else {
             $extensions = null;
         }
@@ -69,7 +74,7 @@ class SingleResponse implements ASN1Interface, AttributeInterface
     {
         $asn1 = new Sequence(
             $this->certId->getASN1(),
-            new ImplicitlyTaggedType(0, new NullType()),
+            $this->certStatus->getASN1(),
             new GeneralizedTime($this->thisUpdate)
         );
         if (! empty($this->nextUpdate)) {
@@ -85,10 +90,20 @@ class SingleResponse implements ASN1Interface, AttributeInterface
         return $asn1;
     }
 
+    public function getCertID()
+    {
+        return $this->certId->getASN1();
+    }
+
     public function getAttributes()
     {
         return [
           'certIDs' => $this->certId->getAttributes()
         ];
+    }
+
+    public function getCertStatus()
+    {
+        return $this->certStatus;
     }
 }
