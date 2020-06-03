@@ -112,6 +112,7 @@ class CertificateParseTest extends TestCase
         ];
         $this->eucrtAttributes =
         [
+          'x509Version' => 3,
           'subject' => [
             'DN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
             'expandedDN' => $this->eucrtSubject,
@@ -241,6 +242,7 @@ class CertificateParseTest extends TestCase
 
         $this->euIssuercrtAttributes =
         [
+          'x509Version' => 3,
           'subject' => [
             'DN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
             'expandedDN' => $this->eucrtIssuerSubject,
@@ -332,6 +334,7 @@ class CertificateParseTest extends TestCase
           'zFMnlemPTnmI31YVlng7mUyR0G14dElNbxyzng0k7Fa6KaLlXlwIDAQAB';
         $this->v1crtAttributes =
         [
+          'x509Version' => 1,
           'subject' => [
             'DN' => '/C=US/O=VeriSign, Inc.'.
               '/OU=VeriSign Trust Network'.

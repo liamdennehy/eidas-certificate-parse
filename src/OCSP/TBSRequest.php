@@ -61,11 +61,7 @@ class TBSRequest implements ASN1Interface, AttributeInterface
             $requests[] = $request;
         }
         if ($tbsRequest->hasTagged(2)) {
-            $extensions = new Extensions($tbsRequest->getTagged(2)->asExplicit()->toDER());
-            $extensionsDER = $tbsRequest->getTagged(2)->asExplicit()->asSequence()->toDER();
-            $extensions = new Extensions(
-                $extensionsDER
-            );
+            $extensions = new Extensions($tbsRequest->getTagged(2)->asExplicit());
             if (sizeof($extensions->getExtensions()) !== 1) {
                 throw new ParseException(
                     "Expected 1 extension, got ".sizeof($extensions->getExtensions()),

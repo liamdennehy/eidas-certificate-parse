@@ -15,6 +15,7 @@ use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
 use eIDASCertificate\Certificate\PreCertPoison;
 use eIDASCertificate\Certificate\SubjectAltName;
+use ASN1\Type\UnspecifiedType;
 
 class ExtensionTest extends TestCase
 {
@@ -48,7 +49,13 @@ class ExtensionTest extends TestCase
             "AQYwCQYHBACORgEGAzBTBgYEAIGYJwIwSTAmMBEGBwQAgZgnAQIMBlBTUF9QSTARBgc".
             "EAIGYJwEDDAZQU1BfQUkMF0NlbnRyYWwgQmFuayBvZiBIdW5nYXJ5DAZIVS1DQkg="
         );
-        $extensions = new Extensions($extensionsDER);
+        $extensions = new Extensions(
+            UnspecifiedType::fromDER($extensionsDER)->asSequence()
+        );
+        $this->assertEquals(
+            base64_encode($extensionsDER),
+            base64_encode($extensions->getBinary())
+        );
         $this->assertEquals(
             [
               'keyUsage',
@@ -74,12 +81,12 @@ class ExtensionTest extends TestCase
         'hMjAxOC1jcmwzLmUtc3ppZ25vLmh1L3F0bHNjYTIwMTguY3Js');
         $extnCDPs = new CRLDistributionPoints($binary);
         $this->assertEquals(
-            $extnCDPs->getCDPs(),
             [
               'http://qtlsca2018-crl1.e-szigno.hu/qtlsca2018.crl',
               'http://qtlsca2018-crl2.e-szigno.hu/qtlsca2018.crl',
               'http://qtlsca2018-crl3.e-szigno.hu/qtlsca2018.crl'
-            ]
+            ],
+            $extnCDPs->getCDPs()
         );
     }
 
@@ -190,13 +197,19 @@ class ExtensionTest extends TestCase
             'L3NuY2EzLnA3YzAhBggrBgEFBQcwAqQVMBMxETAPBgNVBAUTCFRMSVNLLTgy'
         );
         $aia = new AuthorityInformationAccess($binary);
-        // Proprietary OID, not going to bother. Expect no error..
+        // Proprietary OID alongside OCSP. Expect no error..
         $binary = base64_decode(
             'MG4wNgYIKwYBBQUHMAGGKmh0dHBzOi8vaWRlbnRydXN0cm9vdC5vY3NwdG4uaWRl'.
             'bnRydXN0LmNvbTA0BggqhkiG+mUEAYYoaHR0cHM6Ly9pZGVudHJ1c3Ryb290LnRj'.
             'dG4uaWRlbnRydXN0LmNvbQ=='
         );
         $aia = new AuthorityInformationAccess($binary);
+        $this->assertEquals(
+            [
+              'https://identrustroot.ocsptn.identrust.com'
+            ],
+            $aia->getOCSPURIs()
+        );
     }
 
     public function testBasicConstraints()
