@@ -114,7 +114,7 @@ class CertStatus implements ASN1Interface, AttributeInterface
     {
         $attr['status'] = $this->getStatus();
         if (! empty($this->revokedDateTime)) {
-            $attr['revokedDateTime'] = $this->revokedDateTime->format('U');
+            $attr['revokedDateTime'] = (int)$this->revokedDateTime->format('U');
         }
         return $attr;
     }

@@ -205,7 +205,7 @@ class OCSPResponseTest extends TestCase
             base64_encode($sResp->getBinary())
         );
         $this->assertEquals(
-            array_merge(self::certId371bSHA1,self::singleResponse371bRevoked),
+            array_merge(self::certId371bSHA1, self::singleResponse371bRevoked),
             $sResp->getAttributes()
         );
     }
@@ -224,7 +224,7 @@ class OCSPResponseTest extends TestCase
             base64_encode($sResp->getBinary())
         );
         $this->assertEquals(
-            array_merge(self::certId5977SHA1,self::singleResponse5977Revoked),
+            array_merge(self::certId5977SHA1, self::singleResponse5977Revoked),
             $sResp->getAttributes()
         );
     }
@@ -250,7 +250,7 @@ class OCSPResponseTest extends TestCase
             [
               'producedAt' => 1590956100,
               'responses' => [
-              array_merge(self::certId5977SHA1,self::singleResponse5977Revoked)
+              array_merge(self::certId5977SHA1, self::singleResponse5977Revoked)
             ],
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
           ],
@@ -273,7 +273,7 @@ class OCSPResponseTest extends TestCase
             [
               'producedAt' => 1591177149,
               'responses' => [
-              array_merge(self::certId371bSHA1,self::singleResponse371bRevoked)
+              array_merge(self::certId371bSHA1, self::singleResponse371bRevoked)
             ]
           ],
             $responseData->getAttributes()

@@ -108,14 +108,14 @@ class ResponseData implements ASN1Interface, AttributeInterface
         }
         $asn1 = $asn1->withAppended(new Sequence(...$responses));
         if (! empty($this->extensions)) {
-          $asn1 = $asn1->withAppended(new ExplicitlyTaggedType(1, $this->extensions->getASN1()));
+            $asn1 = $asn1->withAppended(new ExplicitlyTaggedType(1, $this->extensions->getASN1()));
         }
         return $asn1;
     }
 
     public function getAttributes()
     {
-        $attr['producedAt'] = intval($this->producedAt->format('U'));
+        $attr['producedAt'] = (int)($this->producedAt->format('U'));
         foreach ($this->singleResponses as $response) {
             $attr['responses'][] = $response->getAttributes();
         }

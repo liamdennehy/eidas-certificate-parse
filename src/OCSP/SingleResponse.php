@@ -101,9 +101,9 @@ class SingleResponse implements ASN1Interface, AttributeInterface
             $this->certId->getAttributes(),
             $this->certStatus->getAttributes()
         );
-        $attr['thisUpdate'] = $this->thisUpdate->format('U');
+        $attr['thisUpdate'] = (int)$this->thisUpdate->format('U');
         if (! empty($this->nextUpdate)) {
-            $attr['nextUpdate'] = $this->nextUpdate->format('U');
+            $attr['nextUpdate'] = (int)$this->nextUpdate->format('U');
         }
         if (! empty($this->extensions)) {
             $attr['extensions'] = $this->extensions->getAttributes();

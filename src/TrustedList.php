@@ -630,8 +630,8 @@ class TrustedList implements AttributeInterface
         $tslAttributes['schemeOperator']['name'] = $this->getSchemeOperatorName();
         $tslAttributes['schemeOperator']['names'] = $this->getNames();
         $tslAttributes['sequenceNumber'] = $this->getSequenceNumber();
-        $tslAttributes['issued'] = $this->getListIssueDateTime()->format('U');
-        $tslAttributes['nextUpdate'] = $this->getNextUpdate()->format('U');
+        $tslAttributes['issued'] = (int)$this->getListIssueDateTime()->format('U');
+        $tslAttributes['nextUpdate'] = (int)$this->getNextUpdate()->format('U');
         $tslAttributes['sourceURI'] = $this->getTSLLocation();
         $tslAttributes['fileHash'] = hash('sha256', $this->xml);
 
@@ -641,7 +641,7 @@ class TrustedList implements AttributeInterface
             $tslAttributes['signature']['signerThumbprint'] = $this->getSignedByHash();
         }
         if (!empty($this->verifiedAt)) {
-            $tslAttributes['signature']['verifiedAt'] = $this->verifiedAt->format('U');
+            $tslAttributes['signature']['verifiedAt'] = (int)$this->verifiedAt->format('U');
         }
         if (! empty($this->getParentTrustedListAtrributes())) {
             $tslAttributes['parentTSL'] = $this->getParentTrustedListAtrributes();
