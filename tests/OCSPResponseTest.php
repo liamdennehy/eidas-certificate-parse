@@ -256,9 +256,14 @@ class OCSPResponseTest extends TestCase
               'responses' => [
               array_merge(self::certId5977SHA1, self::singleResponse5977Revoked)
             ],
-            'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
+            'nonce' => 'cc51fed1358bcab2f2f345797a295d8d',
+            'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature'
           ],
             $responseData->getAttributes()
+        );
+        $this->assertEquals(
+            '9b4e3bacbf144127bc583fb98db9c00d72a5da807f92843ce864aace0cf312a5',
+            bin2hex($responseData->getHash('sha-256'))
         );
 
         // KeyHash identifier, cert is revoked
@@ -278,9 +283,14 @@ class OCSPResponseTest extends TestCase
               'producedAt' => 1591177149,
               'responses' => [
               array_merge(self::certId371bSHA1, self::singleResponse371bRevoked)
-            ]
+            ],
+            'producerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2'
           ],
             $responseData->getAttributes()
+        );
+        $this->assertEquals(
+            '37af9939d50817ceeca3d1f2d1235fae7634c904948a9d3100c69081dd69bf97',
+            bin2hex($responseData->getHash('sha-256'))
         );
     }
 
@@ -313,7 +323,8 @@ class OCSPResponseTest extends TestCase
               )
             ],
             'signatureAlgorithm' => 'sha256WithRSAEncryption',
-            'hasSignature' => true
+            'hasSignature' => true,
+            'producerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2'
           ],
             $resp->getAttributes()
         );
@@ -359,6 +370,17 @@ class OCSPResponseTest extends TestCase
             'M54+CupxmBiohZj1T1CiACCRGfT0bMeQLHj5T3VK3Yhtup8eZaMHYNCKbH6qxNErv'.
             'mUQ3kDJ9sjQ=='
         );
+        $this->assertEquals(
+            [
+            '1.2.840.113549.1.1.11',
+            'sha256WithRSAEncryption'
+          ],
+            [
+            $resp->getSignatureAlgorithmOID(),
+            $resp->getSignatureAlgorithmName()
+
+          ]
+        );
         $resp = BasicOCSPResponse::fromDER($derWithCerts);
         $this->assertEquals(
             base64_encode($derWithCerts),
@@ -375,9 +397,20 @@ class OCSPResponseTest extends TestCase
             ],
             'signatureAlgorithm' => 'sha256WithRSAEncryption',
             'hasSignature' => true,
-            'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
+            'nonce' => 'cc51fed1358bcab2f2f345797a295d8d',
+            'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature'
           ],
             $resp->getAttributes()
+        );
+        $this->assertEquals(
+            [
+              '1.2.840.113549.1.1.11',
+              'sha256WithRSAEncryption'
+            ],
+            [
+              $resp->getSignatureAlgorithmOID(),
+              $resp->getSignatureAlgorithmName()
+            ]
         );
     }
 }

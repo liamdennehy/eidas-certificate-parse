@@ -101,4 +101,19 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
 
         return $attr;
     }
+
+    public function hasSignature()
+    {
+        return (! empty($this->signature));
+    }
+
+    public function getSignatureAlgorithmName()
+    {
+        return $this->signatureAlgorithm->getAlgorithmName();
+    }
+
+    public function getSignatureAlgorithmOID()
+    {
+        return $this->signatureAlgorithm->getAlgorithmOID();
+    }
 }

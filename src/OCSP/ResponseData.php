@@ -122,6 +122,37 @@ class ResponseData implements ASN1Interface, AttributeInterface
         if (! empty($this->extensions) && array_key_exists('ocspNonce', $this->extensions->getExtensions())) {
             $attr['nonce'] = bin2hex($this->extensions->getExtensions()['ocspNonce']->getAttributes()['nonce']);
         }
+        if (is_string($this->responderId)) {
+            $attr['producerKeyHash'] = bin2hex($this->responderId);
+        } else {
+            $attr['producerDN'] = $this->responderId->getDN();
+        }
         return $attr;
+    }
+
+    public function getHash($algo = 'sha-256')
+    {
+        switch (strtolower($algo)) {
+          case 'sha-1':
+          case 'sha1':
+            return hash('sha1', $this->getBinary(), true);
+            break;
+          case 'sha-256':
+          case 'sha256':
+            return hash('sha256', $this->getBinary(), true);
+            break;
+          case 'sha-384':
+          case 'sha384':
+            return hash('sha384', $this->getBinary(), true);
+            break;
+          case 'sha-512':
+          case 'sha512':
+            return hash('sha512', $this->getBinary(), true);
+            break;
+
+          default:
+            throw new \Exception("Unsupported Hash Algorithm ".$algo, 1);
+            break;
+        }
     }
 }
