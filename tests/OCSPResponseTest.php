@@ -40,13 +40,14 @@ class OCSPResponseTest extends TestCase
         'thisUpdate' => 1591177149,
         'nextUpdate' => 1591779249
     ];
-    public function testOCSPResponse($value='')
-    {
-        $der = file_get_contents(__DIR__.'/ocsp/revoked-response-sha256');
-        $seq = OCSPResponse::fromDER($der);
-        $der = file_get_contents(__DIR__.'/ocsp/response-sha256');
-        $seq = OCSPResponse::fromDER($der);
-    }
+
+    // public function testOCSPResponse($value='')
+    // {
+    //     $der = file_get_contents(__DIR__.'/ocsp/revoked-response-sha256');
+    //     $seq = OCSPResponse::fromDER($der);
+    //     $der = file_get_contents(__DIR__.'/ocsp/response-sha256');
+    //     $seq = OCSPResponse::fromDER($der);
+    // }
 
     public function testCertStatus()
     {
