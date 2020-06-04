@@ -12,6 +12,8 @@ use ASN1\Type\Tagged\ExplicitlyTaggedType;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\BitString;
 
+// TODO: Signature Validation
+// TODO: Signature Generation
 class BasicOCSPResponse implements ASN1Interface, AttributeInterface
 {
     private $tbsResponseData;
