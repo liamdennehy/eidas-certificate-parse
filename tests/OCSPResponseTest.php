@@ -7,6 +7,7 @@ use eIDASCertificate\OCSP\OCSPResponse;
 use eIDASCertificate\OCSP\CertID;
 use eIDASCertificate\OCSP\OCSPNonce;
 use eIDASCertificate\OCSP\SingleResponse;
+use eIDASCertificate\OCSP\ResponseData;
 use eIDASCertificate\OCSP\CertStatus;
 use eIDASCertificate\Extension;
 use eIDASCertificate\AlgorithmIdentifier;
@@ -15,10 +16,34 @@ use DateTime;
 
 class OCSPResponseTest extends TestCase
 {
-    // public function testOCSPResponse($value='')
-    // {
-    //     $seq = OCSPResponse::fromDER(file_get_contents(__DIR__.'/ocsp/response-sha256'));
-    // }
+    const certId371bSHA1 = [
+        'serialNumber' => '371b58a86f6ce9c3ecb7bf42f9208fc',
+        'algorithmName' => 'sha-1',
+        'issuerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
+        'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
+    ];
+    const certId5977SHA1 = [
+        'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+        'algorithmName' => 'sha-256',
+        'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+        'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
+    ];
+    const singleResponse5977Revoked = [
+      'status' => 'good',
+      'thisUpdate' => '1590956100',
+      'nextUpdate' => '1591128900'
+    ];
+    const singleResponse371bRevoked = [
+        'status' => 'revoked',
+        'revokedDateTime' => '1570480239',
+        'thisUpdate' => '1591177149',
+        'nextUpdate' => '1591779249'
+    ];
+    public function testOCSPResponse($value='')
+    {
+        $der = file_get_contents(__DIR__.'/ocsp/revoked-response-sha256');
+        $seq = OCSPResponse::fromDER($der);
+    }
 
     public function testCertStatus()
     {
@@ -90,12 +115,7 @@ class OCSPResponseTest extends TestCase
         );
         $certId = CertID::fromDER($derSHA1);
         $this->assertEquals(
-            [
-                'serialNumber' => '371b58a86f6ce9c3ecb7bf42f9208fc',
-                'algorithmName' => 'sha-1',
-                'issuerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
-                'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
-            ],
+            self::certId371bSHA1,
             $certId->getAttributes()
         );
         $this->assertEquals(
@@ -114,12 +134,7 @@ class OCSPResponseTest extends TestCase
             '371b58a86f6ce9c3ecb7bf42f9208fc'
         );
         $this->assertEquals(
-            [
-                'serialNumber' => '371b58a86f6ce9c3ecb7bf42f9208fc',
-                'algorithmName' => 'sha-1',
-                'issuerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
-                'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
-            ],
+            self::certId371bSHA1,
             $certId->getAttributes()
         );
         $this->assertEquals(
@@ -143,12 +158,7 @@ class OCSPResponseTest extends TestCase
         );
         $certId = CertID::fromDER($derSHA256);
         $this->assertEquals(
-            [
-              'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-              'algorithmName' => 'sha-256',
-              'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-              'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
-            ],
+            self::certId5977SHA1,
             $certId->getAttributes()
         );
         $this->assertEquals(
@@ -162,12 +172,7 @@ class OCSPResponseTest extends TestCase
             '59772e700669b7669fb012c5cdd13c3a281a0911'
         );
         $this->assertEquals(
-            [
-              'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-              'algorithmName' => 'sha-256',
-              'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-              'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
-            ],
+            self::certId5977SHA1,
             $certId->getAttributes()
         );
         $this->assertEquals(
@@ -200,16 +205,7 @@ class OCSPResponseTest extends TestCase
             base64_encode($sResp->getBinary())
         );
         $this->assertEquals(
-            [
-                'serialNumber' => '371b58a86f6ce9c3ecb7bf42f9208fc',
-                'algorithmName' => 'sha-1',
-                'issuerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
-                'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
-                'status' => 'revoked',
-                'revokedDateTime' => '1570480239',
-                'thisUpdate' => '1591177149',
-                'nextUpdate' => '1591779249'
-            ],
+            array_merge(self::certId371bSHA1,self::singleResponse371bRevoked),
             $sResp->getAttributes()
         );
     }
@@ -228,16 +224,59 @@ class OCSPResponseTest extends TestCase
             base64_encode($sResp->getBinary())
         );
         $this->assertEquals(
-            [
-              'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-              'algorithmName' => 'sha-256',
-              'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-              'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
-              'status' => 'good',
-              'thisUpdate' => '1590956100',
-              'nextUpdate' => '1591128900'
-            ],
+            array_merge(self::certId5977SHA1,self::singleResponse5977Revoked),
             $sResp->getAttributes()
+        );
+    }
+
+    public function testResponseData()
+    {
+        // DN identifier, cert is good
+        $derDNGood = base64_decode(
+            'MIIBPqFvMG0xCzAJBgNVBAYTAkJNMRkwFwYDVQQKDBBRdW9WYWRpcyBMaW1pdGVkM'.
+            'RcwFQYDVQQLDA5PQ1NQIFJlc3BvbmRlcjEqMCgGA1UEAwwhUXVvVmFkaXMgT0NTUC'.
+            'BBdXRob3JpdHkgU2lnbmF0dXJlGA8yMDIwMDUzMTIwMTUwMFowgZQwgZEwaTANBgl'.
+            'ghkgBZQMEAgEFAAQgfysBnapRzSv9UvTcZjk5Ke1jchA+E3HKPB+wwUY7f+0EIJ5Q'.
+            'bubkHbawfwOOeGZLQ1v63Qs6Y/snXWEeFh+6bqIwAhRZdy5wBmm3Zp+wEsXN0Tw6K'.
+            'BoJEYAAGA8yMDIwMDUzMTIwMTUwMFqgERgPMjAyMDA2MDIyMDE1MDBaoSMwITAfBg'.
+            'krBgEFBQcwAQIEEgQQzFH+0TWLyrLy80V5eildjQ=='
+        );
+        $responseData = ResponseData::fromDER($derDNGood);
+        $this->assertEquals(
+            base64_encode($derDNGood),
+            base64_encode($responseData->getBinary())
+        );
+        $this->assertEquals(
+            [
+              'producedAt' => 1590956100,
+              'responses' => [
+              array_merge(self::certId5977SHA1,self::singleResponse5977Revoked)
+            ],
+            'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
+          ],
+            $responseData->getAttributes()
+        );
+
+        // KeyHash identifier, cert is revoked
+        $derKHRevoked = base64_decode(
+            'MIGxohYEFA+AYRyCMWHVLyjnjUY4tCzhxtniGA8yMDIwMDYwMzA5MzkwOVowgYUwg'.
+            'YIwSTAJBgUrDgMCGgUABBQQX6Z6gAidtSefNc6DC0OInqPHDQQUD4BhHIIxYdUvKO'.
+            'eNRji0LOHG2eICEANxtYqG9s6cPst79C+SCPyhERgPMjAxOTEwMDcyMDMwMzlaGA8'.
+            'yMDIwMDYwMzA5MzkwOVqgERgPMjAyMDA2MTAwODU0MDla'
+        );
+        $responseData = ResponseData::fromDER($derKHRevoked);
+        $this->assertEquals(
+            base64_encode($derKHRevoked),
+            base64_encode($responseData->getBinary())
+        );
+        $this->assertEquals(
+            [
+              'producedAt' => 1591177149,
+              'responses' => [
+              array_merge(self::certId371bSHA1,self::singleResponse371bRevoked)
+            ]
+          ],
+            $responseData->getAttributes()
         );
     }
 }
