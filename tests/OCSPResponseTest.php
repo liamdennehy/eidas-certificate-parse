@@ -36,9 +36,9 @@ class OCSPResponseTest extends TestCase
     ];
     const singleResponse371bRevoked = [
         'status' => 'revoked',
-        'revokedDateTime' => '1570480239',
-        'thisUpdate' => '1591177149',
-        'nextUpdate' => '1591779249'
+        'revokedDateTime' => 1570480239,
+        'thisUpdate' => 1591177149,
+        'nextUpdate' => 1591779249
     ];
     public function testOCSPResponse($value='')
     {
@@ -302,6 +302,20 @@ class OCSPResponseTest extends TestCase
             base64_encode($derWithoutCerts),
             base64_encode($resp->getBinary())
         );
+        $this->assertEquals(
+            [
+            'producedAt' => 1591177149,
+            'responses' => [
+              array_merge(
+                  self::singleResponse371bRevoked,
+                  self::certId371bSHA1
+              )
+            ],
+            'signatureAlgorithm' => 'sha256WithRSAEncryption',
+            'hasSignature' => true
+          ],
+            $resp->getAttributes()
+        );
         $derWithCerts = base64_decode(
             'MIIHcTCCAT6hbzBtMQswCQYDVQQGEwJCTTEZMBcGA1UECgwQUXVvVmFkaXMgTGlta'.
             'XRlZDEXMBUGA1UECwwOT0NTUCBSZXNwb25kZXIxKjAoBgNVBAMMIVF1b1ZhZGlzIE'.
@@ -348,6 +362,21 @@ class OCSPResponseTest extends TestCase
         $this->assertEquals(
             base64_encode($derWithCerts),
             base64_encode($resp->getBinary())
+        );
+        $this->assertEquals(
+            [
+            'producedAt' => 1590956100,
+            'responses' => [
+              array_merge(
+                  self::singleResponse5977Revoked,
+                  self::certId5977SHA1
+              )
+            ],
+            'signatureAlgorithm' => 'sha256WithRSAEncryption',
+            'hasSignature' => true,
+            'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
+          ],
+            $resp->getAttributes()
         );
     }
 }

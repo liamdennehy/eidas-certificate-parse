@@ -3,9 +3,8 @@
 namespace eIDASCertificate\OCSP;
 
 use ASN1\Type\UnspecifiedType;
-// use eIDASCertificate\ASN1Interface;
-// use eIDASCertificate\AttributeInterface;
-// use eIDASCertificate\Extensions;
+use eIDASCertificate\ASN1Interface;
+use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\OCSP\ResponseData;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\AlgorithmIdentifier;
@@ -13,8 +12,7 @@ use ASN1\Type\Tagged\ExplicitlyTaggedType;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\BitString;
 
-// TODO: implements ASN1Interface, AttributeInterface
-class BasicOCSPResponse
+class BasicOCSPResponse implements ASN1Interface, AttributeInterface
 {
     private $tbsResponseData;
     private $signatureAlgorithm;
@@ -87,5 +85,18 @@ class BasicOCSPResponse
         }
 
         return $seq;
+    }
+
+    public function getAttributes()
+    {
+        $attr = $this->tbsResponseData->getAttributes();
+        $attr['signatureAlgorithm'] = $this->signatureAlgorithm->getAlgorithmName();
+        if (empty($this->signature)) {
+            $attr['hasSignature'] = false;
+        } else {
+            $attr['hasSignature'] = true;
+        }
+
+        return $attr;
     }
 }
