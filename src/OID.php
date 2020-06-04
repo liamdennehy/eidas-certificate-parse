@@ -108,6 +108,8 @@ class OID
     const sha512WithRSAEncryption = '1.2.840.113549.1.1.13';
     // https://tools.ietf.org/html/rfc6960#section-4.4.1
     const ocspNonce               = '1.3.6.1.5.5.7.48.1.2';
+    // https://tools.ietf.org/html/rfc6960#section-4.2.1
+    const ocspBasic               = '1.3.6.1.5.5.7.48.1.1';
 
     public static function getName($oidString)
     {
@@ -358,6 +360,9 @@ class OID
           case self::ocspNonce:
             $oidName = 'ocspNonce';
             break;
+          case self::ocspBasic:
+            $oidName = 'ocspBasic';
+            break;
           default:
             $oidName = 'unknown';
             break;
@@ -444,9 +449,11 @@ class OID
           case 'RSASSA_PSS':
             return '1.2.840.113549.1.1.10';
             break;
+          case 'rsa-sha1':
           case 'sha1WithRSAEncryption':
             return '1.2.840.113549.1.1.5';
             break;
+          case 'rsa-sha256':
           case 'sha256WithRSAEncryption':
             return '1.2.840.113549.1.1.11';
             break;

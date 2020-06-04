@@ -9,6 +9,7 @@ use eIDASCertificate\OCSP\OCSPNonce;
 use eIDASCertificate\OCSP\SingleResponse;
 use eIDASCertificate\OCSP\ResponseData;
 use eIDASCertificate\OCSP\CertStatus;
+use eIDASCertificate\OCSP\BasicOCSPResponse;
 use eIDASCertificate\Extension;
 use eIDASCertificate\AlgorithmIdentifier;
 use ASN1\Type\UnspecifiedType;
@@ -42,6 +43,8 @@ class OCSPResponseTest extends TestCase
     public function testOCSPResponse($value='')
     {
         $der = file_get_contents(__DIR__.'/ocsp/revoked-response-sha256');
+        $seq = OCSPResponse::fromDER($der);
+        $der = file_get_contents(__DIR__.'/ocsp/response-sha256');
         $seq = OCSPResponse::fromDER($der);
     }
 
@@ -277,6 +280,74 @@ class OCSPResponseTest extends TestCase
             ]
           ],
             $responseData->getAttributes()
+        );
+    }
+
+    public function testBasicOCSPResponse()
+    {
+        $derWithoutCerts = base64_decode(
+            'MIIByDCBsaIWBBQPgGEcgjFh1S8o541GOLQs4cbZ4hgPMjAyMDA2MDMwOTM5MDlaMIG'.
+            'FMIGCMEkwCQYFKw4DAhoFAAQUEF+meoAInbUnnzXOgwtDiJ6jxw0EFA+AYRyCMWHVLy'.
+            'jnjUY4tCzhxtniAhADcbWKhvbOnD7Le/Qvkgj8oREYDzIwMTkxMDA3MjAzMDM5WhgPM'.
+            'jAyMDA2MDMwOTM5MDlaoBEYDzIwMjAwNjEwMDg1NDA5WjANBgkqhkiG9w0BAQsFAAOC'.
+            'AQEAZc+SXtLysANqFBzzZi2M/Pki37bvDslS4Ofs1FUWbtganBA4iPI2USvAz6HL2LN'.
+            'Zpgp8L6iYVlPa686bB37ZMoPZtTZD1xBLXdulCHDRG/Myif/wzdrhpU74iMV5/BN4h9'.
+            'lRlXAoFRphTr87JyCJbhGtSQARA+nLEQ6AnQ9X+AdSQdHklg/2stL/MXp6XIXKlJJAO'.
+            '7aqbwUYqxpVQet13uaqGrIxsChET56p6oKfZR+RO3jLF142laJhw5byNqXTSDAHez4N'.
+            'yqx62BLezKbgjVsR5i5H1agY7iFHpOhPQjsbxJBqC5v35cAgNR+S85ia7H1xAyRbPn3'.
+            'v66uWUW0bSg=='
+        );
+        $resp = BasicOCSPResponse::fromDER($derWithoutCerts);
+        $this->assertEquals(
+            base64_encode($derWithoutCerts),
+            base64_encode($resp->getBinary())
+        );
+        $derWithCerts = base64_decode(
+            'MIIHcTCCAT6hbzBtMQswCQYDVQQGEwJCTTEZMBcGA1UECgwQUXVvVmFkaXMgTGlta'.
+            'XRlZDEXMBUGA1UECwwOT0NTUCBSZXNwb25kZXIxKjAoBgNVBAMMIVF1b1ZhZGlzIE'.
+            '9DU1AgQXV0aG9yaXR5IFNpZ25hdHVyZRgPMjAyMDA1MzEyMDE1MDBaMIGUMIGRMGk'.
+            'wDQYJYIZIAWUDBAIBBQAEIH8rAZ2qUc0r/VL03GY5OSntY3IQPhNxyjwfsMFGO3/t'.
+            'BCCeUG7m5B22sH8DjnhmS0Nb+t0LOmP7J11hHhYfum6iMAIUWXcucAZpt2afsBLFz'.
+            'dE8OigaCRGAABgPMjAyMDA1MzEyMDE1MDBaoBEYDzIwMjAwNjAyMjAxNTAwWqEjMC'.
+            'EwHwYJKwYBBQUHMAECBBIEEMxR/tE1i8qy8vNFeXopXY0wDQYJKoZIhvcNAQELBQA'.
+            'DggEBAHfUIkXtKrnKBgt2AgEgGrShuILxIQsoVHyEk3e8baPlWJQYxT6XhJh2uDds'.
+            'zkx04C+uwmkjiGwUJNy3wYwHqsDReo3jhmxNC7zQXpQygl+yHydqxNGEWPVxEh6cf'.
+            'jSHZp9PRaY9SUB0+bQzgNAc+Ygqpjcv7BJqvRSaq8NfUgJegdX2xhyscf3AlWcB8z'.
+            'q3T5GGFS3QFDFNYD1V1N9lj24NGcRswCjer7kqVjUKjXktr3Hc93ygDVjaHTIQZTI'.
+            'Q3Eg0B/9rLlJ3w17pmuZVtmJnpDBoJVHVEYrFXbC0YUUFSmGZef+f/6QdRen+6+6W'.
+            'zaHxaMPMAwnl/1KfnkcLo7qgggUXMIIFEzCCBQ8wggL3oAMCAQICFBJY5QOKV/Lhi'.
+            'YLZq+fBBPbPkLSHMA0GCSqGSIb3DQEBCwUAMHMxCzAJBgNVBAYTAkJFMRkwFwYDVQ'.
+            'RhDBBOVFJCRS0wNTM3Njk4MzE4MSAwHgYDVQQKDBdRdW9WYWRpcyBUcnVzdGxpbms'.
+            'gQlZCQTEnMCUGA1UEAwweUXVvVmFkaXMgQmVsZ2l1bSBJc3N1aW5nIENBIEcyMB4X'.
+            'DTE5MTAxMTE0MzYyOVoXDTIyMTAxMTE0MzYyOVowbTELMAkGA1UEBhMCQk0xGTAXB'.
+            'gNVBAoMEFF1b1ZhZGlzIExpbWl0ZWQxFzAVBgNVBAsMDk9DU1AgUmVzcG9uZGVyMS'.
+            'owKAYDVQQDDCFRdW9WYWRpcyBPQ1NQIEF1dGhvcml0eSBTaWduYXR1cmUwggEiMA0'.
+            'GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCrtwQVigkYNBrYpD4YGZgFNg3NV7ay'.
+            'QhgKXA9k/+wvtotiIDfFPNB/5UdVxk+0r9GNwz3l7BW9D4rmeD+OuC4j71gzHkOaI'.
+            'YfY95h5WCeCTvStmxUewaH9hvR61ANKqyom2W+xZzCxc97OFO52GqJpWvBuHhdhqU'.
+            'ALMdGBeUxT7z5Qt7U+QUxfqKIxr9RxOvsx2Cu70xd/l3ouoSKegEj3kiI3t8QY3cC'.
+            '3gWnTzGP+If25Mv5n7u7z9jVYuDUsPnpDnHtrXs0vl9aDBqAJgakzqNr1Q1WmbqTr'.
+            'NrBSUb6c6ihCvUuhWvfJ8DIO6h+nkQepeILFAVTLJbsG7F9SAJfRAgMBAAGjgaAwg'.
+            'Z0wDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBSHybwxlxJ6c7t+wD1FUbQBJZVRqz'.
+            'AXBgNVHSAEEDAOMAwGCisGAQQBvlgBgiwwDwYJKwYBBQUHMAEFBAIFADATBgNVHSU'.
+            'EDDAKBggrBgEFBQcDCTAdBgNVHQ4EFgQUt5B0c6liyvUNMI0jH1VrXgvH66YwDgYD'.
+            'VR0PAQH/BAQDAgeAMA0GCSqGSIb3DQEBCwUAA4ICAQAxLisJUyYmjk5665KZM2zpY'.
+            'BtesBb8EQ6yaUApXaYfeUzlXTqmCrzBUPsYFkfcFo1BNZNrtmngdHk4ZsU+MhgCxa'.
+            '1NaQebQf53kfYI3ddO1Fl/Ao54zPHD8FHjCbGETr3dKg2MttgcORslyim0MFlucw0'.
+            '7N3H/lu+rsWQcJAqWcn+2T6ZZ7Xek7byRW2gxrhbNeImbI1fcboujpUOJljgYub3W'.
+            'U/2X0KLys62FOFgChsbPPtFNb1nECPCR4wKI33d2P3fjjZD52TVFk+fdamvJMc/oO'.
+            'XceQEnCRivixdqBXf87IqXsnpv/9ySP7YOm/j/ASulqsCItZLVr1nu+UM1hlfmPTl'.
+            'I9kFLztbsHUlWPaGGlP1A6cPU+yHcWG6iG7R/bXUjqltV9BSuyUGWRflb6qnLgCHL'.
+            'sk17POiTfGF3TdieRI6R6LCalHeX9Zk86NxfvPLdS0igJycQgQ+tZ1aNaGrhbkfTq'.
+            'Lr5dNt/2K4heOpgOBddECv/OtL3ZN48yU84DiaU1WqEmQA7vCFQOvw4IdkqpSIeDq'.
+            'ukdM3sltuyayvxxHKCTqfvUTOW6mV91yndXAPgclkSmPrRZ91pcHo6Rull0U2CULx'.
+            'M54+CupxmBiohZj1T1CiACCRGfT0bMeQLHj5T3VK3Yhtup8eZaMHYNCKbH6qxNErv'.
+            'mUQ3kDJ9sjQ=='
+        );
+        $resp = BasicOCSPResponse::fromDER($derWithCerts);
+        $this->assertEquals(
+            base64_encode($derWithCerts),
+            base64_encode($resp->getBinary())
         );
     }
 }
