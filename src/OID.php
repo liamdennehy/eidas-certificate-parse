@@ -436,26 +436,42 @@ class OID
         switch ($name) {
           case 'sha1':
           case 'sha-1':
-            return '1.3.14.3.2.26';
+            return self::sha1;
             break;
           case 'sha256':
           case 'sha-256':
-            return '2.16.840.1.101.3.4.2.1';
+            return self::sha256;
+            break;
+          case 'sha384':
+          case 'sha-384':
+            return self::sha384;
+            break;
+          case 'sha512':
+          case 'sha-512':
+            return self::sha512;
             break;
           case 'ocspNonce':
-            return '1.3.6.1.5.5.7.48.1.2';
+            return self::ocspNonce;
             break;
           case 'RSASSA-PSS':
           case 'RSASSA_PSS':
-            return '1.2.840.113549.1.1.10';
+            return self::RSASSA_PSS;
             break;
           case 'rsa-sha1':
           case 'sha1WithRSAEncryption':
-            return '1.2.840.113549.1.1.5';
+            return self::sha1WithRSAEncryption;
             break;
           case 'rsa-sha256':
           case 'sha256WithRSAEncryption':
-            return '1.2.840.113549.1.1.11';
+            return self::sha256WithRSAEncryption;
+            break;
+          case 'rsa-sha384':
+          case 'sha384WithRSAEncryption':
+            return self::sha384WithRSAEncryption;
+            break;
+          case 'rsa-sha512':
+          case 'sha512WithRSAEncryption':
+            return self::sha512WithRSAEncryption;
             break;
           default:
             return 'unknown';
