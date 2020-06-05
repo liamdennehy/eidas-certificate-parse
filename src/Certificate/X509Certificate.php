@@ -124,23 +124,26 @@ class X509Certificate implements
 
     public static function emit($candidate)
     {
+        if (is_object($candidate) && get_class($candidate) == 'eIDASCertificate\Certificate\X509Certificate') {
+            return $candidate->getBinary();
+        }
         if (!is_string($candidate)) {
-            throw new \Exception("X509Certificate requires string-ish input", 1);
+            throw new \Exception("X509Certificate requires string-ish input or existing X509Certificate object", 1);
+        }
+
+        $candidate = trim($candidate);
+        $crtPEM = explode("\n", $candidate);
+        if ($crtPEM[0] == "-----BEGIN CERTIFICATE-----") {
+            unset($crtPEM[sizeof($crtPEM)-1]);
+            unset($crtPEM[0]);
+            $crtDER = base64_decode(implode('', $crtPEM));
+        } elseif (substr($candidate, 0, 3) == 'MII') {
+            $crtDER = base64_decode($candidate);
         } else {
-            $candidate = trim($candidate);
-            $crtPEM = explode("\n", $candidate);
-            if ($crtPEM[0] == "-----BEGIN CERTIFICATE-----") {
-                unset($crtPEM[sizeof($crtPEM)-1]);
-                unset($crtPEM[0]);
-                $crtDER = base64_decode(implode('', $crtPEM));
-            } elseif (substr($candidate, 0, 3) == 'MII') {
-                $crtDER = base64_decode($candidate);
-            } else {
-                try {
-                    $crtDER = UnspecifiedType::fromDER($candidate)->asSequence()->toDER();
-                } catch (\Exception $e) {
-                    throw new CertificateException("Cannot wrangle input into a certificate format", 1);
-                }
+            try {
+                $crtDER = UnspecifiedType::fromDER($candidate)->asSequence()->toDER();
+            } catch (\Exception $e) {
+                throw new CertificateException("Cannot wrangle input into a certificate format", 1);
             }
         }
         return $crtDER;
