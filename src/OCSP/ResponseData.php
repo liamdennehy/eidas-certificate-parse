@@ -72,7 +72,7 @@ class ResponseData implements ASN1Interface, AttributeInterface
             $singleResponses[] = SingleResponse::fromSequence($responseElement->asSequence());
         }
         if ($tbsResponseData->has($idx) && $tbsResponseData->at($idx)->tag() == 1) {
-            $extensions = new Extensions($tbsResponseData->at($idx)->asExplicit()->asSequence()->toDER());
+            $extensions = new Extensions($tbsResponseData->at($idx)->asExplicit()->asSequence());
             $idx++;
         } else {
             $extensions = null;
