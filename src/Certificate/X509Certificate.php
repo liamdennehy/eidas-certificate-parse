@@ -193,8 +193,8 @@ class X509Certificate implements
     public function getTBSCert()
     {
         $tbsCert = [];
-        if (! empty($this->crtVersion)) {
-            $tbsCert[] = new ExplicitlyTaggedType(0, new Integer($this->crtVersion - 1));
+        if ($this->x509Version !== 1) {
+            $tbsCert[] = new ExplicitlyTaggedType(0, new Integer($this->x509Version - 1));
         }
         $tbsCert[] = new Integer(gmp_strval(gmp_init('0x'.bin2hex($this->serialNumber)), 10));
         $tbsCert[] = $this->tbsSignature->getASN1();
