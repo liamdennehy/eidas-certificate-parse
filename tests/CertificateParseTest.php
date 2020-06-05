@@ -383,6 +383,15 @@ class CertificateParseTest extends TestCase
     public function testX509ToPEM()
     {
         $this->getTestCerts();
+        $arr = explode("\n", $this->mocrtPEM);
+        unset($arr[0]);
+        unset($arr[sizeof($arr)]);
+        unset($arr[sizeof($arr)]);
+        $der = base64_decode(implode($arr));
+        $this->assertEquals(
+            base64_encode($der),
+            base64_encode($this->mocrt->getBinary())
+        );
         $this->assertEquals(
             $this->mocrtPEM,
             $this->mocrt->toPEM()
@@ -393,6 +402,15 @@ class CertificateParseTest extends TestCase
     {
         $crtFile = file_get_contents(__DIR__.'/certs/v1.crt');
         $v1Cert = new X509Certificate($crtFile);
+        $arr = explode("\n", $crtFile);
+        unset($arr[0]);
+        unset($arr[sizeof($arr)]);
+        unset($arr[sizeof($arr)]);
+        $der = base64_decode(implode($arr));
+        $this->assertEquals(
+            base64_encode($der),
+            base64_encode($v1Cert->getBinary())
+        );
 
         $this->assertEquals(
             '/C=US/O=VeriSign, Inc.'.
