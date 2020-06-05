@@ -100,7 +100,7 @@ class ResponseData implements ASN1Interface, AttributeInterface
         if (is_string($this->responderId)) {
             $asn1 = $asn1->withAppended(new ImplicitlyTaggedType(2, new Sequence(new OctetString($this->responderId))));
         } else {
-            $asn1 = $asn1->withAppended(new ImplicitlyTaggedType(1, $this->responderId->getASN1()));
+            $asn1 = $asn1->withAppended(new ImplicitlyTaggedType(1, new Sequence($this->responderId->getASN1())));
         }
         $asn1 = $asn1->withAppended(new GeneralizedTime($this->producedAt));
         foreach ($this->singleResponses as $response) {
