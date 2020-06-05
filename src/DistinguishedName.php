@@ -123,7 +123,7 @@ class DistinguishedName implements ASN1Interface
 
     public function getHash($algo = 'sha256')
     {
-        return hex2bin(hash($algo, $this->getASN1()->at(0)->toDER()));
+        return hex2bin(hash($algo, $this->getASN1()->toDER()));
     }
 
     public function getBinary()
@@ -133,6 +133,6 @@ class DistinguishedName implements ASN1Interface
 
     public function getASN1()
     {
-        return new Sequence($this->sequence);
+        return $this->sequence;
     }
 }
