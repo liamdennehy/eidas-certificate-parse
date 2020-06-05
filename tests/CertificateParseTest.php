@@ -51,7 +51,7 @@ class CertificateParseTest extends TestCase
     public function setUp()
     {
         // Helper::getHTTP(TLTest::testTLURI, 'tl');
-        $this->testTime = new \DateTime('@1569225604');
+        $this->testTime = (int)(new \DateTime('@1569225604'))->format('U');
         $this->eucrtSubject = [
           [
             'oid' => '2.5.4.6',
@@ -362,25 +362,31 @@ class CertificateParseTest extends TestCase
 
     public function getTestCerts()
     {
-        $this->jmcrt = new X509Certificate(
-            file_get_contents(
-                __DIR__ . "/certs/" . self::jmcrtfile
-            )
+        $this->mocrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::mocrtfile
         );
-        $this->mocrt = new X509Certificate(
-            file_get_contents(
-                __DIR__ . "/certs/" . self::mocrtfile
-            )
+        $this->mocrt = new X509Certificate($this->mocrtPEM);
+        $this->jmcrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::jmcrtfile
         );
-        $this->eucrt = new X509Certificate(
-            file_get_contents(
-                __DIR__ . "/certs/" . self::eucrtfile
-            )
+        $this->jmcrt = new X509Certificate($this->jmcrtPEM);
+        $this->eucrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::eucrtfile
         );
-        $this->euissuercrt =
-            file_get_contents(
-                __DIR__ . "/certs/" . self::euissuercrtfile
-            );
+        $this->eucrt = new X509Certificate($this->eucrtPEM);
+        $this->euissuercrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::euissuercrtfile
+        );
+        $this->euissuercrt = new X509Certificate($this->euissuercrtPEM);
+    }
+
+    public function testX509ToPEM()
+    {
+        $this->getTestCerts();
+        $this->assertEquals(
+            $this->mocrtPEM,
+            $this->mocrt->toPEM()
+        );
     }
 
     public function testV1Parse()
@@ -411,10 +417,10 @@ class CertificateParseTest extends TestCase
             $v1Cert->isCurrentAt($this->testTime)
         );
         $this->assertFalse(
-            $v1Cert->isCurrentAt(new \DateTime('1998-12-12 12:00 UTC'))
+            $v1Cert->isCurrentAt((int)(new \DateTime('1998-12-12 12:00 UTC'))->format('U'))
         );
         $this->assertFalse(
-            $v1Cert->isCurrentAt(new \DateTime('2036-08-01 12:00 UTC'))
+            $v1Cert->isCurrentAt((int)(new \DateTime('2036-08-01 12:00 UTC'))->format('U'))
         );
         $this->assertEquals(
             'sha1WithRSAEncryption',
@@ -647,7 +653,6 @@ class CertificateParseTest extends TestCase
             'eIDASCertificate\Certificate\X509Certificate',
             get_class($issuer)
         );
-        $this->getTestCerts();
 
         $euissuercrt = new X509Certificate($this->euissuercrt);
         $issuer = $this->eucrt->withIssuer($euissuercrt);
@@ -699,6 +704,19 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             TSPServicesTest::getEUTSPServiceAttributes(),
             $eucrtAttributes['issuer']['certificates'][0]['tspService']
+        );
+    }
+
+    public function testNewGetBinary()
+    {
+        $this->getTestCerts();
+        $eucrtArray = explode("\n", $this->eucrt->toPEM());
+        unset($eucrtArray[0]);
+        unset($eucrtArray[sizeof($eucrtArray)-1]);
+        $eucrtB64 = implode($eucrtArray);
+        $this->assertEquals(
+            $eucrtB64,
+            base64_encode($this->eucrt->getBinary())
         );
     }
 }

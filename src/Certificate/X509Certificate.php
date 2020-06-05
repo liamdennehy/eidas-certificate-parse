@@ -34,7 +34,6 @@ class X509Certificate implements
 {
     private $x509;
     private $crtResource;
-    // private $crtBinary;
     private $parsed;
     private $extensions;
     private $keyUsage;
@@ -77,12 +76,8 @@ class X509Certificate implements
         $this->tbsSignature = AlgorithmIdentifier::fromSequence($tbsCertificate->at($idx++)->asSequence());
         $this->issuer = new DistinguishedName($tbsCertificate->at($idx++));
         $dates = $tbsCertificate->at($idx++)->asSequence();
-        $this->notBefore = self::WrangleDate($dates->at(0));
-        $this->notBeforeTag = $this->notBefore[1];
-        $this->notBefore = $this->notBefore[0];
-        $this->notAfter = self::WrangleDate($dates->at(1));
-        $this->notAfterTag = $this->notAfter[1];
-        $this->notAfter = $this->notAfter[0];
+        $this->notBefore = self::getDateFromElement($dates->at(0));
+        $this->notAfter = self::getDateFromElement($dates->at(1));
         $this->subject = new DistinguishedName($tbsCertificate->at($idx++));
         $subjectPublicKeyInfo = $tbsCertificate->at($idx++)->asSequence();
         $subjectPublicKeyInfoTypeOID =
@@ -122,6 +117,21 @@ class X509Certificate implements
         }
     }
 
+    public static function getDateFromElement($element)
+    {
+        switch ($element->tag()) {
+          case 23:
+            return $element->asUTCTime();
+            break;
+          case 24:
+            return $element->asGeneralizedTime();
+            break;
+          default:
+              throw new \Exception("Error Processing Date ".$element->tag(), 1);
+
+            break;
+        }
+    }
     public static function emit($candidate)
     {
         if (is_object($candidate) && get_class($candidate) == 'eIDASCertificate\Certificate\X509Certificate') {
@@ -180,7 +190,7 @@ class X509Certificate implements
         "-----END CERTIFICATE-----\n";
     }
 
-    public function getBinary()
+    public function getTBSCert()
     {
         $tbsCert = [];
         if (! empty($this->crtVersion)) {
@@ -189,31 +199,24 @@ class X509Certificate implements
         $tbsCert[] = new Integer(gmp_strval(gmp_init('0x'.bin2hex($this->serialNumber)), 10));
         $tbsCert[] = $this->tbsSignature->getASN1();
         $tbsCert[] = $this->issuer->getASN1();
-        $validDates = [];
-        switch ($this->notBeforeTag) {
-          case 23:
-            $validDates[] = new UTCTime($this->notBefore);
-            break;
-          case 24:
-            $validDates[] = new GeneralizedTime($this->notBefore);
-            break;
-        }
-        switch ($this->notAfterTag) {
-          case 23:
-            $validDates[] = new UTCTime($this->notAfter);
-            break;
-          case 24:
-            $validDates[] = new GeneralizedTime($this->notAfter);
-            break;
-        }
-        $tbsCert[] = new Sequence(...$validDates);
+        $tbsCert[] = new Sequence($this->notBefore, $this->notAfter);
         $tbsCert[] = $this->subject->getASN1();
         $tbsCert[] = UnspecifiedType::fromDER($this->publicKey)->asSequence();
         if (! empty($this->extensions)) {
             $tbsCert[] = new ExplicitlyTaggedType(3, $this->extensions->getASN1());
         }
+        return new Sequence(...$tbsCert);
+    }
+
+    public function getSignature()
+    {
+        return $this->signature;
+    }
+
+    public function getBinary()
+    {
         return (new Sequence(
-            new Sequence(...$tbsCert),
+            $this->getTBSCert(),
             $this->signatureAlgorithmIdentifier->getASN1(),
             new BitString($this->signature)
         ))->toDER();
@@ -237,8 +240,8 @@ class X509Certificate implements
     public function getDates()
     {
         return [
-          'notBefore' => $this->notBefore,
-          'notAfter' => $this->notAfter
+          'notBefore' => $this->getNotBefore(),
+          'notAfter' => $this->getNotAfter()
         ];
     }
 
@@ -250,7 +253,7 @@ class X509Certificate implements
     public function isCurrentAt($dateTime = null)
     {
         if (empty($dateTime)) {
-            $dateTime = new \DateTime; // now
+            (int)($dateTime = new \DateTime)->format('U'); // now
         };
         return (
           $this->isStartedAt($dateTime) &&
@@ -258,23 +261,23 @@ class X509Certificate implements
         );
     }
 
-    public function isStartedAt($dateTime = null)
+    public function isStartedAt($unixTime = null)
     {
-        if (empty($dateTime)) {
-            $dateTime = new \DateTime; // now
+        if (empty($unixTime)) {
+            $unixTime = (int)(new \DateTime)->format('U'); // now
         };
         return (
-          $this->notBefore < $dateTime
+          $this->getNotBefore() < $unixTime
         );
     }
 
-    public function isNotFinishedAt($dateTime = null)
+    public function isNotFinishedAt($unixTime = null)
     {
-        if (empty($dateTime)) {
-            $dateTime = new \DateTime; // now
+        if (empty($unixTime)) {
+            $unixTime = (int)(new \DateTime)->format('U'); // now
         };
         return (
-          $this->notAfter > $dateTime
+          $this->getNotAfter() > $unixTime
         );
     }
 
@@ -434,6 +437,16 @@ class X509Certificate implements
         return 'X509Certificate';
     }
 
+    public function getNotBefore()
+    {
+        return (int)$this->notBefore->dateTime()->format('U');
+    }
+
+    public function getNotAfter()
+    {
+        return (int)$this->notAfter->dateTime()->format('U');
+    }
+
     public function getAttributes()
     {
         if (! array_key_exists('subject', $this->attributes)) {
@@ -455,8 +468,8 @@ class X509Certificate implements
             } else {
                 $this->attributes['issuer']['isSelf'] = false;
             }
-            $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
-            $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
+            $this->attributes["notBefore"] = $this->getNotBefore();
+            $this->attributes["notAfter"] = $this->getNotAfter();
             $this->attributes["fingerprint"] = $this->getIdentifier();
             if (!empty($this->tspServiceAttributes)) {
                 $this->attributes["tspService"] = $this->tspServiceAttributes;

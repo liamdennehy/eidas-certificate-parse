@@ -59,7 +59,7 @@ class QCSSCD extends QCStatement implements QCStatementInterface
 
     public function setCertificate(X509Certificate $cert)
     {
-        $notBefore = (int)$cert->getDates()['notBefore']->format('U');
+        $notBefore = $cert->getNotBefore();
         if ($notBefore >= 1467324000) {
             $this->description =
               'The private key related to the certified public key resides '.
