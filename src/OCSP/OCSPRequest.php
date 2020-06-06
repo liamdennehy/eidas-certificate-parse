@@ -31,6 +31,9 @@ class OCSPRequest implements
         $serialNumber,
         $nonce = 'none'
     ) {
+        if (is_object($signatureAlgorithm) && get_class($signatureAlgorithm) !== 'eIDASCertificate\Algorithm\AlgorithmIdentifier') {
+          throw new \Exception("Unrecognised Signature Algorithm requested", 1);
+        }
         if ($nonce == 'auto') {
             $this->nonce = random_bytes(16);
         } elseif ($nonce == 'none') {
@@ -41,9 +44,6 @@ class OCSPRequest implements
 
         if (is_string($signatureAlgorithm)) {
             $signatureAlgorithm = new AlgorithmIdentifier($signatureAlgorithm);
-        }
-        if (get_class($signatureAlgorithm) !== 'eIDASCertificate\Algorithm\AlgorithmIdentifier') {
-            throw new \Exception("Unrecognised Signature Algorithm requested", 1);
         }
         $certId = new CertID(
             $signatureAlgorithm,
