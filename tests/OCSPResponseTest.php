@@ -3,6 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OCSP\OCSPResponse;
 use eIDASCertificate\OCSP\CertID;
 use eIDASCertificate\OCSP\OCSPNonce;
@@ -328,6 +329,32 @@ class OCSPResponseTest extends TestCase
           ],
             $resp->getAttributes()
         );
+        $this->assertEquals(
+            [
+            '1.2.840.113549.1.1.11',
+            'sha256WithRSAEncryption'
+          ],
+            [
+            $resp->getSignatureAlgorithmOID(),
+            $resp->getSignatureAlgorithmName()
+
+          ]
+        );
+        $this->assertFalse(
+            $resp->hasCertificates()
+        );
+        $this->assertEquals(
+            'KeyHash',
+            $resp->getResponderIDType()
+        );
+        $this->assertEquals(
+            '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
+            $resp->getResponderIDPrintable()
+        );
+        $resp->setResponder(
+            file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
+        );
+
         $derWithCerts = base64_decode(
             'MIIHcTCCAT6hbzBtMQswCQYDVQQGEwJCTTEZMBcGA1UECgwQUXVvVmFkaXMgTGlta'.
             'XRlZDEXMBUGA1UECwwOT0NTUCBSZXNwb25kZXIxKjAoBgNVBAMMIVF1b1ZhZGlzIE'.
@@ -370,17 +397,6 @@ class OCSPResponseTest extends TestCase
             'M54+CupxmBiohZj1T1CiACCRGfT0bMeQLHj5T3VK3Yhtup8eZaMHYNCKbH6qxNErv'.
             'mUQ3kDJ9sjQ=='
         );
-        $this->assertEquals(
-            [
-            '1.2.840.113549.1.1.11',
-            'sha256WithRSAEncryption'
-          ],
-            [
-            $resp->getSignatureAlgorithmOID(),
-            $resp->getSignatureAlgorithmName()
-
-          ]
-        );
         $resp = BasicOCSPResponse::fromDER($derWithCerts);
         $this->assertEquals(
             base64_encode($derWithCerts),
@@ -411,6 +427,39 @@ class OCSPResponseTest extends TestCase
               $resp->getSignatureAlgorithmOID(),
               $resp->getSignatureAlgorithmName()
             ]
+        );
+        $this->assertTrue(
+            $resp->hasCertificates()
+        );
+        $this->assertEquals(
+            1,
+            sizeof($resp->getCertificates())
+        );
+        $this->assertEquals(
+            '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
+            $resp->getCertificates()[0]->getSubjectDN()
+        );
+        $this->assertEquals(
+            '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28',
+            hash('sha256', $resp->getCertificates()[0]->getBinary())
+        );
+        $this->assertEquals(
+            'Name',
+            $resp->getResponderIDType()
+        );
+        $this->assertEquals(
+            '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
+            $resp->getResponderIDPrintable()
+        );
+        $this->assertFalse(
+            $resp->setResponder(
+              file_get_contents(__DIR__.'/certs/qvbecag2.crt')
+          )
+        );
+        $this->assertTrue(
+            $resp->setResponder(
+              file_get_contents(__DIR__.'/certs/qvocspauth.crt')
+          )
         );
     }
 }
