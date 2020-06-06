@@ -98,6 +98,10 @@ class OID
     const sha1                    = '1.3.14.3.2.26';
     // https://tools.ietf.org/html/rfc3560.html#appendix-A
     const sha256                  = '2.16.840.1.101.3.4.2.1';
+    // https://tools.ietf.org/html/rfc3560.html#appendix-A
+    const sha384                  = '2.16.840.1.101.3.4.2.2';
+    // https://tools.ietf.org/html/rfc3560.html#appendix-A
+    const sha512                  = '2.16.840.1.101.3.4.2.3';
     // https://tools.ietf.org/html/rfc3279#section-3
     const sha1WithRSAEncryption   = '1.2.840.113549.1.1.5';
     // https://tools.ietf.org/html/rfc4055#section-5
@@ -108,6 +112,10 @@ class OID
     const sha512WithRSAEncryption = '1.2.840.113549.1.1.13';
     // https://tools.ietf.org/html/rfc6960#section-4.4.1
     const ocspNonce               = '1.3.6.1.5.5.7.48.1.2';
+    // https://tools.ietf.org/html/rfc6960#section-4.2.1
+    const ocspBasic               = '1.3.6.1.5.5.7.48.1.1';
+    // https://tools.ietf.org/html/rfc2560#section-4.2.2.2.1
+    const ocspNoCheck             = '1.3.6.1.5.5.7.48.1.5';
 
     public static function getName($oidString)
     {
@@ -343,6 +351,12 @@ class OID
           case self::sha256:
             $oidName = 'sha-256';
             break;
+          case self::sha384:
+            $oidName = 'sha-384';
+            break;
+          case self::sha512:
+            $oidName = 'sha-512';
+            break;
           case self::sha1WithRSAEncryption:
             $oidName = 'sha1WithRSAEncryption';
             break;
@@ -357,6 +371,12 @@ class OID
             break;
           case self::ocspNonce:
             $oidName = 'ocspNonce';
+            break;
+          case self::ocspBasic:
+            $oidName = 'ocspBasic';
+            break;
+          case self::ocspNoCheck:
+            $oidName = 'ocspNoCheck';
             break;
           default:
             $oidName = 'unknown';
@@ -431,18 +451,42 @@ class OID
         switch ($name) {
           case 'sha1':
           case 'sha-1':
-            return '1.3.14.3.2.26';
+            return self::sha1;
             break;
           case 'sha256':
           case 'sha-256':
-            return '2.16.840.1.101.3.4.2.1';
+            return self::sha256;
+            break;
+          case 'sha384':
+          case 'sha-384':
+            return self::sha384;
+            break;
+          case 'sha512':
+          case 'sha-512':
+            return self::sha512;
             break;
           case 'ocspNonce':
-            return '1.3.6.1.5.5.7.48.1.2';
+            return self::ocspNonce;
             break;
           case 'RSASSA-PSS':
           case 'RSASSA_PSS':
-            return '1.2.840.113549.1.1.10';
+            return self::RSASSA_PSS;
+            break;
+          case 'rsa-sha1':
+          case 'sha1WithRSAEncryption':
+            return self::sha1WithRSAEncryption;
+            break;
+          case 'rsa-sha256':
+          case 'sha256WithRSAEncryption':
+            return self::sha256WithRSAEncryption;
+            break;
+          case 'rsa-sha384':
+          case 'sha384WithRSAEncryption':
+            return self::sha384WithRSAEncryption;
+            break;
+          case 'rsa-sha512':
+          case 'sha512WithRSAEncryption':
+            return self::sha512WithRSAEncryption;
             break;
           default:
             return 'unknown';

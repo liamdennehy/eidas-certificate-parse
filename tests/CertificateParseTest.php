@@ -51,7 +51,7 @@ class CertificateParseTest extends TestCase
     public function setUp()
     {
         // Helper::getHTTP(TLTest::testTLURI, 'tl');
-        $this->testTime = new \DateTime('@1569225604');
+        $this->testTime = (int)(new \DateTime('@1569225604'))->format('U');
         $this->eucrtSubject = [
           [
             'oid' => '2.5.4.6',
@@ -362,31 +362,55 @@ class CertificateParseTest extends TestCase
 
     public function getTestCerts()
     {
-        $this->jmcrt = new X509Certificate(
-            file_get_contents(
-                __DIR__ . "/certs/" . self::jmcrtfile
-            )
+        $this->mocrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::mocrtfile
         );
-        $this->mocrt = new X509Certificate(
-            file_get_contents(
-                __DIR__ . "/certs/" . self::mocrtfile
-            )
+        $this->mocrt = new X509Certificate($this->mocrtPEM);
+        $this->jmcrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::jmcrtfile
         );
-        $this->eucrt = new X509Certificate(
-            file_get_contents(
-                __DIR__ . "/certs/" . self::eucrtfile
-            )
+        $this->jmcrt = new X509Certificate($this->jmcrtPEM);
+        $this->eucrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::eucrtfile
         );
-        $this->euissuercrt =
-            file_get_contents(
-                __DIR__ . "/certs/" . self::euissuercrtfile
-            );
+        $this->eucrt = new X509Certificate($this->eucrtPEM);
+        $this->euissuercrtPEM = file_get_contents(
+            __DIR__ . "/certs/" . self::euissuercrtfile
+        );
+        $this->euissuercrt = new X509Certificate($this->euissuercrtPEM);
+    }
+
+    public function testX509ToPEM()
+    {
+        $this->getTestCerts();
+        $arr = explode("\n", $this->mocrtPEM);
+        unset($arr[0]);
+        unset($arr[sizeof($arr)]);
+        unset($arr[sizeof($arr)]);
+        $der = base64_decode(implode($arr));
+        $this->assertEquals(
+            base64_encode($der),
+            base64_encode($this->mocrt->getBinary())
+        );
+        $this->assertEquals(
+            $this->mocrtPEM,
+            $this->mocrt->toPEM()
+        );
     }
 
     public function testV1Parse()
     {
         $crtFile = file_get_contents(__DIR__.'/certs/v1.crt');
         $v1Cert = new X509Certificate($crtFile);
+        $arr = explode("\n", $crtFile);
+        unset($arr[0]);
+        unset($arr[sizeof($arr)]);
+        unset($arr[sizeof($arr)]);
+        $der = base64_decode(implode($arr));
+        $this->assertEquals(
+            base64_encode($der),
+            base64_encode($v1Cert->getBinary())
+        );
 
         $this->assertEquals(
             '/C=US/O=VeriSign, Inc.'.
@@ -411,10 +435,10 @@ class CertificateParseTest extends TestCase
             $v1Cert->isCurrentAt($this->testTime)
         );
         $this->assertFalse(
-            $v1Cert->isCurrentAt(new \DateTime('1998-12-12 12:00 UTC'))
+            $v1Cert->isCurrentAt((int)(new \DateTime('1998-12-12 12:00 UTC'))->format('U'))
         );
         $this->assertFalse(
-            $v1Cert->isCurrentAt(new \DateTime('2036-08-01 12:00 UTC'))
+            $v1Cert->isCurrentAt((int)(new \DateTime('2036-08-01 12:00 UTC'))->format('U'))
         );
         $this->assertEquals(
             'sha1WithRSAEncryption',
@@ -647,7 +671,6 @@ class CertificateParseTest extends TestCase
             'eIDASCertificate\Certificate\X509Certificate',
             get_class($issuer)
         );
-        $this->getTestCerts();
 
         $euissuercrt = new X509Certificate($this->euissuercrt);
         $issuer = $this->eucrt->withIssuer($euissuercrt);
@@ -699,6 +722,42 @@ class CertificateParseTest extends TestCase
         $this->assertEquals(
             TSPServicesTest::getEUTSPServiceAttributes(),
             $eucrtAttributes['issuer']['certificates'][0]['tspService']
+        );
+    }
+
+    public function testNewGetBinary()
+    {
+        $this->getTestCerts();
+        $eucrtArray = explode("\n", $this->eucrt->toPEM());
+        unset($eucrtArray[0]);
+        unset($eucrtArray[sizeof($eucrtArray)-1]);
+        $eucrtB64 = implode($eucrtArray);
+        $this->assertEquals(
+            $eucrtB64,
+            base64_encode($this->eucrt->getBinary())
+        );
+    }
+
+    public function testOCSPNoCheck()
+    {
+        $ocspSigner = new X509Certificate(
+            file_get_contents(__DIR__.'/certs/qvocspauth.crt')
+        );
+        $this->assertEquals(
+            'This certificate is exempt from status checks when used to sign OCSP Responses',
+            $ocspSigner->getAttributes()['findings']['info']['ocspNoCheck'][0]
+        );
+        $this->assertEquals(
+            [
+             'basicConstraints',
+             'authorityKeyIdentifier',
+             'certificatePolicies',
+             'ocspNoCheck',
+             'extKeyUsage',
+             'subjectKeyIdentifier',
+             'keyUsage'
+           ],
+            $ocspSigner->getExtensionNames()
         );
     }
 }

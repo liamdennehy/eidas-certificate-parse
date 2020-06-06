@@ -7,7 +7,7 @@ use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\OctetString;
 use ASN1\Type\Primitive\Integer;
 use eIDASCertificate\ASN1Interface;
-use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use eIDASCertificate\AttributeInterface;
 
 class CertID implements ASN1Interface, AttributeInterface
@@ -16,7 +16,7 @@ class CertID implements ASN1Interface, AttributeInterface
     private $algorithmIdentifier;
     private $issuerNameHash;
     private $issuerKeyHash;
-    private $serialNumber;
+    private $serialNumber; // as lowercase hex string
 
     public function __construct(
         $signatureAlgorithm,
@@ -24,14 +24,14 @@ class CertID implements ASN1Interface, AttributeInterface
         $issuerKeyHash,
         $serialNumber
     ) {
-        if (! is_a($signatureAlgorithm, 'eIDASCertificate\AlgorithmIdentifier')) {
-            $this->algorithmIdentifier = new AlgorithmIdentifier($signatureAlgorithm);
-        } else {
+        if (is_a($signatureAlgorithm, 'eIDASCertificate\AlgorithmIdentifier')) {
             $this->algorithmIdentifier = $signatureAlgorithm;
+        } else {
+            $this->algorithmIdentifier = new AlgorithmIdentifier($signatureAlgorithm);
         }
         $this->issuerNameHash = $issuerNameHash;
         $this->issuerKeyHash = $issuerKeyHash;
-        $this->serialNumber = hex2bin($serialNumber);
+        $this->serialNumber = strtolower($serialNumber);
     }
 
     public static function fromDER($der)
@@ -57,7 +57,7 @@ class CertID implements ASN1Interface, AttributeInterface
               new OctetString($this->issuerKeyHash),
               new Integer(
                   gmp_strval(
-                      gmp_init($this->getSerialNumber(), 16),
+                      '0x'.$this->serialNumber,
                       10
                   )
               )
@@ -97,7 +97,7 @@ class CertID implements ASN1Interface, AttributeInterface
 
     public function getSerialNumber()
     {
-        return bin2hex($this->serialNumber);
+        return $this->serialNumber;
     }
 
     public function getAttributes()

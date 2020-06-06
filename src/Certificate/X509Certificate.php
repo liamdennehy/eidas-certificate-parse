@@ -10,11 +10,17 @@ use eIDASCertificate\OID;
 use eIDASCertificate\Extensions;
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\ASN1Interface;
-use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use eIDASCertificate\DistinguishedName;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\TSPService\TSPServiceException;
+use ASN1\Type\Tagged\ExplicitlyTaggedType;
 use ASN1\Type\UnspecifiedType;
+use ASN1\Type\Constructed\Sequence;
+use ASN1\Type\Primitive\BitString;
+use ASN1\Type\Primitive\Integer;
+use ASN1\Type\Primitive\GeneralizedTims;
+use ASN1\Type\Primitive\UTCTime;
 use phpseclib\File\X509;
 
 /**
@@ -28,7 +34,6 @@ class X509Certificate implements
 {
     private $x509;
     private $crtResource;
-    private $crtBinary;
     private $parsed;
     private $extensions;
     private $keyUsage;
@@ -46,14 +51,15 @@ class X509Certificate implements
     private $notBefore;
     private $notAfter;
     private $signature;
-    private $signatureAlgrothimIdentifier;
+    private $tbsSignature;
+    private $signatureAlgorithmIdentifier;
     public function __construct($candidate)
     {
-        $this->crtBinary = X509Certificate::emit($candidate);
-        $crtASN1 = UnspecifiedType::fromDER($this->crtBinary)->asSequence();
+        $candidatePEM = X509Certificate::emit($candidate);
+        $crtASN1 = UnspecifiedType::fromDER($candidatePEM)->asSequence();
         $tbsCertificate = $crtASN1->at(0)->asSequence();
         $this->signatureAlgorithmIdentifier = AlgorithmIdentifier::fromSequence($crtASN1->at(1)->asSequence());
-        $signatureValue = $crtASN1->at(2)->asBitString()->string();
+        $this->signature = $crtASN1->at(2)->asBitString()->string();
         $idx = 0;
         if ($tbsCertificate->hasTagged(0)) {
             $this->x509Version = $tbsCertificate->getTagged(0)->asExplicit()->asInteger()->intNumber() + 1;
@@ -61,12 +67,17 @@ class X509Certificate implements
         } else {
             $this->x509Version = 1;
         }
-        $this->serialNumber = gmp_strval($tbsCertificate->at($idx++)->asInteger()->number(), 16);
-        $this->signature = $tbsCertificate->at($idx++)->asSequence();
+        $serialHex = gmp_strval($tbsCertificate->at($idx++)->asInteger()->number(), 16);
+        if (strlen($serialHex) % 2 !== 0) {
+            $serialHex = '0' . $serialHex;
+        }
+        $this->serialNumber = hex2bin($serialHex);
+        // TODO: Emit finding if tbsCert signature and signatureAlgorithm do not match
+        $this->tbsSignature = AlgorithmIdentifier::fromSequence($tbsCertificate->at($idx++)->asSequence());
         $this->issuer = new DistinguishedName($tbsCertificate->at($idx++));
         $dates = $tbsCertificate->at($idx++)->asSequence();
-        $this->notBefore = self::WrangleDate($dates->at(0));
-        $this->notAfter = self::WrangleDate($dates->at(1));
+        $this->notBefore = self::getDateFromElement($dates->at(0));
+        $this->notAfter = self::getDateFromElement($dates->at(1));
         $this->subject = new DistinguishedName($tbsCertificate->at($idx++));
         $subjectPublicKeyInfo = $tbsCertificate->at($idx++)->asSequence();
         $subjectPublicKeyInfoTypeOID =
@@ -76,7 +87,7 @@ class X509Certificate implements
           case 'rsaEncryption':
           case 'ecPublicKey':
           case 'RSASSA-PSS':
-            $this->publicKey = $subjectPublicKeyInfo->toDER();
+            $this->publicKey = $subjectPublicKeyInfo;
             break;
           default:
             throw new CertificateException(
@@ -106,25 +117,43 @@ class X509Certificate implements
         }
     }
 
+    public static function getDateFromElement($element)
+    {
+        switch ($element->tag()) {
+          case 23:
+            return $element->asUTCTime();
+            break;
+          case 24:
+            return $element->asGeneralizedTime();
+            break;
+          default:
+              throw new \Exception("Error Processing Date ".$element->tag(), 1);
+
+            break;
+        }
+    }
     public static function emit($candidate)
     {
+        if (is_object($candidate) && get_class($candidate) == 'eIDASCertificate\Certificate\X509Certificate') {
+            return $candidate->getBinary();
+        }
         if (!is_string($candidate)) {
-            throw new \Exception("X509Certificate requires string-ish input", 1);
+            throw new \Exception("X509Certificate requires string-ish input or existing X509Certificate object", 1);
+        }
+
+        $candidate = trim($candidate);
+        $crtPEM = explode("\n", $candidate);
+        if ($crtPEM[0] == "-----BEGIN CERTIFICATE-----") {
+            unset($crtPEM[sizeof($crtPEM)-1]);
+            unset($crtPEM[0]);
+            $crtDER = base64_decode(implode('', $crtPEM));
+        } elseif (substr($candidate, 0, 3) == 'MII') {
+            $crtDER = base64_decode($candidate);
         } else {
-            $candidate = trim($candidate);
-            $crtPEM = explode("\n", $candidate);
-            if ($crtPEM[0] == "-----BEGIN CERTIFICATE-----") {
-                unset($crtPEM[sizeof($crtPEM)-1]);
-                unset($crtPEM[0]);
-                $crtDER = base64_decode(implode('', $crtPEM));
-            } elseif (substr($candidate, 0, 3) == 'MII') {
-                $crtDER = base64_decode($candidate);
-            } else {
-                try {
-                    $crtDER = UnspecifiedType::fromDER($candidate)->asSequence()->toDER();
-                } catch (\Exception $e) {
-                    throw new CertificateException("Cannot wrangle input into a certificate format", 1);
-                }
+            try {
+                $crtDER = UnspecifiedType::fromDER($candidate)->asSequence()->toDER();
+            } catch (\Exception $e) {
+                throw new CertificateException("Cannot wrangle input into a certificate format", 1);
             }
         }
         return $crtDER;
@@ -134,10 +163,10 @@ class X509Certificate implements
     {
         switch ($asn1Object->tag()) {
         case 23:
-          return $asn1Object->asUTCTime()->datetime();
+          return [$asn1Object->asUTCTime()->datetime(),23];
           break;
         case 24:
-          return $asn1Object->asGeneralizedTime()->datetime();
+          return [$asn1Object->asGeneralizedTime()->datetime(),24];
           break;
 
         default:
@@ -161,14 +190,46 @@ class X509Certificate implements
         "-----END CERTIFICATE-----\n";
     }
 
+    public function getTBSCert()
+    {
+        $tbsCert = [];
+        if ($this->x509Version !== 1) {
+            $tbsCert[] = new ExplicitlyTaggedType(0, new Integer($this->x509Version - 1));
+        }
+        $tbsCert[] = new Integer(gmp_strval(gmp_init('0x'.bin2hex($this->serialNumber)), 10));
+        $tbsCert[] = $this->tbsSignature->getASN1();
+        $tbsCert[] = $this->issuer->getASN1();
+        $tbsCert[] = new Sequence($this->notBefore, $this->notAfter);
+        $tbsCert[] = $this->subject->getASN1();
+        $tbsCert[] = $this->publicKey;
+        if (! empty($this->extensions)) {
+            $tbsCert[] = new ExplicitlyTaggedType(3, $this->extensions->getASN1());
+        }
+        return new Sequence(...$tbsCert);
+    }
+
+    public function getSignature()
+    {
+        return $this->signature;
+    }
+
     public function getBinary()
+    {
+        return (new Sequence(
+            $this->getTBSCert(),
+            $this->signatureAlgorithmIdentifier->getASN1(),
+            new BitString($this->signature)
+        ))->toDER();
+    }
+
+    public function getBinaryOld()
     {
         return $this->crtBinary;
     }
 
     public function getIdentifier($algo = 'sha256')
     {
-        return hash($algo, $this->crtBinary);
+        return hash($algo, $this->getBinary());
     }
 
     public function getKeyUsage()
@@ -179,8 +240,8 @@ class X509Certificate implements
     public function getDates()
     {
         return [
-          'notBefore' => $this->notBefore,
-          'notAfter' => $this->notAfter
+          'notBefore' => $this->getNotBefore(),
+          'notAfter' => $this->getNotAfter()
         ];
     }
 
@@ -192,7 +253,7 @@ class X509Certificate implements
     public function isCurrentAt($dateTime = null)
     {
         if (empty($dateTime)) {
-            $dateTime = new \DateTime; // now
+            (int)($dateTime = new \DateTime)->format('U'); // now
         };
         return (
           $this->isStartedAt($dateTime) &&
@@ -200,23 +261,23 @@ class X509Certificate implements
         );
     }
 
-    public function isStartedAt($dateTime = null)
+    public function isStartedAt($unixTime = null)
     {
-        if (empty($dateTime)) {
-            $dateTime = new \DateTime; // now
+        if (empty($unixTime)) {
+            $unixTime = (int)(new \DateTime)->format('U'); // now
         };
         return (
-          $this->notBefore < $dateTime
+          $this->getNotBefore() < $unixTime
         );
     }
 
-    public function isNotFinishedAt($dateTime = null)
+    public function isNotFinishedAt($unixTime = null)
     {
-        if (empty($dateTime)) {
-            $dateTime = new \DateTime; // now
+        if (empty($unixTime)) {
+            $unixTime = (int)(new \DateTime)->format('U'); // now
         };
         return (
-          $this->notAfter > $dateTime
+          $this->getNotAfter() > $unixTime
         );
     }
 
@@ -239,7 +300,7 @@ class X509Certificate implements
 
     public function toDER()
     {
-        return $this->crtBinary;
+        return $this->getBinary();
     }
 
     protected function getExtensions()
@@ -309,26 +370,25 @@ class X509Certificate implements
 
     public function getSerialNumber()
     {
-        return $this->serialNumber;
+        return bin2hex($this->serialNumber);
     }
 
-    public function getPublicKey()
+    public function getPublicKeyDER()
     {
-        return(base64_encode($this->publicKey));
+        return($this->publicKey->toDER());
     }
 
     public function getPublicKeyPEM()
     {
         return
             "-----BEGIN PUBLIC KEY-----\n".
-            chunk_split($this->getPublicKey(), 64, "\n").
+            chunk_split(base64_encode($this->getPublicKeyDER()), 64, "\n").
             '-----END PUBLIC KEY-----';
-        return $this->publicKey;
     }
 
     public function toPEM()
     {
-        return self::base64ToPEM(base64_encode($this->crtBinary));
+        return self::base64ToPEM(base64_encode($this->getBinary()));
     }
 
     public function getSubjectASN1()
@@ -376,6 +436,16 @@ class X509Certificate implements
         return 'X509Certificate';
     }
 
+    public function getNotBefore()
+    {
+        return (int)$this->notBefore->dateTime()->format('U');
+    }
+
+    public function getNotAfter()
+    {
+        return (int)$this->notAfter->dateTime()->format('U');
+    }
+
     public function getAttributes()
     {
         if (! array_key_exists('subject', $this->attributes)) {
@@ -384,7 +454,7 @@ class X509Certificate implements
             $this->attributes['subject']['DN'] = $subjectDN;
             $this->attributes['subject']['expandedDN'] = $this->getSubjectExpanded();
             $issuerDN = $this->issuer->getDN();
-            $this->attributes['issuer']['serialNumber'] = $this->serialNumber;
+            $this->attributes['issuer']['serialNumber'] = bin2hex($this->serialNumber);
             $this->attributes['issuer']['DN'] = $issuerDN;
             $this->attributes['issuer']['expandedDN'] = $this->getIssuerExpanded();
             if (!empty($this->issuers)) {
@@ -397,14 +467,14 @@ class X509Certificate implements
             } else {
                 $this->attributes['issuer']['isSelf'] = false;
             }
-            $this->attributes["notBefore"] = (int)$this->notBefore->format('U');
-            $this->attributes["notAfter"] = (int)($this->notAfter->format('U'));
+            $this->attributes["notBefore"] = $this->getNotBefore();
+            $this->attributes["notAfter"] = $this->getNotAfter();
             $this->attributes["fingerprint"] = $this->getIdentifier();
             if (!empty($this->tspServiceAttributes)) {
                 $this->attributes["tspService"] = $this->tspServiceAttributes;
             }
             $this->attributes['publicKey']['key'] =
-            $this->getPublicKey();
+            base64_encode($this->getPublicKeyDER());
             if ($this->hasExtensions()) {
                 foreach ($this->getExtensions() as $extension) {
                     $extension->setCertificate($this);
@@ -560,8 +630,7 @@ class X509Certificate implements
     {
         return hash(
             $algo,
-            UnspecifiedType::fromDER($this->publicKey)
-                ->asSequence()
+            $this->publicKey
                 ->at(1)
                 ->asBitString()
                 ->string(),

@@ -74,8 +74,8 @@ class TLTest extends TestCase
           ['lang' => 'en', 'uri' => 'https://tsl.belgium.be/']
         ],
         'sourceURI' => 'https://tsl.belgium.be/tsl-be.xml',
-        'issued' => '1591056000',
-        'nextUpdate' => '1606780800',
+        'issued' => 1591056000,
+        'nextUpdate' => 1606780800,
         'fileHash' => 'f797528f5e134d63e2b9e43bd0135ce5a7008db46c5bf721ef5ab0d575fadf62',
         'signature' => [
           'signerThumbprint' => 'cfde6ceda889bd628bde8ed18092b06392d23cf2'

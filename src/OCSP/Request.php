@@ -12,7 +12,7 @@ class Request implements ASN1Interface, AttributeInterface
 {
     private $binary;
     private $certId;
-    private $extensions = [];
+    private $extensions;
 
     /**
      * [__construct description]
@@ -33,12 +33,21 @@ class Request implements ASN1Interface, AttributeInterface
     public static function fromSequence($request)
     {
         $certId = CertID::fromSequence($request->at(0)->asSequence());
-        return new Request($certId);
+        if ($request->hasTagged(0)) {
+            $extensions = new Extensions($request->getTagged(0)->asExplicit()->toDER());
+        } else {
+            $extensions = null;
+        }
+        return new Request($certId, $extensions);
     }
 
     public function getASN1()
     {
-        return new Sequence($this->certId->getASN1());
+        $seq = new Sequence($this->certId->getASN1());
+        if (! empty($this->extensions)) {
+            $seq = $seq->withAppended(new ExplicitlyTaggedType(0, $this->extensions->getASN1()));
+        }
+        return $seq;
     }
 
     public function getBinary()

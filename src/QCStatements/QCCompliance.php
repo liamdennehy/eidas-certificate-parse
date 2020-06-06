@@ -59,7 +59,7 @@ class QCCompliance extends QCStatement implements QCStatementInterface
 
     public function setCertificate(X509Certificate $cert)
     {
-        $notBefore = (int)$cert->getDates()['notBefore']->format('U');
+        $notBefore = $cert->getNotBefore();
         if ($notBefore >= 1467324000) {
             $this->description = 'The certificate is an EU '.
           'qualified certificate that is issued according to Annex I, III or '.
