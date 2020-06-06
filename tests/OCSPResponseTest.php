@@ -12,7 +12,7 @@ use eIDASCertificate\OCSP\ResponseData;
 use eIDASCertificate\OCSP\CertStatus;
 use eIDASCertificate\OCSP\BasicOCSPResponse;
 use eIDASCertificate\Extension;
-use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use ASN1\Type\UnspecifiedType;
 use DateTime;
 
@@ -451,15 +451,21 @@ class OCSPResponseTest extends TestCase
             '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
             $resp->getResponderIDPrintable()
         );
+        $this->assertNull($resp->getResponder());
         $this->assertFalse(
             $resp->setResponder(
-              file_get_contents(__DIR__.'/certs/qvbecag2.crt')
-          )
+                file_get_contents(__DIR__.'/certs/qvbecag2.crt')
+            )
         );
+        $this->assertNull($resp->getResponder());
         $this->assertTrue(
             $resp->setResponder(
-              file_get_contents(__DIR__.'/certs/qvocspauth.crt')
-          )
+                file_get_contents(__DIR__.'/certs/qvocspauth.crt')
+            )
+        );
+        $this->assertEquals(
+            'eIDASCertificate\Certificate\X509Certificate',
+            get_class($resp->getResponder())
         );
     }
 }

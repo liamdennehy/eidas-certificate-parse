@@ -50,8 +50,7 @@ class AlgorithmIdentifier implements ASN1Interface
                 $this->algorithmName = OID::getName($this->algorithmOID);
             }
         } else {
-          throw new \Exception("Cannot recognise input to AlgorithIdentifier", 1);
-
+            throw new \Exception("Cannot recognise input to AlgorithIdentifier", 1);
         }
     }
 

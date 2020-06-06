@@ -181,10 +181,14 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
     {
         $pubKey = $signer->getPublicKeyPEM();
         $algorithm = $this->signatureAlgorithm->getAlgorithm();
-
+        return ($algorithm->verify(
+            $this->tbsResponseData->getBinary(),
+            $this->signature,
+            $pubKey
+        ));
     }
 
-    public function getResponder($responderCert)
+    public function getResponder()
     {
         return $this->responderCert;
     }
