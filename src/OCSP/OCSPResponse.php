@@ -40,7 +40,7 @@ class OCSPResponse implements ASN1Interface, AttributeInterface
         }
     }
 
-    public function fromDER($der)
+    public static function fromDER($der)
     {
         return self::fromSequence(UnspecifiedType::fromDER($der)->asSequence());
     }
