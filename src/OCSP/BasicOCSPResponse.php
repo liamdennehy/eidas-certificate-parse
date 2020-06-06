@@ -20,6 +20,7 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
     private $signatureAlgorithm;
     private $signature;
     private $certs;
+    private $responderCert;
 
     public function __construct($tbsResponseData, $signatureAlgorithm = 'rsa-sha256', $signature = null)
     {
@@ -89,6 +90,16 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
         return $seq;
     }
 
+    public function hasCertificates()
+    {
+        return (! empty($this->certs));
+    }
+
+    public function getCertificates()
+    {
+        return $this->certs;
+    }
+
     public function getAttributes()
     {
         $attr = $this->tbsResponseData->getAttributes();
@@ -115,5 +126,64 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
     public function getSignatureAlgorithmOID()
     {
         return $this->signatureAlgorithm->getAlgorithmOID();
+    }
+
+    public function getResponderIDType()
+    {
+        return $this->tbsResponseData->getResponderIDType();
+    }
+
+    public function getResponderID()
+    {
+        return $this->tbsResponseData->getResponderID();
+    }
+
+    public function getResponderIDPrintable()
+    {
+        return $this->tbsResponseData->getResponderIDPrintable();
+    }
+
+    public function setResponder($responderCert = null)
+    {
+        if (
+            is_object($responderCert) &&
+            get_class($responderCert) !== 'eIDASCertificate\Certificate\X509Certificate'
+        ) {
+            throw new \Exception("Provided object is not a certificate", 1);
+        } elseif (is_string($responderCert)) {
+            try {
+                $responderCert = new X509Certificate($responderCert);
+            } catch (\Exception $e) {
+                throw new \Exception("Responder should be a certificate object or string that represents a certificate", 1);
+            }
+        }
+        switch ($this->getResponderIDType()) {
+          case 'KeyHash':
+            if ($this->getResponderID() !== $responderCert->getSubjectPublicKeyHash('sha1')) {
+                return false;
+            }
+            break;
+          case 'Name':
+            if ($this->getResponderID()->getHash('sha1') !== $responderCert->getSubjectNameHash('sha1')) {
+              return false;
+            }
+            break;
+        }
+        if ($this->isSignedBy($responderCert)) {
+            $this->responderCert = $responderCert;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function isSignedBy($signer)
+    {
+        // code...
+    }
+
+    public function getResponder($responderCert)
+    {
+        return $this->responderCert;
     }
 }
