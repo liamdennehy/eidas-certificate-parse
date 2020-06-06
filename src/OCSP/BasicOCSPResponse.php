@@ -5,15 +5,17 @@ namespace eIDASCertificate\OCSP;
 use ASN1\Type\UnspecifiedType;
 use eIDASCertificate\ASN1Interface;
 use eIDASCertificate\AttributeInterface;
+use eIDASCertificate\ParseInterface;
 use eIDASCertificate\OCSP\ResponseData;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use ASN1\Type\Tagged\ExplicitlyTaggedType;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\BitString;
+use eIDASCertificate\ParseException;
 
 // TODO: Signature Generation
-class BasicOCSPResponse implements ASN1Interface, AttributeInterface
+class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInterface
 {
     private $tbsResponseData;
     private $signatureAlgorithm;
@@ -157,8 +159,12 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
         return $this->tbsResponseData->getResponderIDPrintable();
     }
 
-    public function setResponder($responderCert = null)
+    public function setResponder($responderCert = null, $ocspNoCheck = true)
     {
+        if (is_null($responderCert)) {
+            $this->responderCert = null;
+            return false;
+        }
         if (
             is_object($responderCert) &&
             get_class($responderCert) !== self::x509Class
@@ -183,12 +189,12 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
             }
             break;
         }
-        if ($this->isSignedBy($responderCert)) {
-            $this->responderCert = $responderCert;
-            return true;
-        } else {
+        if (! $this->isSignedBy($responderCert)) {
             return false;
         }
+        // TODO: ensure OCSP signer has ocspNoCheck extension if no status check possible
+        $this->responderCert = $responderCert;
+        return true;
     }
 
     private function isSignedBy($signer)
@@ -209,5 +215,11 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
     public function getResponder()
     {
         return $this->responderCert;
+    }
+
+    public function getFindings()
+    {
+        $findings = [];
+        return $findings;
     }
 }
