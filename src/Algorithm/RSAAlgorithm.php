@@ -10,6 +10,7 @@ use phpseclib\Crypt\PublicKeyLoader;
 class RSAAlgorithm implements AlgorithmInterface
 {
     private $algorithmIdentifier;
+    private $rsa;
     const suffix = 'WithRSAEncryption';
 
 
@@ -19,14 +20,16 @@ class RSAAlgorithm implements AlgorithmInterface
     public function __construct($spec, $parameters = null)
     {
         if (is_object($spec) && get_class($spec) == 'eIDASCertificate\Algorithm\AlgorithmIdentifier') {
-          $this->algorithmIdentifier = $spec;
+            $this->algorithmIdentifier = $spec;
         } else {
-          $this->algorithmIdentifier = new AlgorithmIdentifier($spec);
+            $this->algorithmIdentifier = new AlgorithmIdentifier($spec);
         }
         if (! empty($parameters)) {
             throw new \Exception("Cannot handle algorithms requiring parameters", 1);
-
         }
+        $this->rsa = new RSA;
+        $this->rsa->setHash(str_replace('-', '', $this->algorithmIdentifier->getDigestName()));
+        $this->rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
     }
 
     /**
@@ -55,12 +58,11 @@ class RSAAlgorithm implements AlgorithmInterface
 
     public function verify($message, $signature, $verifyingKey)
     {
-        $rsa = PublicKeyLoader::load($verifyingKey)
-          ->withHash($this->digestName)
-          ->withPadding(RSA::SIGNATURE_PKCS1);
+        // var_dump([$message, $signature, $verifyingKey]);
+        $rsa = clone($this->rsa);
+        $rsa->loadKey($verifyingKey);
         try {
-            $valid = $rsa->verify($message, base64_decode($signature));
-
+            $valid = $rsa->verify($message, $signature);
             return $valid;
         } catch (\Exception $e) {
             if ('Invalid signature' != $e->getMessage()) {
