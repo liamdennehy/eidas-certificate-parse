@@ -21,7 +21,7 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
     private $signatureAlgorithm;
     private $signature;
     private $certs;
-    private $responderCert;
+    private $signingCert;
     const x509Class = 'eIDASCertificate\Certificate\X509Certificate';
 
     public function __construct($tbsResponseData, $signatureAlgorithm = 'rsa-sha256', $signature = null, $certs = null)
@@ -162,7 +162,7 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
     public function setResponder($responderCert = null, $ocspNoCheck = true)
     {
         if (is_null($responderCert)) {
-            $this->responderCert = null;
+            $this->signingCert = null;
             return false;
         }
         if (
@@ -193,7 +193,7 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
             return false;
         }
         // TODO: ensure OCSP signer has ocspNoCheck extension if no status check possible
-        $this->responderCert = $responderCert;
+        $this->signingCert = $responderCert;
         return true;
     }
 
@@ -212,9 +212,9 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
         }
     }
 
-    public function getResponder()
+    public function getSigningCert()
     {
-        return $this->responderCert;
+        return $this->signingCert;
     }
 
     public function getFindings()
