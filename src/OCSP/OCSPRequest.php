@@ -11,7 +11,7 @@ use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\ParseInterface;
 use eIDASCertificate\ASN1Interface;
 use eIDASCertificate\ParseException;
-use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 
 class OCSPRequest implements
     AttributeInterface,
@@ -42,7 +42,7 @@ class OCSPRequest implements
         if (is_string($signatureAlgorithm)) {
             $signatureAlgorithm = new AlgorithmIdentifier($signatureAlgorithm);
         }
-        if (get_class($signatureAlgorithm) !== 'eIDASCertificate\AlgorithmIdentifier') {
+        if (get_class($signatureAlgorithm) !== 'eIDASCertificate\Algorithm\AlgorithmIdentifier') {
             throw new \Exception("Unrecognised Signature Algorithm requested", 1);
         }
         $certId = new CertID(

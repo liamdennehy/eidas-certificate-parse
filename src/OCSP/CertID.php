@@ -7,7 +7,7 @@ use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\OctetString;
 use ASN1\Type\Primitive\Integer;
 use eIDASCertificate\ASN1Interface;
-use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use eIDASCertificate\AttributeInterface;
 
 class CertID implements ASN1Interface, AttributeInterface

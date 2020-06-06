@@ -1,9 +1,12 @@
 <?php
 
-namespace eIDASCertificate;
+namespace eIDASCertificate\Algorithm;
 
+use eIDASCertificate\ASN1Interface;
+use eIDASCertificate\Algorithm;
 use eIDASCertificate\OID;
 use eIDASCertificate\ParseException;
+use eIDASCertificate\Algorithm\RSAAlgorithm;
 use ASN1\Type\UnspecifiedType;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\ObjectIdentifier;
@@ -26,7 +29,7 @@ class AlgorithmIdentifier implements ASN1Interface
         }
 
         if (is_object($id)) {
-            if (get_class($id) == 'eIDASCertificate\AlgorithmIdentifier') {
+            if (get_class($id) == 'eIDASCertificate\Algorithm\AlgorithmIdentifier') {
                 $this->algorithmName = $id->getAlgorithmName();
                 $this->algorithmOID = $id->getAlgorithmOID();
                 $this->parameters = $id->getParameters();
@@ -46,6 +49,9 @@ class AlgorithmIdentifier implements ASN1Interface
                 }
                 $this->algorithmName = OID::getName($this->algorithmOID);
             }
+        } else {
+          throw new \Exception("Cannot recognise input to AlgorithIdentifier", 1);
+
         }
     }
 
@@ -91,6 +97,7 @@ class AlgorithmIdentifier implements ASN1Interface
     {
         return $this->getASN1()->toDER();
     }
+
     public function getAlgorithmName()
     {
         return $this->algorithmName;
@@ -108,5 +115,60 @@ class AlgorithmIdentifier implements ASN1Interface
             $parameters[] = base64_encode($parameter);
         }
         return $parameters;
+    }
+
+    public function getCipherName()
+    {
+        switch ($this->algorithmName) {
+          case 'sha512WithRSAEncryption':
+          case 'sha384WithRSAEncryption':
+          case 'sha256WithRSAEncryption':
+          case 'sha1WithRSAEncryption':
+            // code...
+            break;
+          default:
+            throw new \Exception("'".$this->algorithmName."' is not a recognised cipher algorithm", 1);
+
+            break;
+        }
+    }
+
+    public function getDigestName()
+    {
+        switch ($this->algorithmName) {
+          case 'sha512WithRSAEncryption':
+            return 'sha-512';
+            break;
+          case 'sha384WithRSAEncryption':
+            return 'sha-384';
+            break;
+          case 'sha256WithRSAEncryption':
+            return 'sha-256';
+            break;
+          case 'sha1WithRSAEncryption':
+            return 'sha-1';
+            break;
+          default:
+            throw new \Exception("'".$this->algorithmName."' does not have a recognised digest algorithm", 1);
+
+            break;
+        }
+    }
+
+    public function getAlgorithm()
+    {
+        switch ($this->getAlgorithmName()) {
+          case 'sha512WithRSAEncryption':
+          case 'sha384WithRSAEncryption':
+          case 'sha256WithRSAEncryption':
+          case 'sha1WithRSAEncryption':
+            return new RSAAlgorithm(clone $this);
+            break;
+
+          default:
+            throw new \Exception("Unknown algorithm ".$this->algorithmName, 1);
+
+            break;
+        }
     }
 }

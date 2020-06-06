@@ -7,7 +7,7 @@ use eIDASCertificate\ASN1Interface;
 use eIDASCertificate\AttributeInterface;
 use eIDASCertificate\OCSP\ResponseData;
 use eIDASCertificate\Certificate\X509Certificate;
-use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use ASN1\Type\Tagged\ExplicitlyTaggedType;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\BitString;
@@ -179,7 +179,9 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
 
     private function isSignedBy($signer)
     {
-        // code...
+        $pubKey = $signer->getPublicKeyPEM();
+        $algorithm = $this->signatureAlgorithm->getAlgorithm();
+
     }
 
     public function getResponder($responderCert)

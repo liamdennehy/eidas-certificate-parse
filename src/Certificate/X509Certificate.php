@@ -10,7 +10,7 @@ use eIDASCertificate\OID;
 use eIDASCertificate\Extensions;
 use eIDASCertificate\QCStatements;
 use eIDASCertificate\ASN1Interface;
-use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use eIDASCertificate\DistinguishedName;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\TSPService\TSPServiceException;
