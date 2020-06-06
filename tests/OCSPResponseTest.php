@@ -42,14 +42,6 @@ class OCSPResponseTest extends TestCase
         'nextUpdate' => 1591779249
     ];
 
-    // public function testOCSPResponse($value='')
-    // {
-    //     $der = file_get_contents(__DIR__.'/ocsp/revoked-response-sha256');
-    //     $seq = OCSPResponse::fromDER($der);
-    //     $der = file_get_contents(__DIR__.'/ocsp/response-sha256');
-    //     $seq = OCSPResponse::fromDER($der);
-    // }
-
     public function testCertStatus()
     {
         $goodDER = base64_decode('gAA=');
@@ -360,8 +352,8 @@ class OCSPResponseTest extends TestCase
         $this->assertNull($resp->getSigningCert());
         $this->assertTrue(
             $resp->setResponder(
-              file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
-          )
+                file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
+            )
         );
         $this->assertEquals(
             'eIDASCertificate\Certificate\X509Certificate',
@@ -369,10 +361,10 @@ class OCSPResponseTest extends TestCase
         );
         $resp->setResponder(null);
         $this->assertNull(
-          $resp->getSigningCert()
+            $resp->getSigningCert()
         );
         $derWithoutCertsTampered = base64_decode(
-          str_replace('QEAZc+','QEA2Uo',base64_encode($derWithoutCerts))
+            str_replace('QEAZc+', 'QEA2Uo', base64_encode($derWithoutCerts))
         );
         $resp = BasicOCSPResponse::fromDER($derWithoutCertsTampered);
         $this->assertNull($resp->getSigningCert());
@@ -384,8 +376,8 @@ class OCSPResponseTest extends TestCase
         $this->assertNull($resp->getSigningCert());
         $this->assertFalse(
             $resp->setResponder(
-              file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
-          )
+                file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
+            )
         );
 
         $derWithCerts = base64_decode(
@@ -447,7 +439,8 @@ class OCSPResponseTest extends TestCase
             'signatureAlgorithm' => 'sha256WithRSAEncryption',
             'hasSignature' => true,
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d',
-            'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature'
+            'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
+            'signedByCert' => '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28'
           ],
             $resp->getAttributes()
         );
@@ -493,7 +486,7 @@ class OCSPResponseTest extends TestCase
             $resp->getSigningCert()->getSubjectDN()
         );
         $derWithCertsTampered = base64_decode(
-          str_replace('ggEBAH','ggEBAJ',base64_encode($derWithCerts))
+            str_replace('ggEBAH', 'ggEBAJ', base64_encode($derWithCerts))
         );
         $resp = BasicOCSPResponse::fromDER($derWithCertsTampered);
         $this->assertEquals(
@@ -509,8 +502,138 @@ class OCSPResponseTest extends TestCase
         $this->assertNull($resp->getSigningCert());
         $this->assertFalse(
             $resp->setResponder(
-              file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
-          )
+                file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
+            )
+        );
+        $this->assertNull($resp->getSigningCert());
+    }
+
+    public function testOCSPResponse()
+    {
+        $resp = new OCSPResponse(6);
+        $this->assertEquals(
+            [
+            'status' => 6,
+            'statusReason' => 'Request unauthorized'
+          ],
+            $resp->getAttributes()
+        );
+        $derUnauthorized = base64_decode('MAMKAQY=');
+        $this->assertEquals(
+            base64_encode($derUnauthorized),
+            base64_encode($resp->getBinary())
+        );
+        $this->assertNull(
+            $resp->getSignatureAlgorithmOID()
+        );
+        $this->assertEquals(
+            '',
+            $resp->getSignatureAlgorithmName()
+        );
+        $resp = OCSPResponse::fromDER($derUnauthorized);
+        $this->assertEquals(
+            base64_encode($derUnauthorized),
+            base64_encode($resp->getBinary())
+        );
+        $this->assertFalse($resp->hasSignature());
+        $derEUGoodWithCerts = file_get_contents(__DIR__.'/ocsp/response-eucrt-sha1');
+        $resp = OCSPResponse::fromDER($derEUGoodWithCerts);
+        $this->assertEquals(
+            base64_encode($derEUGoodWithCerts),
+            base64_encode($resp->getBinary())
+        );
+        $this->assertEquals(
+            [
+            'status' => 0,
+            'statusReason' => 'Response has valid confirmations',
+            'producedAt' => 1591370661,
+            'responses' => [
+              [
+                'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+                'algorithmName' => 'sha-1',
+                'issuerKeyHash' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
+                'issuerNameHash' => 'c07b194b35d08214c0162e0d542ddd17f48b864b',
+                'status' => 'good',
+                'thisUpdate' => 1591370661,
+                'nextUpdate' => 1591543461
+              ]
+            ],
+            'nonce' => '1577e810f7379f0db3cef0e1abc6ebb7',
+            'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
+            'signatureAlgorithm' => 'sha256WithRSAEncryption',
+            'hasSignature' => true,
+            'signedByCert' => '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28'
+          ],
+            $resp->getAttributes()
+        );
+        $derRevokedWithoutCerts = file_get_contents(__DIR__.'/ocsp/response-revoked-sha256');
+        $this->assertEquals(
+            '1.2.840.113549.1.1.11',
+            $resp->getSignatureAlgorithmOID()
+        );
+        $this->assertEquals(
+            'sha256WithRSAEncryption',
+            $resp->getSignatureAlgorithmName()
+        );
+        $resp = OCSPResponse::fromDER($derRevokedWithoutCerts);
+        $this->assertEquals(
+            base64_encode($derRevokedWithoutCerts),
+            base64_encode($resp->getBinary())
+        );
+        $this->assertTrue($resp->hasResponse());
+        $this->assertEquals(
+            '1.2.840.113549.1.1.11',
+            $resp->getSignatureAlgorithmOID()
+        );
+        $this->assertEquals(
+            'sha256WithRSAEncryption',
+            $resp->getSignatureAlgorithmName()
+        );
+        $this->assertEquals(
+            [
+            'status' => 0,
+            'statusReason' => 'Response has valid confirmations',
+            'producedAt' => 1591177149,
+            'responses' => [
+              [
+                'serialNumber' => '371b58a86f6ce9c3ecb7bf42f9208fc',
+                'algorithmName' => 'sha-1',
+                'issuerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
+                'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
+                'status' => 'revoked',
+                'thisUpdate' => 1591177149,
+                'nextUpdate' => 1591779249,
+                'revokedDateTime' => 1570480239
+              ]
+            ],
+            'producerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
+            'signatureAlgorithm' => 'sha256WithRSAEncryption',
+            'hasSignature' => true
+            ],
+            $resp->getAttributes()
+        );
+        $this->assertNull($resp->getSigningCert());
+        $this->assertFalse(
+            $resp->setResponder(
+                file_get_contents(__DIR__.'/certs/qvbecag2.crt')
+            )
+        );
+        $this->assertNull($resp->getSigningCert());
+        $this->assertTrue(
+            $resp->setResponder(
+                file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
+            )
+        );
+        $this->assertEquals(
+            'eIDASCertificate\Certificate\X509Certificate',
+            get_class($resp->getSigningCert())
+        );
+        $this->assertFalse(
+            $resp->hasCertificates()
+        );
+        $this->assertEquals(
+            '/C=US/O=DigiCert Inc/CN=DigiCert SHA2 Secure Server CA',
+            $resp->getSigningCert()->getSubjectDN()
         );
     }
 }

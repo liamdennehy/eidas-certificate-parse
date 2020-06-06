@@ -126,6 +126,9 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
         } else {
             $attr['hasSignature'] = true;
         }
+        if (! empty($this->signingCert)) {
+            $attr['signedByCert'] = $this->signingCert->getIdentifier();
+        }
         return $attr;
     }
 
@@ -136,12 +139,20 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
 
     public function getSignatureAlgorithmName()
     {
-        return $this->signatureAlgorithm->getAlgorithmName();
+        if ($this->hasSignature()) {
+            return $this->signatureAlgorithm->getAlgorithmName();
+        } else {
+            return null;
+        }
     }
 
     public function getSignatureAlgorithmOID()
     {
-        return $this->signatureAlgorithm->getAlgorithmOID();
+        if ($this->hasSignature()) {
+            return $this->signatureAlgorithm->getAlgorithmOID();
+        } else {
+            return null;
+        }
     }
 
     public function getResponderIDType()
@@ -161,6 +172,9 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
 
     public function setResponder($responderCert = null, $ocspNoCheck = true)
     {
+        if (empty($this->tbsResponseData)) {
+            throw new \Exception("This response has no data to verify", 1);
+        }
         if (is_null($responderCert)) {
             $this->signingCert = null;
             return false;
