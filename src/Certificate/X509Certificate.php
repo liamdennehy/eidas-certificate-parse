@@ -87,7 +87,7 @@ class X509Certificate implements
           case 'rsaEncryption':
           case 'ecPublicKey':
           case 'RSASSA-PSS':
-            $this->publicKey = $subjectPublicKeyInfo->toDER();
+            $this->publicKey = $subjectPublicKeyInfo;
             break;
           default:
             throw new CertificateException(
@@ -201,7 +201,7 @@ class X509Certificate implements
         $tbsCert[] = $this->issuer->getASN1();
         $tbsCert[] = new Sequence($this->notBefore, $this->notAfter);
         $tbsCert[] = $this->subject->getASN1();
-        $tbsCert[] = UnspecifiedType::fromDER($this->publicKey)->asSequence();
+        $tbsCert[] = $this->publicKey;
         if (! empty($this->extensions)) {
             $tbsCert[] = new ExplicitlyTaggedType(3, $this->extensions->getASN1());
         }
@@ -373,18 +373,17 @@ class X509Certificate implements
         return bin2hex($this->serialNumber);
     }
 
-    public function getPublicKey()
+    public function getPublicKeyDER()
     {
-        return(base64_encode($this->publicKey));
+        return($this->publicKey->toDER());
     }
 
     public function getPublicKeyPEM()
     {
         return
             "-----BEGIN PUBLIC KEY-----\n".
-            chunk_split($this->getPublicKey(), 64, "\n").
+            chunk_split(base64_encode($this->getPublicKeyDER()), 64, "\n").
             '-----END PUBLIC KEY-----';
-        return $this->publicKey;
     }
 
     public function toPEM()
@@ -475,7 +474,7 @@ class X509Certificate implements
                 $this->attributes["tspService"] = $this->tspServiceAttributes;
             }
             $this->attributes['publicKey']['key'] =
-            $this->getPublicKey();
+            base64_encode($this->getPublicKeyDER());
             if ($this->hasExtensions()) {
                 foreach ($this->getExtensions() as $extension) {
                     $extension->setCertificate($this);
@@ -631,8 +630,7 @@ class X509Certificate implements
     {
         return hash(
             $algo,
-            UnspecifiedType::fromDER($this->publicKey)
-                ->asSequence()
+            $this->publicKey
                 ->at(1)
                 ->asBitString()
                 ->string(),
