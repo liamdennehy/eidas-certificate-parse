@@ -98,6 +98,10 @@ class OID
     const sha1                    = '1.3.14.3.2.26';
     // https://tools.ietf.org/html/rfc3560.html#appendix-A
     const sha256                  = '2.16.840.1.101.3.4.2.1';
+    // https://tools.ietf.org/html/rfc3560.html#appendix-A
+    const sha384                  = '2.16.840.1.101.3.4.2.2';
+    // https://tools.ietf.org/html/rfc3560.html#appendix-A
+    const sha512                  = '2.16.840.1.101.3.4.2.3';
     // https://tools.ietf.org/html/rfc3279#section-3
     const sha1WithRSAEncryption   = '1.2.840.113549.1.1.5';
     // https://tools.ietf.org/html/rfc4055#section-5
@@ -346,6 +350,12 @@ class OID
             break;
           case self::sha256:
             $oidName = 'sha-256';
+            break;
+          case self::sha384:
+            $oidName = 'sha-384';
+            break;
+          case self::sha512:
+            $oidName = 'sha-512';
             break;
           case self::sha1WithRSAEncryption:
             $oidName = 'sha1WithRSAEncryption';
