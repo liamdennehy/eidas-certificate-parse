@@ -3,7 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
-use eIDASCertificate\AlgorithmIdentifier;
+use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 
 class AlgorithmTest extends TestCase
 {
