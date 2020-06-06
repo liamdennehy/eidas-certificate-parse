@@ -351,13 +351,13 @@ class OCSPResponseTest extends TestCase
             '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
             $resp->getResponderIDPrintable()
         );
-        $this->assertNull($resp->getResponder());
+        $this->assertNull($resp->getSigningCert());
         $this->assertFalse(
             $resp->setResponder(
                 file_get_contents(__DIR__.'/certs/qvbecag2.crt')
             )
         );
-        $this->assertNull($resp->getResponder());
+        $this->assertNull($resp->getSigningCert());
         $this->assertTrue(
             $resp->setResponder(
               file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
@@ -365,7 +365,27 @@ class OCSPResponseTest extends TestCase
         );
         $this->assertEquals(
             'eIDASCertificate\Certificate\X509Certificate',
-            get_class($resp->getResponder())
+            get_class($resp->getSigningCert())
+        );
+        $resp->setResponder(null);
+        $this->assertNull(
+          $resp->getSigningCert()
+        );
+        $derWithoutCertsTampered = base64_decode(
+          str_replace('QEAZc+','QEA2Uo',base64_encode($derWithoutCerts))
+        );
+        $resp = BasicOCSPResponse::fromDER($derWithoutCertsTampered);
+        $this->assertNull($resp->getSigningCert());
+        $this->assertFalse(
+            $resp->setResponder(
+                file_get_contents(__DIR__.'/certs/qvbecag2.crt')
+            )
+        );
+        $this->assertNull($resp->getSigningCert());
+        $this->assertFalse(
+            $resp->setResponder(
+              file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
+          )
         );
 
         $derWithCerts = base64_decode(
@@ -466,11 +486,31 @@ class OCSPResponseTest extends TestCase
         );
         $this->assertEquals(
             'eIDASCertificate\Certificate\X509Certificate',
-            get_class($resp->getResponder())
+            get_class($resp->getSigningCert())
         );
         $this->assertEquals(
             '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
-            $resp->getResponder()->getSubjectDN()
+            $resp->getSigningCert()->getSubjectDN()
+        );
+        $derWithCertsTampered = base64_decode(
+          str_replace('ggEBAH','ggEBAJ',base64_encode($derWithCerts))
+        );
+        $resp = BasicOCSPResponse::fromDER($derWithCertsTampered);
+        $this->assertEquals(
+            '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
+            $resp->getResponderIDPrintable()
+        );
+        $this->assertNull($resp->getSigningCert());
+        $this->assertFalse(
+            $resp->setResponder(
+                file_get_contents(__DIR__.'/certs/qvbecag2.crt')
+            )
+        );
+        $this->assertNull($resp->getSigningCert());
+        $this->assertFalse(
+            $resp->setResponder(
+              file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
+          )
         );
     }
 }
