@@ -47,6 +47,7 @@ class Extensions implements ParseInterface, ASN1Interface
                 $this->extensions[$extName] = $v3Extension;
             }
         }
+        // TODO: Cross-check OCSPNocheck with EKU and OCSP/CRL
         // TODO: Minimum set https://tools.ietf.org/html/rfc5280#section-4.2
         $this->binary = $extensionsSequence->toDER();
     }

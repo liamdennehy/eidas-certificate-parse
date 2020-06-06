@@ -10,6 +10,7 @@ use eIDASCertificate\Certificate\CertificatePolicies;
 use eIDASCertificate\Certificate\CRLDistributionPoints;
 use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
+use eIDASCertificate\Certificate\OCSPNoCheck;
 use eIDASCertificate\Certificate\PreCertPoison;
 use eIDASCertificate\Certificate\SubjectAltName;
 use eIDASCertificate\Certificate\SubjectKeyIdentifier;
@@ -81,6 +82,9 @@ abstract class Extension
             break;
           case 'ocspNonce':
             return new OCSPNonce($extnValue, $isCritical);
+            break;
+          case 'ocspNoCheck':
+            return new OCSPNoCheck($extnValue, $isCritical);
             break;
           // case 'certificatePolicies':
             // TODO: Implement certificatePolicies QCStatement

@@ -737,4 +737,27 @@ class CertificateParseTest extends TestCase
             base64_encode($this->eucrt->getBinary())
         );
     }
+
+    public function testOCSPNoCheck()
+    {
+        $ocspSigner = new X509Certificate(
+            file_get_contents(__DIR__.'/certs/qvocspauth.crt')
+        );
+        $this->assertEquals(
+            'This certificate is exempt from status checks when used to sign OCSP Responses',
+            $ocspSigner->getAttributes()['findings']['info']['ocspNoCheck'][0]
+        );
+        $this->assertEquals(
+            [
+             'basicConstraints',
+             'authorityKeyIdentifier',
+             'certificatePolicies',
+             'ocspNoCheck',
+             'extKeyUsage',
+             'subjectKeyIdentifier',
+             'keyUsage'
+           ],
+            $ocspSigner->getExtensionNames()
+        );
+    }
 }

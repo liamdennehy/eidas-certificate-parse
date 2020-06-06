@@ -13,6 +13,7 @@ use eIDASCertificate\Certificate\BasicConstraints;
 use eIDASCertificate\Certificate\CRLDistributionPoints;
 use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
+use eIDASCertificate\Certificate\OCSPNoCheck;
 use eIDASCertificate\Certificate\PreCertPoison;
 use eIDASCertificate\Certificate\SubjectAltName;
 use ASN1\Type\UnspecifiedType;
@@ -458,6 +459,16 @@ class ExtensionTest extends TestCase
             ]
           ],
             $SAN->getAttributes()
+        );
+    }
+
+    public function testOCSPNoCheck()
+    {
+        $der = base64_decode('BQA=');
+        $noCheck = new OCSPNoCheck($der);
+        $this->assertEquals(
+            'This an OCSPNoCheck extension',
+            $noCheck->getDescription()
         );
     }
 }

@@ -110,6 +110,8 @@ class OID
     const ocspNonce               = '1.3.6.1.5.5.7.48.1.2';
     // https://tools.ietf.org/html/rfc6960#section-4.2.1
     const ocspBasic               = '1.3.6.1.5.5.7.48.1.1';
+    // https://tools.ietf.org/html/rfc2560#section-4.2.2.2.1
+    const ocspNoCheck             = '1.3.6.1.5.5.7.48.1.5';
 
     public static function getName($oidString)
     {
@@ -362,6 +364,9 @@ class OID
             break;
           case self::ocspBasic:
             $oidName = 'ocspBasic';
+            break;
+          case self::ocspNoCheck:
+            $oidName = 'ocspNoCheck';
             break;
           default:
             $oidName = 'unknown';
