@@ -5,7 +5,8 @@ namespace eIDASCertificate\Algorithm;
 use eIDASCertificate\Algorithm\AlgorithmInterface;
 use eIDASCertificate\OID;
 use phpseclib\Crypt\RSA;
-use phpseclib\Crypt\PublicKeyLoader;
+
+// use phpseclib\Crypt\PublicKeyLoader;
 
 class RSAAlgorithm implements AlgorithmInterface
 {
@@ -58,7 +59,6 @@ class RSAAlgorithm implements AlgorithmInterface
 
     public function verify($message, $signature, $verifyingKey)
     {
-        // var_dump([$message, $signature, $verifyingKey]);
         $rsa = clone($this->rsa);
         $rsa->loadKey($verifyingKey);
         try {
