@@ -165,7 +165,7 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
             break;
           case 'Name':
             if ($this->getResponderID()->getHash('sha1') !== $responderCert->getSubjectNameHash('sha1')) {
-              return false;
+                return false;
             }
             break;
         }

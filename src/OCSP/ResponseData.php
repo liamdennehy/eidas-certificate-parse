@@ -187,7 +187,7 @@ class ResponseData implements ASN1Interface, AttributeInterface
 
     public function getResponderIDHash($algo = 'sha256')
     {
-      switch ($this->getResponderIDType()) {
+        switch ($this->getResponderIDType()) {
         case 'KeyHash':
           return $this->responderId;
           break;
