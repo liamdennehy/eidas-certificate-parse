@@ -12,7 +12,6 @@ use ASN1\Type\Tagged\ExplicitlyTaggedType;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\BitString;
 
-// TODO: Signature Validation
 // TODO: Signature Generation
 class BasicOCSPResponse implements ASN1Interface, AttributeInterface
 {
@@ -21,8 +20,9 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
     private $signature;
     private $certs;
     private $responderCert;
+    const x509Class = 'eIDASCertificate\Certificate\X509Certificate';
 
-    public function __construct($tbsResponseData, $signatureAlgorithm = 'rsa-sha256', $signature = null)
+    public function __construct($tbsResponseData, $signatureAlgorithm = 'rsa-sha256', $signature = null, $certs = null)
     {
         $this->tbsResponseData = $tbsResponseData;
         if (is_string($signatureAlgorithm)) {
@@ -31,19 +31,35 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
             $this->signatureAlgorithm = $signatureAlgorithm;
         }
         $this->signature = $signature;
+        if (! empty($certs)) {
+            $this->setCertificates($certs);
+        }
     }
 
-    public function withCerts($certs = null)
+    public function setCertificates($certs = null)
     {
-        $obj = clone $this;
         if (is_null($certs)) {
-            $obj->certs = null;
-        } elseif (is_array($certs)) {
-            $obj->certs = $certs;
-        } else {
-            $obj->$certs = [$certs];
+            $this->certs = null;
+            return;
         }
-        return $obj;
+        if (! is_array($certs)) {
+            $certs = [$certs];
+        }
+        // avoid overwriting existing collection in case input is not valid
+        $newCerts = [];
+        foreach ($certs as $cert) {
+            if (is_object($cert) && get_class($cert) == self::x509Class) {
+                $newCerts[] = $cert;
+            } else {
+                try {
+                    $newCerts[] = new X509Certificate($cert);
+                } catch (\Exception $e) {
+                    throw new \Exception("Input could not be recognised as certificate(s)", 1);
+                }
+            }
+            $this->setResponder($newCerts[sizeof($newCerts)-1]);
+        }
+        $this->certs = $newCerts;
     }
 
     public static function fromSequence($seq)
@@ -58,8 +74,7 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
         } else {
             $certs = null;
         }
-        $response = new BasicOCSPResponse($tbsResponseData, $signatureAlgorithm, $signature);
-        $response = $response->withCerts($certs);
+        $response = new BasicOCSPResponse($tbsResponseData, $signatureAlgorithm, $signature, $certs);
         return $response;
     }
 
@@ -109,7 +124,6 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
         } else {
             $attr['hasSignature'] = true;
         }
-
         return $attr;
     }
 
@@ -147,7 +161,7 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
     {
         if (
             is_object($responderCert) &&
-            get_class($responderCert) !== 'eIDASCertificate\Certificate\X509Certificate'
+            get_class($responderCert) !== self::x509Class
         ) {
             throw new \Exception("Provided object is not a certificate", 1);
         } elseif (is_string($responderCert)) {
@@ -179,13 +193,17 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface
 
     private function isSignedBy($signer)
     {
-        $pubKey = $signer->getPublicKeyPEM();
-        $algorithm = $this->signatureAlgorithm->getAlgorithm();
-        return ($algorithm->verify(
-            $this->tbsResponseData->getBinary(),
-            $this->signature,
-            $pubKey
-        ));
+        if (empty($this->signature)) {
+            return false;
+        } else {
+            $pubKey = $signer->getPublicKeyPEM();
+            $algorithm = $this->signatureAlgorithm->getAlgorithm();
+            return ($algorithm->verify(
+                $this->tbsResponseData->getBinary(),
+                $this->signature,
+                $pubKey
+            ));
+        }
     }
 
     public function getResponder()
