@@ -21,6 +21,13 @@ class OCSPTest extends TestCase
     const qvcrtfile = 'qvbecag2.crt';
     const itsmecrtfile = 'itsme-Sign-Issuing-G1.crt';
     const qventca1g3crtfile = 'qventca1g3.crt';
+    const eucrtReqAttributes = [
+      'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+      'algorithmName' => 'sha-256',
+      'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+      'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
+    ];
+
     public function setUp()
     {
         $this->requestDER = base64_decode(
@@ -152,12 +159,7 @@ class OCSPTest extends TestCase
             base64_encode($request->getBinary())
         );
         $this->assertEquals(
-            [
-            'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-            'algorithmName' => 'sha-256',
-            'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-            'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
-          ],
+            self::eucrtReqAttributes,
             $request->getAttributes()
         );
     }
@@ -213,14 +215,7 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [
-              [
-                'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-                'algorithmName' => 'sha-256',
-                'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-                'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
-              ],
-            ],
+            'requests' => [self::eucrtReqAttributes],
             'nonce' => '6b10b2e654dd598ac463315262911aed'
           ],
             $req->getAttributes()
@@ -250,14 +245,7 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [
-              [
-                'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-                'algorithmName' => 'sha-256',
-                'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-                'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
-              ],
-            ],
+            'requests' => [self::eucrtReqAttributes],
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
           ],
             $request->getAttributes()
@@ -282,14 +270,7 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
                 'version' => 1,
-                'requests' => [
-                  [
-                    'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-                    'algorithmName' => 'sha-256',
-                    'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-                    'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
-                  ],
-                ],
+                'requests' => [self::eucrtReqAttributes],
                 'nonce' => '546869732069732061204e6f6e636521'
             ],
             $req->getAttributes()
@@ -337,6 +318,37 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             base64_encode(file_get_contents(__DIR__.'/ocsp/request-multi3-qv-sha256')),
             base64_encode($req->getBinary())
+        );
+        $this->assertEquals(
+            [
+              'requests' => [
+                [
+                  'serialNumber' => '40f6065343c04cb671e9c8250e90ebd58dd86e55',
+                  'algorithmName' => 'sha-256',
+                  'issuerKeyHash' => 'f3c0cc27a7f061e3553e38e7da96312002129437eb4a840f020fd84293d2663d',
+                  'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e'
+                ],
+                [
+                  'serialNumber' => '3b30442898d3be1cf55c5ea5ff04d6fb74701cd5',
+                  'algorithmName' => 'sha-256',
+                  'issuerKeyHash' => 'f3c0cc27a7f061e3553e38e7da96312002129437eb4a840f020fd84293d2663d',
+                  'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e'
+                ],
+                self::eucrtReqAttributes
+              ],
+              'version' => 1,
+              'nonce' => 'b7f18bd2f35428498546b23f80a227cc'
+            ],
+            $req->getAttributes()
+        );
+        $this->assertTrue($req->hasSubjects());
+        $this->assertEquals(
+            [
+            'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c',
+            'f640e5643c40c1f329e100438e28c957691afa8a53e405a326f7afeb70c23bc1',
+            'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589'
+          ],
+            array_keys($req->getSubjects())
         );
     }
 }

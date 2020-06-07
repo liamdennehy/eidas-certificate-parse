@@ -23,6 +23,7 @@ class OCSPRequest implements
     private $binary;
     private $tbsRequest;
     private $nonce;
+    private $subjects;
 
     public function __construct(
         $signatureAlgorithm,
@@ -121,13 +122,37 @@ class OCSPRequest implements
             }
         }
         $hashAlgorithm = new AlgorithmIdentifier($algo);
-        return new OCSPRequest(
+        $request = new OCSPRequest(
             $hashAlgorithm,
             $issuerNameHashes,
             $issuerKeyHashes,
             $serialNumbers,
             $nonce
         );
+        $request->setSubjects($subjects);
+        return $request;
+    }
+
+    protected function setSubjects($subjects)
+    {
+        $this->subjects = [];
+        foreach ($subjects as $subject) {
+            $this->subjects[$subject->getIdentifier()] = $subject;
+        }
+    }
+
+    public function getSubjects()
+    {
+        if ($this->hasSubjects()) {
+            return $this->subjects;
+        } else {
+            return null;
+        }
+    }
+
+    public function hasSubjects()
+    {
+        return (! empty($this->subjects));
     }
 
     public function getAttributes()
