@@ -421,6 +421,22 @@ class X509Certificate implements
         return $this->issuer->getHash($algo);
     }
 
+    public function getIssuerPublicKeyHash($algo = 'sha256')
+    {
+        if (! $this->hasIssuers()) {
+            throw new \Exception("No Issuer Certificate registered", 1);
+        }
+        $issuerPKH = null;
+        foreach ($this->issuers as $issuer) {
+            if (empty($issuerPKH)) {
+                $issuerPKH = $issuer->getSubjectPublicKeyHash($algo);
+            } elseif ($issuerPKH !== $issuer->getSubjectPublicKeyHash()) {
+                throw new \Exception("Multiple Key Hashes found (should be impossible)", 1);
+            }
+        }
+        return $issuerPKH;
+    }
+
     public function getSubjectExpanded()
     {
         return $this->subject->getExpanded();
@@ -539,6 +555,11 @@ class X509Certificate implements
         } else {
             return false;
         }
+    }
+
+    public function hasIssuers()
+    {
+        return (! empty($this->issuers));
     }
 
     public function getIssuers()
