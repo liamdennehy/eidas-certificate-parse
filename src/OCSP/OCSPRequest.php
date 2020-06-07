@@ -117,8 +117,8 @@ class OCSPRequest implements
                 throw new \Exception("OCSP Request requires X509Certificate Objects with one issuer attached each", 1);
             } else {
                 $serialNumbers[] = $subject->getSerialNumber();
-                $issuerNameHashes[] = $subject->getIssuerNameHash();
-                $issuerKeyHashes[] = $subject->getIssuerPublicKeyHash();
+                $issuerNameHashes[] = $subject->getIssuerNameHash($algo);
+                $issuerKeyHashes[] = $subject->getIssuerPublicKeyHash($algo);
             }
         }
         $hashAlgorithm = new AlgorithmIdentifier($algo);
