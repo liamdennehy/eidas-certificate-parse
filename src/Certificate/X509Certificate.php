@@ -386,9 +386,15 @@ class X509Certificate implements
             '-----END PUBLIC KEY-----';
     }
 
-    public function toPEM()
+    public function toPEM($withIssuers = false)
     {
-        return self::base64ToPEM(base64_encode($this->getBinary()));
+        $pem = self::base64ToPEM(base64_encode($this->getBinary()));
+        if ($withIssuers) {
+            foreach ($this->getIssuers() as $issuer) {
+                $pem = $issuer->toPEM(true).$pem;
+            }
+        }
+        return $pem;
     }
 
     public function getSubjectASN1()
@@ -525,6 +531,11 @@ class X509Certificate implements
         }
 
         return $this->attributes;
+    }
+
+    public function withoutIssuer($issuerId)
+    {
+        unset($this->issuers[$issuerId]);
     }
 
     public function withIssuer($candidate)
