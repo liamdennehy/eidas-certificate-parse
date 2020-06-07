@@ -26,13 +26,13 @@ class OCSPRequest implements
 
     public function __construct(
         $signatureAlgorithm,
-        $issuerNameHash,
-        $issuerKeyHash,
-        $serialNumber,
+        $issuerNameHashes,
+        $issuerKeyHashes,
+        $serialNumbers,
         $nonce = 'none'
     ) {
         if (is_object($signatureAlgorithm) && get_class($signatureAlgorithm) !== 'eIDASCertificate\Algorithm\AlgorithmIdentifier') {
-          throw new \Exception("Unrecognised Signature Algorithm requested", 1);
+            throw new \Exception("Unrecognised Signature Algorithm requested", 1);
         }
         if ($nonce == 'auto') {
             $this->nonce = random_bytes(16);
@@ -41,17 +41,32 @@ class OCSPRequest implements
         } else {
             $this->nonce = $nonce;
         }
-
+        if (! is_array($serialNumbers)) {
+            $serialNumbers = [$serialNumbers];
+        }
+        if (! is_array($issuerNameHashes)) {
+            $issuerNameHashes = [$issuerNameHashes];
+        }
+        if (! is_array($issuerKeyHashes)) {
+            $issuerKeyHashes = [$issuerKeyHashes];
+        }
+        if (((array_keys($serialNumbers) !== array_keys($issuerNameHashes)) || (array_keys($issuerNameHashes) !== array_keys($issuerKeyHashes)))) {
+            throw new \Exception("Unmatched arrays provided to OCSPRequest", 1);
+        }
         if (is_string($signatureAlgorithm)) {
             $signatureAlgorithm = new AlgorithmIdentifier($signatureAlgorithm);
         }
-        $certId = new CertID(
-            $signatureAlgorithm,
-            $issuerNameHash,
-            $issuerKeyHash,
-            $serialNumber
-        );
-        $requestlist[] = new Request($certId);
+        $certIDs = [];
+
+        foreach ($serialNumbers as $key => $serialNumber) {
+            $certId = new CertID(
+                $signatureAlgorithm,
+                $issuerNameHashes[$key],
+                $issuerKeyHashes[$key],
+                $serialNumbers[$key]
+            );
+            $requestlist[] = new Request($certId);
+        }
         if (is_null($nonce)) {
             $this->tbsRequest = new TBSRequest($requestlist);
         } else {
@@ -88,19 +103,29 @@ class OCSPRequest implements
         );
     }
 
-    public static function fromCertificate($subject, $issuer, $algo = 'sha256', $nonce = 'none')
+    public static function fromCertificate($subjects, $algo = 'sha256', $nonce = 'none')
     {
-        $subject = new X509Certificate($subject);
-        $issuer = new X509Certificate($issuer);
-        $issuerNameHash = $subject->getIssuerNameHash();
-        $issuerKeyHash = $issuer->getSubjectPublicKeyHash();
+        if (! is_array($subjects)) {
+            $subjects = [$subjects];
+        }
+        $serialNumbers = [];
+        foreach ($subjects as $subject) {
+            if ((! is_object($subject) || (! get_class($subject) == 'eIDASCertificate\Certificate\X509Certificate'))) {
+                throw new \Exception("OCSP Request requires X509Certificate Objects with one issuer attached each", 1);
+            } elseif (! $subject->hasIssuers() || sizeof($subject->getIssuers()) <> 1) {
+                throw new \Exception("OCSP Request requires X509Certificate Objects with one issuer attached each", 1);
+            } else {
+                $serialNumbers[] = $subject->getSerialNumber();
+                $issuerNameHashes[] = $subject->getIssuerNameHash();
+                $issuerKeyHashes[] = $subject->getIssuerPublicKeyHash();
+            }
+        }
         $hashAlgorithm = new AlgorithmIdentifier($algo);
-        $serialNumber = $subject->getSerialNumber();
         return new OCSPRequest(
             $hashAlgorithm,
-            $issuerNameHash,
-            $issuerKeyHash,
-            $serialNumber,
+            $issuerNameHashes,
+            $issuerKeyHashes,
+            $serialNumbers,
             $nonce
         );
     }

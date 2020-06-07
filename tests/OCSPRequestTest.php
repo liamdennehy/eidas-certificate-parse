@@ -3,6 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OCSP\OCSPRequest;
 use eIDASCertificate\OCSP\CertID;
 use eIDASCertificate\OCSP\Request;
@@ -18,6 +19,8 @@ class OCSPTest extends TestCase
 
     const eucrtfile = 'European-Commission.crt';
     const qvcrtfile = 'qvbecag2.crt';
+    const itsmecrtfile = 'itsme-Sign-Issuing-G1.crt';
+    const qventca1g3crtfile = 'qventca1g3.crt';
     public function setUp()
     {
         $this->requestDER = base64_decode(
@@ -267,11 +270,14 @@ class OCSPTest extends TestCase
             __DIR__ . "/certs/" . self::eucrtfile
         );
 
+        $eucrt = new X509Certificate(file_get_contents(__DIR__ . '/certs/' . self::eucrtfile));
+        $qvcrt = new X509Certificate(file_get_contents(__DIR__ . '/certs/' . self::qvcrtfile));
+        $eucrt->withIssuer($qvcrt);
+
         $req = OCSPRequest::fromCertificate(
-            file_get_contents(__DIR__ . '/certs/' . self::eucrtfile),
-            file_get_contents(__DIR__ . '/certs/' . self::qvcrtfile),
+            $eucrt,
             'sha256',
-            hex2bin('cc51fed1358bcab2f2f345797a295d8d')
+            'This is a Nonce!'
         );
         $this->assertEquals(
             [
@@ -284,15 +290,52 @@ class OCSPTest extends TestCase
                     'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
                   ],
                 ],
-                'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
+                'nonce' => '546869732069732061204e6f6e636521'
             ],
             $req->getAttributes()
         );
         $this->assertEquals(
-            'MIGXMIGUMG0wazBpMA0GCWCGSAFlAwQCAQUABCB/KwGdqlHNK/1S9NxmOTkp7WNyE'.
-            'D4Tcco8H7DBRjt/7QQgnlBu5uQdtrB/A454ZktDW/rdCzpj+yddYR4WH7puojACFF'.
-            'l3LnAGabdmn7ASxc3RPDooGgkRoiMwITAfBgkrBgEFBQcwAQIEEgQQzFH+0TWLyrL'.
-            'y80V5eildjQ==',
+            'MIGXMIGUMG0wazBpMA0GCWCGSAFlAwQCAQUABCB/KwGdqlHNK/1S9NxmOTkp7WNy'.
+            'ED4Tcco8H7DBRjt/7QQgnlBu5uQdtrB/A454ZktDW/rdCzpj+yddYR4WH7puojAC'.
+            'FFl3LnAGabdmn7ASxc3RPDooGgkRoiMwITAfBgkrBgEFBQcwAQIEEgQQVGhpcyBp'.
+            'cyBhIE5vbmNlIQ==',
+            base64_encode($req->getBinary())
+        );
+    }
+
+    public function testOCSPRequstFromMultipleCertificates()
+    {
+        $qvcrt = new X509Certificate(
+            file_get_contents(__DIR__ . '/certs/' . self::qvcrtfile)
+        );
+        $itsmecrt = new X509Certificate(
+            file_get_contents(__DIR__ . '/certs/' . self::itsmecrtfile)
+        );
+        $qventca1g3crt = new X509Certificate(
+            file_get_contents(__DIR__ . '/certs/' . self::qventca1g3crtfile)
+        );
+        $qvcrt->withIssuer($qventca1g3crt);
+        $itsmecrt->withIssuer($qventca1g3crt);
+        $req = OCSPRequest::fromCertificate(
+            [$qvcrt, $itsmecrt],
+            'sha256',
+            hex2bin('b7f18bd2f35428498546b23f80a227cc')
+        );
+        $this->assertEquals(
+            base64_encode(file_get_contents(__DIR__.'/ocsp/request-multi2-qv-sha256')),
+            base64_encode($req->getBinary())
+        );
+        $eucrt = new X509Certificate(
+            file_get_contents(__DIR__ . '/certs/' . self::eucrtfile)
+        );
+        $eucrt->withIssuer($qvcrt);
+        $req = OCSPRequest::fromCertificate(
+            [$qvcrt, $itsmecrt, $eucrt],
+            'sha256',
+            hex2bin('b7f18bd2f35428498546b23f80a227cc')
+        );
+        $this->assertEquals(
+            base64_encode(file_get_contents(__DIR__.'/ocsp/request-multi3-qv-sha256')),
             base64_encode($req->getBinary())
         );
     }
