@@ -23,17 +23,19 @@ class OCSPResponseTest extends TestCase
         'algorithmName' => 'sha-1',
         'issuerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
         'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
+        'signerIsIssuer' => 'unknown'
     ];
     const certId5977SHA1 = [
         'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
         'algorithmName' => 'sha-256',
         'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
         'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
+        'signerIsIssuer' => 'unknown'
     ];
     const singleResponse5977Revoked = [
       'status' => 'good',
-      'thisUpdate' => '1590956100',
-      'nextUpdate' => '1591128900'
+      'thisUpdate' => 1590956100,
+      'nextUpdate' => 1591128900
     ];
     const singleResponse371bRevoked = [
         'status' => 'revoked',
@@ -356,6 +358,23 @@ class OCSPResponseTest extends TestCase
             )
         );
         $this->assertEquals(
+            [
+            'producedAt' => 1591177149,
+            'responses' => [
+              array_merge(
+                  self::singleResponse371bRevoked,
+                  self::certId371bSHA1,
+                  ['signerIsIssuer' => true]
+              )
+            ],
+            'signatureAlgorithm' => 'sha256WithRSAEncryption',
+            'hasSignature' => true,
+            'producerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
+            'signedByCert' => '154c433c491929c5ef686e838e323664a00e6a0d822ccc958fb4dab03e49a08f'
+          ],
+            $resp->getAttributes()
+        );
+        $this->assertEquals(
             'eIDASCertificate\Certificate\X509Certificate',
             get_class($resp->getSigningCert())
         );
@@ -427,20 +446,23 @@ class OCSPResponseTest extends TestCase
             base64_encode($derWithCerts),
             base64_encode($resp->getBinary())
         );
+        $certIdAttributes = array_merge(
+            self::singleResponse5977Revoked,
+            self::certId5977SHA1
+        );
+        $certIdAttributes['signerIsIssuer'] = false;
         $this->assertEquals(
             [
             'producedAt' => 1590956100,
-            'responses' => [
-              array_merge(
-                  self::singleResponse5977Revoked,
-                  self::certId5977SHA1
-              )
-            ],
+            'responses' => [$certIdAttributes],
             'signatureAlgorithm' => 'sha256WithRSAEncryption',
             'hasSignature' => true,
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d',
             'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
-            'signedByCert' => '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28'
+            'signedByCert' => '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28',
+            'includesCerts' => [
+              '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28'
+            ]
           ],
             $resp->getAttributes()
         );
@@ -462,12 +484,12 @@ class OCSPResponseTest extends TestCase
             sizeof($resp->getCertificates())
         );
         $this->assertEquals(
-            '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
-            $resp->getCertificates()[0]->getSubjectDN()
+            ['2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28'],
+            array_keys($resp->getCertificates())
         );
         $this->assertEquals(
-            '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28',
-            hash('sha256', $resp->getCertificates()[0]->getBinary())
+            '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
+            $resp->getCertificates()['2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28']->getSubjectDN()
         );
         $this->assertEquals(
             'Name',
@@ -555,14 +577,18 @@ class OCSPResponseTest extends TestCase
                 'issuerNameHash' => 'c07b194b35d08214c0162e0d542ddd17f48b864b',
                 'status' => 'good',
                 'thisUpdate' => 1591370661,
-                'nextUpdate' => 1591543461
+                'nextUpdate' => 1591543461,
+                'signerIsIssuer' => false
               ]
             ],
             'nonce' => '1577e810f7379f0db3cef0e1abc6ebb7',
             'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
             'signatureAlgorithm' => 'sha256WithRSAEncryption',
             'hasSignature' => true,
-            'signedByCert' => '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28'
+            'signedByCert' => '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28',
+            'includesCerts' => [
+              '2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28'
+            ]
           ],
             $resp->getAttributes()
         );
@@ -576,6 +602,18 @@ class OCSPResponseTest extends TestCase
             $resp->getSignatureAlgorithmName()
         );
         $resp = OCSPResponse::fromDER($derRevokedWithoutCerts);
+        $singleResponseAttributes = [
+          'serialNumber' => '371b58a86f6ce9c3ecb7bf42f9208fc',
+          'algorithmName' => 'sha-1',
+          'issuerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
+          'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
+          'status' => 'revoked',
+          'thisUpdate' => 1591177149,
+          'nextUpdate' => 1591779249,
+          'revokedDateTime' => 1570480239,
+          'signerIsIssuer' => 'unknown'
+        ];
+
         $this->assertEquals(
             base64_encode($derRevokedWithoutCerts),
             base64_encode($resp->getBinary())
@@ -595,16 +633,7 @@ class OCSPResponseTest extends TestCase
             'statusReason' => 'Response has valid confirmations',
             'producedAt' => 1591177149,
             'responses' => [
-              [
-                'serialNumber' => '371b58a86f6ce9c3ecb7bf42f9208fc',
-                'algorithmName' => 'sha-1',
-                'issuerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
-                'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
-                'status' => 'revoked',
-                'thisUpdate' => 1591177149,
-                'nextUpdate' => 1591779249,
-                'revokedDateTime' => 1570480239
-              ]
+              $singleResponseAttributes
             ],
             'producerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
             'signatureAlgorithm' => 'sha256WithRSAEncryption',
@@ -628,12 +657,31 @@ class OCSPResponseTest extends TestCase
             'eIDASCertificate\Certificate\X509Certificate',
             get_class($resp->getSigningCert())
         );
+
         $this->assertFalse(
             $resp->hasCertificates()
         );
         $this->assertEquals(
             '/C=US/O=DigiCert Inc/CN=DigiCert SHA2 Secure Server CA',
             $resp->getSigningCert()->getSubjectDN()
+        );
+        $resp->setSigner(new X509Certificate(
+            file_get_contents(__DIR__.'/certs/DigiCertSHA2SecureServerCA.crt')
+        ));
+        $thisCertIdAttributes = $singleResponseAttributes;
+        $thisCertIdAttributes['signerIsIssuer'] = true;
+        $this->assertEquals(
+            [
+            'status' => 0,
+            'statusReason' => 'Response has valid confirmations',
+            'producedAt' => 1591177149,
+            'responses' => [$thisCertIdAttributes],
+            'producerKeyHash' => '0f80611c823161d52f28e78d4638b42ce1c6d9e2',
+            'signatureAlgorithm' => 'sha256WithRSAEncryption',
+            'hasSignature' => true,
+            'signedByCert' => '154c433c491929c5ef686e838e323664a00e6a0d822ccc958fb4dab03e49a08f'
+            ],
+            $resp->getAttributes()
         );
     }
 }

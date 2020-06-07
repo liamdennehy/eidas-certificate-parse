@@ -196,4 +196,11 @@ class ResponseData implements ASN1Interface, AttributeInterface
           break;
       }
     }
+
+    public function setSigner($signer)
+    {
+        foreach ($this->singleResponses as $responseId => $singleResponse) {
+            $this->singleResponses[$responseId] = $singleResponse->setSigner($signer);
+        }
+    }
 }

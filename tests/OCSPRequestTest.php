@@ -25,7 +25,8 @@ class OCSPTest extends TestCase
       'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
       'algorithmName' => 'sha-256',
       'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-      'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
+      'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
+      'signerIsIssuer' => 'unknown'
     ];
 
     public function setUp()
@@ -96,7 +97,8 @@ class OCSPTest extends TestCase
             'serialNumber' => 'a85d4c6820beff673073658e163c2f9d',
             'algorithmName' => 'sha-1',
             'issuerKeyHash' => '82af6c8cf8c5fe96617ce81f3d2b71485ec48bc0',
-            'issuerNameHash' => 'c4c3dd52a50e02dd3c949825b7295ad3aec64b3e'
+            'issuerNameHash' => 'c4c3dd52a50e02dd3c949825b7295ad3aec64b3e',
+            'signerIsIssuer' => 'unknown'
           ],
             $certId->getAttributes()
         );
@@ -326,13 +328,15 @@ class OCSPTest extends TestCase
                   'serialNumber' => '40f6065343c04cb671e9c8250e90ebd58dd86e55',
                   'algorithmName' => 'sha-256',
                   'issuerKeyHash' => 'f3c0cc27a7f061e3553e38e7da96312002129437eb4a840f020fd84293d2663d',
-                  'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e'
+                  'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
+                  'signerIsIssuer' => 'unknown'
                 ],
                 [
                   'serialNumber' => '3b30442898d3be1cf55c5ea5ff04d6fb74701cd5',
                   'algorithmName' => 'sha-256',
                   'issuerKeyHash' => 'f3c0cc27a7f061e3553e38e7da96312002129437eb4a840f020fd84293d2663d',
-                  'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e'
+                  'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
+                  'signerIsIssuer' => 'unknown'
                 ],
                 self::eucrtReqAttributes
               ],

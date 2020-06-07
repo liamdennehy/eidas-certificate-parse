@@ -17,6 +17,7 @@ class CertID implements ASN1Interface, AttributeInterface
     private $issuerNameHash;
     private $issuerKeyHash;
     private $serialNumber; // as lowercase hex string
+    private $signer; // The eventual signer of the reponse this object is contained in.
 
     public function __construct(
         $hashAlgorithm,
@@ -102,12 +103,32 @@ class CertID implements ASN1Interface, AttributeInterface
 
     public function getAttributes()
     {
+        $algo = $this->getAlgorithmName();
+        $issuerKeyHash = $this->getIssuerKeyHash($algo);
+        $issuerNameHash = $this->getIssuerNameHash($algo);
         $attr = [
           'serialNumber' => $this->getSerialNumber(),
           'algorithmName' => $this->getAlgorithmName(),
-          'issuerKeyHash' => bin2hex($this->getIssuerKeyHash()),
-          'issuerNameHash' => bin2hex($this->getIssuerNameHash())
+          'issuerKeyHash' => bin2hex($issuerKeyHash),
+          'issuerNameHash' => bin2hex($issuerNameHash)
         ];
+        if (! empty($this->signer)) {
+            $signerKeyHash = $this->signer->getSubjectPublicKeyHash($algo);
+            $signerNaneHash = $this->signer->getSubjectNameHash($algo);
+            if ($issuerKeyHash == $signerKeyHash && $issuerNameHash == $signerNaneHash) {
+                $attr['signerIsIssuer'] = true;
+            } else {
+                $attr['signerIsIssuer'] = false;
+            }
+            // TODO: Check OCSP Signer has ocspsigning EKU or or issuer
+        } else {
+            $attr['signerIsIssuer'] = 'unknown';
+        }
         return $attr;
+    }
+
+    public function setSigner($signer)
+    {
+        $this->signer = $signer;
     }
 }

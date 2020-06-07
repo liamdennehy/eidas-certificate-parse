@@ -51,15 +51,16 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
         $newCerts = [];
         foreach ($certs as $cert) {
             if (is_object($cert) && get_class($cert) == self::x509Class) {
-                $newCerts[] = $cert;
+                $newCerts[$cert->getIdentifier()] = $cert;
             } else {
                 try {
-                    $newCerts[] = new X509Certificate($cert);
+                    $cert = new X509Certificate($cert);
+                    $newCerts[$cert->getIdentifier()] = $cert;
                 } catch (\Exception $e) {
                     throw new \Exception("Input could not be recognised as certificate(s)", 1);
                 }
             }
-            $this->setResponder($newCerts[sizeof($newCerts)-1]);
+            $this->setResponder($cert);
         }
         $this->certs = $newCerts;
     }
@@ -128,6 +129,9 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
         }
         if (! empty($this->signingCert)) {
             $attr['signedByCert'] = $this->signingCert->getIdentifier();
+        }
+        if ($this->hasCertificates()) {
+            $attr['includesCerts'] = array_keys($this->getCertificates());
         }
         return $attr;
     }
@@ -208,6 +212,7 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
         }
         // TODO: ensure OCSP signer has ocspNoCheck extension if no status check possible
         $this->signingCert = $responderCert;
+        $this->setSigner($responderCert);
         return true;
     }
 
@@ -235,5 +240,10 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
     {
         $findings = [];
         return $findings;
+    }
+
+    public function setSigner($signer)
+    {
+        $this->tbsResponseData->setSigner($signer);
     }
 }

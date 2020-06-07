@@ -115,4 +115,11 @@ class SingleResponse implements ASN1Interface, AttributeInterface
     {
         return $this->certStatus;
     }
+
+    public function setSigner($signer)
+    {
+        $new = clone $this;
+        $new->certId->setSigner($signer);
+        return $new;
+    }
 }
