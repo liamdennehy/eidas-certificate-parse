@@ -661,7 +661,7 @@ class X509Certificate implements
     public function getSubjectPublicKeyHash($algo = 'sha256')
     {
         return hash(
-            $algo,
+            \str_replace('-', '', $algo),
             $this->publicKey
                 ->at(1)
                 ->asBitString()
