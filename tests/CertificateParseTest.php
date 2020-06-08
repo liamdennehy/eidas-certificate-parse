@@ -654,7 +654,10 @@ class CertificateParseTest extends TestCase
             0,
             sizeof($this->eucrt->getIssuers())
         );
-        $issuer = $this->eucrt->withIssuer($this->euissuercrt);
+        $this->assertEquals(
+            'eIDASCertificate\Certificate\X509Certificate',
+            get_class($this->eucrt->withIssuer($this->euissuercrt))
+        );
         $this->assertTrue(
             is_array($this->eucrt->getIssuers())
         );
@@ -662,22 +665,25 @@ class CertificateParseTest extends TestCase
             1,
             sizeof($this->eucrt->getIssuers())
         );
-        $issuer = $this->eucrt->withIssuer($this->euissuercrt);
+        $this->assertEquals(
+            'eIDASCertificate\Certificate\X509Certificate',
+            get_class($this->eucrt->withIssuer($this->euissuercrt))
+        );
         $this->assertEquals(
             1,
             sizeof($this->eucrt->getIssuers())
-        );
-        $this->assertEquals(
-            'eIDASCertificate\Certificate\X509Certificate',
-            get_class($issuer)
         );
 
         $euissuercrt = new X509Certificate($this->euissuercrt);
-        $issuer = $this->eucrt->withIssuer($euissuercrt);
+        $this->eucrt->withIssuer($euissuercrt);
 
         $this->assertEquals(
             1,
             sizeof($this->eucrt->getIssuers())
+        );
+        $this->assertEquals(
+            '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+            bin2hex($this->eucrt->getIssuerPublicKeyHash())
         );
     }
 

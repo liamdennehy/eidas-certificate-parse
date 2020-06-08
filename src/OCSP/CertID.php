@@ -17,17 +17,18 @@ class CertID implements ASN1Interface, AttributeInterface
     private $issuerNameHash;
     private $issuerKeyHash;
     private $serialNumber; // as lowercase hex string
+    private $signer; // The eventual signer of the reponse this object is contained in.
 
     public function __construct(
-        $signatureAlgorithm,
+        $hashAlgorithm,
         $issuerNameHash,
         $issuerKeyHash,
         $serialNumber
     ) {
-        if (is_a($signatureAlgorithm, 'eIDASCertificate\AlgorithmIdentifier')) {
-            $this->algorithmIdentifier = $signatureAlgorithm;
+        if (is_a($hashAlgorithm, 'eIDASCertificate\AlgorithmIdentifier')) {
+            $this->hashAlgorithm = $hashAlgorithm;
         } else {
-            $this->algorithmIdentifier = new AlgorithmIdentifier($signatureAlgorithm);
+            $this->hashAlgorithm = new AlgorithmIdentifier($hashAlgorithm);
         }
         $this->issuerNameHash = $issuerNameHash;
         $this->issuerKeyHash = $issuerKeyHash;
@@ -41,18 +42,18 @@ class CertID implements ASN1Interface, AttributeInterface
 
     public static function fromSequence($obj)
     {
-        $signatureAlgorithm = AlgorithmIdentifier::fromSequence($obj->at(0)->asSequence());
+        $hashAlgorithm = AlgorithmIdentifier::fromSequence($obj->at(0)->asSequence());
         $issuerNameHash = $obj->at(1)->asOctetString()->string();
         $issuerKeyHash = $obj->at(2)->asOctetString()->string();
         $serialNumber = gmp_strval($obj->at(3)->asInteger()->number(), 16);
-        return new CertID($signatureAlgorithm, $issuerNameHash, $issuerKeyHash, $serialNumber);
+        return new CertID($hashAlgorithm, $issuerNameHash, $issuerKeyHash, $serialNumber);
     }
 
     public function getASN1()
     {
         return (
           new Sequence(
-              $this->algorithmIdentifier->getASN1(),
+              $this->hashAlgorithm->getASN1(),
               new OctetString($this->issuerNameHash),
               new OctetString($this->issuerKeyHash),
               new Integer(
@@ -72,17 +73,17 @@ class CertID implements ASN1Interface, AttributeInterface
 
     public function getHashAlgorithm()
     {
-        return $this->algorithmIdentifier;
+        return $this->hashAlgorithm;
     }
 
     public function getAlgorithmName()
     {
-        return $this->algorithmIdentifier->getAlgorithmName();
+        return $this->hashAlgorithm->getAlgorithmName();
     }
 
     public function getAlgorithmOID()
     {
-        return $this->algorithmIdentifier->getAlgorithmOID();
+        return $this->hashAlgorithm->getAlgorithmOID();
     }
 
     public function getIssuerNameHash()
@@ -102,12 +103,32 @@ class CertID implements ASN1Interface, AttributeInterface
 
     public function getAttributes()
     {
+        $algo = $this->getAlgorithmName();
+        $issuerKeyHash = $this->getIssuerKeyHash($algo);
+        $issuerNameHash = $this->getIssuerNameHash($algo);
         $attr = [
           'serialNumber' => $this->getSerialNumber(),
           'algorithmName' => $this->getAlgorithmName(),
-          'issuerKeyHash' => bin2hex($this->getIssuerKeyHash()),
-          'issuerNameHash' => bin2hex($this->getIssuerNameHash())
+          'issuerKeyHash' => bin2hex($issuerKeyHash),
+          'issuerNameHash' => bin2hex($issuerNameHash)
         ];
+        if (! empty($this->signer)) {
+            $signerKeyHash = $this->signer->getSubjectPublicKeyHash($algo);
+            $signerNaneHash = $this->signer->getSubjectNameHash($algo);
+            if ($issuerKeyHash == $signerKeyHash && $issuerNameHash == $signerNaneHash) {
+                $attr['signerIsIssuer'] = true;
+            } else {
+                $attr['signerIsIssuer'] = false;
+            }
+            // TODO: Check OCSP Signer has ocspsigning EKU or or issuer
+        } else {
+            $attr['signerIsIssuer'] = 'unknown';
+        }
         return $attr;
+    }
+
+    public function setSigner($signer)
+    {
+        $this->signer = $signer;
     }
 }

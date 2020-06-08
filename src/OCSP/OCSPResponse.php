@@ -179,6 +179,7 @@ class OCSPResponse implements ASN1Interface, AttributeInterface
             return false;
         }
     }
+
     public function hasResponse()
     {
         return (! empty($this->response));
@@ -233,5 +234,10 @@ class OCSPResponse implements ASN1Interface, AttributeInterface
         } else {
             return null;
         }
+    }
+
+    public function setSigner($signer)
+    {
+        $this->response->setSigner($signer);
     }
 }

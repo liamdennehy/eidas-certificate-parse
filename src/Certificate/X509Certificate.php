@@ -386,9 +386,15 @@ class X509Certificate implements
             '-----END PUBLIC KEY-----';
     }
 
-    public function toPEM()
+    public function toPEM($withIssuers = false)
     {
-        return self::base64ToPEM(base64_encode($this->getBinary()));
+        $pem = self::base64ToPEM(base64_encode($this->getBinary()));
+        if ($withIssuers) {
+            foreach ($this->getIssuers() as $issuer) {
+                $pem = $issuer->toPEM(true).$pem;
+            }
+        }
+        return $pem;
     }
 
     public function getSubjectASN1()
@@ -419,6 +425,22 @@ class X509Certificate implements
     public function getIssuerNameHash($algo = 'sha256')
     {
         return $this->issuer->getHash($algo);
+    }
+
+    public function getIssuerPublicKeyHash($algo = 'sha256')
+    {
+        if (! $this->hasIssuers()) {
+            throw new \Exception("No Issuer Certificate registered", 1);
+        }
+        $issuerPKH = null;
+        foreach ($this->issuers as $issuer) {
+            if (empty($issuerPKH)) {
+                $issuerPKH = $issuer->getSubjectPublicKeyHash($algo);
+            } elseif ($issuerPKH !== $issuer->getSubjectPublicKeyHash()) {
+                throw new \Exception("Multiple Key Hashes found (should be impossible)", 1);
+            }
+        }
+        return $issuerPKH;
     }
 
     public function getSubjectExpanded()
@@ -511,6 +533,11 @@ class X509Certificate implements
         return $this->attributes;
     }
 
+    public function withoutIssuer($issuerId)
+    {
+        unset($this->issuers[$issuerId]);
+    }
+
     public function withIssuer($candidate)
     {
         if (is_object($candidate) && is_a($candidate, 'eIDASCertificate\Certificate\X509Certificate')) {
@@ -539,6 +566,11 @@ class X509Certificate implements
         } else {
             return false;
         }
+    }
+
+    public function hasIssuers()
+    {
+        return (! empty($this->issuers));
     }
 
     public function getIssuers()
@@ -629,7 +661,7 @@ class X509Certificate implements
     public function getSubjectPublicKeyHash($algo = 'sha256')
     {
         return hash(
-            $algo,
+            \str_replace('-', '', $algo),
             $this->publicKey
                 ->at(1)
                 ->asBitString()

@@ -3,6 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
+use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OCSP\OCSPRequest;
 use eIDASCertificate\OCSP\CertID;
 use eIDASCertificate\OCSP\Request;
@@ -18,6 +19,16 @@ class OCSPTest extends TestCase
 
     const eucrtfile = 'European-Commission.crt';
     const qvcrtfile = 'qvbecag2.crt';
+    const itsmecrtfile = 'itsme-Sign-Issuing-G1.crt';
+    const qventca1g3crtfile = 'qventca1g3.crt';
+    const eucrtReqAttributes = [
+      'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+      'algorithmName' => 'sha-256',
+      'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+      'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
+      'signerIsIssuer' => 'unknown'
+    ];
+
     public function setUp()
     {
         $this->requestDER = base64_decode(
@@ -86,7 +97,8 @@ class OCSPTest extends TestCase
             'serialNumber' => 'a85d4c6820beff673073658e163c2f9d',
             'algorithmName' => 'sha-1',
             'issuerKeyHash' => '82af6c8cf8c5fe96617ce81f3d2b71485ec48bc0',
-            'issuerNameHash' => 'c4c3dd52a50e02dd3c949825b7295ad3aec64b3e'
+            'issuerNameHash' => 'c4c3dd52a50e02dd3c949825b7295ad3aec64b3e',
+            'signerIsIssuer' => 'unknown'
           ],
             $certId->getAttributes()
         );
@@ -149,12 +161,7 @@ class OCSPTest extends TestCase
             base64_encode($request->getBinary())
         );
         $this->assertEquals(
-            [
-            'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-            'algorithmName' => 'sha-256',
-            'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-            'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
-          ],
+            self::eucrtReqAttributes,
             $request->getAttributes()
         );
     }
@@ -210,14 +217,7 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [
-              [
-                'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-                'algorithmName' => 'sha-256',
-                'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-                'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
-              ],
-            ],
+            'requests' => [self::eucrtReqAttributes],
             'nonce' => '6b10b2e654dd598ac463315262911aed'
           ],
             $req->getAttributes()
@@ -247,14 +247,7 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [
-              [
-                'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-                'algorithmName' => 'sha-256',
-                'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-                'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
-              ],
-            ],
+            'requests' => [self::eucrtReqAttributes],
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
           ],
             $request->getAttributes()
@@ -267,33 +260,99 @@ class OCSPTest extends TestCase
             __DIR__ . "/certs/" . self::eucrtfile
         );
 
+        $eucrt = new X509Certificate(file_get_contents(__DIR__ . '/certs/' . self::eucrtfile));
+        $qvcrt = new X509Certificate(file_get_contents(__DIR__ . '/certs/' . self::qvcrtfile));
+        $eucrt->withIssuer($qvcrt);
+
         $req = OCSPRequest::fromCertificate(
-            file_get_contents(__DIR__ . '/certs/' . self::eucrtfile),
-            file_get_contents(__DIR__ . '/certs/' . self::qvcrtfile),
+            $eucrt,
             'sha256',
-            hex2bin('cc51fed1358bcab2f2f345797a295d8d')
+            'This is a Nonce!'
         );
         $this->assertEquals(
             [
                 'version' => 1,
-                'requests' => [
-                  [
-                    'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-                    'algorithmName' => 'sha-256',
-                    'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-                    'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed'
-                  ],
-                ],
-                'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
+                'requests' => [self::eucrtReqAttributes],
+                'nonce' => '546869732069732061204e6f6e636521'
             ],
             $req->getAttributes()
         );
         $this->assertEquals(
-            'MIGXMIGUMG0wazBpMA0GCWCGSAFlAwQCAQUABCB/KwGdqlHNK/1S9NxmOTkp7WNyE'.
-            'D4Tcco8H7DBRjt/7QQgnlBu5uQdtrB/A454ZktDW/rdCzpj+yddYR4WH7puojACFF'.
-            'l3LnAGabdmn7ASxc3RPDooGgkRoiMwITAfBgkrBgEFBQcwAQIEEgQQzFH+0TWLyrL'.
-            'y80V5eildjQ==',
+            'MIGXMIGUMG0wazBpMA0GCWCGSAFlAwQCAQUABCB/KwGdqlHNK/1S9NxmOTkp7WNy'.
+            'ED4Tcco8H7DBRjt/7QQgnlBu5uQdtrB/A454ZktDW/rdCzpj+yddYR4WH7puojAC'.
+            'FFl3LnAGabdmn7ASxc3RPDooGgkRoiMwITAfBgkrBgEFBQcwAQIEEgQQVGhpcyBp'.
+            'cyBhIE5vbmNlIQ==',
             base64_encode($req->getBinary())
+        );
+    }
+
+    public function testOCSPRequstFromMultipleCertificates()
+    {
+        $qvcrt = new X509Certificate(
+            file_get_contents(__DIR__ . '/certs/' . self::qvcrtfile)
+        );
+        $itsmecrt = new X509Certificate(
+            file_get_contents(__DIR__ . '/certs/' . self::itsmecrtfile)
+        );
+        $qventca1g3crt = new X509Certificate(
+            file_get_contents(__DIR__ . '/certs/' . self::qventca1g3crtfile)
+        );
+        $qvcrt->withIssuer($qventca1g3crt);
+        $itsmecrt->withIssuer($qventca1g3crt);
+        $req = OCSPRequest::fromCertificate(
+            [$qvcrt, $itsmecrt],
+            'sha256',
+            hex2bin('b7f18bd2f35428498546b23f80a227cc')
+        );
+        $this->assertEquals(
+            base64_encode(file_get_contents(__DIR__.'/ocsp/request-multi2-qv-sha256')),
+            base64_encode($req->getBinary())
+        );
+        $eucrt = new X509Certificate(
+            file_get_contents(__DIR__ . '/certs/' . self::eucrtfile)
+        );
+        $eucrt->withIssuer($qvcrt);
+        $req = OCSPRequest::fromCertificate(
+            [$qvcrt, $itsmecrt, $eucrt],
+            'sha256',
+            hex2bin('b7f18bd2f35428498546b23f80a227cc')
+        );
+        $this->assertEquals(
+            base64_encode(file_get_contents(__DIR__.'/ocsp/request-multi3-qv-sha256')),
+            base64_encode($req->getBinary())
+        );
+        $this->assertEquals(
+            [
+              'requests' => [
+                [
+                  'serialNumber' => '40f6065343c04cb671e9c8250e90ebd58dd86e55',
+                  'algorithmName' => 'sha-256',
+                  'issuerKeyHash' => 'f3c0cc27a7f061e3553e38e7da96312002129437eb4a840f020fd84293d2663d',
+                  'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
+                  'signerIsIssuer' => 'unknown'
+                ],
+                [
+                  'serialNumber' => '3b30442898d3be1cf55c5ea5ff04d6fb74701cd5',
+                  'algorithmName' => 'sha-256',
+                  'issuerKeyHash' => 'f3c0cc27a7f061e3553e38e7da96312002129437eb4a840f020fd84293d2663d',
+                  'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
+                  'signerIsIssuer' => 'unknown'
+                ],
+                self::eucrtReqAttributes
+              ],
+              'version' => 1,
+              'nonce' => 'b7f18bd2f35428498546b23f80a227cc'
+            ],
+            $req->getAttributes()
+        );
+        $this->assertTrue($req->hasSubjects());
+        $this->assertEquals(
+            [
+            'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c',
+            'f640e5643c40c1f329e100438e28c957691afa8a53e405a326f7afeb70c23bc1',
+            'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589'
+          ],
+            array_keys($req->getSubjects())
         );
     }
 }
