@@ -212,10 +212,11 @@ class OCSPResponse implements ASN1Interface, AttributeInterface
 
     public function setResponder($certificate)
     {
-        if (! $this->hasResponse()) {
-            throw new \Exception("This response has no data to vefiry", 1);
+        if ($this->hasSignature()) {
+            return $this->response->setResponder($certificate);
+        } else {
+            return false;
         }
-        return $this->response->setResponder($certificate);
     }
 
     public function getSignatureAlgorithmOID()
@@ -239,5 +240,14 @@ class OCSPResponse implements ASN1Interface, AttributeInterface
     public function setSigner($signer)
     {
         $this->response->setSigner($signer);
+    }
+
+    public function getResponseIdentifier()
+    {
+        if ($this->hasResponse()) {
+            return $this->response->getResponseIdentifier();
+        } else {
+            return false;
+        }
     }
 }

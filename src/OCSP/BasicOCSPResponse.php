@@ -246,4 +246,9 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
     {
         $this->tbsResponseData->setSigner($signer);
     }
+
+    public function getResponseIdentifier()
+    {
+        return $this->tbsResponseData->getResponseIdentifier();
+    }
 }
