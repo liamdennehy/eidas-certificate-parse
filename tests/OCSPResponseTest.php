@@ -126,6 +126,10 @@ class OCSPResponseTest extends TestCase
             'GO3/tBCCeUG7m5B22sH8DjnhmS0Nb+t0LOmP7J11hHhYfum6iMAIUWXcucAZpt2'.
             'afsBLFzdE8OigaCRE='
         );
+        $this->assertEquals(
+            'c049df4808ccb6d8875d2816d6214f21eb781f051ab2e1a05c7f16bf7338e04f',
+            $certId->getCertIdIdentifier()
+        );
         $certId = new CertID(
             'sha-1',
             hex2bin('105fa67a80089db5279f35ce830b43889ea3c70d'),
@@ -140,6 +144,11 @@ class OCSPResponseTest extends TestCase
             base64_encode($derSHA1),
             base64_encode($certId->getBinary())
         );
+        $this->assertEquals(
+            'c049df4808ccb6d8875d2816d6214f21eb781f051ab2e1a05c7f16bf7338e04f',
+            $certId->getCertIdIdentifier()
+        );
+
         $certId = new CertID(
             $sha1,
             hex2bin('105fa67a80089db5279f35ce830b43889ea3c70d'),
@@ -207,6 +216,10 @@ class OCSPResponseTest extends TestCase
             array_merge(self::certId371bSHA1, self::singleResponse371bRevoked),
             $sResp->getAttributes()
         );
+        $this->assertEquals(
+            'c049df4808ccb6d8875d2816d6214f21eb781f051ab2e1a05c7f16bf7338e04f',
+            $sResp->getSingleResponseIdentifier()
+        );
     }
 
     public function testSingleResponse($value='')
@@ -225,6 +238,10 @@ class OCSPResponseTest extends TestCase
         $this->assertEquals(
             array_merge(self::certId5977SHA1, self::singleResponse5977Revoked),
             $sResp->getAttributes()
+        );
+        $this->assertEquals(
+            '92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d',
+            $sResp->getSingleResponseIdentifier()
         );
     }
 
@@ -267,6 +284,10 @@ class OCSPResponseTest extends TestCase
             'YIwSTAJBgUrDgMCGgUABBQQX6Z6gAidtSefNc6DC0OInqPHDQQUD4BhHIIxYdUvKO'.
             'eNRji0LOHG2eICEANxtYqG9s6cPst79C+SCPyhERgPMjAxOTEwMDcyMDMwMzlaGA8'.
             'yMDIwMDYwMzA5MzkwOVqgERgPMjAyMDA2MTAwODU0MDla'
+        );
+        $this->assertEquals(
+            '8099596ccc2db95540525d8c8bb04dc710787cad81865141793f7b2e7a3a9e9d',
+            $responseData->getResponseIdentifier()
         );
         $responseData = ResponseData::fromDER($derKHRevoked);
         $this->assertEquals(
@@ -381,6 +402,10 @@ class OCSPResponseTest extends TestCase
         $resp->setResponder(null);
         $this->assertNull(
             $resp->getSigningCert()
+        );
+        $this->assertEquals(
+            'e4a330f7265f9579e9ddcac6641d51b7123c6d4f4338a79e8f434ac667404d7e',
+            $resp->getResponseIdentifier()
         );
         $derWithoutCertsTampered = base64_decode(
             str_replace('QEAZc+', 'QEA2Uo', base64_encode($derWithoutCerts))
@@ -540,6 +565,10 @@ class OCSPResponseTest extends TestCase
           ],
             $resp->getAttributes()
         );
+        $this->assertEquals(
+            6,
+            $resp->getStatus()
+        );
         $derUnauthorized = base64_decode('MAMKAQY=');
         $this->assertEquals(
             base64_encode($derUnauthorized),
@@ -563,6 +592,10 @@ class OCSPResponseTest extends TestCase
         $this->assertEquals(
             base64_encode($derEUGoodWithCerts),
             base64_encode($resp->getBinary())
+        );
+        $this->assertEquals(
+            0,
+            $resp->getStatus()
         );
         $this->assertEquals(
             [
@@ -682,6 +715,60 @@ class OCSPResponseTest extends TestCase
             'signedByCert' => '154c433c491929c5ef686e838e323664a00e6a0d822ccc958fb4dab03e49a08f'
             ],
             $resp->getAttributes()
+        );
+    }
+
+    public function testOCSPResponseMultiResponses()
+    {
+        $der = file_get_contents(__DIR__.'/ocsp/response-multi3-qv-sha256');
+        $response = OCSPResponse::fromDER($der);
+        $this->assertEquals(
+            [
+            'status' => 0,
+            'statusReason' => 'Response has valid confirmations',
+            'producedAt' => 1591532953,
+            'responses' => [
+              [
+                'serialNumber' => '40f6065343c04cb671e9c8250e90ebd58dd86e55',
+                'algorithmName' => 'sha-256',
+                'issuerKeyHash' => 'f3c0cc27a7f061e3553e38e7da96312002129437eb4a840f020fd84293d2663d',
+                'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
+                'signerIsIssuer' => 'unknown',
+                'status' => 'revoked',
+                'revokedDateTime' => 1580480456,
+                'thisUpdate' => 1591532953,
+                'nextUpdate' => 1591705753
+              ],[
+                'serialNumber' => '3b30442898d3be1cf55c5ea5ff04d6fb74701cd5',
+                'algorithmName' => 'sha-256',
+                'issuerKeyHash' => 'f3c0cc27a7f061e3553e38e7da96312002129437eb4a840f020fd84293d2663d',
+                'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
+                'signerIsIssuer' => 'unknown',
+                'status' => 'good',
+                'thisUpdate' => 1591532953,
+                'nextUpdate' => 1591705753
+              ],[
+                'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+                'algorithmName' => 'sha-256',
+                'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+                'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
+                'signerIsIssuer' => 'unknown',
+                'status' => 'good',
+                'thisUpdate' => 1591532953,
+                'nextUpdate' => 1591705753
+              ]
+            ],
+            'signatureAlgorithm' => 'sha256WithRSAEncryption',
+            'nonce' => 'b7f18bd2f35428498546b23f80a227cc',
+            'hasSignature' => true,
+            'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature',
+            'includesCerts' => ['2cce4d48cc716aaf0dfc87e096f03cf4c86c84cc20c1c11e3c18a58cd63b8f28']
+          ],
+            $response->getAttributes()
+        );
+        $this->assertEquals(
+            '41d46c834a61e202dff813130a67d9850167b26d13d90df4bdcdee2bd0e74427',
+            $response->getResponseIdentifier()
         );
     }
 }
