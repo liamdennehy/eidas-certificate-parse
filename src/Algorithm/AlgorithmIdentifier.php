@@ -14,15 +14,14 @@ use ASN1\Type\Primitive\NullType;
 
 class AlgorithmIdentifier implements ASN1Interface
 {
-    private $binary;
     private $algorithmName;
     private $algorithmOID;
-    private $parametersIncluded;
-    private $parameters = [];
+    private $parameters;
 
     public function __construct($id, $parameters = null)
     {
         if (is_array($parameters)) {
+            $this->parameters = [];
             foreach ($parameters as $parameter) {
                 $this->parameters[] = $parameter;
             }
@@ -107,13 +106,22 @@ class AlgorithmIdentifier implements ASN1Interface
         return $this->algorithmOID;
     }
 
+    public function hasParameters()
+    {
+        return (! empty($this->parameters));
+    }
+
     public function getParameters()
     {
-        $parameters = [];
-        foreach ($this->parameters as $parameter) {
+        if ($this->hasParameters()) {
+          $parameters = [];
+          foreach ($this->parameters as $parameter) {
             $parameters[] = base64_encode($parameter);
+          }
+          return $parameters;
+        } else {
+          return null;
         }
-        return $parameters;
     }
 
     public function getCipherName()
