@@ -14,6 +14,7 @@ use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use eIDASCertificate\DistinguishedName;
 use eIDASCertificate\DigitalIdentity\DigitalIdInterface;
 use eIDASCertificate\TSPService\TSPServiceException;
+use eIDASCertificate\OCSP\CertID;
 use ASN1\Type\Tagged\ExplicitlyTaggedType;
 use ASN1\Type\UnspecifiedType;
 use ASN1\Type\Constructed\Sequence;
@@ -668,5 +669,24 @@ class X509Certificate implements
                 ->string(),
             true
         );
+    }
+
+    public function getCertId($algo = 'sha256', $issuerId = null)
+    {
+        if ($this->hasIssuers()) {
+            if (sizeof($this->getIssuers()) == 1) {
+                $issuer = current($this->getIssuers());
+            } elseif (! empty($issuerId) && array_key_exists($issuerId,$this->getIssuers())) {
+              $issuer = $this->getIssuers()[$issuerId];
+            }
+            return new CertID(
+              $algo,
+              $issuer->getSubjectNameHash($algo),
+              $issuer->getSubjectPublicKeyHash($algo),
+              $this->getSerialNumber()
+            );
+          } else {
+            return null;
+        }
     }
 }
