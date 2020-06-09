@@ -123,8 +123,8 @@ class SingleResponse implements ASN1Interface, AttributeInterface
         return $new;
     }
 
-    public function getSingleResponseIdentifier()
+    public function getCertIdIdentifier()
     {
-        return $this->certId->getCertIdIdentifier();
+        return $this->certId->getIdentifier();
     }
 }

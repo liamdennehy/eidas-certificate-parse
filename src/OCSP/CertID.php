@@ -132,13 +132,13 @@ class CertID implements ASN1Interface, AttributeInterface
         $this->signer = $signer;
     }
 
-    public function getCertIDIdentifier()
+    public function getIdentifier()
     {
         return hash(
             'sha256',
             $this->issuerNameHash.
-          $this->issuerKeyHash.
-          $this->serialNumber
+            $this->issuerKeyHash.
+            $this->serialNumber
         );
     }
 }
