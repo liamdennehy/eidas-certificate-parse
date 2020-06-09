@@ -114,13 +114,13 @@ class AlgorithmIdentifier implements ASN1Interface
     public function getParameters()
     {
         if ($this->hasParameters()) {
-          $parameters = [];
-          foreach ($this->parameters as $parameter) {
-            $parameters[] = base64_encode($parameter);
-          }
-          return $parameters;
+            $parameters = [];
+            foreach ($this->parameters as $parameter) {
+                $parameters[] = base64_encode($parameter);
+            }
+            return $parameters;
         } else {
-          return null;
+            return null;
         }
     }
 
