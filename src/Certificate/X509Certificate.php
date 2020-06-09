@@ -676,16 +676,16 @@ class X509Certificate implements
         if ($this->hasIssuers()) {
             if (sizeof($this->getIssuers()) == 1) {
                 $issuer = current($this->getIssuers());
-            } elseif (! empty($issuerId) && array_key_exists($issuerId,$this->getIssuers())) {
-              $issuer = $this->getIssuers()[$issuerId];
+            } elseif (! empty($issuerId) && array_key_exists($issuerId, $this->getIssuers())) {
+                $issuer = $this->getIssuers()[$issuerId];
             }
             return new CertID(
-              $algo,
-              $issuer->getSubjectNameHash($algo),
-              $issuer->getSubjectPublicKeyHash($algo),
-              $this->getSerialNumber()
+                $algo,
+                $issuer->getSubjectNameHash($algo),
+                $issuer->getSubjectPublicKeyHash($algo),
+                $this->getSerialNumber()
             );
-          } else {
+        } else {
             return null;
         }
     }

@@ -595,8 +595,7 @@ class CertificateParseTest extends TestCase
             'sha1WithRSAEncryption',
             $this->jmcrt->getSignatureAlgorithmName()
         );
-        $this->assertEquals(
-            [],
+        $this->assertNull(
             $this->jmcrt->getSignatureAlgorithmParameters()
         );
 
