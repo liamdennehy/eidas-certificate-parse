@@ -673,20 +673,26 @@ class X509Certificate implements
 
     public function getCertId($algo = 'sha256', $issuerId = null)
     {
-        if ($this->hasIssuers()) {
-            if (sizeof($this->getIssuers()) == 1) {
-                $issuer = current($this->getIssuers());
-            } elseif (! empty($issuerId) && array_key_exists($issuerId, $this->getIssuers())) {
-                $issuer = $this->getIssuers()[$issuerId];
-            }
-            return new CertID(
-                $algo,
-                $issuer->getSubjectNameHash($algo),
-                $issuer->getSubjectPublicKeyHash($algo),
-                $this->getSerialNumber()
-            );
+        if (! $this->hasIssuers()) {
+            return null;
+        }
+        if (sizeof($this->getIssuers()) == 1) {
+            $issuer = current($this->getIssuers());
+        } elseif (! empty($issuerId) && array_key_exists($issuerId, $this->getIssuers())) {
+            $issuer = $this->getIssuers()[$issuerId];
         } else {
             return null;
         }
+        return new CertID(
+            $algo,
+            $issuer->getSubjectNameHash($algo),
+            $issuer->getSubjectPublicKeyHash($algo),
+            $this->getSerialNumber()
+        );
+    }
+
+    public function getCertIdIdentifier($algo = 'sha256', $issuerId = null)
+    {
+        return $this->getCertId($algo, $issuerId)->getIdentifier();
     }
 }
