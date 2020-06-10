@@ -168,6 +168,10 @@ class OCSPResponseTest extends TestCase
             '9b4e3bacbf144127bc583fb98db9c00d72a5da807f92843ce864aace0cf312a5',
             bin2hex($responseData->getHash('sha-256'))
         );
+        $this->assertEquals(
+            'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
+            bin2hex($responseData->getResponseIdentifier())
+        );
 
         // KeyHash identifier, cert is revoked
         $derKHRevoked = base64_decode(
@@ -175,10 +179,6 @@ class OCSPResponseTest extends TestCase
             'YIwSTAJBgUrDgMCGgUABBQQX6Z6gAidtSefNc6DC0OInqPHDQQUD4BhHIIxYdUvKO'.
             'eNRji0LOHG2eICEANxtYqG9s6cPst79C+SCPyhERgPMjAxOTEwMDcyMDMwMzlaGA8'.
             'yMDIwMDYwMzA5MzkwOVqgERgPMjAyMDA2MTAwODU0MDla'
-        );
-        $this->assertEquals(
-            'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
-            bin2hex($responseData->getResponseIdentifier())
         );
         $responseData = ResponseData::fromDER($derKHRevoked);
         $this->assertEquals(
@@ -198,6 +198,10 @@ class OCSPResponseTest extends TestCase
         $this->assertEquals(
             '37af9939d50817ceeca3d1f2d1235fae7634c904948a9d3100c69081dd69bf97',
             bin2hex($responseData->getHash('sha-256'))
+        );
+        $this->assertEquals(
+            '4656767cc1fb4ff0f69b4137b999e2c4d487531be0efbd501b35625a4ad4d17e',
+            bin2hex($responseData->getResponseIdentifier())
         );
     }
 
