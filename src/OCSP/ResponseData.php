@@ -61,7 +61,7 @@ class ResponseData implements ASN1Interface, AttributeInterface
             $responderId = $responderId->asImplicit(4)->string();
             break;
           default:
-            throw new \Exception("Unkown RespondeID tag ".$responderId->tag(), 1);
+            throw new \Exception("Unkown ResponseID tag ".$responderId->tag(), 1);
 
             break;
 
@@ -69,11 +69,11 @@ class ResponseData implements ASN1Interface, AttributeInterface
         $producedAt = $tbsResponseData->at($idx++)->asGeneralizedTime()->dateTime();
         $responses = $tbsResponseData->at($idx++)->asSequence();
         foreach ($responses->elements() as $responseElement) {
-            $singleResponses[] = SingleResponse::fromSequence($responseElement->asSequence());
+            $singleResponse = SingleResponse::fromSequence($responseElement->asSequence());
+            $singleResponses[$singleResponse->getCertIdIdentifier()] = $singleResponse;
         }
         if ($tbsResponseData->has($idx) && $tbsResponseData->at($idx)->tag() == 1) {
-            $extensions = new Extensions($tbsResponseData->at($idx)->asExplicit()->asSequence());
-            $idx++;
+            $extensions = new Extensions($tbsResponseData->at($idx++)->asExplicit()->asSequence());
         } else {
             $extensions = null;
         }
@@ -212,12 +212,7 @@ class ResponseData implements ASN1Interface, AttributeInterface
     public function getCertIdIdentifiers()
     {
         if ($this->hasResponses()) {
-            $ids = [];
-            foreach ($this->singleResponses as $response) {
-                $ids[] = $response->getCertIdIdentifier();
-            }
-            asort($ids);
-            return $ids;
+            return array_keys($this->singleResponses);
         } else {
             return null;
         }
@@ -225,6 +220,8 @@ class ResponseData implements ASN1Interface, AttributeInterface
 
     public function getResponseIdentifier()
     {
-        return hash('sha256', implode('.', $this->getCertIdIdentifiers()));
+        $ids = $this->getCertIdIdentifiers();
+        asort($ids);
+        return hash('sha256', implode('.', $ids), true);
     }
 }

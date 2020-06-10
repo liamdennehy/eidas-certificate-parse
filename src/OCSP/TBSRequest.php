@@ -138,7 +138,6 @@ class TBSRequest implements ASN1Interface, AttributeInterface
     public function getCertIdIdentifiers()
     {
         if ($this->hasRequests()) {
-            // var_dump(array_keys($this->requestList));
             return array_keys($this->requestList);
         } else {
             return false;
