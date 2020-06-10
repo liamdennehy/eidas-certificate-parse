@@ -127,7 +127,7 @@ class OCSPResponseTest extends TestCase
             base64_encode($sResp->getBinary())
         );
         $this->assertEquals(
-            array_merge(OCSPCommonTest::certId5977SHA1, self::singleResponse5977Revoked),
+            array_merge(OCSPCommonTest::certId5977SHA256, self::singleResponse5977Revoked),
             $sResp->getAttributes()
         );
         $this->assertEquals(
@@ -157,7 +157,7 @@ class OCSPResponseTest extends TestCase
             [
               'producedAt' => 1590956100,
               'responses' => [
-              array_merge(OCSPCommonTest::certId5977SHA1, self::singleResponse5977Revoked)
+              array_merge(OCSPCommonTest::certId5977SHA256, self::singleResponse5977Revoked)
             ],
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d',
             'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature'
@@ -178,7 +178,7 @@ class OCSPResponseTest extends TestCase
         );
         $this->assertEquals(
             'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
-            $responseData->getResponseIdentifier()
+            bin2hex($responseData->getResponseIdentifier())
         );
         $responseData = ResponseData::fromDER($derKHRevoked);
         $this->assertEquals(
@@ -296,7 +296,7 @@ class OCSPResponseTest extends TestCase
         );
         $this->assertEquals(
             '4656767cc1fb4ff0f69b4137b999e2c4d487531be0efbd501b35625a4ad4d17e',
-            $resp->getResponseIdentifier()
+            bin2hex($resp->getResponseIdentifier())
         );
         $derWithoutCertsTampered = base64_decode(
             str_replace('QEAZc+', 'QEA2Uo', base64_encode($derWithoutCerts))
@@ -364,7 +364,7 @@ class OCSPResponseTest extends TestCase
         );
         $certIdAttributes = array_merge(
             self::singleResponse5977Revoked,
-            OCSPCommonTest::certId5977SHA1
+            OCSPCommonTest::certId5977SHA256
         );
         $certIdAttributes['signerIsIssuer'] = false;
         $this->assertEquals(

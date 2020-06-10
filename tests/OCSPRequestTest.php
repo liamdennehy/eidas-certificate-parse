@@ -59,8 +59,13 @@ class OCSPTest extends TestCase
             base64_encode($request->getBinary())
         );
         $this->assertEquals(
-            OCSPCommonTest::eucrtReqAttributes,
+            OCSPCommonTest::certId5977SHA256,
             $request->getAttributes()
+        );
+
+        $this->assertEquals(
+            '92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d',
+            bin2hex($request->getCertIdIdentifier())
         );
     }
 
@@ -74,6 +79,15 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             '6b10b2e654dd598ac463315262911aed',
             bin2hex($tbsRequest->getNonce())
+        );
+
+        $this->assertEquals(
+            '63709a738f3c5872eefac26b4bd3bc7fa8ad7a486afa5d2c2388f4d27b8124dc',
+            bin2hex($tbsRequest->getRequestIdentifer())
+        );
+        $this->assertEquals(
+            [hex2bin('39c0f4d655b00d944a23187174a5f7c7b5b356b4f4c3981e8c86fec744e69a42')],
+            $tbsRequest->getCertIdIdentifiers()
         );
     }
 
@@ -115,10 +129,19 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [OCSPCommonTest::eucrtReqAttributes],
+            'requests' => [OCSPCommonTest::certId5977SHA256],
             'nonce' => '6b10b2e654dd598ac463315262911aed'
           ],
             $req->getAttributes()
+        );
+
+        $this->assertEquals(
+            'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
+            bin2hex($req->getRequestIdentifer())
+        );
+        $this->assertEquals(
+            [hex2bin('92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d')],
+            $req->getCertIdIdentifiers()
         );
     }
 
@@ -130,25 +153,34 @@ class OCSPTest extends TestCase
             'cc51fed1358bcab2f2f345797a295d8d',
             bin2hex($request->getNonce())
         );
+        $reqs = $request->getRequests();
         $this->assertEquals(
             '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-            bin2hex($request->getRequests()[0]->getIssuerKeyHash())
+            bin2hex(current($reqs)->getIssuerKeyHash())
         );
         $this->assertEquals(
             '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
-            bin2hex($request->getRequests()[0]->getIssuerNameHash())
+            bin2hex(current($reqs)->getIssuerNameHash())
         );
         $this->assertEquals(
             '59772e700669b7669fb012c5cdd13c3a281a0911',
-            $request->getRequests()[0]->getSerialNumber()
+            current($reqs)->getSerialNumber()
         );
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [OCSPCommonTest::eucrtReqAttributes],
+            'requests' => [OCSPCommonTest::certId5977SHA256],
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
           ],
             $request->getAttributes()
+        );
+        $this->assertEquals(
+            'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
+            bin2hex($request->getRequestIdentifer())
+        );
+        $this->assertEquals(
+            [hex2bin('92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d')],
+            $request->getCertIdIdentifiers()
         );
     }
 
@@ -170,7 +202,7 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
                 'version' => 1,
-                'requests' => [OCSPCommonTest::eucrtReqAttributes],
+                'requests' => [OCSPCommonTest::certId5977SHA256],
                 'nonce' => '546869732069732061204e6f6e636521'
             ],
             $req->getAttributes()
@@ -236,7 +268,7 @@ class OCSPTest extends TestCase
                   'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
                   'signerIsIssuer' => 'unknown'
                 ],
-                OCSPCommonTest::eucrtReqAttributes
+                OCSPCommonTest::certId5977SHA256
               ],
               'version' => 1,
               'nonce' => 'b7f18bd2f35428498546b23f80a227cc'

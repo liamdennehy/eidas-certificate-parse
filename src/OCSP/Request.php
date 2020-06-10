@@ -95,4 +95,9 @@ class Request implements ASN1Interface, AttributeInterface
         }
         return $attr;
     }
+
+    public function getCertIdIdentifier()
+    {
+        return $this->certId->getIdentifier();
+    }
 }
