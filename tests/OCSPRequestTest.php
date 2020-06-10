@@ -21,13 +21,6 @@ class OCSPTest extends TestCase
     const qvcrtfile = 'qvbecag2.crt';
     const itsmecrtfile = 'itsme-Sign-Issuing-G1.crt';
     const qventca1g3crtfile = 'qventca1g3.crt';
-    const eucrtReqAttributes = [
-      'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
-      'algorithmName' => 'sha-256',
-      'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-      'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
-      'signerIsIssuer' => 'unknown'
-    ];
 
     public function setUp()
     {
@@ -40,101 +33,6 @@ class OCSPTest extends TestCase
             'MHUwTjBMMEowCQYFKw4DAhoFAAQUxMPdUqUOAt08lJgltyla067GSz4EFIKvbIz4xf6'.
             'WYXzoHz0rcUhexIvAAhEAqF1MaCC+/2cwc2WOFjwvnaIjMCEwHwYJKwYBBQUHMAECBB'.
             'IEEGsQsuZU3VmKxGMxUmKRGu0='
-        );
-        $this->certIdDER = base64_decode(
-            'MEowCQYFKw4DAhoFAAQUxMPdUqUOAt08lJgltyla067GSz4EFIKvbIz4xf6WYXzoH'.
-            'z0rcUhexIvAAhEAqF1MaCC+/2cwc2WOFjwvnQ=='
-        );
-    }
-
-    public function testOCSPNonce()
-    {
-        $nonce = hex2bin('6b10b2e654dd598ac463315262911aed');
-        $der = base64_decode(
-            'MB8GCSsGAQUFBzABAgQSBBBrELLmVN1ZisRjMVJikRrt'
-        );
-        $ocspNonce = Extension::fromBinary($der);
-        $this->assertEquals(
-            bin2hex($nonce),
-            bin2hex($ocspNonce->getNonce())
-        );
-        $this->assertEquals(
-            base64_encode($der),
-            base64_encode($ocspNonce->getBinary())
-        );
-        $ocspNonce = OCSPNonce::fromValue($nonce);
-
-        $this->assertEquals(
-            base64_encode($der),
-            base64_encode($ocspNonce->getBinary())
-        );
-    }
-    public function testCertIdFromDER()
-    {
-        $certId = CertID::fromDER($this->certIdDER);
-        $this->assertEquals(
-            '1.3.14.3.2.26',
-            $certId->getAlgorithmOID()
-        );
-        $this->assertEquals(
-            'sha-1',
-            $certId->getAlgorithmName()
-        );
-        $this->assertEquals(
-            '82af6c8cf8c5fe96617ce81f3d2b71485ec48bc0',
-            bin2hex($certId->getIssuerKeyHash())
-        );
-        $this->assertEquals(
-            'c4c3dd52a50e02dd3c949825b7295ad3aec64b3e',
-            bin2hex($certId->getIssuerNameHash())
-        );
-        $this->assertEquals(
-            'a85d4c6820beff673073658e163c2f9d',
-            $certId->getSerialNumber()
-        );
-        $this->assertEquals(
-            [
-            'serialNumber' => 'a85d4c6820beff673073658e163c2f9d',
-            'algorithmName' => 'sha-1',
-            'issuerKeyHash' => '82af6c8cf8c5fe96617ce81f3d2b71485ec48bc0',
-            'issuerNameHash' => 'c4c3dd52a50e02dd3c949825b7295ad3aec64b3e',
-            'signerIsIssuer' => 'unknown'
-          ],
-            $certId->getAttributes()
-        );
-    }
-
-    public function testCertId()
-    {
-        $newCertId = new CertID(
-            'sha-1',
-            hex2bin('c4c3dd52a50e02dd3c949825b7295ad3aec64b3e'),
-            hex2bin('82af6c8cf8c5fe96617ce81f3d2b71485ec48bc0'),
-            'a85d4c6820beff673073658e163c2f9d'
-        );
-        $this->assertEquals(
-            '1.3.14.3.2.26',
-            $newCertId->getAlgorithmOID()
-        );
-        $this->assertEquals(
-            'sha-1',
-            $newCertId->getAlgorithmName()
-        );
-        $this->assertEquals(
-            '82af6c8cf8c5fe96617ce81f3d2b71485ec48bc0',
-            bin2hex($newCertId->getIssuerKeyHash())
-        );
-        $this->assertEquals(
-            'c4c3dd52a50e02dd3c949825b7295ad3aec64b3e',
-            bin2hex($newCertId->getIssuerNameHash())
-        );
-        $this->assertEquals(
-            'a85d4c6820beff673073658e163c2f9d',
-            $newCertId->getSerialNumber()
-        );
-        $this->assertEquals(
-            base64_encode($this->certIdDER),
-            base64_encode($newCertId->getBinary())
         );
     }
 
@@ -161,8 +59,13 @@ class OCSPTest extends TestCase
             base64_encode($request->getBinary())
         );
         $this->assertEquals(
-            self::eucrtReqAttributes,
+            OCSPCommonTest::certId5977SHA256,
             $request->getAttributes()
+        );
+
+        $this->assertEquals(
+            '92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d',
+            bin2hex($request->getCertIdIdentifier())
         );
     }
 
@@ -176,6 +79,15 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             '6b10b2e654dd598ac463315262911aed',
             bin2hex($tbsRequest->getNonce())
+        );
+
+        $this->assertEquals(
+            '63709a738f3c5872eefac26b4bd3bc7fa8ad7a486afa5d2c2388f4d27b8124dc',
+            bin2hex($tbsRequest->getRequestIdentifer())
+        );
+        $this->assertEquals(
+            [hex2bin('39c0f4d655b00d944a23187174a5f7c7b5b356b4f4c3981e8c86fec744e69a42')],
+            $tbsRequest->getCertIdIdentifiers()
         );
     }
 
@@ -217,10 +129,19 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [self::eucrtReqAttributes],
+            'requests' => [OCSPCommonTest::certId5977SHA256],
             'nonce' => '6b10b2e654dd598ac463315262911aed'
           ],
             $req->getAttributes()
+        );
+
+        $this->assertEquals(
+            'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
+            bin2hex($req->getRequestIdentifer())
+        );
+        $this->assertEquals(
+            [hex2bin('92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d')],
+            $req->getCertIdIdentifiers()
         );
     }
 
@@ -232,25 +153,34 @@ class OCSPTest extends TestCase
             'cc51fed1358bcab2f2f345797a295d8d',
             bin2hex($request->getNonce())
         );
+        $reqs = $request->getRequests();
         $this->assertEquals(
             '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-            bin2hex($request->getRequests()[0]->getIssuerKeyHash())
+            bin2hex(current($reqs)->getIssuerKeyHash())
         );
         $this->assertEquals(
             '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
-            bin2hex($request->getRequests()[0]->getIssuerNameHash())
+            bin2hex(current($reqs)->getIssuerNameHash())
         );
         $this->assertEquals(
             '59772e700669b7669fb012c5cdd13c3a281a0911',
-            $request->getRequests()[0]->getSerialNumber()
+            current($reqs)->getSerialNumber()
         );
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [self::eucrtReqAttributes],
+            'requests' => [OCSPCommonTest::certId5977SHA256],
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
           ],
             $request->getAttributes()
+        );
+        $this->assertEquals(
+            'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
+            bin2hex($request->getRequestIdentifer())
+        );
+        $this->assertEquals(
+            [hex2bin('92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d')],
+            $request->getCertIdIdentifiers()
         );
     }
 
@@ -272,7 +202,7 @@ class OCSPTest extends TestCase
         $this->assertEquals(
             [
                 'version' => 1,
-                'requests' => [self::eucrtReqAttributes],
+                'requests' => [OCSPCommonTest::certId5977SHA256],
                 'nonce' => '546869732069732061204e6f6e636521'
             ],
             $req->getAttributes()
@@ -338,7 +268,7 @@ class OCSPTest extends TestCase
                   'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
                   'signerIsIssuer' => 'unknown'
                 ],
-                self::eucrtReqAttributes
+                OCSPCommonTest::certId5977SHA256
               ],
               'version' => 1,
               'nonce' => 'b7f18bd2f35428498546b23f80a227cc'

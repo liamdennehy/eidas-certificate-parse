@@ -43,8 +43,10 @@ class AlgorithmTest extends TestCase
             'sha-1',
             $algo->getAlgorithmName()
         );
-        $this->assertEquals(
-            [],
+        $this->assertFalse(
+            $algo->hasParameters()
+        );
+        $this->assertNull(
             $algo->getParameters()
         );
         $this->assertEquals(
@@ -89,8 +91,10 @@ class AlgorithmTest extends TestCase
             'sha-256',
             $algo->getAlgorithmName()
         );
-        $this->assertEquals(
-            [],
+        $this->assertFalse(
+            $algo->hasParameters()
+        );
+        $this->assertNull(
             $algo->getParameters()
         );
         $this->assertEquals(

@@ -595,8 +595,7 @@ class CertificateParseTest extends TestCase
             'sha1WithRSAEncryption',
             $this->jmcrt->getSignatureAlgorithmName()
         );
-        $this->assertEquals(
-            [],
+        $this->assertNull(
             $this->jmcrt->getSignatureAlgorithmParameters()
         );
 
@@ -764,6 +763,21 @@ class CertificateParseTest extends TestCase
              'keyUsage'
            ],
             $ocspSigner->getExtensionNames()
+        );
+    }
+
+    public function testOCSPCertIdentifier()
+    {
+        $this->getTestCerts();
+        $eucrt = $this->eucrt;
+        $eucrt->withIssuer($this->euissuercrt);
+        $this->assertEquals(
+            '92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d',
+            bin2hex($eucrt->getCertIdIDentifier())
+        );
+        $this->assertEquals(
+            'e8f357e7ecbac7e87b3939045093f52913bc2356921ad431181627c1e2287882',
+            bin2hex($eucrt->getCertIdIDentifier('sha1'))
         );
     }
 }

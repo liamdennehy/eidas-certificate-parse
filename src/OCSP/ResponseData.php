@@ -61,7 +61,7 @@ class ResponseData implements ASN1Interface, AttributeInterface
             $responderId = $responderId->asImplicit(4)->string();
             break;
           default:
-            throw new \Exception("Unkown RespondeID tag ".$responderId->tag(), 1);
+            throw new \Exception("Unkown ResponseID tag ".$responderId->tag(), 1);
 
             break;
 
@@ -69,11 +69,11 @@ class ResponseData implements ASN1Interface, AttributeInterface
         $producedAt = $tbsResponseData->at($idx++)->asGeneralizedTime()->dateTime();
         $responses = $tbsResponseData->at($idx++)->asSequence();
         foreach ($responses->elements() as $responseElement) {
-            $singleResponses[] = SingleResponse::fromSequence($responseElement->asSequence());
+            $singleResponse = SingleResponse::fromSequence($responseElement->asSequence());
+            $singleResponses[$singleResponse->getCertIdIdentifier()] = $singleResponse;
         }
         if ($tbsResponseData->has($idx) && $tbsResponseData->at($idx)->tag() == 1) {
-            $extensions = new Extensions($tbsResponseData->at($idx)->asExplicit()->asSequence());
-            $idx++;
+            $extensions = new Extensions($tbsResponseData->at($idx++)->asExplicit()->asSequence());
         } else {
             $extensions = null;
         }
@@ -202,5 +202,26 @@ class ResponseData implements ASN1Interface, AttributeInterface
         foreach ($this->singleResponses as $responseId => $singleResponse) {
             $this->singleResponses[$responseId] = $singleResponse->setSigner($signer);
         }
+    }
+
+    public function hasResponses()
+    {
+        return (! empty($this->singleResponses));
+    }
+
+    public function getCertIdIdentifiers()
+    {
+        if ($this->hasResponses()) {
+            return array_keys($this->singleResponses);
+        } else {
+            return null;
+        }
+    }
+
+    public function getResponseIdentifier()
+    {
+        $ids = $this->getCertIdIdentifiers();
+        asort($ids);
+        return hash('sha256', implode('.', $ids), true);
     }
 }

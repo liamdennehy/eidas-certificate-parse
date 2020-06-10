@@ -58,7 +58,7 @@ class TBSRequest implements ASN1Interface, AttributeInterface
         $requestList = $tbsRequest->at($idx)->asSequence();
         foreach ($requestList->elements() as $request) {
             $request = Request::fromSequence($request->asSequence());
-            $requests[] = $request;
+            $requests[$request->getCertIdIdentifier()] = $request;
         }
         if ($tbsRequest->hasTagged(2)) {
             $extensions = new Extensions($tbsRequest->getTagged(2)->asExplicit());
@@ -117,5 +117,30 @@ class TBSRequest implements ASN1Interface, AttributeInterface
             $attr['nonce'] = bin2hex($this->nonce);
         }
         return $attr;
+    }
+
+    public function hasRequests()
+    {
+        return (! empty($this->requestList));
+    }
+
+    public function getRequestIdentifer()
+    {
+        if ($this->hasRequests()) {
+            $ids = $this->getCertIdIdentifiers();
+            asort($ids);
+            return hash('sha256', implode($ids), true);
+        } else {
+            return false;
+        }
+    }
+
+    public function getCertIdIdentifiers()
+    {
+        if ($this->hasRequests()) {
+            return array_keys($this->requestList);
+        } else {
+            return false;
+        }
     }
 }
