@@ -247,9 +247,9 @@ class BasicOCSPResponse implements ASN1Interface, AttributeInterface, ParseInter
         $this->tbsResponseData->setSigner($signer);
     }
 
-    public function getCertIdIdentifiers()
+    public function getCertIdIdentifiers($asHex = false)
     {
-        return $this->tbsResponseData->getCertIdIdentifiers();
+        return $this->tbsResponseData->getCertIdIdentifiers($asHex);
     }
 
     public function getResponseIdentifier()
