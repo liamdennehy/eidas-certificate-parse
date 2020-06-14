@@ -20,7 +20,7 @@ use ASN1\Type\UnspecifiedType;
 use ASN1\Type\Constructed\Sequence;
 use ASN1\Type\Primitive\BitString;
 use ASN1\Type\Primitive\Integer;
-use ASN1\Type\Primitive\GeneralizedTims;
+use ASN1\Type\Primitive\GeneralizedTime;
 use ASN1\Type\Primitive\UTCTime;
 use phpseclib\File\X509;
 
@@ -561,6 +561,7 @@ class X509Certificate implements
         $x509Verifier = new X509;
         $x509Verifier->loadX509($this->toDER());
         $x509Verifier->loadCA($issuer->toDER());
+
         if ($x509Verifier->validateSignature()) {
             $this->issuers[$issuer->getIdentifier()] = $issuer;
             return $issuer;
