@@ -242,10 +242,10 @@ class OCSPResponse implements ASN1Interface, AttributeInterface
         $this->response->setSigner($signer);
     }
 
-    public function getCertIdIdentifiers()
+    public function getCertIdIdentifiers($asHex = false)
     {
         if ($this->hasResponse()) {
-            return $this->response->getCertIdIdentifiers();
+            return $this->response->getCertIdIdentifiers($asHex);
         } else {
             return false;
         }
@@ -253,6 +253,6 @@ class OCSPResponse implements ASN1Interface, AttributeInterface
 
     public function getResponseIdentifier()
     {
-        return hash('sha256', implode('.', $this->getCertIdIdentifiers()), true);
+        return $this->response->getResponseIdentifier();
     }
 }

@@ -83,7 +83,7 @@ class OCSPTest extends TestCase
 
         $this->assertEquals(
             '63709a738f3c5872eefac26b4bd3bc7fa8ad7a486afa5d2c2388f4d27b8124dc',
-            bin2hex($tbsRequest->getRequestIdentifer())
+            bin2hex($tbsRequest->getRequestIdentifier())
         );
         $this->assertEquals(
             [hex2bin('39c0f4d655b00d944a23187174a5f7c7b5b356b4f4c3981e8c86fec744e69a42')],
@@ -137,7 +137,7 @@ class OCSPTest extends TestCase
 
         $this->assertEquals(
             'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
-            bin2hex($req->getRequestIdentifer())
+            bin2hex($req->getRequestIdentifier())
         );
         $this->assertEquals(
             [hex2bin('92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d')],
@@ -176,7 +176,7 @@ class OCSPTest extends TestCase
         );
         $this->assertEquals(
             'e2ac8169783e498574836df97f7de700037c0cf2dc12cd30f9d55654bc04f3aa',
-            bin2hex($request->getRequestIdentifer())
+            bin2hex($request->getRequestIdentifier())
         );
         $this->assertEquals(
             [hex2bin('92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d')],

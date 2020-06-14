@@ -190,13 +190,13 @@ class OCSPRequest implements
         return $this->tbsRequest->getRequests();
     }
 
-    public function getRequestIdentifer()
+    public function getRequestIdentifier()
     {
-        return $this->tbsRequest->getRequestIdentifer();
+        return $this->tbsRequest->getRequestIdentifier();
     }
 
-    public function getCertIdIdentifiers()
+    public function getCertIdIdentifiers($asHex = false)
     {
-        return $this->tbsRequest->getCertIdIdentifiers();
+        return $this->tbsRequest->getCertIdIdentifiers($asHex);
     }
 }

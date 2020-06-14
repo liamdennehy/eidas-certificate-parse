@@ -209,10 +209,18 @@ class ResponseData implements ASN1Interface, AttributeInterface
         return (! empty($this->singleResponses));
     }
 
-    public function getCertIdIdentifiers()
+    public function getCertIdIdentifiers($asHex = false)
     {
         if ($this->hasResponses()) {
-            return array_keys($this->singleResponses);
+            if ($asHex) {
+                $vals = [];
+                foreach ($this->singleResponses as $key => $value) {
+                    $vals[] = bin2hex($key);
+                }
+                return $vals;
+            } else {
+                return array_keys($this->singleResponses);
+            }
         } else {
             return null;
         }
@@ -220,7 +228,7 @@ class ResponseData implements ASN1Interface, AttributeInterface
 
     public function getResponseIdentifier()
     {
-        $ids = $this->getCertIdIdentifiers();
+        $ids = $this->getCertIdIdentifiers(false);
         asort($ids);
         return hash('sha256', implode('.', $ids), true);
     }
