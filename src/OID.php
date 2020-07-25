@@ -7,6 +7,9 @@ namespace eIDASCertificate;
  */
 class OID
 {
+    const vendor_ETSI             = '0.4.0';
+    const vendor_CAB              = '2.23.140';
+    const vendor_GlobalSign       = '1.3.6.1.4.1.4146';
     const qcStatements            = '1.3.6.1.5.5.7.1.3';
     const PKIX_QCSYNTAX_V1        = '1.3.6.1.5.5.7.11.1';
     const PKIX_QCSYNTAX_V2        = '1.3.6.1.5.5.7.11.2';
@@ -116,6 +119,8 @@ class OID
     const ocspBasic               = '1.3.6.1.5.5.7.48.1.1';
     // https://tools.ietf.org/html/rfc2560#section-4.2.2.2.1
     const ocspNoCheck             = '1.3.6.1.5.5.7.48.1.5';
+    // https://tools.ietf.org/html/rfc6962#section-3.3
+    const SCTList                 = '1.3.6.1.4.1.11129.2.4.2';
 
     public static function getName($oidString)
     {
@@ -378,6 +383,9 @@ class OID
           case self::ocspNoCheck:
             $oidName = 'ocspNoCheck';
             break;
+          case self::SCTList:
+            $oidName = 'SCTList';
+            break;
           default:
             $oidName = 'unknown';
             break;
@@ -492,5 +500,30 @@ class OID
             return 'unknown';
             break;
         }
+    }
+
+    public static function getVendorFromOID($oid)
+    {
+        switch (true) {
+          case self::startsWith($oid, self::vendor_ETSI):
+            return "ETSI";
+            break;
+          case self::startsWith($oid, self::vendor_CAB):
+            return "CA/Browser Forum";
+            break;
+          // case self::startsWith($oid, self::vendor_GlobalSign):
+          //   return "GlobalSign";
+          //   break;
+
+          default:
+            return "unknown";
+            break;
+        }
+    }
+
+    public static function startsWith($string, $startString)
+    {
+        $len = strlen($startString);
+        return (substr($string, 0, $len) === $startString);
     }
 }

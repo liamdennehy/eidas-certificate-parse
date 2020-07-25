@@ -15,6 +15,7 @@ use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
 use eIDASCertificate\Certificate\OCSPNoCheck;
 use eIDASCertificate\Certificate\PreCertPoison;
+use eIDASCertificate\Certificate\SCTList;
 use eIDASCertificate\Certificate\SubjectAltName;
 use ASN1\Type\UnspecifiedType;
 
@@ -289,108 +290,6 @@ class ExtensionTest extends TestCase
         );
     }
 
-    public function testCertificatePolicies()
-    {
-        $extensionDER = base64_decode(
-            'MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
-        );
-        $CPs = new CertificatePolicies($extensionDER);
-        $this->assertEquals(
-            [
-              'severity' => 'warning',
-              'component' => 'certificatePolicies',
-              'message' => 'Unrecognised certificatePolicy OID 1.3.6.1.4.1.8024.1.400 (unknown): MEQGCisGAQQBvlgBgxAwNjA0BggrBgEFBQcCARYoaHR0cDovL3d3dy5xdW92YWRpc2dsb2JhbC5jb20vcmVwb3NpdG9yeQ=='
-            ],
-            $CPs->getFindings()[0]->getFinding()
-        );
-        $extensionDER = base64_decode(
-            'MIIBCzCCAQcGB2A4CgEBAgEwgfswLAYIKwYBBQUHAgEWIGh0dHA6Ly9yZXBvc2l0b3J5LmVpZC5iZWxnaXVtLmJlMIHKBggrBgEFBQcCAjCBvRqBukdlYnJ1aWsgb25kZXJ3b3JwZW4gYWFuIGFhbnNwcmFrZWxpamtoZWlkc2JlcGVya2luZ2VuLCB6aWUgQ1BTIC0gVXNhZ2Ugc291bWlzIMOgIGRlcyBsaW1pdGF0aW9ucyBkZSByZXNwb25zYWJpbGl0w6ksIHZvaXIgQ1BTIC0gVmVyd2VuZHVuZyB1bnRlcmxpZWd0IEhhZnR1bmdzYmVzY2hyw6Rua3VuZ2VuLCBnZW3DpHNzIENQUw=='
-        );
-        $CPs = new CertificatePolicies($extensionDER);
-        $this->assertEquals(
-            [
-              'severity' => 'warning',
-              'component' => 'certificatePolicies',
-              'message' => 'Malformed certificatePolicies extension \'Not a valid VisibleString string.\': MIIBCzCCAQcGB2A4CgEBAgEwgfswLAYIKwYBBQUHAgEWIGh0dHA6Ly9yZXBvc2l0b3J5LmVpZC5iZWxnaXVtLmJlMIHKBggrBgEFBQcCAjCBvRqBukdlYnJ1aWsgb25kZXJ3b3JwZW4gYWFuIGFhbnNwcmFrZWxpamtoZWlkc2JlcGVya2luZ2VuLCB6aWUgQ1BTIC0gVXNhZ2Ugc291bWlzIMOgIGRlcyBsaW1pdGF0aW9ucyBkZSByZXNwb25zYWJpbGl0w6ksIHZvaXIgQ1BTIC0gVmVyd2VuZHVuZyB1bnRlcmxpZWd0IEhhZnR1bmdzYmVzY2hyw6Rua3VuZ2VuLCBnZW3DpHNzIENQUw=='
-            ],
-            $CPs->getFindings()[0]->getFinding()
-        );
-        $extensionDER = base64_decode(
-            'MIIBUDCCATcGDysGAQQBgagYAgEBgSoCCTCCASIwJgYIKwYBBQUHAgEWGmh0dHA6Ly9jcC5lLXN6aWduby5odS9xY3BzMEQGCCsGAQUFBwICMDgMNlF1YWxpZmllZCBQU0QyIGNlcnRpZmljYXRlIGZvciB3ZWJzaXRlIGF1dGhlbnRpY2F0aW9uLjA0BggrBgEFBQcCAjAoDCZPcmdhbml6YXRpb25hbCB2YWxpZGF0aW9uIGNlcnRpZmljYXRlLjBFBggrBgEFBQcCAjA5DDdNaW7FkXPDrXRldHQgUFNEMiB3ZWJvbGRhbC1oaXRlbGVzw610xZEgdGFuw7pzw610dsOhbnkuMDUGCCsGAQUFBwICMCkMJ1N6ZXJ2ZXpldC1lbGxlbsWRcnrDtnR0IHRhbsO6c8OtdHbDoW55LjAJBgcEAIGYJwMBMAgGBmeBDAECAg=='
-        );
-        $CPs = new CertificatePolicies($extensionDER);
-        $this->assertEquals(
-            [
-            'issuer' => [
-              'policies' => [
-                [
-                  'oid' => '0.4.0.19495.3.1',
-                  'name' => 'qcpWebPSD2',
-                  'description' => 'PSD2 qualified website authentication certificate',
-                  'url' => 'https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-6.1',
-                  'vendor' => 'ETSI'
-                ],
-                [
-                  'oid' => '2.23.140.1.2.2',
-                  'name' => 'organization_validation',
-                  'description' => 'Compliant with Baseline Requirements – Organization identity asserted',
-                  'url' => 'https://cabforum.org/object-registry/',
-                  'vendor' => 'CA/Browser Forum'
-                ]
-              ]
-            ]
-          ],
-            $CPs->getAttributes()
-        );
-        $extensionDER = base64_decode(
-            'MIGYMIGABgsrBgEEAeZ5CgEDCjBxMC8GCCsGAQUFBwIBFiNodHRwOi8vd3d3LmZpcm1hcHJvZmVzaW9uYWwuY29tL2NwczA+BggrBgEFBQcCAjAyDDBFc3RlIGVzIHVuIENlcnRpZmljYWRvIGRlIFNlcnZpZG9yIFdlYiBwYXJhIFBTRDIwCQYHBACL7EABBDAIBgYEAI96AQQ='
-        );
-        $CPs = new CertificatePolicies($extensionDER);
-        $this->assertEquals(
-            [
-            'issuer' => [
-              'policies' => [
-                [
-                  'oid' => '0.4.0.2042.1.4',
-                  'name' => 'EVCP',
-                  'description' => 'Consistent with EV Certificates Guidelines issued by the CAB Forum',
-                  'url' => 'https://www.etsi.org/deliver/etsi_ts/102000_102099/102042/02.04.01_60/ts_102042v020401p.pdf#chapter-5.2',
-                  'vendor' => 'ETSI'
-                ],
-              ]
-            ]
-          ],
-            $CPs->getAttributes()
-        );
-        $extensionDER = base64_decode(
-            'MHYwCQYHBACL7EABBDAJBgcEAIGYJwMBMA4GDCsGAQQBvlgAAmQBAjBFBgorBgEEAb5YAYNCMDcwNQYIKwYBBQUHAgEWKWh0dHBzOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAcGBWeBDAEB'
-        );
-        $CPs = new CertificatePolicies($extensionDER);
-        $this->assertEquals(
-            [
-            'issuer' => [
-              'policies' => [
-                [
-                  'oid' => '0.4.0.19495.3.1',
-                  'name' => 'qcpWebPSD2',
-                  'description' => 'PSD2 qualified website authentication certificate',
-                  'url' => 'https://www.etsi.org/deliver/etsi_ts/119400_119499/119495/01.03.02_60/ts_119495v010302p.pdf#chapter-6.1',
-                  'vendor' => 'ETSI'
-                ],
-                [
-                  'oid' => '2.23.140.1.1',
-                  'name' => 'extended_validation',
-                  'description' => 'Certificate issued in compliance with the Extended Validation Guidelines',
-                  'url' => 'https://cabforum.org/object-registry/',
-                  'vendor' => 'CA/Browser Forum'
-                ]
-              ]
-            ]
-          ],
-            $CPs->getAttributes()
-        );
-    }
-
     public function testSANs()
     {
         $extensionDER = base64_decode(
@@ -469,6 +368,78 @@ class ExtensionTest extends TestCase
         $this->assertEquals(
             'This an OCSPNoCheck extension',
             $noCheck->getDescription()
+        );
+    }
+
+    public function testSCTList()
+    {
+        $der = base64_decode(
+            'BIIBaAFmAHUApLkJkLQYWBSHuxOizGdwCjw1mAT5G9+443fNDsgN3BAAAAFfM3kAlQAABAMARjBEAiBSIhZ9We2EMoQiv7k5P8rCInBSD/9CvQQx0Ge6YKPxYwIgZ5V6IfL4wfJ0pK+8/m/GgAJARpVMqIjHXRTTdi2lRYkAdQDuS723dc5guuFCaR+r4Z5mow9+X7By2IMAxHuJeqj9ywAAAV8zeQK6AAAEAwBGMEQCIFOY6HYwxuwR2mXXbgH80uqWXnVl8ES9X1lY5riQzxNEAiBTwgBV2QPxpTTu4cXs7X7jY0XJfP6Xtly3b/N5c1fbjAB2AN3rHSt6DU+mIIuBrYFocH4ujp0B1VyIjT0RxM227L7MAAABXzN5BUIAAAQDAEcwRQIgWgg98yyRgiFJkn5c3Ebd2zQeHcx0dZ9cLlofkFA1wxECIQC+d4iE/gkFN6c9fYwrxpJC+Kz6IPoRfxc1SyY560sU2A=='
+        );
+        $sctList = new SCTList($der);
+        $this->assertEquals(
+            'This is a Signed Certificate Timestamp list extension',
+            $sctList->getDescription()
+        );
+        $this->assertEquals(
+            0,
+            sizeof($sctList->getFindings())
+        );
+        $this->assertEquals(
+            [
+            'issuer' => [
+              'SCTList' => [
+                [
+                  'version' => 1,
+                  'logId' => 'a4b90990b418581487bb13a2cc67700a3c359804f91bdfb8e377cd0ec80ddc10',
+                  'at' => 1508397088.917,
+                  'extensions' => [],
+                  'cipherspec' => 'ecdsa-sha256',
+                  'signature' => 'MEQCIFIiFn1Z7YQyhCK/uTk/ysIicFIP/0K9BDHQZ7pgo/FjAiBnlXoh8vjB8nSkr7z+b8aAAkBGlUyoiMddFNN2LaVFiQ=='
+                ],
+                [
+                  'version' => 1,
+                  'logId' => 'ee4bbdb775ce60bae142691fabe19e66a30f7e5fb072d88300c47b897aa8fdcb',
+                  'at' => 1508397089.466,
+                  'extensions' => [],
+                  'cipherspec' => 'ecdsa-sha256',
+                  'signature' => 'MEQCIFOY6HYwxuwR2mXXbgH80uqWXnVl8ES9X1lY5riQzxNEAiBTwgBV2QPxpTTu4cXs7X7jY0XJfP6Xtly3b/N5c1fbjA=='
+                ],
+                [
+                  'version' => 1,
+                  'logId' => 'ddeb1d2b7a0d4fa6208b81ad8168707e2e8e9d01d55c888d3d11c4cdb6ecbecc',
+                  'at' => 1508397090.114,
+                  'extensions' => [],
+                  'cipherspec' => 'ecdsa-sha256',
+                  'signature' => 'MEUCIFoIPfMskYIhSZJ+XNxG3ds0Hh3MdHWfXC5aH5BQNcMRAiEAvneIhP4JBTenPX2MK8aSQvis+iD6EX8XNUsmOetLFNg='
+                ]
+              ]
+            ]
+          ],
+            $sctList->getAttributes()
+        );
+        $derBad = $der;
+        $derBad[52] = chr(01);
+        $sctListBadAlgorithm = new SCTList($derBad, true);
+        $this->assertEquals(
+            [],
+            $sctListBadAlgorithm->getAttributes()
+        );
+        $this->assertEquals(
+            1,
+            sizeof($sctListBadAlgorithm->getFindings())
+        );
+        $this->assertEquals(
+            'critical',
+            $sctListBadAlgorithm->getFindings()[0]->getFinding()['severity']
+        );
+        $this->assertEquals(
+            'sctList',
+            $sctListBadAlgorithm->getFindings()[0]->getFinding()['component']
+        );
+        $this->assertEquals(
+            'Unsupported SCT Signature Algorithm \'rsa-sha256\': BIIBaAFmAHUApL...',
+            substr($sctListBadAlgorithm->getFindings()[0]->getFinding()['message'], 0, 64).'...'
         );
     }
 }

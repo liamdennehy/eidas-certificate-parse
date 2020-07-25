@@ -210,8 +210,9 @@ class CertificateParseTest extends TestCase
                 'Unhandled extension \'1.2.840.113583.1.1.9.2\': MAMCAQE='
               ],
               'certificatePolicies' => [
-                'Unrecognised certificatePolicy OID 1.3.6.1.4.1.8024.1.400 (unknown): MEQGCisGAQQBvlgBgxAwNjA0BggrBgEFBQcCARYoaHR0cDovL3d3dy5xdW92YWRpc2dsb2JhbC5jb20vcmVwb3NpdG9yeQ==',
-                'Unrecognised certificatePolicy OID 0.4.0.194112.1.3 (unknown): MAkGBwQAi+xAAQM='
+                'Certificate Policy from unknown vendor as oid \'1.3.6.1.4.1.8024.1.400\': '.
+                'MEQGCisGAQQBvlgBgxAwNjA0BggrBgEFBQcCARYoaHR0cDovL3d3dy5xdW92YWRpc2dsb2JhbC5jb20vcmVwb3NpdG9yeQ==',
+                'Unrecognised \'ETSI\' Certificate Policy as oid \'0.4.0.194112.1.3\': MAkGBwQAi+xAAQM='
               ]
             ]
           ]
@@ -288,7 +289,7 @@ class CertificateParseTest extends TestCase
           'findings' => [
             'warning' => [
               'certificatePolicies' => [
-                'Unrecognised certificatePolicy OID 2.5.29.32.0 (unknown): MAYGBFUdIAA='
+                'Certificate Policy from unknown vendor as oid \'2.5.29.32.0\': MAYGBFUdIAA='
               ]
             ]
           ],

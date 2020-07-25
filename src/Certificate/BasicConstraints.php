@@ -31,7 +31,7 @@ class BasicConstraints implements ExtensionInterface
             // Some CAs incorrectly encode isCA as TRUE as 0x01, parser expects 0xFF
             $this->findings[] = new Finding(
                 self::type,
-                'warning',
+                $isCritical ? 'critical' : 'warning',
                 "isCA not correctly encoded in ASN1, expectedd 0xff found 0x".
               bin2hex($extensionDER[4])
             );

@@ -28,17 +28,23 @@ class CertificatePolicies implements ExtensionInterface
     {
         $this->isCritical = $isCritical;
         $this->binary = $extensionDER;
-        if ($isCritical == true) {
-            $findingLevel = 'critical';
-        } else {
-            $findingLevel = 'warning';
-        }
         try {
-            $seq = UnspecifiedType::fromDER($extensionDER)->asSequence();
+            $policies = UnspecifiedType::fromDER($extensionDER);
+            if ($policies->tag() <> 16) {
+                $this->findings[] = new Finding(
+                    self::type,
+                    $isCritical ? 'critical' : 'warning',
+                    'Malformed certificatePolicies extension, should be a Sequence: '.
+                        base64_encode($extensionDER)
+                );
+                return;
+            } else {
+                $seq = $policies->asSequence();
+            }
         } catch (\Exception $e) {
             $this->findings[] = new Finding(
                 self::type,
-                $findingLevel,
+                $isCritical ? 'critical' : 'warning',
                 'Malformed certificatePolicies extension \''.$e->getMessage().'\': '.
                 base64_encode($extensionDER)
             );
@@ -50,16 +56,12 @@ class CertificatePolicies implements ExtensionInterface
                 $policy = new CertificatePolicy($certPolicy);
                 $this->policies[] = $policy;
             } catch (ParseException $e) {
-                if ($e->getMessage() == 'Unrecognised') {
-                    $oid = $certPolicy->at(0)->asObjectIdentifier()->oid();
-                    $oidName = OID::getName($oid);
-                    $this->findings[] = new Finding(
-                        self::type,
-                        $findingLevel,
-                        "Unrecognised certificatePolicy OID $oid ($oidName): ".
+                $this->findings[] = new Finding(
+                    self::type,
+                    $isCritical ? 'critical' : 'warning',
+                    $e->getMessage() . ': '.
                     base64_encode($certPolicy->toDER())
-                    );
-                }
+                );
             }
         }
     }

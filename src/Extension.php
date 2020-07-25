@@ -12,6 +12,7 @@ use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
 use eIDASCertificate\Certificate\OCSPNoCheck;
 use eIDASCertificate\Certificate\PreCertPoison;
+use eIDASCertificate\Certificate\SCTList;
 use eIDASCertificate\Certificate\SubjectAltName;
 use eIDASCertificate\Certificate\SubjectKeyIdentifier;
 use eIDASCertificate\UnknownExtension;
@@ -41,7 +42,6 @@ abstract class Extension
         }
         $extnValue = $extension->at($idx++)->asOctetString()->string();
         $extensionName = OID::getName($extensionOid);
-        // print "$extensionOid ($extensionName): " . base64_encode($extnValue) .PHP_EOL;
         switch ($extensionName) {
           case 'basicConstraints':
             // TODO: Properly handle Basic Constraints
@@ -86,10 +86,9 @@ abstract class Extension
           case 'ocspNoCheck':
             return new OCSPNoCheck($extnValue, $isCritical);
             break;
-          // case 'certificatePolicies':
-            // TODO: Implement certificatePolicies QCStatement
-            // return false;
-            // break;
+          case 'SCTList':
+            return new SCTList($extnValue, $isCritical);
+            break;
           // case 'policyConstraints':
             // TODO: Implement policyConstraints QCStatement
             // return false;

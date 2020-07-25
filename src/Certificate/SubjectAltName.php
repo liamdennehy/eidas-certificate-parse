@@ -72,7 +72,7 @@ class SubjectAltName implements ExtensionInterface
               default:
                 $this->findings[] = new Finding(
                     self::type,
-                    'warning',
+                    $isCritical ? 'critical' : 'warning',
                     "Unrecognised subjectAltName extension: ".
                   base64_encode($extensionDER)
                 );

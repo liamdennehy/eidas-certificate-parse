@@ -5,6 +5,8 @@ namespace eIDASCertificate\Certificate;
 use eIDASCertificate\ExtensionInterface;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Finding;
+use eIDASCertificate\ParseException;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -21,6 +23,9 @@ class OCSPNoCheck implements ExtensionInterface
 
     public function __construct($extensionDER, $isCritical = false)
     {
+        if (UnspecifiedType::fromDER($extensionDER)->tag() <> 5) {
+            throw new ParseException("Malformed OCSPNoCheck Extension: ".base64_encode($extensionDER), 1);
+        }
         $this->isCritical = $isCritical;
         $this->findings[] = new Finding(
             self::type,

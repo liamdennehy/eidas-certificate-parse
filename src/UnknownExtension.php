@@ -72,7 +72,7 @@ class UnknownExtension implements ExtensionInterface
         if ($this->isCritical) {
             $level = 'critical';
             $message =
-              "Unhandled extension $name marked critical: ".
+              "Unhandled extension $name marked critical, Do Not Process: ".
               base64_encode($this->binary);
         } else {
             $level = 'warning';

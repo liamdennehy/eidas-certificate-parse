@@ -47,7 +47,7 @@ class AuthorityInformationAccess implements ExtensionInterface
             default:
               $this->findings[] = new Finding(
                   self::type,
-                  'warning',
+                  $isCritical ? 'critical' : 'warning',
                   "Unrecognised authorityInfoAccess OID $oid ($oidName): ".
                 base64_encode($extensionDER)
               );
