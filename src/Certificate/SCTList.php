@@ -17,6 +17,7 @@ class SCTList implements ExtensionInterface
     private $findings = [];
     private $isCritical;
     private $list;
+    private $entries = [];
 
     const type = 'sctList';
     const oid = '1.3.6.1.4.1.11129.2.4.2';
@@ -42,11 +43,32 @@ class SCTList implements ExtensionInterface
                     base64_encode($extensionDER)
             );
         } else {
-            $this->findings[] = new Finding(
-                self::type,
-                $isCritical ? 'critical' : 'warning',
-                "Signed Certificate Timestamp extension not yet supported"
-            );
+            $offset = 2;
+            while ($offset < $length) {
+                $entryLength = unpack('nlen', substr($struct, $offset, 2))['len'];
+                $offset = $offset + 2;
+                $version = unpack('Cver', substr($struct, $offset++, 1))['ver'];
+                $logId = substr($struct, $offset, 32);
+                $offset = $offset + 32;
+                $at = unpack('Jat', substr($struct, $offset, 8))['at'];
+                $offset = $offset + 8;
+                // No extensions in v1, always equals '0000' so we skip
+                $offset = $offset + 2;
+                $hash = self::getHashAlgorithmFromByte(substr($struct, $offset++, 1));
+                $cipher = self::getCipherAlgorithmFromByte(substr($struct, $offset++, 1));
+                $sigLength = unpack('nlen', substr($struct, $offset, 2))['len'];
+                $offset = $offset + 2;
+                $signature = substr($struct, $offset, $sigLength);
+                $offset = $offset + $sigLength;
+                $this->entries[] = [
+                  'version' => $version + 1,
+                  'logId' => bin2hex($logId),
+                  'at' => $at / 1000,
+                  'extensions' => [],
+                  'cipherspec' => $cipher.'-'.$hash,
+                  'signature' => base64_encode($signature)
+                ];
+            }
             $this->binary = $extensionDER;
         }
     }
@@ -88,7 +110,63 @@ class SCTList implements ExtensionInterface
 
     public function getAttributes()
     {
-        return null;
-        // return ['isPrecert' => true];
+        if (!empty($this->entries)) {
+            return [
+            'issuer' => ['SCTList' => $this->entries]
+          ];
+        } else {
+            return [];
+        }
+    }
+
+    public static function getHashAlgorithmFromByte($byte)
+    {
+        switch ($byte) {
+          case chr(00):
+            return 'none';
+            break;
+          case chr(01):
+            return 'md5';
+            break;
+          case chr(02):
+            return 'sha1';
+            break;
+          case chr(03):
+            return 'sha224';
+            break;
+          case chr(04):
+            return 'sha256';
+            break;
+          case chr(05):
+            return 'sha384';
+            break;
+          case chr(06):
+            return 'sha512';
+            break;
+          default:
+            return 'unknown';
+            break;
+        }
+    }
+
+    public static function getCipherAlgorithmFromByte($byte)
+    {
+        switch ($byte) {
+          case chr(00):
+            return 'anonymous';
+            break;
+          case chr(01):
+            return 'rsa';
+            break;
+          case chr(02):
+            return 'dsa';
+            break;
+          case chr(03):
+            return 'ecdsa';
+            break;
+          default:
+            return 'unknown';
+            break;
+        }
     }
 }

@@ -383,11 +383,36 @@ class ExtensionTest extends TestCase
         );
         $this->assertEquals(
             [
-            'severity' => 'warning',
-            'component' => 'sctList',
-            'message' => 'Signed Certificate Timestamp extension not yet supported'
+            'issuer' => [
+              'SCTList' => [
+                [
+                  'version' => 1,
+                  'logId' => 'a4b90990b418581487bb13a2cc67700a3c359804f91bdfb8e377cd0ec80ddc10',
+                  'at' => 1508397088.917,
+                  'extensions' => [],
+                  'cipherspec' => 'ecdsa-sha256',
+                  'signature' => 'MEQCIFIiFn1Z7YQyhCK/uTk/ysIicFIP/0K9BDHQZ7pgo/FjAiBnlXoh8vjB8nSkr7z+b8aAAkBGlUyoiMddFNN2LaVFiQ=='
+                ],
+                [
+                  'version' => 1,
+                  'logId' => 'ee4bbdb775ce60bae142691fabe19e66a30f7e5fb072d88300c47b897aa8fdcb',
+                  'at' => 1508397089.466,
+                  'extensions' => [],
+                  'cipherspec' => 'ecdsa-sha256',
+                  'signature' => 'MEQCIFOY6HYwxuwR2mXXbgH80uqWXnVl8ES9X1lY5riQzxNEAiBTwgBV2QPxpTTu4cXs7X7jY0XJfP6Xtly3b/N5c1fbjA=='
+                ],
+                [
+                  'version' => 1,
+                  'logId' => 'ddeb1d2b7a0d4fa6208b81ad8168707e2e8e9d01d55c888d3d11c4cdb6ecbecc',
+                  'at' => 1508397090.114,
+                  'extensions' => [],
+                  'cipherspec' => 'ecdsa-sha256',
+                  'signature' => 'MEUCIFoIPfMskYIhSZJ+XNxG3ds0Hh3MdHWfXC5aH5BQNcMRAiEAvneIhP4JBTenPX2MK8aSQvis+iD6EX8XNUsmOetLFNg='
+                ]
+              ]
+            ]
           ],
-            $sctList->getFindings()[0]->getFinding()
+            $sctList->getAttributes()
         );
     }
 }
