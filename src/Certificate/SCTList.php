@@ -3,8 +3,10 @@
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\ExtensionInterface;
+use eIDASCertificate\ParseException;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Finding;
+use ASN1\Type\UnspecifiedType;
 
 /**
  *
@@ -14,6 +16,7 @@ class SCTList implements ExtensionInterface
     private $binary;
     private $findings = [];
     private $isCritical;
+    private $list;
 
     const type = 'sctList';
     const oid = '1.3.6.1.4.1.11129.2.4.2';
@@ -22,12 +25,30 @@ class SCTList implements ExtensionInterface
     public function __construct($extensionDER, $isCritical = false)
     {
         $this->isCritical = $isCritical;
-        $this->findings[] = new Finding(
-            self::type,
-            $isCritical ? 'critical' : 'warning',
-            "Signed Certificate Timestamp extension not yet supported"
-        );
-        $this->binary = $extensionDER;
+        $struct = UnspecifiedType::fromDER($extensionDER)->asOctetString()->string();
+        $length = unpack('nlength', substr($struct, 0, 2))['length'];
+        if (strlen($struct) < ($length + 2)) {
+            $this->findings[] = new Finding(
+                self::type,
+                $isCritical ? 'critical' : 'warning',
+                'Malformed SCT extension (not enough bytes): '.
+                    base64_encode($extensionDER)
+            );
+        } elseif (strlen($struct) > ($length + 2)) {
+            $this->findings[] = new Finding(
+                self::type,
+                $isCritical ? 'critical' : 'warning',
+                'Malformed SCT extension (too many bytes): '.
+                    base64_encode($extensionDER)
+            );
+        } else {
+            $this->findings[] = new Finding(
+                self::type,
+                $isCritical ? 'critical' : 'warning',
+                "Signed Certificate Timestamp extension not yet supported"
+            );
+            $this->binary = $extensionDER;
+        }
     }
 
     public function getType()
