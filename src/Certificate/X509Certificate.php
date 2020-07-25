@@ -143,7 +143,7 @@ class X509Certificate implements
         }
 
         $candidate = trim($candidate);
-        $crtPEM = explode("\n", $candidate);
+        $crtPEM = explode("\n", str_replace("\r", "", $candidate));
         if ($crtPEM[0] == "-----BEGIN CERTIFICATE-----") {
             unset($crtPEM[sizeof($crtPEM)-1]);
             unset($crtPEM[0]);
@@ -154,7 +154,7 @@ class X509Certificate implements
             try {
                 $crtDER = UnspecifiedType::fromDER($candidate)->asSequence()->toDER();
             } catch (\Exception $e) {
-                throw new CertificateException("Cannot wrangle input into a certificate format", 1);
+                throw new CertificateException("Cannot wrangle input into a certificate format: ".$e->getMessage(), 1);
             }
         }
         return $crtDER;
