@@ -19,7 +19,7 @@ use ASN1\Type\UnspecifiedType;
 class CertificatePolicyTest extends TestCase
 {
 
-  public function testCertificatePolicies()
+  public function testUnknownCertificatePolicy()
   {
       $extensionDER = base64_decode(
           'MFEwRAYKKwYBBAG+WAGDEDA2MDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNvbS9yZXBvc2l0b3J5MAkGBwQAi+xAAQM='
@@ -33,26 +33,30 @@ class CertificatePolicyTest extends TestCase
           ],
           $CPs->getFindings()[0]->getFinding()
       );
-      $extensionDER = base64_decode(
+    }
+
+    public function testEVCertificatePolicy()
+    {
+        $extensionDER = base64_decode(
           'MIGYMIGABgsrBgEEAeZ5CgEDCjBxMC8GCCsGAQUFBwIBFiNodHRwOi8vd3d3LmZpcm1hcHJvZmVzaW9uYWwuY29tL2NwczA+BggrBgEFBQcCAjAyDDBFc3RlIGVzIHVuIENlcnRpZmljYWRvIGRlIFNlcnZpZG9yIFdlYiBwYXJhIFBTRDIwCQYHBACL7EABBDAIBgYEAI96AQQ='
-      );
-      $CPs = new CertificatePolicies($extensionDER);
-      $this->assertEquals(
+        );
+        $CPs = new CertificatePolicies($extensionDER);
+        $this->assertEquals(
           [
-          'issuer' => [
-            'policies' => [
-              [
-                'oid' => '0.4.0.2042.1.4',
-                'name' => 'EVCP',
-                'description' => 'Consistent with EV Certificates Guidelines issued by the CAB Forum',
-                'url' => 'https://www.etsi.org/deliver/etsi_ts/102000_102099/102042/02.04.01_60/ts_102042v020401p.pdf#chapter-5.2',
-                'vendor' => 'ETSI'
-              ],
+            'issuer' => [
+              'policies' => [
+                [
+                  'oid' => '0.4.0.2042.1.4',
+                  'name' => 'EVCP',
+                  'description' => 'Consistent with EV Certificates Guidelines issued by the CAB Forum',
+                  'url' => 'https://www.etsi.org/deliver/etsi_ts/102000_102099/102042/02.04.01_60/ts_102042v020401p.pdf#chapter-5.2',
+                  'vendor' => 'ETSI'
+                ],
+              ]
             ]
-          ]
-        ],
+          ],
           $CPs->getAttributes()
-      );
+        );
     }
 
     public function testPSD2Policies()
@@ -122,7 +126,7 @@ class CertificatePolicyTest extends TestCase
             ]
           ]
         ],
-          $CPs->getAttributes()
+        $CPs->getAttributes()
       );
 
     }
@@ -143,13 +147,4 @@ class CertificatePolicyTest extends TestCase
       );
     }
 
-    public function testOCSPNoCheck()
-    {
-        $der = base64_decode('BIIBaAFmAHUApLkJkLQYWBSHuxOizGdwCjw1mAT5G9+443fNDsgN3BAAAAFfM3kAlQAABAMARjBEAiBSIhZ9We2EMoQiv7k5P8rCInBSD/9CvQQx0Ge6YKPxYwIgZ5V6IfL4wfJ0pK+8/m/GgAJARpVMqIjHXRTTdi2lRYkAdQDuS723dc5guuFCaR+r4Z5mow9+X7By2IMAxHuJeqj9ywAAAV8zeQK6AAAEAwBGMEQCIFOY6HYwxuwR2mXXbgH80uqWXnVl8ES9X1lY5riQzxNEAiBTwgBV2QPxpTTu4cXs7X7jY0XJfP6Xtly3b/N5c1fbjAB2AN3rHSt6DU+mIIuBrYFocH4ujp0B1VyIjT0RxM227L7MAAABXzN5BUIAAAQDAEcwRQIgWgg98yyRgiFJkn5c3Ebd2zQeHcx0dZ9cLlofkFA1wxECIQC+d4iE/gkFN6c9fYwrxpJC+Kz6IPoRfxc1SyY560sU2A==');
-        $noCheck = new OCSPNoCheck($der);
-        $this->assertEquals(
-            'This an OCSPNoCheck extension',
-            $noCheck->getDescription()
-        );
-    }
 }
