@@ -41,7 +41,7 @@ class CRLDistributionPoints implements ExtensionInterface
                 // TODO: Handle DN of CDPs
                 $this->findings[] = new Finding(
                     self::type,
-                    'warning',
+                    $isCritical ? 'critical' : 'warning',
                     "Unrecognised crlDistributionPoints entry: ".
                   base64_encode($extensionDER)
                 );

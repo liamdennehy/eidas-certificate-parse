@@ -28,17 +28,12 @@ class CertificatePolicies implements ExtensionInterface
     {
         $this->isCritical = $isCritical;
         $this->binary = $extensionDER;
-        if ($isCritical) {
-            $findingLevel = 'critical';
-        } else {
-            $findingLevel = 'warning';
-        }
         try {
             $policies = UnspecifiedType::fromDER($extensionDER);
             if ($policies->tag() <> 16) {
                 $this->findings[] = new Finding(
                     self::type,
-                    $findingLevel,
+                    $isCritical ? 'critical' : 'warning',
                     'Malformed certificatePolicies extension, should be a Sequence: '.
                         base64_encode($extensionDER)
                 );
@@ -49,7 +44,7 @@ class CertificatePolicies implements ExtensionInterface
         } catch (\Exception $e) {
             $this->findings[] = new Finding(
                 self::type,
-                $findingLevel,
+                $isCritical ? 'critical' : 'warning',
                 'Malformed certificatePolicies extension \''.$e->getMessage().'\': '.
                 base64_encode($extensionDER)
             );
@@ -63,7 +58,7 @@ class CertificatePolicies implements ExtensionInterface
             } catch (ParseException $e) {
                 $this->findings[] = new Finding(
                     self::type,
-                    $findingLevel,
+                    $isCritical ? 'critical' : 'warning',
                     $e->getMessage() . ': '.
                     base64_encode($certPolicy->toDER())
                 );

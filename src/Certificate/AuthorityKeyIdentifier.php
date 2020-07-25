@@ -39,7 +39,7 @@ class AuthorityKeyIdentifier implements ExtensionInterface
             default:
               $this->findings[] = new Finding(
                   self::type,
-                  'error',
+                  $isCritical ? 'critical' : 'warning',
                   "Unrecognised AuthorityKeyIdentifier ".
                   $akiElement->tag().
                   " Format: ".

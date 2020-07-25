@@ -34,7 +34,7 @@ class ExtendedKeyUsage implements ExtensionInterface
             if ($ekuName == 'unknown') {
                 $this->findings[] = new Finding(
                     self::type,
-                    'critical',
+                    $isCritical ? 'critical' : 'warning',
                     "Unrecognised ExtendedKeyUsage: ".
                   base64_encode($extensionDER)
                 );
