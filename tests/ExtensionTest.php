@@ -382,6 +382,10 @@ class ExtensionTest extends TestCase
             $sctList->getDescription()
         );
         $this->assertEquals(
+            0,
+            sizeof($sctList->getFindings())
+        );
+        $this->assertEquals(
             [
             'issuer' => [
               'SCTList' => [
@@ -413,6 +417,29 @@ class ExtensionTest extends TestCase
             ]
           ],
             $sctList->getAttributes()
+        );
+        $derBad = $der;
+        $derBad[52] = chr(01);
+        $sctListBadAlgorithm = new SCTList($derBad, true);
+        $this->assertEquals(
+            [],
+            $sctListBadAlgorithm->getAttributes()
+        );
+        $this->assertEquals(
+            1,
+            sizeof($sctListBadAlgorithm->getFindings())
+        );
+        $this->assertEquals(
+            'critical',
+            $sctListBadAlgorithm->getFindings()[0]->getFinding()['severity']
+        );
+        $this->assertEquals(
+            'sctList',
+            $sctListBadAlgorithm->getFindings()[0]->getFinding()['component']
+        );
+        $this->assertEquals(
+            'Unsupported SCT Signature Algorithm \'rsa-sha256\': BIIBaAFmAHUApL...',
+            substr($sctListBadAlgorithm->getFindings()[0]->getFinding()['message'], 0, 64).'...'
         );
     }
 }

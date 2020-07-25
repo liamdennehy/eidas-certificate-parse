@@ -59,6 +59,19 @@ class SCTList implements ExtensionInterface
                 $offset = $offset + 2;
                 $hash = self::getHashAlgorithmFromByte(substr($struct, $offset++, 1));
                 $cipher = self::getCipherAlgorithmFromByte(substr($struct, $offset++, 1));
+                if ($cipher !== 'ecdsa') {
+                    $this->findings[] = new Finding(
+                        self::type,
+                        $isCritical ? 'critical' : 'warning',
+                        "Unsupported SCT Signature Algorithm '$cipher-$hash': ".
+                          base64_encode($extensionDER)
+                    );
+                    // Since the remaining structure depends on key format we
+                    // cannot parse, so discard all entries (partials may be
+                    // more harmful)
+                    $this->entries = [];
+                    break;
+                }
                 $sigLength = unpack('nlen', substr($struct, $offset, 2))['len'];
                 $offset = $offset + 2;
                 $signature = substr($struct, $offset, $sigLength);
