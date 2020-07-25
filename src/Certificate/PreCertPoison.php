@@ -24,7 +24,7 @@ class PreCertPoison implements ExtensionInterface
         $this->isCritical = $isCritical;
         $this->findings[] = new Finding(
             self::type,
-            'warning',
+            'critical',
             "This is a precert, so should not be seen in production"
         );
         $this->binary = $extensionDER;
