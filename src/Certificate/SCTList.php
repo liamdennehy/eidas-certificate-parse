@@ -1,5 +1,8 @@
 <?php
 
+// With BIG thanks to Let's Encrypt for a detailed walkthrough
+// https://letsencrypt.org/2018/04/04/sct-encoding.html
+
 namespace eIDASCertificate\Certificate;
 
 use eIDASCertificate\ExtensionInterface;
