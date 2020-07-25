@@ -41,7 +41,6 @@ abstract class Extension
         }
         $extnValue = $extension->at($idx++)->asOctetString()->string();
         $extensionName = OID::getName($extensionOid);
-        // print "$extensionOid ($extensionName): " . base64_encode($extnValue) .PHP_EOL;
         switch ($extensionName) {
           case 'basicConstraints':
             // TODO: Properly handle Basic Constraints

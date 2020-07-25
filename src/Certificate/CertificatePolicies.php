@@ -28,13 +28,24 @@ class CertificatePolicies implements ExtensionInterface
     {
         $this->isCritical = $isCritical;
         $this->binary = $extensionDER;
-        if ($isCritical == true) {
+        if ($isCritical) {
             $findingLevel = 'critical';
         } else {
             $findingLevel = 'warning';
         }
         try {
-            $seq = UnspecifiedType::fromDER($extensionDER)->asSequence();
+            $policies = UnspecifiedType::fromDER($extensionDER);
+            if ($policies->tag() <> 16) {
+                $this->findings[] = new Finding(
+                    self::type,
+                    $findingLevel,
+                    'Malformed certificatePolicies extension, should be a Sequence: '.
+                        base64_encode($extensionDER)
+                );
+                return;
+            } else {
+                $seq = $policies->asSequence();
+            }
         } catch (\Exception $e) {
             $this->findings[] = new Finding(
                 self::type,
