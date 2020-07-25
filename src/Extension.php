@@ -12,6 +12,7 @@ use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
 use eIDASCertificate\Certificate\OCSPNoCheck;
 use eIDASCertificate\Certificate\PreCertPoison;
+use eIDASCertificate\Certificate\SCTList;
 use eIDASCertificate\Certificate\SubjectAltName;
 use eIDASCertificate\Certificate\SubjectKeyIdentifier;
 use eIDASCertificate\UnknownExtension;
@@ -85,10 +86,9 @@ abstract class Extension
           case 'ocspNoCheck':
             return new OCSPNoCheck($extnValue, $isCritical);
             break;
-          // case 'certificatePolicies':
-            // TODO: Implement certificatePolicies QCStatement
-            // return false;
-            // break;
+          case 'SCTList':
+            return new SCTList($extnValue, $isCritical);
+            break;
           // case 'policyConstraints':
             // TODO: Implement policyConstraints QCStatement
             // return false;

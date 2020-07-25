@@ -119,6 +119,8 @@ class OID
     const ocspBasic               = '1.3.6.1.5.5.7.48.1.1';
     // https://tools.ietf.org/html/rfc2560#section-4.2.2.2.1
     const ocspNoCheck             = '1.3.6.1.5.5.7.48.1.5';
+    // https://tools.ietf.org/html/rfc6962#section-3.3
+    const SCTList                 = '1.3.6.1.4.1.11129.2.4.2';
 
     public static function getName($oidString)
     {
@@ -380,6 +382,9 @@ class OID
             break;
           case self::ocspNoCheck:
             $oidName = 'ocspNoCheck';
+            break;
+          case self::SCTList:
+            $oidName = 'SCTList';
             break;
           default:
             $oidName = 'unknown';

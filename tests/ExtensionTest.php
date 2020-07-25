@@ -15,6 +15,7 @@ use eIDASCertificate\Certificate\ExtendedKeyUsage;
 use eIDASCertificate\Certificate\KeyUsage;
 use eIDASCertificate\Certificate\OCSPNoCheck;
 use eIDASCertificate\Certificate\PreCertPoison;
+use eIDASCertificate\Certificate\SCTList;
 use eIDASCertificate\Certificate\SubjectAltName;
 use ASN1\Type\UnspecifiedType;
 
@@ -367,6 +368,26 @@ class ExtensionTest extends TestCase
         $this->assertEquals(
             'This an OCSPNoCheck extension',
             $noCheck->getDescription()
+        );
+    }
+
+    public function testSCTList()
+    {
+        $der = base64_decode(
+            'MIIBfAYKKwYBBAHWeQIEAgSCAWwEggFoAWYAdQCkuQmQtBhYFIe7E6LMZ3AKPDWYBPkb37jjd80OyA3cEAAAAV8zeQCVAAAEAwBGMEQCIFIiFn1Z7YQyhCK/uTk/ysIicFIP/0K9BDHQZ7pgo/FjAiBnlXoh8vjB8nSkr7z+b8aAAkBGlUyoiMddFNN2LaVFiQB1AO5Lvbd1zmC64UJpH6vhnmajD35fsHLYgwDEe4l6qP3LAAABXzN5AroAAAQDAEYwRAIgU5jodjDG7BHaZdduAfzS6pZedWXwRL1fWVjmuJDPE0QCIFPCAFXZA/GlNO7hxeztfuNjRcl8/pe2XLdv83lzV9uMAHYA3esdK3oNT6Ygi4GtgWhwfi6OnQHVXIiNPRHEzbbsvswAAAFfM3kFQgAABAMARzBFAiBaCD3zLJGCIUmSflzcRt3bNB4dzHR1n1wuWh+QUDXDEQIhAL53iIT+CQU3pz19jCvGkkL4rPog+hF/FzVLJjnrSxTY'
+        );
+        $sctList = new SCTList($der);
+        $this->assertEquals(
+            'This is a Signed Certificate Timestamp list extension',
+            $sctList->getDescription()
+        );
+        $this->assertEquals(
+            [
+            'severity' => 'warning',
+            'component' => 'sctList',
+            'message' => 'Signed Certificate Timestamp extension not yet supported'
+          ],
+            $sctList->getFindings()[0]->getFinding()
         );
     }
 }
