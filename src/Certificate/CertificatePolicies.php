@@ -50,16 +50,12 @@ class CertificatePolicies implements ExtensionInterface
                 $policy = new CertificatePolicy($certPolicy);
                 $this->policies[] = $policy;
             } catch (ParseException $e) {
-                if ($e->getMessage() == 'Unrecognised') {
-                    $oid = $certPolicy->at(0)->asObjectIdentifier()->oid();
-                    $oidName = OID::getName($oid);
-                    $this->findings[] = new Finding(
-                        self::type,
-                        $findingLevel,
-                        "Unrecognised certificatePolicy OID $oid ($oidName): ".
+                $this->findings[] = new Finding(
+                    self::type,
+                    $findingLevel,
+                    $e->getMessage() . ': '.
                     base64_encode($certPolicy->toDER())
-                    );
-                }
+                );
             }
         }
     }
