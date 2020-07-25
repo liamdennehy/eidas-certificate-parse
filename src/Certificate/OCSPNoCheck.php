@@ -23,8 +23,8 @@ class OCSPNoCheck implements ExtensionInterface
 
     public function __construct($extensionDER, $isCritical = false)
     {
-        if (UnspecifiedType::fromDER($extensionDER)->tag() <> 4) {
-            throw new ParseException("Malformed OCSPNoCheck Exception: ".base64_encode($extensionDER), 1);
+        if (UnspecifiedType::fromDER($extensionDER)->tag() <> 5) {
+            throw new ParseException("Malformed OCSPNoCheck Extension: ".base64_encode($extensionDER), 1);
         }
         $this->isCritical = $isCritical;
         $this->findings[] = new Finding(
