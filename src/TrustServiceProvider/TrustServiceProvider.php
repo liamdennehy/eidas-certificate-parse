@@ -35,13 +35,13 @@ class TrustServiceProvider implements AttributeInterface
         $this->names = new Names($tsp->TSPInformation->TSPName);
         $this->tradeNames = new Names($tsp->TSPInformation->TSPTradeName);
         foreach ($tsp->TSPServices->TSPService as $tspService) {
-            try {
-                $newTSPService = new TSPService($tspService, $this);
-            } catch (ParseException $e) {
-                // Critical info not understood, do not process TSPService
-                print 'Critical error parsing TSPService: '.
-                    $e->getMessage();
-            }
+            // try {
+            $newTSPService = new TSPService($tspService, $this);
+            // } catch (ParseException $e) {
+            //     // Critical info not understood, do not process TSPService
+            //     print 'Critical error parsing TSPService: '.
+            //         $e->getMessage();
+            // }
             $this->services[$newTSPService->getName()] = $newTSPService;
         };
         ksort($this->services);
