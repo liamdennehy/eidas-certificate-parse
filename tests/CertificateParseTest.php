@@ -47,6 +47,7 @@ class CertificateParseTest extends TestCase
         'aglrZ3pJXp9BZGPdcZjhJh5JkVaF8zQ6qrLPa+YO8/ud2Bklt6I0E4EY/637VhcPYTlf'.
         'xmvZIPfHjM8HWdjBg2c/i+sd5CsIfeeUOWlUZV3jZbtgQijhe3meejHpbYzggZKM0jUU'.
         '8/p6vsvzBKRhqj2bgABByUcFaLHHLTBX3BKrSpS+hjgan7kCAwEAAQ==';
+    const gsDocSignQRSCAFile = 'GlobalSign Atlas E45 Qualified Remote Signing CA 2020.crt';
 
     public function setUp()
     {
@@ -780,5 +781,23 @@ class CertificateParseTest extends TestCase
             'e8f357e7ecbac7e87b3939045093f52913bc2356921ad431181627c1e2287882',
             bin2hex($eucrt->getCertIdIDentifier('sha1'))
         );
+    }
+
+    public function testParseECDSASignedCert()
+    {
+        $gsDocSignQRSCACert = new X509Certificate(
+            file_get_contents(
+            __DIR__ . "/certs/" . self::gsDocSignQRSCAFile
+        )
+        );
+        $ca = new X509Certificate(file_get_contents(
+            __DIR__ . '/certs/GlobalSign Document Signing Root E45.crt'
+        ));
+        $this->assertEquals(
+            $gsDocSignQRSCACert->getAttributes()['issuer']['aki'],
+            $ca->getAttributes()['subject']['ski']
+        );
+
+        // TODO: Validate ECDSA Signature
     }
 }
