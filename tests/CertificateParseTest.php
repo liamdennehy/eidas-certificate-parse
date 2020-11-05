@@ -216,7 +216,8 @@ class CertificateParseTest extends TestCase
                 'Unrecognised \'ETSI\' Certificate Policy as oid \'0.4.0.194112.1.3\': MAkGBwQAi+xAAQM='
               ]
             ]
-          ]
+          ],
+          'signatureAlgorithm' => 'sha256WithRSAEncryption'
         ];
         $this->euIssuercrtIssuerAttributes = [
           [
@@ -294,6 +295,7 @@ class CertificateParseTest extends TestCase
               ]
             ]
           ],
+          'signatureAlgorithm' => 'sha256WithRSAEncryption',
         ];
         $this->v1crtSubject = [
           [
@@ -359,6 +361,7 @@ class CertificateParseTest extends TestCase
           'publicKey' => [
             'key' => $this->v1CertPublickey
           ],
+          'signatureAlgorithm' => 'sha1WithRSAEncryption',
         ];
     }
 
@@ -785,19 +788,26 @@ class CertificateParseTest extends TestCase
 
     public function testParseECDSASignedCert()
     {
-        $gsDocSignQRSCACert = new X509Certificate(
+        $gsQRemoteSigningCA = new X509Certificate(
             file_get_contents(
-            __DIR__ . "/certs/" . self::gsDocSignQRSCAFile
-        )
+                __DIR__ . "/certs/" . self::gsDocSignQRSCAFile
+            )
         );
-        $ca = new X509Certificate(file_get_contents(
+        $gsDocSignRootCA = new X509Certificate(file_get_contents(
             __DIR__ . '/certs/GlobalSign Document Signing Root E45.crt'
         ));
         $this->assertEquals(
-            $gsDocSignQRSCACert->getAttributes()['issuer']['aki'],
-            $ca->getAttributes()['subject']['ski']
+            'ecdsa-with-SHA384',
+            $gsQRemoteSigningCA->getAttributes()['signatureAlgorithm']
         );
-
+        $this->assertEquals(
+            $gsQRemoteSigningCA->getAttributes()['issuer']['aki'],
+            $gsDocSignRootCA->getAttributes()['subject']['ski']
+        );
         // TODO: Validate ECDSA Signature
+        // $this->assertEquals(
+        //   $gsDocSignRootCA,
+        //   $gsQRemoteSigningCA->withIssuer($gsDocSignRootCA)
+        // );
     }
 }
