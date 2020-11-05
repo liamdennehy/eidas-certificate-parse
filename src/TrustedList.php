@@ -78,7 +78,7 @@ class TrustedList implements AttributeInterface
         $this->tl->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
     }
 
-    private function processTLPointers()
+    private function processTLPointers($verifySignature = true)
     {
         $this->tslPointers = [];
         foreach (
@@ -88,7 +88,10 @@ class TrustedList implements AttributeInterface
             $otherTSLPointer->registerXPathNamespace("tsl", "http://uri.etsi.org/02231/v2#");
             $tslType = (string)$otherTSLPointer
               ->xpath('./tsl:AdditionalInformation/tsl:OtherInformation/tsl:TSLType')[0];
-            $newTSLPointer = new TrustedList\TSLPointer($otherTSLPointer);
+            $newTSLPointer = new TrustedList\TSLPointer(
+                $otherTSLPointer,
+                $verifySignature = true
+            );
             switch ($tslType) {
                 case self::TSLType:
                     $this->tslPointers
@@ -488,7 +491,7 @@ class TrustedList implements AttributeInterface
         return $tlPointerPaths;
     }
 
-    public function addTrustedListXML($title, $xml)
+    public function addTrustedListXML($title, $xml, $verifySignature = true)
     {
         if (empty($this->tslPointers)) {
             $this->processTLPointers();
@@ -496,20 +499,26 @@ class TrustedList implements AttributeInterface
         if (! array_key_exists($title, $this->tslPointers['xml'])) {
             throw new TrustedListException("No pointer for Trusted List '".$title."'", 1);
         }
-        $stlPointer = $this->tslPointers['xml'][$title];
+        $tslPointer = $this->tslPointers['xml'][$title];
+        $schemeOperatorName = $this->tslPointers['xml'][$title]->getSchemeOperatorName();
         $certificates = [];
-        foreach ($stlPointer->getServiceDigitalIdentities() as $tslDI) {
+        foreach ($tslPointer->getServiceDigitalIdentities() as $tslDI) {
             foreach ($tslDI->getX509Certificates() as $certificate) {
                 $certificates[] = $certificate;
             }
         }
+        $trustedList = new TrustedList($xml, $this->tslPointers['xml'][$title]);
         try {
-            $trustedList = new TrustedList($xml, $this->tslPointers['xml'][$title]);
             $verified = $trustedList->verifyTSL($certificates);
-            $trustedList->setParentTrustedList($this);
-        } catch (ParseException $e) {
-            throw $e;
+        } catch (\Exception $e) {
+            if ($verifySignature) {
+                throw new SignatureException("Cannot verify " . $this->tslPointers['xml'][$title], 1);
+            } else {
+                $verified = false;
+            }
         }
+
+        $trustedList->setParentTrustedList($this);
         $this->trustedLists[$trustedList->getName()] = $trustedList;
 
         // ARGH!!!!
