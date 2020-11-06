@@ -23,6 +23,7 @@ use ASN1\Type\Primitive\Integer;
 use ASN1\Type\Primitive\GeneralizedTime;
 use ASN1\Type\Primitive\UTCTime;
 use phpseclib\File\X509;
+use phpseclib3\File\X509 as phpseclib3X509;
 
 /**
  *
@@ -489,7 +490,8 @@ class X509Certificate implements
                 $this->attributes['issuer']['isSelf'] = true;
             } else {
                 $this->attributes['issuer']['isSelf'] = false;
-            }
+            };
+            $this->attributes["signatureAlgorithm"] = $this->getSignatureAlgorithmName();
             $this->attributes["notBefore"] = $this->getNotBefore();
             $this->attributes["notAfter"] = $this->getNotAfter();
             $this->attributes["fingerprint"] = $this->getIdentifier();
@@ -557,10 +559,22 @@ class X509Certificate implements
             throw new CertificateException("Key Identifier mismatch between certificate and issuer", 1);
         }
 
-        // http://phpseclib.sourceforge.net/x509/2.0/examples.html
-        $x509Verifier = new X509;
+        if (explode('-', $this->getSignatureAlgorithmName())[0] == 'ecdsa') {
+            $x509Verifier = new phpseclib3X509;
+        // $x509Verifier->loadX509($this->toDER());
+            // $x509Verifier->loadCA($issuer->toDER());
+            // $validatedSignature = $x509Verifier->validateSignature();
+            //
+            //
+            // throw new \Exception("Error Processing Request", 1);
+        } else {
+            // http://phpseclib.sourceforge.net/x509/2.0/examples.html
+            $x509Verifier = new X509;
+        }
+
         $x509Verifier->loadX509($this->toDER());
         $x509Verifier->loadCA($issuer->toDER());
+
 
         if ($x509Verifier->validateSignature()) {
             $this->issuers[$issuer->getIdentifier()] = $issuer;

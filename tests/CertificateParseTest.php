@@ -47,6 +47,7 @@ class CertificateParseTest extends TestCase
         'aglrZ3pJXp9BZGPdcZjhJh5JkVaF8zQ6qrLPa+YO8/ud2Bklt6I0E4EY/637VhcPYTlf'.
         'xmvZIPfHjM8HWdjBg2c/i+sd5CsIfeeUOWlUZV3jZbtgQijhe3meejHpbYzggZKM0jUU'.
         '8/p6vsvzBKRhqj2bgABByUcFaLHHLTBX3BKrSpS+hjgan7kCAwEAAQ==';
+    const gsDocSignQRSCAFile = 'GlobalSign Atlas E45 Qualified Remote Signing CA 2020.crt';
 
     public function setUp()
     {
@@ -215,7 +216,8 @@ class CertificateParseTest extends TestCase
                 'Unrecognised \'ETSI\' Certificate Policy as oid \'0.4.0.194112.1.3\': MAkGBwQAi+xAAQM='
               ]
             ]
-          ]
+          ],
+          'signatureAlgorithm' => 'sha256WithRSAEncryption'
         ];
         $this->euIssuercrtIssuerAttributes = [
           [
@@ -293,6 +295,7 @@ class CertificateParseTest extends TestCase
               ]
             ]
           ],
+          'signatureAlgorithm' => 'sha256WithRSAEncryption',
         ];
         $this->v1crtSubject = [
           [
@@ -358,6 +361,7 @@ class CertificateParseTest extends TestCase
           'publicKey' => [
             'key' => $this->v1CertPublickey
           ],
+          'signatureAlgorithm' => 'sha1WithRSAEncryption',
         ];
     }
 
@@ -780,5 +784,30 @@ class CertificateParseTest extends TestCase
             'e8f357e7ecbac7e87b3939045093f52913bc2356921ad431181627c1e2287882',
             bin2hex($eucrt->getCertIdIDentifier('sha1'))
         );
+    }
+
+    public function testParseECDSASignedCert()
+    {
+        $gsQRemoteSigningCA = new X509Certificate(
+            file_get_contents(
+                __DIR__ . "/certs/" . self::gsDocSignQRSCAFile
+            )
+        );
+        $gsDocSignRootCA = new X509Certificate(file_get_contents(
+            __DIR__ . '/certs/GlobalSign Document Signing Root E45.crt'
+        ));
+        $this->assertEquals(
+            'ecdsa-with-SHA384',
+            $gsQRemoteSigningCA->getAttributes()['signatureAlgorithm']
+        );
+        $this->assertEquals(
+            $gsQRemoteSigningCA->getAttributes()['issuer']['aki'],
+            $gsDocSignRootCA->getAttributes()['subject']['ski']
+        );
+        // TODO: Validate ECDSA Signature
+        // $this->assertEquals(
+        //   $gsDocSignRootCA,
+        //   $gsQRemoteSigningCA->withIssuer($gsDocSignRootCA)
+        // );
     }
 }

@@ -121,6 +121,12 @@ class OID
     const ocspNoCheck             = '1.3.6.1.5.5.7.48.1.5';
     // https://tools.ietf.org/html/rfc6962#section-3.3
     const SCTList                 = '1.3.6.1.4.1.11129.2.4.2';
+    // https://tools.ietf.org/html/rfc5480#appendix-A
+    const ecdsawithSHA224         = '1.2.840.10045.4.3.1';
+    const ecdsawithSHA256         = '1.2.840.10045.4.3.2';
+    const ecdsawithSHA384         = '1.2.840.10045.4.3.3';
+    const ecdsawithSHA512         = '1.2.840.10045.4.3.4';
+
 
     public static function getName($oidString)
     {
@@ -374,6 +380,18 @@ class OID
           case self::sha512WithRSAEncryption:
             $oidName = 'sha512WithRSAEncryption';
             break;
+          case self::ecdsawithSHA224:
+            $oidName = 'ecdsa-with-SHA224';
+            break;
+          case self::ecdsawithSHA256:
+            $oidName = 'ecdsa-with-SHA256';
+            break;
+          case self::ecdsawithSHA384:
+            $oidName = 'ecdsa-with-SHA384';
+            break;
+          case self::ecdsawithSHA512:
+            $oidName = 'ecdsa-with-SHA512';
+            break;
           case self::ocspNonce:
             $oidName = 'ocspNonce';
             break;
@@ -495,6 +513,18 @@ class OID
           case 'rsa-sha512':
           case 'sha512WithRSAEncryption':
             return self::sha512WithRSAEncryption;
+            break;
+          case 'ecdsa-with-SHA224':
+            return self::ecdsawithSHA224;
+            break;
+          case 'ecdsa-with-SHA256':
+            return self::ecdsawithSHA256;
+            break;
+          case 'ecdsa-with-SHA384':
+            return self::ecdsawithSHA384;
+            break;
+          case 'ecdsa-with-SHA512':
+            return self::ecdsawithSHA512;
             break;
           default:
             return 'unknown';
