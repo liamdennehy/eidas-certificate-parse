@@ -312,7 +312,7 @@ class OCSPCommonTest extends TestCase
 
         $certId = $eucrt->getCertId('sha1');
         $this->assertEquals(
-            'e8f357e7ecbac7e87b3939045093f52913bc2356921ad431181627c1e2287882',
+            '2c7659f426ab3df4996b04b1a7bd837eb95d8a86ad4c2149d5fb8246e39184b9',
             bin2hex($certId->getIdentifier())
         );
         $this->assertEquals(

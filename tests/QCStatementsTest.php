@@ -3,6 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Before;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\Extensions\QCStatements;
 use eIDASCertificate\QCStatements\QCStatement;

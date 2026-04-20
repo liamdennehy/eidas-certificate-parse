@@ -30,6 +30,7 @@ class QCIssuerTest extends TestCase
     private $eucrt;
     private $euissuercrtPEM;
     private $euissuercrt;
+    
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const mocrtfile = 'Maarten Joris Ottoy.crt';
     const eucrtfile = 'EUROPEAN COMMISSION.crt';
