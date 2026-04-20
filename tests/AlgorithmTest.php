@@ -5,13 +5,14 @@ namespace eIDASCertificate\tests;
 use PHPUnit\Framework\TestCase;
 use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 
-class AlgorithmTest extends TestCase
+final class AlgorithmTest extends TestCase
 {
     private $requestDER;
-    private $sha1bin;
+    private ?string $sha1bin;
     private $sha256bin;
 
-    public function setUp()
+    #[Before]
+    public function InitialiseShas(): void
     {
         $this->sha1bin = base64_decode('MAkGBSsOAwIaBQA=');
         $this->sha256bin = base64_decode('MA0GCWCGSAFlAwQCAQUA');

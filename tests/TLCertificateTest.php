@@ -16,7 +16,8 @@ class TLCertificateTest extends TestCase
     private $dataDir;
     private $lotlXML;
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         $this->datadir = __DIR__ . '/../data';
         $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;

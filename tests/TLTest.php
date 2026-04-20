@@ -91,7 +91,8 @@ class TLTest extends TestCase
     private $testSchemeTerritories;
     const lotlFilePath = 'data/eu-lotl.xml';
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         $this->lotl = new TrustedList(file_get_contents(__DIR__.'/../'.self::lotlFilePath));
         if (! $this->testSchemeTerritories) {

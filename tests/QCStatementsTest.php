@@ -45,7 +45,8 @@ class QCStatementsTest extends TestCase
       'Qualified Signature/Seal Creation Device (QSCD) according to the '.
       'Regulation (EU) No 910/2014';
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         $this->jmcrt = new X509Certificate(
             file_get_contents(

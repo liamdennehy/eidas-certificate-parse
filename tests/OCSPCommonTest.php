@@ -55,7 +55,8 @@ class OCSPCommonTest extends TestCase
       'signerIsIssuer' => 'unknown'
     ];
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         $this->certIdDER = base64_decode(
             'MEowCQYFKw4DAhoFAAQUxMPdUqUOAt08lJgltyla067GSz4EFIKvbIz4xf6WYXzoH'.

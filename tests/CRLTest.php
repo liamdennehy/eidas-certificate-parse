@@ -12,7 +12,8 @@ class CRLTest extends TestCase
 {
     const eucrtfile = 'European-Commission.crt';
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         $this->datadir = __DIR__ . '/../data';
     }

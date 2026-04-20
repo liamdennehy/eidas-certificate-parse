@@ -8,3 +8,4 @@ composer.lock
 ./.php_cs
 tools/
 .tags_swap
+.phpunit.result.cache

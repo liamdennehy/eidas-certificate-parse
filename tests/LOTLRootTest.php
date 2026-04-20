@@ -125,7 +125,8 @@ class LOTLRootTest extends TestCase
         return $attributes;
     }
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         $this->datadir = __DIR__ . '/../data';
         $xmlFilePath = $this->datadir.'/'.self::lotlXMLFileName;

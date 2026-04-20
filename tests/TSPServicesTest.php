@@ -27,7 +27,8 @@ class TSPServicesTest extends TestCase
     private $lotl;
     private $datadir;
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         $this->lotlXML = file_get_contents(__DIR__.'/../'.self::lotlXMLFileName);
         $this->lotl = new TrustedList($this->lotlXML);

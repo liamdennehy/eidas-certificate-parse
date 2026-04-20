@@ -13,7 +13,7 @@ use eIDASCertificate\Extension;
 use eIDASCertificate\AlgorithmIdentifier;
 use ASN1\Type\UnspecifiedType;
 
-class OCSPTest extends TestCase
+class OCSPRequestTest extends TestCase
 {
     private $requestDER;
 
@@ -22,7 +22,8 @@ class OCSPTest extends TestCase
     const itsmecrtfile = 'itsme-Sign-Issuing-G1.crt';
     const qventca1g3crtfile = 'qventca1g3.crt';
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         $this->requestDER = base64_decode(
             'MHcwdTBOMEwwSjAJBgUrDgMCGgUABBTEw91SpQ4C3TyUmCW3KVrTrsZLPgQUgq9sjPjF/pZ'.

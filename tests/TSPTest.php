@@ -18,7 +18,8 @@ class TSPTest extends TestCase
     private $lotl;
     private $dataDir;
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         // Helper::getHTTP(TLTest::testTLURI, 'tl');
         // $abc = LOTLRootTest::lotlAttributes;

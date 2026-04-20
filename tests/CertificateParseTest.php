@@ -49,7 +49,8 @@ class CertificateParseTest extends TestCase
         '8/p6vsvzBKRhqj2bgABByUcFaLHHLTBX3BKrSpS+hjgan7kCAwEAAQ==';
     const gsDocSignQRSCAFile = 'GlobalSign Atlas E45 Qualified Remote Signing CA 2020.crt';
 
-    public function setUp()
+    #[Before]
+    public function setUpHere()
     {
         // Helper::getHTTP(TLTest::testTLURI, 'tl');
         $this->testTime = (int)(new \DateTime('@1569225604'))->format('U');
