@@ -3,6 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Before;
 use eIDASCertificate\Algorithm\AlgorithmIdentifier;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OCSP\OCSPRequest;
@@ -16,9 +17,10 @@ use ASN1\Type\UnspecifiedType;
 class OCSPCommonTest extends TestCase
 {
     private $requestDER;
+    private $certIdDER;
 
-    const eucrtfile = 'European-Commission.crt';
-    const qvcrtfile = 'qvbecag2.crt';
+    const eucrtfile = 'EUROPEAN COMMISSION.crt';
+    const euissuercrtfile = 'DIGITALSIGN QUALIFIED CA G1.pem';
     // const eucrtReqAttributes = [
     //   'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
     //   'algorithmName' => 'sha-256',
@@ -33,15 +35,15 @@ class OCSPCommonTest extends TestCase
         'issuerNameHash' => '105fa67a80089db5279f35ce830b43889ea3c70d',
         'signerIsIssuer' => 'unknown'
     ];
-    const certId5977SHA256 = [
-        'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+    const certId73c2SHA256 = [
+        'serialNumber' => '73c21c494b5510a00c32f1e6f50594d39917b0f5',
         'algorithmName' => 'sha-256',
-        'issuerKeyHash' => '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-        'issuerNameHash' => '7f2b019daa51cd2bfd52f4dc66393929ed6372103e1371ca3c1fb0c1463b7fed',
+        'issuerKeyHash' => '021164a7842232caca9aa766a9776e25ef4558731d27e73d07f047fcea9e5673',
+        'issuerNameHash' => 'd22a60b40ac0a4c9cd38b5693187d3e7d56a130266941d2ec914d26624ba2faa',
         'signerIsIssuer' => 'unknown'
     ];
-    const certId5977SHA1 = [
-      'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+    const certId73c2SHA1 = [
+      'serialNumber' => '73c21c494b5510a00c32f1e6f50594d39917b0f5',
       'algorithmName' => 'sha-1',
       'issuerKeyHash' => '87c9bc3197127a73bb7ec03d4551b401259551ab',
       'issuerNameHash' => 'c07b194b35d08214c0162e0d542ddd17f48b864b',
@@ -149,7 +151,7 @@ class OCSPCommonTest extends TestCase
         );
         $certId = CertID::fromDER($derSHA256);
         $this->assertEquals(
-            self::certId5977SHA256,
+            self::certId73c2SHA256,
             $certId->getAttributes()
         );
         $this->assertEquals(
@@ -167,7 +169,7 @@ class OCSPCommonTest extends TestCase
             '59772e700669b7669fb012c5cdd13c3a281a0911'
         );
         $this->assertEquals(
-            self::certId5977SHA256,
+            self::certId73c2SHA256,
             $certId->getAttributes()
         );
         $this->assertEquals(
@@ -266,30 +268,45 @@ class OCSPCommonTest extends TestCase
         $eucrt = new X509Certificate(
             file_get_contents(__DIR__.'/certs/'.self::eucrtfile)
         );
-        $this->assertNull(
+        $issuercrt = new X509Certificate(
+            file_get_contents(__DIR__.'/certs/'.self::euissuercrtfile)
+        );
+        // Did we actually open and parse the file? $issuer->getSubjectKeyIdentifier() <> $this->getAuthorityKeyIdentifier()
+        $this->assertEquals(
+            '7349f1401c14047c9a127ffa2fcd5c672318e914',
+            bin2hex($eucrt->getAuthorityKeyIdentifier()
+            )
+        );
+         $this->assertEquals(
+            '7349f1401c14047c9a127ffa2fcd5c672318e914',
+            bin2hex($issuercrt->getSubjectKeyIdentifier()
+            )
+        );
+       $this->assertNull(
             $eucrt->getCertId()
         );
         $eucrt->withIssuer(new X509Certificate(
-            file_get_contents(__DIR__.'/certs/'.self::qvcrtfile)
+            file_get_contents(__DIR__.'/certs/'.self::euissuercrtfile)
         ));
 
         $certId = $eucrt->getCertId();
         $this->assertEquals(
-            '92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d',
-            bin2hex($certId->getIdentifier())
+            'e41eb2423e7819c65e34aa2d9cb33e15c5deb1697a80e1007d800000b831771b',
+            bin2hex($certId->getIdentifier()
+            )
         );
         $this->assertEquals(
-            self::certId5977SHA256,
+            self::certId73c2SHA256,
             $certId->getAttributes()
         );
 
         $certId = $eucrt->getCertId('sha256');
         $this->assertEquals(
-            '92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d',
+            'e41eb2423e7819c65e34aa2d9cb33e15c5deb1697a80e1007d800000b831771b',
             bin2hex($certId->getIdentifier())
         );
         $this->assertEquals(
-            self::certId5977SHA256,
+            self::certId73c2SHA256,
             $certId->getAttributes()
         );
 
@@ -299,7 +316,7 @@ class OCSPCommonTest extends TestCase
             bin2hex($certId->getIdentifier())
         );
         $this->assertEquals(
-            self::certId5977SHA1,
+            self::certId73c2SHA1,
             $certId->getAttributes()
         );
     }

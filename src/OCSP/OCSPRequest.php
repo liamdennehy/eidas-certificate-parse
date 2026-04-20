@@ -66,7 +66,7 @@ class OCSPRequest implements
                 $issuerKeyHashes[$key],
                 $serialNumbers[$key]
             );
-            $requestlist[$certId->getIdentifier()] = new Request($certId);
+            $requestlist[$certId->getIdentifier()] = new Request($certId, null);
         }
         if (is_null($nonce)) {
             $this->tbsRequest = new TBSRequest($requestlist);

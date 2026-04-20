@@ -19,7 +19,7 @@ class Request implements ASN1Interface, AttributeInterface
      * @param CertID $certId     [description]
      * @param Extensions $extensions [description]
      */
-    public function __construct(CertID $certId, Extensions $extensions = null)
+    public function __construct(CertID $certId, ?Extensions $extensions)
     {
         $this->certId = $certId;
         $this->extensions = $extensions;

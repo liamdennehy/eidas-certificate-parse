@@ -127,7 +127,7 @@ class OCSPResponseTest extends TestCase
             base64_encode($sResp->getBinary())
         );
         $this->assertEquals(
-            array_merge(OCSPCommonTest::certId5977SHA256, self::singleResponse5977Revoked),
+            array_merge(OCSPCommonTest::certId73c2SHA256, self::singleResponse5977Revoked),
             $sResp->getAttributes()
         );
         $this->assertEquals(
@@ -157,7 +157,7 @@ class OCSPResponseTest extends TestCase
             [
               'producedAt' => 1590956100,
               'responses' => [
-              array_merge(OCSPCommonTest::certId5977SHA256, self::singleResponse5977Revoked)
+              array_merge(OCSPCommonTest::certId73c2SHA256, self::singleResponse5977Revoked)
             ],
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d',
             'producerDN' => '/C=BM/O=QuoVadis Limited/OU=OCSP Responder/CN=QuoVadis OCSP Authority Signature'
@@ -368,7 +368,7 @@ class OCSPResponseTest extends TestCase
         );
         $certIdAttributes = array_merge(
             self::singleResponse5977Revoked,
-            OCSPCommonTest::certId5977SHA256
+            OCSPCommonTest::certId73c2SHA256
         );
         $certIdAttributes['signerIsIssuer'] = false;
         $this->assertEquals(

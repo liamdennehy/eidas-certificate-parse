@@ -3,6 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Before;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\OCSP\OCSPRequest;
 use eIDASCertificate\OCSP\CertID;
@@ -16,6 +17,7 @@ use ASN1\Type\UnspecifiedType;
 class OCSPRequestTest extends TestCase
 {
     private $requestDER;
+    private $tbsRequestDER;
 
     const eucrtfile = 'European-Commission.crt';
     const qvcrtfile = 'qvbecag2.crt';
@@ -60,7 +62,7 @@ class OCSPRequestTest extends TestCase
             base64_encode($request->getBinary())
         );
         $this->assertEquals(
-            OCSPCommonTest::certId5977SHA256,
+            OCSPCommonTest::certId73c2SHA256,
             $request->getAttributes()
         );
 
@@ -130,7 +132,7 @@ class OCSPRequestTest extends TestCase
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [OCSPCommonTest::certId5977SHA256],
+            'requests' => [OCSPCommonTest::certId73c2SHA256],
             'nonce' => '6b10b2e654dd598ac463315262911aed'
           ],
             $req->getAttributes()
@@ -170,7 +172,7 @@ class OCSPRequestTest extends TestCase
         $this->assertEquals(
             [
             'version' => 1,
-            'requests' => [OCSPCommonTest::certId5977SHA256],
+            'requests' => [OCSPCommonTest::certId73c2SHA256],
             'nonce' => 'cc51fed1358bcab2f2f345797a295d8d'
           ],
             $request->getAttributes()
@@ -203,7 +205,7 @@ class OCSPRequestTest extends TestCase
         $this->assertEquals(
             [
                 'version' => 1,
-                'requests' => [OCSPCommonTest::certId5977SHA256],
+                'requests' => [OCSPCommonTest::certId73c2SHA256],
                 'nonce' => '546869732069732061204e6f6e636521'
             ],
             $req->getAttributes()
@@ -269,7 +271,7 @@ class OCSPRequestTest extends TestCase
                   'issuerNameHash' => '40e04b7b80abbdcf7641c3330bdd1d4f65aab4055e62c9aec0033e5d905f876e',
                   'signerIsIssuer' => 'unknown'
                 ],
-                OCSPCommonTest::certId5977SHA256
+                OCSPCommonTest::certId73c2SHA256
               ],
               'version' => 1,
               'nonce' => 'b7f18bd2f35428498546b23f80a227cc'
