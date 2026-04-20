@@ -3,6 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Before;
 use eIDASCertificate\DistinguishedName;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\TrustedList;
@@ -13,8 +14,8 @@ class CertificateParseTest extends TestCase
 {
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const mocrtfile = 'Maarten Joris Ottoy.crt';
-    const eucrtfile = 'European-Commission.crt';
-    const euissuercrtfile = 'qvbecag2.crt';
+    const eucrtfile = 'EUROPEAN COMMISSION.crt';
+    const euissuercrtfile = 'DIGITALSIGN QUALIFIED CA G1.pem';
     const euIssuercertId = 'd90b40132306d1094608b1b9a2f6a9e23b45fe121fef514a1c9df70a815ad95c';
     const lotlSignerHash = '8e508f03b132500c3403db66e9dd39cd78f4657c840958a77d34e7bd621468e7';
     const eucrtPublicKeyPEM =
@@ -28,13 +29,17 @@ class CertificateParseTest extends TestCase
         "ewIDAQAB\n".
         "-----END PUBLIC KEY-----";
     const eucrtPublicKey =
-        'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6OaxkP4aEj'.
-        '/JK+Aw13o5OrMh45ZDMLMMNbUtLnPHvSFH4s4tqojFA+m/xyGJk4mAwQemabOOy'.
-        '+wNzjYG+xfoKjPgYbjDzRG10wle9pSpjqm++jzNcCSqwcH9CBBJbe51NQiAtPLn'.
-        'ylHA7xoVjvu68axzfGkhk9BfRgx5uK7Ip6mVeWbHBM7Acps7e/Rs2KwinuhTibG'.
-        'DFBZ3G6rg63q1hinnBvqa5z6xXIsf/lcZrJd14vO4JawfKHrQqHItW1l+0RMUXC'.
-        'llVhKSWIwdzYOUxv9jkS4hxC0evNLcPjGfJP4sHTG8ZotppNrILEv3VuMv93gfk'.
-        'b1RwKGyqil19m7iewIDAQAB';
+        'MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApZh4ED2RgBESUaceglE2ltvLjg'.
+        'b5NIlyAcj1C3JeViMHbfiFIBjIm9b6Aq+ijCeySuiB9Q/oY6ZCAQVlfffljSwHB+mlV6YS'.
+        'h70f0CP9ylPXgip0HTlXhrzwBJF9HRVrXGZAmsOwFlapkfHQQQcFy0gXkGPJMwBxDJuFr7'.
+        'gA4ii2nd0X/tkDcK7gZhs30G5DLKp+quMx24PPMONXAoLXtoSwt6/rQLUWcgn8VUR1reUl'.
+        'IaKUPknJRx5NpFyi3WvDqCMqs5WHA/9Qd968nckKxCy4DOR/uK/MfNi4889H1Syx5zCvs7'.
+        '3kWvjBs9gjJfYA5OWJ4ALsYxVcc3X/7gsfvid2+glgRJxfCY31KSJvf4bpOq44JDG81fMc'.
+        '9lv3lu0KhKdWmsKfXg7cJdRNkwQqSE+4pbx0jqlHYlIZu1P7EGRxzXBhWVSfMTd35grlJJ'.
+        '69RPYI7Akz4ByNKhRpFMEg2wP97MMO+/u+1sXVdxxomOgI2S6vNrJOwyzMYO8AXXvUtjr2'.
+        'U1jrIrS7OtL7dz+EQdy1drkogLc+lasEZDmbDvcp6tG+cCHMNl6ZWq4+TUPn1ok18egdeb'.
+        'LVtLnasdZg7Acf7aps4N2HwaQfAdcHNKkWK3UqDZuulq+HO01oaWPoawsUBuvyiQJQmWU4'.
+        '4tDxN/L1WeflGrT7tVN13x0DGD0CAwEAAQ==';
     const euIssuercertPublicKey =
         'MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAmLsm3G2sWV/LTr0gC5iOXSSL'.
         'DXGEdSFvK7dsEU4wgvy3kv2sL1bpx4g9UjmoQuUiLVfvuIWOSmcunFA9CoTf+vK4uTxq'.
@@ -59,87 +64,98 @@ class CertificateParseTest extends TestCase
             'oid' => '2.5.4.6',
             'name' => 'countryName',
             'shortName' => 'C',
-            'value' => 'BE'
+            'value' => 'LU'
           ],
           [
             'oid' => '2.5.4.11',
             'name' => 'organizationalUnitName',
             'shortName' => 'OU',
-            'value' => 'DG CONNECT'
+            'value' => 'Certificate Profile - Qualified Certificate - Organization'
+          ],
+          [
+            'oid' => '2.5.4.11',
+            'name' => 'organizationalUnitName',
+            'shortName' => 'OU',
+            'value' => 'Directorate-General for Digital Services (DIGIT)'
           ],
           [
             'oid' => '2.5.4.97',
             'name' => 'organizationIdentifier',
             'shortName' => '2.5.4.97',
-            'value' => 'VATBE-0949.383.342'
+            'value' => 'LEIXG-254900ZNYA1FLUQ9U393'
           ],
           [
             'oid' => '2.5.4.10',
             'name' => 'organizationName',
             'shortName' => 'O',
-            'value' => 'European Commission'
+            'value' => 'EUROPEAN COMMISSION'
           ],
           [
-            'oid' => '2.5.4.3',
+            'oid' => '1.2.840.113549.1.9.1',
+            'name' => 'emailAddress',
+            'shortName' => 'emailAddress',
+            'value' => 'digit-dmo@ec.europa.eu'
+          ],
+          [
             'name' => 'commonName',
             'shortName' => 'CN',
-            'value' => 'EC_CNECT'
-          ]
+            'oid' => '2.5.4.3',
+            'value' => 'EUROPEAN COMMISSION'
+            ]
         ];
         $this->eucrtIssuerSubject = [
           [
             'oid' => '2.5.4.6',
             'name' => 'countryName',
             'shortName' => 'C',
-            'value' => 'BE'
-          ],
-          [
-            'oid' => '2.5.4.97',
-            'name' => 'organizationIdentifier',
-            'shortName' => '2.5.4.97',
-            'value' => 'NTRBE-0537698318'
+            'value' => 'PT'
           ],
           [
             'oid' => '2.5.4.10',
             'name' => 'organizationName',
             'shortName' => 'O',
-            'value' => 'QuoVadis Trustlink BVBA'
+            'value' => 'DigitalSign Certificadora Digital'
           ],
           [
             'oid' => '2.5.4.3',
             'name' => 'commonName',
             'shortName' => 'CN',
-            'value' => 'QuoVadis Belgium Issuing CA G2'
+            'value' => 'DIGITALSIGN QUALIFIED CA G1'
           ],
         ];
         $this->eucrtAttributes =
         [
           'x509Version' => 3,
           'subject' => [
-            'DN' => '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342/O=European Commission/CN=EC_CNECT',
+            'DN' => '/C=LU/OU=Certificate Profile - Qualified Certificate - Organization/OU=Directorate-General for Digital Services (DIGIT)/2.5.4.97=LEIXG-254900ZNYA1FLUQ9U393/O=EUROPEAN COMMISSION/emailAddress=digit-dmo@ec.europa.eu/CN=EUROPEAN COMMISSION',
             'expandedDN' => $this->eucrtSubject,
             'syntax' => 'The values in the Subject DN are interpreted according to the rules of a Legal Person',
-            'ski' => '6BH8Rr4jtI8+97HXeN8Jl7jsRSQ=',
+            'ski' => 'lO5hwcl9/63issm59r+TIHeJSZw=',
+            'altNames' => [
+              'email' => [
+                0 => 'digit-dmo@ec.europa.eu'
+                ]
+              ],
           ],
           'issuer' => [
-            'DN' => '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA/CN=QuoVadis Belgium Issuing CA G2',
+            'DN' => '/C=PT/O=DigitalSign Certificadora Digital/CN=DIGITALSIGN QUALIFIED CA G1',
             'expandedDN' => $this->eucrtIssuerSubject,
             'uris' => [
-              'http://trust.quovadisglobal.com/qvbecag2.crt'
+              'https://qca-g1.digitalsign.pt/DIGITALSIGNQUALIFIEDCAG1.p7b'
             ],
-            'aki' => 'h8m8MZcSenO7fsA9RVG0ASWVUas=',
-            'serialNumber' => '59772e700669b7669fb012c5cdd13c3a281a0911',
+            'aki' => 'c0nxQBwUBHyaEn/6L81cZyMY6RQ=',
+            'serialNumber' => '73c21c494b5510a00c32f1e6f50594d39917b0f5',
             'isSelf' => false
           ],
-          'fingerprint' => 'ccd879b36bb553685becbd12901c7f41f7bd3e07f898fcbbe1eec456b03d7589',
-          'notBefore' => 1520438443,
-          'notAfter' => 1615133400,
+          'fingerprint' => 'e0a620fbb6747362bb933ac44169d676a553444716cf5f31605f12a22b8396b1',
+          'notBefore' => 1700215906,
+          'notAfter' => 1826446306,
           'statusCheckURIs' => [
             'crl' => [
-              'http://crl.quovadisglobal.com/qvbecag2.crl'
+              'https://qca-g1.digitalsign.pt/DIGITALSIGNQUALIFIEDCAG1.crl'
             ],
             'ocsp' => [
-              'http://uw.ocsp.quovadisglobal.com'
+              'https://qca-g1.digitalsign.pt/ocsp'
             ]
           ],
           'privateKey' => [
@@ -150,9 +166,13 @@ class CertificateParseTest extends TestCase
           ],
           'PKIDisclosureStatements' => [
             [
-              'url' => 'https://www.quovadisglobal.com/repository',
+              'url' => 'https://qca-g1.digitalsign.pt/PDS_en.pdf',
               'language' => 'en'
-            ]
+            ],
+            [
+              'url' => 'https://qca-g1.digitalsign.pt/PDS_pt.pdf',
+              'language' => 'pt'
+            ],
           ],
           'qualification' => [
             'type' => 'QSealC',
@@ -163,7 +183,7 @@ class CertificateParseTest extends TestCase
           ],
           'publicKey' => [
             'keyUsage' => [
-              'digitalSignature' => true,
+              'digitalSignature' => false,
               'nonRepudiation' => true,
               'keyEncipherment' => false,
               'dataEncipherment' => false,
@@ -184,41 +204,50 @@ class CertificateParseTest extends TestCase
                 'oid' => '1.3.6.1.5.5.7.3.4',
                 'url' => 'https://tools.ietf.org/html/rfc5280#section-4.2.1.12'
               ],
-              [
-                'name' => 'MS_DOCUMENT_SIGNING',
-                'oid' => '1.3.6.1.4.1.311.10.3.12',
-                'url' => 'https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography'
-              ],
+              // [
+              //   'name' => 'MS_DOCUMENT_SIGNING',
+              //   'oid' => '1.3.6.1.4.1.311.10.3.12',
+              //   'url' => 'https://support.microsoft.com/en-us/help/287547/object-ids-associated-with-microsoft-cryptography'
+              // ],
             ],
             'qualified' => 'eseal',
             'key' => self::eucrtPublicKey
           ],
-          'unRecognizedExtensions' => [
-            [
-              'oid' => '1.2.840.113583.1.1.9.2',
-              'value' => 'MAMCAQE='
-            ],
-            [
-              'oid' => '1.2.840.113583.1.1.9.1',
-              'value' =>
-                'MCQCAQGGH2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU='
-            ],
-          ],
+          // 'unRecognizedExtensions' => [
+          //   [
+          //     'oid' => '1.2.840.113583.1.1.9.2',
+          //     'value' => 'MAMCAQE='
+          //   ],
+          //   [
+          //     'oid' => '1.2.840.113583.1.1.9.1',
+          //     'value' =>
+          //       'MCQCAQGGH2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU='
+          //   ],
+          // ],
           'findings' => [
             'warning' => [
-              'extensions' => [
-                'Unhandled extension \'1.2.840.113583.1.1.9.1\': MCQCAQGGH'.
-                  '2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU=',
-                'Unhandled extension \'1.2.840.113583.1.1.9.2\': MAMCAQE='
-              ],
+              // 'extensions' => [
+              //   'Unhandled extension \'1.2.840.113583.1.1.9.1\': MCQCAQGGH'.
+              //     '2h0dHA6Ly90cy5xdW92YWRpc2dsb2JhbC5jb20vYmU=',
+              //   'Unhandled extension \'1.2.840.113583.1.1.9.2\': MAMCAQE='
+              // ],
+              // 'certificatePolicies' => [
+              //   'Certificate Policy from unknown vendor as oid \'1.3.6.1.4.1.8024.1.400\': '.
+              //   'MEQGCisGAQQBvlgBgxAwNjA0BggrBgEFBQcCARYoaHR0cDovL3d3dy5xdW92YWRpc2dsb2JhbC5jb20vcmVwb3NpdG9yeQ==',
+              //   'Unrecognised \'ETSI\' Certificate Policy as oid \'0.4.0.194112.1.3\': MAkGBwQAi+xAAQM='
+              // ]
               'certificatePolicies' => [
-                'Certificate Policy from unknown vendor as oid \'1.3.6.1.4.1.8024.1.400\': '.
-                'MEQGCisGAQQBvlgBgxAwNjA0BggrBgEFBQcCARYoaHR0cDovL3d3dy5xdW92YWRpc2dsb2JhbC5jb20vcmVwb3NpdG9yeQ==',
-                'Unrecognised \'ETSI\' Certificate Policy as oid \'0.4.0.194112.1.3\': MAkGBwQAi+xAAQM='
-              ]
+                0 => "Certificate Policy from unknown vendor as oid '1.3.6.1.4.1.25596.4.1.1': MDcGCysGAQQBgcd8BAEBMCgwJgYIKwYBBQUHAgEWGmh0dHBzOi8vcGtpLmRpZ2l0YWxzaWduLnB0",
+                1 => "Certificate Policy from unknown vendor as oid '1.3.6.1.4.1.25596.4.2.1.1.1.6': MBAGDisGAQQBgcd8BAIBAQEG",
+                2 => "Unrecognised 'ETSI' Certificate Policy as oid '0.4.0.194112.1.3': MAkGBwQAi+xAAQM=",
+              ],
+              // 'authorityKeyIdentifier' => [
+              //   0 => 'Unrecognised AuthorityKeyIdentifier 0 Format: gBRzSfFAHBQEfJoSf/ovzVxnIxjpFA==',
+              // ],
             ]
           ],
-          'signatureAlgorithm' => 'sha256WithRSAEncryption'
+          'signatureAlgorithm' => 'sha512WithRSAEncryption',
+          'isCA' => false
         ];
         $this->euIssuercrtIssuerAttributes = [
           [
@@ -461,27 +490,31 @@ class CertificateParseTest extends TestCase
         $crtFromDER = new X509Certificate($DER);
         $this->getTestCerts();
         $this->assertEquals(
-            '/C=BE/OU=DG CONNECT/2.5.4.97=VATBE-0949.383.342'.
-            '/O=European Commission/CN=EC_CNECT',
+            '/C=LU/OU=Certificate Profile - Qualified Certificate - Organization'.
+            '/OU=Directorate-General for Digital Services (DIGIT)'.
+            '/2.5.4.97=LEIXG-254900ZNYA1FLUQ9U393'.
+            '/O=EUROPEAN COMMISSION'.
+            '/emailAddress=digit-dmo@ec.europa.eu'.
+            '/CN=EUROPEAN COMMISSION',
             $this->eucrt->getSubjectDN()
         );
         $this->assertEquals(
-            '/C=BE/2.5.4.97=NTRBE-0537698318/O=QuoVadis Trustlink BVBA'.
-            '/CN=QuoVadis Belgium Issuing CA G2',
+            '/C=PT/O=DigitalSign Certificadora Digital'.
+            '/CN=DIGITALSIGN QUALIFIED CA G1',
             $this->eucrt->getIssuerDN()
         );
         $this->assertTrue($this->eucrt->hasExtensions()) ;
         $this->assertTrue($this->eucrt->hasQCStatements()) ;
         $this->assertEquals(
             [
-              'http://crl.quovadisglobal.com/qvbecag2.crl'
+              'https://qca-g1.digitalsign.pt/DIGITALSIGNQUALIFIEDCAG1.crl'
             ],
             $this->eucrt->getCDPs()
         );
         $this->assertEquals(
             [
-              '87c9bc3197127a73bb7ec03d4551b401259551ab',
-              'e811fc46be23b48f3ef7b1d778df0997b8ec4524'
+              '7349f1401c14047c9a127ffa2fcd5c672318e914',
+              '94ee61c1c97dffade2b2c9b9f6bf93207789499c'
             ],
             [
               bin2hex($this->eucrt->getAuthorityKeyIdentifier()),
@@ -624,7 +657,7 @@ class CertificateParseTest extends TestCase
     {
         $this->getTestCerts();
         $this->assertEquals(
-            '59772e700669b7669fb012c5cdd13c3a281a0911',
+            '73c21c494b5510a00c32f1e6f50594d39917b0f5',
             $this->eucrt->getSerialNumber()
         );
     }
@@ -687,7 +720,7 @@ class CertificateParseTest extends TestCase
             sizeof($this->eucrt->getIssuers())
         );
         $this->assertEquals(
-            '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
+            '021164a7842232caca9aa766a9776e25ef4558731d27e73d07f047fcea9e5673',
             bin2hex($this->eucrt->getIssuerPublicKeyHash())
         );
     }
@@ -778,11 +811,11 @@ class CertificateParseTest extends TestCase
         $eucrt = $this->eucrt;
         $eucrt->withIssuer($this->euissuercrt);
         $this->assertEquals(
-            '92fab49b04e6f07b7005ed6f79a9137bbfe8ad46a3ab216153ea0de6662d6e1d',
+            'e41eb2423e7819c65e34aa2d9cb33e15c5deb1697a80e1007d800000b831771b',
             bin2hex($eucrt->getCertIdIDentifier())
         );
         $this->assertEquals(
-            'e8f357e7ecbac7e87b3939045093f52913bc2356921ad431181627c1e2287882',
+            '2c7659f426ab3df4996b04b1a7bd837eb95d8a86ad4c2149d5fb8246e39184b9',
             bin2hex($eucrt->getCertIdIDentifier('sha1'))
         );
     }

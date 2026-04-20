@@ -28,6 +28,7 @@ class AuthorityKeyIdentifier implements ExtensionInterface
         $seq = UnspecifiedType::fromDER($extensionDER)->asSequence();
         foreach ($seq->elements() as $akiElement) {
             switch ($akiElement->tag()) {
+            case 0:
             case chr(0x80):
               $this->keyIdentifier = $akiElement->asImplicit(0x04)->asOctetString()->string();
               break;
@@ -41,10 +42,12 @@ class AuthorityKeyIdentifier implements ExtensionInterface
                   self::type,
                   $isCritical ? 'critical' : 'warning',
                   "Unrecognised AuthorityKeyIdentifier ".
-                  $akiElement->tag().
+                  "with tag ".$akiElement->tag().
                   " Format: ".
-                  base64_encode($akiElement->toDER())
+                  base64_encode($extensionDER)
               );
+                // fwrite(STDERR, base64_encode($extensionDER).' ');
+
               break;
           }
         }
