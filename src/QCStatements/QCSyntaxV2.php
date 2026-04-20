@@ -19,6 +19,8 @@ class QCSyntaxV2 extends QCStatement implements QCStatementInterface
     private $semanticsType;
     private $subjectDN;
     private $findings = [];
+    private $subject;
+    private $binary;
 
     public function __construct($qcStatementDER, $isCritical = false)
     {

@@ -18,6 +18,7 @@ class CertID implements ASN1Interface, AttributeInterface
     private $issuerKeyHash;
     private $serialNumber; // as lowercase hex string
     private $signer; // The eventual signer of the reponse this object is contained in.
+    private $hashAlgorithm;
 
     public function __construct(
         $hashAlgorithm,

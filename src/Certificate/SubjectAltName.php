@@ -23,6 +23,7 @@ class SubjectAltName implements ExtensionInterface
     private $otherNames = [];
     private $sanString = '';
     private $findings = [];
+    private $isCritical;
 
     const type = 'subjectAltName';
     const oid = '2.5.29.17';

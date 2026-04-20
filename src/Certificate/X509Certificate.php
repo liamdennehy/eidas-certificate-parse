@@ -42,6 +42,8 @@ class X509Certificate implements
     private $crl;
     private $x509Version;
     private $serialNumber;
+    private $subject;
+    private $issuer;
     private $publicKey;
     private $issuers = [];
     private $attributes = [];

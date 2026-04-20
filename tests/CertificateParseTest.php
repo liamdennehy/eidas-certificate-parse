@@ -13,8 +13,24 @@ use eIDASCertificate\tests\Helper;
 class CertificateParseTest extends TestCase
 {
     private $testTime;
+    private $eucrt;
+    private $eucrtPEM;
     private $eucrtSubject;
     private $eucrtIssuerSubject;
+    private $euissuercrt;
+    private $euissuercrtPEM;
+    private $jmcrt;
+    private $jmcrtPEM;
+    private $mocrt;
+    private $mocrtPEM;
+    private $v1crtAttributes;
+    private $v1CertPublickey;
+    private $v1crtSubject;
+    private $euIssuercrtAttributes;
+    private $eucrtIssuerTSPService;
+    private $euIssuercrtIssuerAttributes;
+    private $eucrtAttributes;
+    private $binary;
     const jmcrtfile = 'Jean-Marc Verbergt (Signature).crt';
     const mocrtfile = 'Maarten Joris Ottoy.crt';
     const eucrtfile = 'EUROPEAN COMMISSION.crt';

@@ -17,6 +17,7 @@ class QCType extends QCStatement implements QCStatementInterface
     private $qcPurpose;
     private $description;
     private $findings = [];
+    private $binary;
 
     const type = 'QCQualifiedType';
     const oid = '0.4.0.1862.1.6';
