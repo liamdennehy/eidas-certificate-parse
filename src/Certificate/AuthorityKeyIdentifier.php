@@ -44,10 +44,8 @@ class AuthorityKeyIdentifier implements ExtensionInterface
                   "Unrecognised AuthorityKeyIdentifier ".
                   "with tag ".$akiElement->tag().
                   " Format: ".
-                  base64_encode($extensionDER)
+                  base64_encode($akiElement->toDER())
               );
-                // fwrite(STDERR, base64_encode($extensionDER).' ');
-
               break;
           }
         }

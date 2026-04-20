@@ -10,7 +10,7 @@ use eIDASCertificate\TrustedList;
 use ASN1\Type\UnspecifiedType;
 use eIDASCertificate\tests\Helper;
 
-class CertificateParseTest extends TestCase
+class QCIssuerTest extends TestCase
 {
     private $testTime;
     private $eucrtSubject;
@@ -423,389 +423,48 @@ class CertificateParseTest extends TestCase
         $this->euissuercrt = new X509Certificate($this->euissuercrtPEM);
     }
 
-    public function testX509ToPEM()
+    public function testQCIssuer()
     {
         $this->getTestCerts();
-        $arr = explode("\n", $this->mocrtPEM);
-        unset($arr[0]);
-        unset($arr[sizeof($arr)]);
-        unset($arr[sizeof($arr)]);
-        $der = base64_decode(implode($arr));
-        $this->assertEquals(
-            base64_encode($der),
-            base64_encode($this->mocrt->getBinary())
-        );
-        $this->assertEquals(
-            $this->mocrtPEM,
-            $this->mocrt->toPEM()
-        );
-    }
-
-    public function testV1Parse()
-    {
-        $crtFile = file_get_contents(__DIR__.'/certs/v1.crt');
-        $v1Cert = new X509Certificate($crtFile);
-        $arr = explode("\n", $crtFile);
-        unset($arr[0]);
-        unset($arr[sizeof($arr)]);
-        unset($arr[sizeof($arr)]);
-        $der = base64_decode(implode($arr));
-        $this->assertEquals(
-            base64_encode($der),
-            base64_encode($v1Cert->getBinary())
-        );
-
-        $this->assertEquals(
-            '/C=US/O=VeriSign, Inc.'.
-            '/OU=VeriSign Trust Network'.
-            '/OU=(c) 1999 VeriSign, Inc. - For authorized use only'.
-            '/CN=VeriSign Class 3 Public Primary Certification Authority - G3',
-            $v1Cert->getSubjectDN()
-        );
-        $this->assertEquals(
-            '/C=US/O=VeriSign, Inc.'.
-            '/OU=VeriSign Trust Network'.
-            '/OU=(c) 1999 VeriSign, Inc. - For authorized use only'.
-            '/CN=VeriSign Class 3 Public Primary Certification Authority - G3',
-            $v1Cert->getIssuerDN()
-        );
-        $this->assertFalse($v1Cert->hasExtensions());
-        $this->assertEquals(
-            $this->v1crtAttributes,
-            $v1Cert->getAttributes()
-        );
-        $this->assertTrue(
-            $v1Cert->isCurrentAt($this->testTime)
-        );
-        $this->assertFalse(
-            $v1Cert->isCurrentAt((int)(new \DateTime('1998-12-12 12:00 UTC'))->format('U'))
-        );
-        $this->assertFalse(
-            $v1Cert->isCurrentAt((int)(new \DateTime('2036-08-01 12:00 UTC'))->format('U'))
-        );
-        $this->assertEquals(
-            'sha1WithRSAEncryption',
-            $v1Cert->getSignatureAlgorithmName()
-        );
-    }
-
-    public function testX509Parse()
-    {
-        $PEM = file(__DIR__ . "/certs/" . self::jmcrtfile);
-        array_shift($PEM);
-        unset($PEM[sizeof($PEM)]);
-        $DER = base64_decode(implode('', $PEM));
-        $crtFromDER = new X509Certificate($DER);
-        $this->getTestCerts();
-        $this->assertEquals(
-            '/C=LU/OU=Certificate Profile - Qualified Certificate - Organization'.
-            '/OU=Directorate-General for Digital Services (DIGIT)'.
-            '/2.5.4.97=LEIXG-254900ZNYA1FLUQ9U393'.
-            '/O=EUROPEAN COMMISSION'.
-            '/emailAddress=digit-dmo@ec.europa.eu'.
-            '/CN=EUROPEAN COMMISSION',
-            $this->eucrt->getSubjectDN()
-        );
-        $this->assertEquals(
-            '/C=PT/O=DigitalSign Certificadora Digital'.
-            '/CN=DIGITALSIGN QUALIFIED CA G1',
-            $this->eucrt->getIssuerDN()
-        );
-        $this->assertTrue($this->eucrt->hasExtensions()) ;
-        $this->assertTrue($this->eucrt->hasQCStatements()) ;
-        $this->assertEquals(
-            [
-              'https://qca-g1.digitalsign.pt/DIGITALSIGNQUALIFIEDCAG1.crl'
-            ],
-            $this->eucrt->getCDPs()
-        );
-        $this->assertEquals(
-            [
-              '7349f1401c14047c9a127ffa2fcd5c672318e914',
-              '94ee61c1c97dffade2b2c9b9f6bf93207789499c'
-            ],
-            [
-              bin2hex($this->eucrt->getAuthorityKeyIdentifier()),
-              bin2hex($this->eucrt->getSubjectKeyIdentifier())
-            ]
-        );
-        $this->assertTrue($this->eucrt->hasExtensions());
-        $this->assertEquals(
-            [
-              0 => 'basicConstraints',
-              1 => 'authorityKeyIdentifier',
-              2 => 'authorityInfoAccess',
-              3 => 'subjectAltName',
-              4 => 'certificatePolicies',
-              5 => 'extKeyUsage',
-              6 => 'qcStatements',
-              7 => 'crlDistributionPoints',
-              8 => 'subjectKeyIdentifier',
-              9 => 'keyUsage'
-            ],
-            $this->eucrt->getExtensionNames()
-        );
-        $this->assertTrue($this->eucrt->hasQCStatements());
-        $this->assertEquals(
-            [
-              'QCSyntaxV2',
-              'QCCompliance',
-              'QCSSCD',
-              'QCQualifiedType',
-              'QCPDS'
-            ],
-            $this->eucrt->getQCStatementNames()
-        );
-        // $crtParsed = $this->mocrt->getParsed();
-        $this->assertEquals(
-            '/C=BE/L=BE/O=European Commission/OU=0949.383.342'.
-            '/CN=Maarten Joris Ottoy/SN=Ottoy/GN=Maarten Joris'.
-            '/serialNumber=10304444110080837592'.
-            '/emailAddress=maarten.ottoy@ec.europa.eu'.
-            '/title=Professional Person',
-            $this->mocrt->getSubjectDN()
-        );
-        $this->assertEquals(
-            [
-              '638fc28b03b1ab8ed85347961d99a87df6aca875',
-              '47c3b10901b1822b'
-            ],
-            [
-              bin2hex($this->mocrt->getAuthorityKeyIdentifier()),
-              bin2hex($this->mocrt->getSubjectKeyIdentifier())
-            ]
-        );
-        $this->assertEquals(
-            [
-              'https://qca-g1.digitalsign.pt/DIGITALSIGNQUALIFIEDCAG1.crl'
-            ],
-            $this->eucrt->getCDPs()
-        );
-        $this->assertEquals(
-            self::eucrtPublicKeyPEM,
-            $this->eucrt->getPublicKeyPEM()
-        );
-        // $crtParsed = $this->jmcrt->getParsed();
-        $this->assertEquals(
-            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/GN=Jean-Marc/serialNumber=67022330340',
-            $this->jmcrt->getSubjectDN()
-        );
-        $this->assertTrue($this->jmcrt->hasExtensions()) ;
-        $this->assertTrue($this->jmcrt->hasQCStatements()) ;
-        $this->assertEquals(
-            [
-              '6a6f51e5cc275d6509eea81b129403f040a008f2',
-              ''
-            ],
-            [
-              bin2hex($this->jmcrt->getAuthorityKeyIdentifier()),
-              bin2hex($this->jmcrt->getSubjectKeyIdentifier())
-            ]
-        );
-        $this->assertEquals(
-            [
-              'http://crl.eid.belgium.be/eidc201508.crl'
-            ],
-            $this->jmcrt->getCDPs()
-        );
-        $this->assertEquals(
-            [
-              true,
-              true
-            ],
-            [
-              $this->jmcrt->isStartedAt($this->testTime),
-              $this->jmcrt->isNotFinishedAt($this->testTime)
-            ]
-        );
-        $this->assertTrue($this->jmcrt->isCurrentAt($this->testTime));
-        $this->assertFalse($this->jmcrt->isCA());
-        $this->assertEquals(
-            '/C=BE/CN=Jean-Marc Verbergt (Signature)/SN=Verbergt/GN=Jean-Marc/serialNumber=67022330340',
-            $this->jmcrt->getSubjectDN()
-        );
-        $this->assertEquals(
-            '/C=BE/CN=Citizen CA/serialNumber=201508',
-            $this->jmcrt->getIssuerDN()
-        );
-        $cacrt1 = new X509Certificate(
-            file_get_contents(
-                __DIR__.'/certs/'.TSPServicesTest::testTSPServiceCertFile
-            )
-        );
-        $this->assertTrue($cacrt1->isCA());
-        $this->assertEquals(
-            0,
-            $cacrt1->getPathLength()
-        );
-        $this->assertEquals(
-            'sha1WithRSAEncryption',
-            $this->jmcrt->getSignatureAlgorithmName()
-        );
-        $this->assertNull(
-            $this->jmcrt->getSignatureAlgorithmParameters()
-        );
-
-        $this->assertEquals(
-            'd22a60b40ac0a4c9cd38b5693187d3e7d56a130266941d2ec914d26624ba2faa',
-            bin2hex($this->eucrt->getIssuerNameHash())
-        );
-    }
-
-    public function testX509Atrributes()
-    {
-        $this->getTestCerts();
-        $this->assertEquals(
-            $this->eucrtAttributes,
-            $this->eucrt->getAttributes()
-        );
-    }
-
-    public function testSerialNumber()
-    {
-        $this->getTestCerts();
-        $this->assertEquals(
-            '73c21c494b5510a00c32f1e6f50594d39917b0f5',
-            $this->eucrt->getSerialNumber()
-        );
-    }
-
-    public function testDistinguishedNames()
-    {
-        $this->getTestCerts();
-        $this->assertEquals(
-            $this->eucrtSubject,
-            $this->eucrt->getSubjectExpanded()
-        );
-        $this->assertEquals(
-            $this->eucrtIssuerSubject,
-            $this->eucrt->getIssuerExpanded()
-        );
-    }
-
-    public function testGetPublicKey($value='')
-    {
-        $issuer = new X509Certificate(
-            file_get_contents(__DIR__.'/certs/qvbecag2.crt')
-        );
-        $this->assertEquals(
-            '9e506ee6e41db6b07f038e78664b435bfadd0b3a63fb275d611e161fba6ea230',
-            bin2hex($issuer->getSubjectPublicKeyHash())
-        );
-    }
-    public function testIssuerValidate()
-    {
-        $this->getTestCerts();
-        $this->assertEquals(
-            0,
-            sizeof($this->eucrt->getIssuers())
-        );
-        $this->assertEquals(
-            'eIDASCertificate\Certificate\X509Certificate',
-            get_class($this->eucrt->withIssuer($this->euissuercrt))
-        );
-        $this->assertTrue(
-            is_array($this->eucrt->getIssuers())
-        );
-        $this->assertEquals(
-            1,
-            sizeof($this->eucrt->getIssuers())
-        );
-        $this->assertEquals(
-            'eIDASCertificate\Certificate\X509Certificate',
-            get_class($this->eucrt->withIssuer($this->euissuercrt))
-        );
-        $this->assertEquals(
-            1,
-            sizeof($this->eucrt->getIssuers())
-        );
-
+        $dataDir = __DIR__.'/../data/';
+        $signingCertPEM = file_get_contents(__DIR__.'/../'.LOTLRootTest::lotlSigningCertPath);
+        $signingCert = new X509Certificate($signingCertPEM);
+        $lotl = new TrustedList(file_get_contents($dataDir.'/eu-lotl.xml'));
+        // $eucrt = new X509Certificate($this->eucrt);
         $euissuercrt = new X509Certificate($this->euissuercrt);
-        $this->eucrt->withIssuer($euissuercrt);
-
+        // $euissuercrt->setTSPService($tspServiceAttributes);)
+        $lotl->verifyTSL($signingCert);
+        $testTLXML = file_get_contents(__DIR__.'/../'.TLTest::testTLXMLFileName);
+        $lotl->addTrustedListXML(TLTest::testTLName, $testTLXML);
+        $issuerTSPService = ($lotl->getTSPServices(true)[TSPServicesTest::EUTSPServiceName]);
+        $euissuercrt->setTSPService($issuerTSPService);
+        $eucrt = $this->eucrt;
+        $eucrt->withIssuer($euissuercrt);
+        $eucrtRefAttributes = $this->eucrtAttributes;
+        $eucrtRefAttributes['issuerCerts'][0] = $this->euIssuercrtAttributes;
+        $eucrtAttributes = $eucrt->getAttributes();
+        unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['signature']['verifiedAt']);
+        unset($eucrtAttributes['issuer']['certificates'][0]['tspService']['trustServiceProvider']['trustedList']['parentTSL']['signature']['verifiedAt']);
+        $this->assertArrayHasKey(
+            'certificates',
+            $eucrtAttributes['issuer']
+        );
         $this->assertEquals(
             1,
-            sizeof($this->eucrt->getIssuers())
+            sizeof($eucrtAttributes['issuer']['certificates'])
         );
         $this->assertEquals(
-            '021164a7842232caca9aa766a9776e25ef4558731d27e73d07f047fcea9e5673',
-            bin2hex($this->eucrt->getIssuerPublicKeyHash())
+            $this->euIssuercrtAttributes,
+            $eucrtAttributes['issuer']['certificates'][0]
+        );
+        $this->assertArrayHasKey(
+            'tspService',
+            $eucrtAttributes['issuer']['certificates'][0]
+        );
+        $this->assertEquals(
+            TSPServicesTest::getEUTSPServiceAttributes(),
+            $eucrtAttributes['issuer']['certificates'][0]['tspService']
         );
     }
 
-    public function testNewGetBinary()
-    {
-        $this->getTestCerts();
-        $eucrtArray = explode("\n", $this->eucrt->toPEM());
-        unset($eucrtArray[0]);
-        unset($eucrtArray[sizeof($eucrtArray)-1]);
-        $eucrtB64 = implode($eucrtArray);
-        $this->assertEquals(
-            $eucrtB64,
-            base64_encode($this->eucrt->getBinary())
-        );
-    }
-
-    public function testOCSPNoCheck()
-    {
-        $ocspSigner = new X509Certificate(
-            file_get_contents(__DIR__.'/certs/qvocspauth.crt')
-        );
-        $this->assertEquals(
-            'This certificate is exempt from status checks when used to sign OCSP Responses',
-            $ocspSigner->getAttributes()['findings']['info']['ocspNoCheck'][0]
-        );
-        $this->assertEquals(
-            [
-             'basicConstraints',
-             'authorityKeyIdentifier',
-             'certificatePolicies',
-             'ocspNoCheck',
-             'extKeyUsage',
-             'subjectKeyIdentifier',
-             'keyUsage'
-           ],
-            $ocspSigner->getExtensionNames()
-        );
-    }
-
-    public function testOCSPCertIdentifier()
-    {
-        $this->getTestCerts();
-        $eucrt = $this->eucrt;
-        $eucrt->withIssuer($this->euissuercrt);
-        $this->assertEquals(
-            'e41eb2423e7819c65e34aa2d9cb33e15c5deb1697a80e1007d800000b831771b',
-            bin2hex($eucrt->getCertIdIDentifier())
-        );
-        $this->assertEquals(
-            '2c7659f426ab3df4996b04b1a7bd837eb95d8a86ad4c2149d5fb8246e39184b9',
-            bin2hex($eucrt->getCertIdIDentifier('sha1'))
-        );
-    }
-
-    public function testParseECDSASignedCert()
-    {
-        $gsQRemoteSigningCA = new X509Certificate(
-            file_get_contents(
-                __DIR__ . "/certs/" . self::gsDocSignQRSCAFile
-            )
-        );
-        $gsDocSignRootCA = new X509Certificate(file_get_contents(
-            __DIR__ . '/certs/GlobalSign Document Signing Root E45.crt'
-        ));
-        $this->assertEquals(
-            'ecdsa-with-SHA384',
-            $gsQRemoteSigningCA->getAttributes()['signatureAlgorithm']
-        );
-        $this->assertEquals(
-            $gsQRemoteSigningCA->getAttributes()['issuer']['aki'],
-            $gsDocSignRootCA->getAttributes()['subject']['ski']
-        );
-        // TODO: Validate ECDSA Signature
-        // $this->assertEquals(
-        //   $gsDocSignRootCA,
-        //   $gsQRemoteSigningCA->withIssuer($gsDocSignRootCA)
-        // );
-    }
 }
