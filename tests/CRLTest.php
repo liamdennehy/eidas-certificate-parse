@@ -3,6 +3,7 @@
 namespace eIDASCertificate\tests;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Before;
 use eIDASCertificate\Certificate\CertificateRevocationList;
 use eIDASCertificate\Certificate\X509Certificate;
 use eIDASCertificate\DataSource;
@@ -11,6 +12,7 @@ use eIDASCertificate\tests\Helper;
 class CRLTest extends TestCase
 {
     const eucrtfile = 'European-Commission.crt';
+    private $datadir;
 
     #[Before]
     public function setUpHere()

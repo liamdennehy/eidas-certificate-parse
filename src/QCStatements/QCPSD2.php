@@ -17,6 +17,8 @@ class QCPSD2 extends QCStatement implements QCStatementInterface
     private $psd2NCALongName;
     private $psd2NCAShortName;
     private $findings = [];
+    private $binary;
+    private $parentTSLAttributes;
 
     const type = 'QCPSD2';
     const oid = '0.4.0.19495.2';

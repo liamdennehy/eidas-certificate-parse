@@ -13,6 +13,8 @@ use DateTime;
  */
 class TrustedList implements AttributeInterface
 {
+    private $informationURI;
+    
     const ListOfTrustedListsXMLPath =
       'https://ec.europa.eu/tools/lotl/eu-lotl.xml';
     const TLOLType = 'http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists';

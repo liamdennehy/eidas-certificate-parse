@@ -17,7 +17,7 @@ class TrustServiceProvider implements AttributeInterface
     private $informationURI;
     private $services = [];
     private $serviceHistory;
-    private $parentTSLAtrributes;
+    private $parentTSLAttributes;
     private $attributes = [];
 
     /**

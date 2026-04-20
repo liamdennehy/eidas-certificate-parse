@@ -20,7 +20,7 @@ class XMLSig
     private $certificates = [];
     private $signedBy;
     private $signedByHash;
-    private $docname;
+    private $docName;
 
     /**
      * [__construct description]
